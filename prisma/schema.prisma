@@ -18,6 +18,7 @@ model User {
   robloxAvatar         String?
   isSiteAdmin          Boolean       @default(false)
   isSupportStaff       Boolean       @default(false) // Verified RoFlow Customer Support Staff
+  isBanned             Boolean       @default(false) // Globally blacklisted/banned user
   supportCode          String?       // 10-minute temporary support login code
   supportCodeExpiresAt DateTime?     // Expiration timestamp
   applications         Application[]
@@ -35,6 +36,7 @@ model Guild {
   ownerId                    String
   isVerified                 Boolean          @default(false)
   verifiedBadge              String?          // e.g. "PARTNER", "OFFICIAL", "COMMUNITY"
+  isPaused                   Boolean          @default(false) // Founder or owner paused community
   memberCount                Int              @default(0)
   tags                       String?          // Comma-separated: "Roblox,Studio,Development"
   
@@ -143,6 +145,25 @@ model Blacklist {
   targetType  String   // DISCORD_ID or ROBLOX_ID
   targetValue String
   reason      String?
+  createdAt   DateTime @default(now())
+}
+
+model GlobalBlacklist {
+  id          String   @id @default(cuid())
+  targetType  String   // DISCORD_ID or ROBLOX_ID
+  targetValue String   // Discord ID or Roblox Username
+  reason      String?
+  createdAt   DateTime @default(now())
+}
+
+model Changelog {
+  id          String   @id @default(cuid())
+  version     String   // e.g. "v1.3.0"
+  title       String   // e.g. "Staff Command Center & Blind Review Voting"
+  content     String   // Release notes and bullet points
+  tag         String   @default("FEATURE") // MAJOR, FEATURE, IMPROVEMENT, HOTFIX
+  isPublished Boolean  @default(true)
+  publishedAt DateTime @default(now())
   createdAt   DateTime @default(now())
 }
 

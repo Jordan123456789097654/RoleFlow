@@ -10,6 +10,7 @@ export interface CurrentUser {
   email: string | null;
   isSiteAdmin: boolean;
   isSupportStaff: boolean;
+  isBanned: boolean;
   hasCommunities: boolean;
 }
 
@@ -52,6 +53,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     email: user.email,
     isSiteAdmin,
     isSupportStaff: user.isSupportStaff || isSiteAdmin,
+    isBanned: Boolean(user.isBanned),
     hasCommunities,
   };
 }

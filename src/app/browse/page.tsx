@@ -17,11 +17,12 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
   const query = searchParams?.q?.toLowerCase() || "";
   const selectedDept = searchParams?.department || "";
 
-  // Fetch all positions that are open and public
+  // Fetch all positions that are open, public, and in non-paused communities
   const positions = await prisma.position.findMany({
     where: {
       isOpen: true,
       isPublic: true,
+      guild: { isPaused: false },
       ...(selectedDept ? { department: selectedDept } : {}),
       ...(query
         ? {

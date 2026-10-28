@@ -41,6 +41,40 @@ export async function POST(request: Request) {
       );
     }
 
+    // Check if community is paused by founder or owner
+    if (position.guild.isPaused) {
+      return NextResponse.json(
+        { error: "This community is currently paused by administrators and not accepting submissions." },
+        { status: 403 }
+      );
+    }
+
+    // Check Global Blacklist / Platform Ban
+    if (user.isBanned) {
+      return NextResponse.json(
+        { error: "Your account is suspended from the RoleFlow platform." },
+        { status: 403 }
+      );
+    }
+
+    const isGloballyBlacklisted = await prisma.globalBlacklist.findFirst({
+      where: {
+        OR: [
+          { targetType: "DISCORD_ID", targetValue: user.id },
+          ...(robloxUsername
+            ? [{ targetType: "ROBLOX_ID", targetValue: robloxUsername }]
+            : []),
+        ],
+      },
+    });
+
+    if (isGloballyBlacklisted) {
+      return NextResponse.json(
+        { error: `You have been globally blacklisted from RoleFlow: ${isGloballyBlacklisted.reason || "Policy violation"}` },
+        { status: 403 }
+      );
+    }
+
     // 2. Check Blacklist for this guild
     const isBlacklisted = await prisma.blacklist.findFirst({
       where: {

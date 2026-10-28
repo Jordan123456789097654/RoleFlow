@@ -64,6 +64,15 @@ export async function GET(request: Request) {
     const adminIds = (process.env.SITE_ADMIN_DISCORD_IDS || "").split(",").map((s) => s.trim());
     const isSiteAdmin = adminIds.includes(discordUser.id);
 
+    // Check if user is globally banned or blacklisted
+    const globalBan = await prisma.globalBlacklist.findFirst({
+      where: { targetType: "DISCORD_ID", targetValue: discordUser.id },
+    });
+
+    if (globalBan) {
+      return NextResponse.redirect(new URL("/?error=account_suspended", request.url));
+    }
+
     // 3. Upsert User in database
     const user = await prisma.user.upsert({
       where: { id: discordUser.id },

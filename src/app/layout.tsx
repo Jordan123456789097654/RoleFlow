@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { ChangelogBroadcastModal } from "@/components/ChangelogBroadcastModal";
 import { getCurrentUser } from "@/lib/auth";
 
 export const metadata: Metadata = {
@@ -25,6 +26,7 @@ export default async function RootLayout({
         <div className="fixed inset-0 bg-grid-pattern pointer-events-none opacity-40 z-0" />
 
         <div className="relative z-10 flex flex-col min-h-screen">
+          <ChangelogBroadcastModal />
           <Navbar user={user} />
           <main className="flex-1">{children}</main>
           <Footer />
