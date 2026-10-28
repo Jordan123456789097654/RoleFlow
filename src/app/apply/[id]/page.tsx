@@ -1,0 +1,480 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, Send, Sparkles, CheckCircle2, AlertCircle, Save, User, Shield, HelpCircle } from "lucide-react";
+
+interface Question {
+  id: string;
+  label: string;
+  description?: string | null;
+  type: string;
+  options?: string | null;
+  required: boolean;
+  order: number;
+}
+
+interface PositionData {
+  id: string;
+  title: string;
+  department?: string | null;
+  description: string;
+  isOpen: boolean;
+  guild: {
+    id: string;
+    name: string;
+    icon?: string | null;
+    isVerified?: boolean;
+    enableRobloxAuth?: boolean;
+    cooldownDays: number;
+  };
+  questions: Question[];
+}
+
+export default function ApplyPage({ params }: { params: { id: string } }) {
+  const router = useRouter();
+  const [position, setPosition] = useState<PositionData | null>(null);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [robloxUsername, setRobloxUsername] = useState("");
+  const [robloxProfile, setRobloxProfile] = useState<{
+    id: number;
+    name: string;
+    displayName: string;
+    avatarUrl: string;
+    profileUrl: string;
+    devForumUrl: string;
+  } | null>(null);
+  const [robloxLoading, setRobloxLoading] = useState(false);
+  const [robloxError, setRobloxError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [lastSaved, setLastSaved] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  // Storage key for auto-saving drafts
+  const draftKey = `roleflow_draft_${params.id}`;
+
+  useEffect(() => {
+    async function loadPosition() {
+      try {
+        const res = await fetch(`/api/positions/${params.id}`);
+        if (!res.ok) {
+          setErrorMsg("Failed to load application form or position closed.");
+          setLoading(false);
+          return;
+        }
+        const data = await res.json();
+        setPosition(data);
+
+        // Load saved draft from localStorage
+        const savedDraft = localStorage.getItem(draftKey);
+        if (savedDraft) {
+          try {
+            const parsed = JSON.parse(savedDraft);
+            setAnswers(parsed.answers || {});
+            if (parsed.robloxUsername) setRobloxUsername(parsed.robloxUsername);
+            setLastSaved("Restored from draft");
+          } catch (e) {
+            console.error(e);
+          }
+        }
+      } catch (err) {
+        setErrorMsg("Network error loading position.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadPosition();
+  }, [params.id, draftKey]);
+
+  // Real-time auto-save to localStorage
+  const handleAnswerChange = (questionId: string, val: string) => {
+    const updated = { ...answers, [questionId]: val };
+    setAnswers(updated);
+
+    try {
+      localStorage.setItem(
+        draftKey,
+        JSON.stringify({
+          answers: updated,
+          robloxUsername,
+          savedAt: new Date().toISOString(),
+        })
+      );
+      setLastSaved("Draft auto-saved");
+    } catch (e) {
+      // ignore quota errors
+    }
+  };
+
+  const handleRobloxChange = (val: string) => {
+    setRobloxUsername(val);
+    setRobloxError(null);
+    try {
+      localStorage.setItem(
+        draftKey,
+        JSON.stringify({
+          answers,
+          robloxUsername: val,
+          savedAt: new Date().toISOString(),
+        })
+      );
+    } catch (e) {}
+
+    // Debounced check against live Roblox API
+    if (val.trim().length >= 3) {
+      setRobloxLoading(true);
+      const timer = setTimeout(async () => {
+        try {
+          const res = await fetch(`/api/roblox/user?username=${encodeURIComponent(val.trim())}`);
+          if (res.ok) {
+            const data = await res.json();
+            setRobloxProfile(data);
+            setRobloxError(null);
+          } else {
+            setRobloxProfile(null);
+            setRobloxError("Roblox username not found on Roblox.");
+          }
+        } catch (e) {
+          setRobloxProfile(null);
+        } finally {
+          setRobloxLoading(false);
+        }
+      }, 600);
+      return () => clearTimeout(timer);
+    } else {
+      setRobloxProfile(null);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg(null);
+    setSubmitting(true);
+
+    try {
+      const res = await fetch("/api/applications/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          positionId: params.id,
+          robloxUsername: position?.guild.enableRobloxAuth ? robloxUsername : undefined,
+          answers,
+        }),
+      });
+
+      const resData = await res.json();
+
+      if (!res.ok) {
+        setErrorMsg(resData.error || "Failed to submit application.");
+        setSubmitting(false);
+        return;
+      }
+
+      // Clear draft on successful submission
+      localStorage.removeItem(draftKey);
+      setSuccess(true);
+    } catch (err) {
+      setErrorMsg("Error submitting application. Please try again.");
+      setSubmitting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-24 text-center">
+        <div className="w-8 h-8 rounded-full border-2 border-purple-500 border-t-transparent animate-spin mx-auto mb-4" />
+        <p className="text-xs text-slate-400">Loading application form...</p>
+      </div>
+    );
+  }
+
+  if (errorMsg && !position) {
+    return (
+      <div className="max-w-md mx-auto px-4 py-24 text-center">
+        <AlertCircle className="w-10 h-10 text-rose-400 mx-auto mb-3" />
+        <h2 className="text-lg font-bold text-white mb-2">Unable to Open Form</h2>
+        <p className="text-xs text-slate-400 mb-6">{errorMsg}</p>
+        <Link
+          href="/browse"
+          className="px-4 py-2 rounded-xl bg-purple-600 text-white text-xs font-semibold"
+        >
+          Return to Directory
+        </Link>
+      </div>
+    );
+  }
+
+  if (success) {
+    return (
+      <div className="max-w-lg mx-auto px-4 py-20 text-center">
+        <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mx-auto mb-6 shadow-xl shadow-emerald-500/10">
+          <CheckCircle2 className="w-8 h-8" />
+        </div>
+        <h1 className="text-2xl font-bold text-white mb-2">Application Submitted!</h1>
+        <p className="text-sm text-slate-300 leading-relaxed mb-8">
+          Your application for <strong className="text-purple-300">{position?.title}</strong> has been received by the staff of <strong className="text-white">{position?.guild.name}</strong>.
+          <br /><br />
+          Staff have been alerted in Discord. You can track your application status anytime in your applicant dashboard.
+        </p>
+
+        <div className="flex items-center justify-center gap-3">
+          <Link
+            href="/my-applications"
+            className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold shadow-lg shadow-violet-600/30 transition-all"
+          >
+            Track in My Applications
+          </Link>
+          <Link
+            href="/"
+            className="px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-medium border border-white/10 transition-colors"
+          >
+            Back to Home
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+      {/* Back button & draft autosave indicator */}
+      <div className="flex items-center justify-between mb-8">
+        <Link
+          href={`/c/${position?.guild.id}`}
+          className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          Back to {position?.guild.name}
+        </Link>
+
+        {lastSaved && (
+          <div className="flex items-center gap-1.5 text-[11px] text-slate-400 bg-white/5 px-2.5 py-1 rounded-full border border-white/5">
+            <Save className="w-3 h-3 text-purple-400" />
+            <span>{lastSaved}</span>
+          </div>
+        )}
+      </div>
+
+      {/* Form Container */}
+      <div className="glass-panel rounded-3xl border border-white/10 p-6 sm:p-10 shadow-2xl">
+        {/* Form Header */}
+        <div className="border-b border-white/10 pb-6 mb-8">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xs font-semibold text-purple-400 uppercase tracking-wider">
+              {position?.guild.name} • {position?.department || "Recruitment"}
+            </span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white mb-3">
+            Application for {position?.title}
+          </h1>
+          <p className="text-xs text-slate-400 leading-relaxed whitespace-pre-line">
+            {position?.description}
+          </p>
+        </div>
+
+        {errorMsg && (
+          <div className="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{errorMsg}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Optional Roblox Account Verification */}
+          {position?.guild.enableRobloxAuth && (
+            <div className="p-4 rounded-2xl bg-purple-950/20 border border-purple-500/20 space-y-3">
+              <label className="block text-xs font-bold text-white flex items-center justify-between">
+                <span>Roblox Identity Verification <span className="text-rose-400">*</span></span>
+                <span className="text-[10px] text-purple-400 font-normal">Required by community</span>
+              </label>
+              
+              <div className="relative">
+                <input
+                  type="text"
+                  required
+                  value={robloxUsername}
+                  onChange={(e) => handleRobloxChange(e.target.value)}
+                  placeholder="Enter your exact Roblox username (e.g. Builderman)"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 pr-24"
+                />
+                {robloxLoading && (
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-purple-400 flex items-center gap-1 font-mono">
+                    <span className="w-2.5 h-2.5 rounded-full border border-purple-400 border-t-transparent animate-spin" />
+                    Checking...
+                  </span>
+                )}
+              </div>
+
+              {/* Live Roblox Card */}
+              {robloxProfile && (
+                <div className="p-3 rounded-xl bg-surface/90 border border-emerald-500/30 flex items-center justify-between gap-3 animate-fadeIn">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={robloxProfile.avatarUrl}
+                      alt={robloxProfile.name}
+                      className="w-12 h-12 rounded-xl bg-black/40 border border-white/10 object-cover"
+                    />
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-bold text-white">{robloxProfile.displayName}</span>
+                        <span className="text-[10px] text-slate-400 font-mono">(@{robloxProfile.name})</span>
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                      </div>
+                      <span className="text-[10px] text-slate-400 block font-mono">ID: {robloxProfile.id}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={robloxProfile.profileUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-[10px] text-slate-300 border border-white/10 transition-colors"
+                    >
+                      Roblox Profile ↗
+                    </a>
+                    <a
+                      href={robloxProfile.devForumUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-2.5 py-1 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-[10px] text-purple-300 border border-purple-500/20 transition-colors"
+                    >
+                      DevForum ↗
+                    </a>
+                  </div>
+                </div>
+              )}
+
+              {robloxError && !robloxLoading && (
+                <p className="text-[11px] text-rose-400 font-medium">{robloxError}</p>
+              )}
+
+              <p className="text-[11px] text-slate-400">
+                Staff will verify your avatar, experience, and Roblox profile alongside your application.
+              </p>
+            </div>
+          )}
+
+          {/* Dynamic Questionnaire Questions */}
+          {position?.questions.map((q, idx) => {
+            const val = answers[q.id] || "";
+            let optionsList: string[] = [];
+            if (q.options) {
+              try {
+                optionsList = JSON.parse(q.options);
+              } catch (e) {
+                optionsList = q.options.split(",").map((o) => o.trim());
+              }
+            }
+
+            return (
+              <div key={q.id} className="space-y-1.5 pt-2">
+                <label className="block text-xs font-semibold text-slate-200">
+                  <span className="text-purple-400 mr-1.5 font-mono">{idx + 1}.</span>
+                  {q.label}
+                  {q.required && <span className="text-rose-400 ml-1">*</span>}
+                </label>
+
+                {q.description && (
+                  <p className="text-[11px] text-slate-400 mb-1 leading-relaxed">
+                    {q.description}
+                  </p>
+                )}
+
+                {/* TEXT input */}
+                {q.type === "TEXT" && (
+                  <input
+                    type="text"
+                    required={q.required}
+                    value={val}
+                    onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                    placeholder="Your answer..."
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                  />
+                )}
+
+                {/* PARAGRAPH input */}
+                {q.type === "PARAGRAPH" && (
+                  <textarea
+                    rows={4}
+                    required={q.required}
+                    value={val}
+                    onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                    placeholder="Type your detailed response here..."
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 resize-y"
+                  />
+                )}
+
+                {/* SELECT dropdown */}
+                {q.type === "SELECT" && (
+                  <select
+                    required={q.required}
+                    value={val}
+                    onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500"
+                  >
+                    <option value="">Select an option...</option>
+                    {optionsList.map((opt) => (
+                      <option key={opt} value={opt} className="bg-surface text-white">
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
+                )}
+
+                {/* CHECKBOX */}
+                {q.type === "CHECKBOX" && (
+                  <label className="flex items-center gap-2.5 pt-1 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      required={q.required}
+                      checked={val === "true"}
+                      onChange={(e) => handleAnswerChange(q.id, e.target.checked ? "true" : "")}
+                      className="w-4 h-4 rounded bg-surface border-white/20 text-purple-600 focus:ring-purple-500"
+                    />
+                    <span className="text-xs text-slate-300">I confirm and agree</span>
+                  </label>
+                )}
+
+                {/* LINK or PORTFOLIO */}
+                {(q.type === "LINK" || q.type === "PORTFOLIO") && (
+                  <input
+                    type="url"
+                    required={q.required}
+                    value={val}
+                    onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                    placeholder="https://..."
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                  />
+                )}
+              </div>
+            );
+          })}
+
+          {/* Submission Action */}
+          <div className="pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-[11px] text-slate-500">
+              By submitting, you agree to the community&apos;s rules and RoleFlow{" "}
+              <Link href="/terms" className="text-purple-400 hover:underline">
+                Terms
+              </Link>.
+            </p>
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-lg shadow-violet-600/30 flex items-center justify-center gap-2"
+            >
+              <Send className="w-3.5 h-3.5" />
+              <span>{submitting ? "Submitting Application..." : "Submit Application"}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

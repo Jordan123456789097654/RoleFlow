@@ -1,0 +1,143 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id             String        @id // Discord User ID
+  username       String
+  discriminator  String?
+  avatar         String?
+  email          String?       // Discord verified email
+  robloxId       String?       // Linked Roblox User ID
+  robloxUsername String?
+  isSiteAdmin    Boolean       @default(false)
+  applications   Application[]
+  reviews        Review[]
+  createdAt      DateTime      @default(now())
+}
+
+model Guild {
+  id                         String           @id // Discord Guild ID
+  name                       String
+  icon                       String?
+  banner                     String?
+  description                String?
+  vanitySlug                 String?          @unique // e.g. "meridian", "lucid"
+  ownerId                    String
+  isVerified                 Boolean          @default(false)
+  verifiedBadge              String?          // e.g. "PARTNER", "OFFICIAL", "COMMUNITY"
+  memberCount                Int              @default(0)
+  tags                       String?          // Comma-separated: "Roblox,Studio,Development"
+  
+  // Custom Bot White-label Configuration
+  useCustomBot               Boolean          @default(false)
+  customBotToken             String?          // Custom Discord Bot Token
+  
+  // Discord Channels & Roles
+  logChannelId               String?          // Staff review alert channel
+  reviewerRoleId             String?          // Role allowed to review
+  staffPingRoleId            String?          // Role pinged when new application arrives
+  embedColor                 String?          @default("#8B5CF6") // Custom embed color
+  interviewCatId             String?          // Category for interview threads/channels
+  
+  // Gating & Policy Rules
+  cooldownDays               Int              @default(7) // Days after rejection before re-applying
+  requireInGuild             Boolean          @default(true)
+  minAccountAgeDays          Int              @default(0)
+  enableRobloxAuth           Boolean          @default(false)
+  enableBlindVoting          Boolean          @default(false)
+  enableInterviewAutoChannel Boolean          @default(true)
+  
+  positions                  Position[]
+  blacklists                 Blacklist[]
+  cannedResponses            CannedResponse[]
+  createdAt                  DateTime         @default(now())
+}
+
+model Position {
+  id           String        @id @default(cuid())
+  guildId      String
+  guild        Guild         @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  title        String
+  department   String?       // e.g. "Development", "Staff & Moderation", "Design"
+  description  String
+  isPublic     Boolean       @default(true)
+  acceptRoleId String?       // Discord role ID granted upon acceptance
+  isOpen       Boolean       @default(true)
+  questions    Question[]
+  applications Application[]
+  createdAt    DateTime      @default(now())
+}
+
+model Question {
+  id          String   @id @default(cuid())
+  positionId  String
+  position    Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
+  label       String
+  description String?
+  type        String   // TEXT, PARAGRAPH, SELECT, CHECKBOX, LINK, PORTFOLIO
+  options     String?  // JSON stringified array for SELECT choices
+  required    Boolean  @default(true)
+  order       Int      @default(0)
+  answers     Answer[]
+}
+
+model Application {
+  id                 String    @id @default(cuid())
+  positionId         String
+  position           Position  @relation(fields: [positionId], references: [id], onDelete: Cascade)
+  userId             String
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status             String    @default("PENDING") // PENDING, UNDER_REVIEW, INTERVIEW, ACCEPTED, REJECTED
+  answers            Answer[]
+  reviews            Review[]
+  interviewChannelId String?
+  decisionNote       String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+}
+
+model Answer {
+  id            String      @id @default(cuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  questionId    String
+  question      Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  value         String
+}
+
+model Review {
+  id            String      @id @default(cuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  reviewerId    String
+  reviewer      User        @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
+  comment       String
+  score         Int?        // 1-5 rating or vote
+  createdAt     DateTime    @default(now())
+}
+
+model Blacklist {
+  id          String   @id @default(cuid())
+  guildId     String
+  guild       Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  targetType  String   // DISCORD_ID or ROBLOX_ID
+  targetValue String
+  reason      String?
+  createdAt   DateTime @default(now())
+}
+
+model CannedResponse {
+  id        String   @id @default(cuid())
+  guildId   String
+  guild     Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  title     String
+  content   String
+  type      String   // ACCEPT or REJECT
+  createdAt DateTime @default(now())
+}
