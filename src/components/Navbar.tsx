@@ -92,21 +92,16 @@ export function Navbar({ user }: NavbarProps) {
         <div className="flex items-center gap-6 sm:gap-8">
           {/* Official Brand Logo */}
           <Link href="/" className="flex items-center gap-2.5 group shrink-0">
-            <div className="relative w-8 h-8 rounded-xl overflow-hidden bg-surface-border/40 border border-white/10 p-0.5 shadow-md shadow-violet-500/10 group-hover:border-purple-500/50 group-hover:scale-105 transition-all">
+            <div className="relative w-8 h-8 rounded-xl overflow-hidden border border-white/10 shadow-md shadow-violet-500/10 group-hover:border-purple-500/50 group-hover:scale-105 transition-all">
               <img
                 src="/logo.png"
                 alt="RoleFlow Emblem"
-                className="w-full h-full object-contain rounded-lg"
+                className="w-full h-full object-cover"
               />
             </div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-lg font-black tracking-tight text-white group-hover:text-purple-300 transition-colors">
-                RoleFlow
-              </span>
-              <span className="hidden sm:inline-block text-[10px] font-mono px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20 font-semibold">
-                v1.3
-              </span>
-            </div>
+            <span className="text-lg font-black tracking-tight text-white group-hover:text-purple-300 transition-colors">
+              RoleFlow
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
