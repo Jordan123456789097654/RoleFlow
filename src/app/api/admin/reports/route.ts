@@ -30,11 +30,11 @@ export async function GET() {
     grouped.set(key, g);
   }
 
-  const guildIds = [...grouped.values()].filter((g) => g.targetType === "GUILD").map((g) => g.targetId);
+  const guildIds = Array.from(grouped.values()).filter((g) => g.targetType === "GUILD").map((g) => g.targetId);
   const guilds = await prisma.guild.findMany({ where: { id: { in: guildIds } }, select: { id: true, name: true, isPaused: true } });
   const guildMap = Object.fromEntries(guilds.map((g) => [g.id, g]));
 
-  const rows = [...grouped.values()]
+  const rows = Array.from(grouped.values())
     .map((g) => ({
       targetType: g.targetType,
       targetId: g.targetId,

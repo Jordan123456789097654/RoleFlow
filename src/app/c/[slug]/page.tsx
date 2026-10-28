@@ -63,6 +63,8 @@ export default async function CommunityPortalPage({ params }: CommunityPortalPro
     },
   };
   const currentTheme = themePresets[guild.portalTheme || "obsidian"] || themePresets.obsidian;
+  const accent = (guild as any).accentColor || "#8b5cf6";
+  const layout = (guild as any).portalLayout || "list";
 
   const badges = guild.verifiedBadges
     ? guild.verifiedBadges.split(",").map((b) => b.trim()).filter(Boolean)
