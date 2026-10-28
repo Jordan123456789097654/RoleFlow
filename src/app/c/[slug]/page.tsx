@@ -2,8 +2,10 @@ import React from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { BadgeCheck, Users, Briefcase, ArrowLeft, ArrowRight, Shield, ExternalLink } from "lucide-react";
+import { getCurrentUser } from "@/lib/auth";
+import { BadgeCheck, Users, Briefcase, ArrowLeft, ArrowRight, Star, MessageSquareQuote } from "lucide-react";
 import ReportButton from "@/components/ReportButton";
+import { CommunityReviewModal } from "@/components/CommunityReviewModal";
 
 export const revalidate = 0;
 
@@ -26,12 +28,51 @@ export default async function CommunityPortalPage({ params }: CommunityPortalPro
           _count: { select: { applications: true } },
         },
       },
+      reviews: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              username: true,
+              avatar: true,
+              robloxUsername: true,
+              robloxAvatar: true,
+            },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+      },
     },
   });
 
   if (!guild) {
     notFound();
   }
+
+  const currentUser = await getCurrentUser();
+
+  // Check if current user has an accepted application in this guild
+  let canReview = false;
+  if (currentUser) {
+    const acceptedApp = await prisma.application.findFirst({
+      where: {
+        userId: currentUser.id,
+        status: "ACCEPTED",
+        position: {
+          guildId: guild.id,
+        },
+      },
+      select: { id: true },
+    });
+    canReview = Boolean(acceptedApp);
+  }
+
+  // Calculate review stats
+  const totalReviews = guild.reviews.length;
+  const avgRating =
+    totalReviews > 0
+      ? Number((guild.reviews.reduce((acc, r) => acc + r.rating, 0) / totalReviews).toFixed(1))
+      : 0;
 
   const tags = guild.tags ? guild.tags.split(",").map((t) => t.trim()) : [];
 
@@ -73,7 +114,7 @@ export default async function CommunityPortalPage({ params }: CommunityPortalPro
     : [];
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-12">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-16">
       <Link
         href="/browse"
         className="inline-flex items-center gap-1.5 text-[13px] text-slate-400 hover:text-white mb-6 transition-colors"
@@ -120,12 +161,23 @@ export default async function CommunityPortalPage({ params }: CommunityPortalPro
                       {b.replace("_", " ")}
                     </span>
                   ))}
+                  {guild.category && (
+                    <span className="px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-slate-300 text-[11px] font-medium">
+                      {guild.category}
+                    </span>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-3 text-xs text-slate-400 mt-1">
                   <span className="text-emerald-300 font-medium">
                     {guild.positions.length} open position{guild.positions.length === 1 ? "" : "s"}
                   </span>
+                  {totalReviews > 0 && (
+                    <span className="inline-flex items-center gap-1 text-amber-300 font-semibold">
+                      <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                      {avgRating} ({totalReviews} review{totalReviews === 1 ? "" : "s"})
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -177,7 +229,7 @@ export default async function CommunityPortalPage({ params }: CommunityPortalPro
       </div>
 
       {/* Available Openings Section */}
-      <div>
+      <div className="mb-14">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <Briefcase className="w-4 h-4 text-violet-300" />
@@ -230,9 +282,136 @@ export default async function CommunityPortalPage({ params }: CommunityPortalPro
         )}
       </div>
 
+      {/* Community Reviews & Testimonials Section */}
+      <div className="mb-14">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div>
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <MessageSquareQuote className="w-4 h-4 text-violet-300" />
+              Member Testimonials &amp; Reviews
+            </h2>
+            <p className="text-xs text-slate-400 mt-1">
+              Genuine reviews written by applicants accepted into {guild.name}.
+            </p>
+          </div>
+
+          <CommunityReviewModal
+            guildId={guild.id}
+            guildName={guild.name}
+            canReview={canReview}
+            currentUser={
+              currentUser ? { id: currentUser.id, username: currentUser.username } : null
+            }
+          />
+        </div>
+
+        {totalReviews === 0 ? (
+          <div className="rf-card text-center py-12 px-6">
+            <Star className="w-8 h-8 text-slate-600 mx-auto mb-2" />
+            <h3 className="text-sm font-semibold text-white">No testimonials yet</h3>
+            <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+              Accepted applicants can submit feedback and share their experience joining this community.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {/* Rating Banner */}
+            <div className="glass-panel rounded-2xl p-4 sm:p-5 flex items-center justify-between flex-wrap gap-4 border border-violet-500/20 bg-gradient-to-r from-violet-950/30 to-surface-card">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 grid place-items-center text-amber-300 font-bold text-xl">
+                  {avgRating}
+                </div>
+                <div>
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <Star
+                        key={s}
+                        className={`w-4 h-4 ${
+                          s <= Math.round(avgRating)
+                            ? "fill-amber-400 text-amber-400"
+                            : "text-slate-600"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Based on {totalReviews} verified applicant review{totalReviews === 1 ? "" : "s"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="text-xs text-slate-400 font-medium">
+                Verified member feedback
+              </div>
+            </div>
+
+            {/* Testimonials Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {guild.reviews.map((rev) => (
+                <div
+                  key={rev.id}
+                  className="glass-panel rounded-2xl p-5 flex flex-col justify-between border border-white/[0.08]"
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-3 mb-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-full overflow-hidden bg-surface-card border border-white/10 shrink-0">
+                          {rev.user.avatar ? (
+                            <img src={rev.user.avatar} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full bg-violet-600 grid place-items-center text-[10px] font-bold text-white">
+                              {rev.user.username.charAt(0)}
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <div className="text-xs font-semibold text-white">
+                            {rev.user.username}
+                          </div>
+                          {rev.user.robloxUsername && (
+                            <div className="text-[10px] text-slate-400">
+                              @{rev.user.robloxUsername}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-0.5">
+                        {[1, 2, 3, 4, 5].map((s) => (
+                          <Star
+                            key={s}
+                            className={`w-3.5 h-3.5 ${
+                              s <= rev.rating
+                                ? "fill-amber-400 text-amber-400"
+                                : "text-slate-600"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-slate-300 leading-relaxed italic whitespace-pre-wrap">
+                      &ldquo;{rev.comment}&rdquo;
+                    </p>
+                  </div>
+
+                  <div className="pt-3 mt-3 border-t border-white/[0.06] text-[10px] text-slate-500">
+                    Verified Accepted Member • {new Date(rev.createdAt).toLocaleDateString(undefined, {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Discord Widget Embed */}
       {guild.discordWidgetEnabled && /^\d{17,20}$/.test(guild.id) && (
-        <div className="mt-12 rounded-2xl overflow-hidden glass-panel p-5">
+        <div className="mt-8 rounded-2xl overflow-hidden glass-panel p-5">
           <h3 className="rf-eyebrow mb-3 flex items-center gap-2">
             <Users className="w-3.5 h-3.5" />
             Live Discord Community

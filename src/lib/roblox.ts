@@ -1,0 +1,225 @@
+/**
+ * Roblox Open Cloud & Public API Helpers
+ */
+
+import { logger } from "@/lib/logger";
+
+interface RobloxUserInfo {
+  id: number;
+  name: string;
+  displayName: string;
+  created: string; // ISO 8601 string, e.g. "2018-05-23T14:52:18.123Z"
+}
+
+interface RobloxGroupRole {
+  id: number;
+  name: string;
+  rank: number; // 0 - 255
+}
+
+interface RobloxGroupRolesResponse {
+  groupId: number;
+  roles: RobloxGroupRole[];
+}
+
+/**
+ * Fetch public user profile from Roblox API, including account created date.
+ */
+export async function getRobloxUserProfile(robloxUserId: string | number): Promise<RobloxUserInfo | null> {
+  try {
+    const res = await fetch(`https://users.roblox.com/v1/users/${robloxUserId}`, {
+      headers: { "Accept": "application/json" },
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      logger.warn(`Failed to fetch Roblox user profile for ${robloxUserId}: ${res.status} ${res.statusText}`);
+      return null;
+    }
+
+    return await res.json();
+  } catch (err: any) {
+    logger.error("Error fetching Roblox user profile:", { error: err?.message || String(err) });
+    return null;
+  }
+}
+
+/**
+ * Check Roblox account age in days against a minimum threshold.
+ * Returns { valid: boolean, ageDays: number, error?: string }
+ */
+export async function checkRobloxAccountAge(
+  robloxUserId: string | number,
+  minDays: number = 0
+): Promise<{ valid: boolean; ageDays: number; error?: string }> {
+  if (minDays <= 0) {
+    return { valid: true, ageDays: 0 };
+  }
+
+  const profile = await getRobloxUserProfile(robloxUserId);
+  if (!profile || !profile.created) {
+    return { valid: false, ageDays: 0, error: "Unable to retrieve Roblox account details." };
+  }
+
+  const createdTime = new Date(profile.created).getTime();
+  const now = Date.now();
+  const diffDays = Math.floor((now - createdTime) / (1000 * 60 * 60 * 24));
+
+  if (diffDays < minDays) {
+    return {
+      valid: false,
+      ageDays: diffDays,
+      error: `Your Roblox account is ${diffDays} day(s) old. This community requires an account age of at least ${minDays} days to apply.`,
+    };
+  }
+
+  return { valid: true, ageDays: diffDays };
+}
+
+/**
+ * Check if a Roblox user owns a specified badge.
+ * Uses official public API: https://badges.roblox.com/v1/users/{userId}/badges/awarded-dates?badgeIds={badgeId}
+ */
+export async function checkUserBadgeOwnership(
+  robloxUserId: string | number,
+  badgeId: string | number
+): Promise<{ owned: boolean; awardedDate?: string; error?: string }> {
+  try {
+    const cleanBadgeId = String(badgeId).trim();
+    if (!cleanBadgeId) {
+      return { owned: true };
+    }
+
+    const url = `https://badges.roblox.com/v1/users/${robloxUserId}/badges/awarded-dates?badgeIds=${cleanBadgeId}`;
+    const res = await fetch(url, {
+      headers: { "Accept": "application/json" },
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      logger.warn(`Roblox badge check failed for user ${robloxUserId}, badge ${cleanBadgeId}: ${res.status}`);
+      return { owned: false, error: "Failed to verify badge ownership with Roblox." };
+    }
+
+    const data = await res.json();
+    // data.data is an array of { badgeId, awardedDate }
+    const match = data.data?.find((b: any) => String(b.badgeId) === cleanBadgeId);
+
+    if (match) {
+      return { owned: true, awardedDate: match.awardedDate };
+    }
+
+    return { owned: false, error: `Required Roblox badge (${cleanBadgeId}) is missing from user profile.` };
+  } catch (err: any) {
+    logger.error("Error checking Roblox badge ownership:", { error: err?.message || String(err) });
+    return { owned: false, error: "Roblox badge verification network error." };
+  }
+}
+
+/**
+ * List roles for a Roblox group to map rank numbers (0-255) to role IDs.
+ */
+export async function getRobloxGroupRoles(groupId: string | number): Promise<RobloxGroupRole[]> {
+  try {
+    const res = await fetch(`https://groups.roblox.com/v1/groups/${groupId}/roles`, {
+      headers: { "Accept": "application/json" },
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      logger.warn(`Failed to fetch group roles for group ${groupId}: ${res.status}`);
+      return [];
+    }
+
+    const data: RobloxGroupRolesResponse = await res.json();
+    return data.roles || [];
+  } catch (err: any) {
+    logger.error("Error fetching Roblox group roles:", { error: err?.message || String(err) });
+    return [];
+  }
+}
+
+/**
+ * Update a group member's rank using Roblox Open Cloud v2 Groups API:
+ * PATCH https://apis.roblox.com/cloud/v2/groups/{groupId}/memberships/{userId}
+ *
+ * rankNumberOrRoleId: rank number (1-255) or role ID.
+ * If rankNumberOrRoleId <= 255, we resolve the role ID corresponding to that rank number first.
+ */
+export async function setGroupMemberRank(
+  groupId: string | number,
+  robloxUserId: string | number,
+  rankNumberOrRoleId: number,
+  apiKey: string
+): Promise<{ success: boolean; roleId?: string | number; error?: string; rawResponse?: any }> {
+  try {
+    const cleanApiKey = apiKey.trim();
+    if (!cleanApiKey) {
+      return { success: false, error: "Roblox Open Cloud API Key is missing." };
+    }
+
+    let targetRoleId: string | number = rankNumberOrRoleId;
+
+    // If rankNumberOrRoleId is a rank number (typically 1-255), resolve the role ID from the group
+    if (rankNumberOrRoleId >= 1 && rankNumberOrRoleId <= 255) {
+      const roles = await getRobloxGroupRoles(groupId);
+      const roleMatch = roles.find((r) => r.rank === rankNumberOrRoleId);
+      if (roleMatch) {
+        targetRoleId = roleMatch.id;
+      } else {
+        logger.warn(`Could not find group role with rank ${rankNumberOrRoleId} in group ${groupId}, attempting direct role ID fallback.`);
+      }
+    }
+
+    // Roblox Open Cloud v2 Groups API:
+    // PATCH https://apis.roblox.com/cloud/v2/groups/{groupId}/memberships/{userId}
+    // Headers: x-api-key: {apiKey}, Content-Type: application/json
+    // Body: { "role": "groups/{groupId}/roles/{targetRoleId}" }
+    // UpdateMask can also be passed via query or body: updateMask=role
+    const url = `https://apis.roblox.com/cloud/v2/groups/${groupId}/memberships/${robloxUserId}?updateMask=role`;
+    const rolePath = `groups/${groupId}/roles/${targetRoleId}`;
+
+    const res = await fetch(url, {
+      method: "PATCH",
+      headers: {
+        "x-api-key": cleanApiKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        role: rolePath,
+      }),
+    });
+
+    const resText = await res.text();
+    let resJson: any = null;
+    try {
+      resJson = JSON.parse(resText);
+    } catch {
+      resJson = { raw: resText };
+    }
+
+    if (!res.ok) {
+      const errMsg = resJson?.message || resJson?.error || `Open Cloud API responded with ${res.status}`;
+      logger.error(`Roblox Open Cloud rank update failed (${res.status}): ${errMsg}`, typeof resJson === "object" && resJson ? resJson : { res: String(resJson) });
+      return {
+        success: false,
+        roleId: targetRoleId,
+        error: errMsg,
+        rawResponse: resJson,
+      };
+    }
+
+    logger.info(`Successfully ranked Roblox user ${robloxUserId} to role ${rolePath} in group ${groupId}`);
+    return {
+      success: true,
+      roleId: targetRoleId,
+      rawResponse: resJson,
+    };
+  } catch (err: any) {
+    logger.error("Exception during setGroupMemberRank:", { error: err?.message || String(err) });
+    return {
+      success: false,
+      error: err?.message || "Failed to execute Roblox Open Cloud API call.",
+    };
+  }
+}

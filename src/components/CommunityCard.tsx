@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface CommunityCardProps {
@@ -15,8 +15,11 @@ interface CommunityCardProps {
     verifiedBadges?: string | null;
     memberCount?: number;
     tags?: string | null;
+    category?: string | null;
     positionsCount?: number;
     description?: string | null;
+    rating?: number | null;
+    reviewsCount?: number;
   };
 }
 
@@ -70,9 +73,21 @@ export function CommunityCard({ guild }: CommunityCardProps) {
               </span>
             )}
           </div>
-          <div className="min-w-0 pb-0.5">
+          <div className="min-w-0 pb-0.5 flex-1">
             <h3 className="text-[15px] font-semibold text-white truncate group-hover:text-violet-200 transition-colors">{guild.name}</h3>
+            {guild.category && (
+              <p className="text-[11px] text-violet-300 truncate">{guild.category}</p>
+            )}
           </div>
+          {typeof guild.rating === "number" && guild.rating > 0 ? (
+            <div className="flex items-center gap-1 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-md text-[11px] font-semibold text-amber-300 shrink-0">
+              <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+              <span>{guild.rating.toFixed(1)}</span>
+              {typeof guild.reviewsCount === "number" && (
+                <span className="text-[10px] text-amber-300/70">({guild.reviewsCount})</span>
+              )}
+            </div>
+          ) : null}
         </div>
 
         {badgeList.length > 0 && (

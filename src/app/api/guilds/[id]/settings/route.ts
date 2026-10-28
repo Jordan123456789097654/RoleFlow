@@ -81,6 +81,10 @@ export async function PATCH(
       discordInviteUrl,
       customBotAppId,
       customBotPublicKey,
+      robloxMinAccountAgeDays,
+      robloxCloudApiKey,
+      robloxAcceptRankId,
+      robloxRequiredBadgeId,
     } = body;
 
     if (customBotAppId && !/^\d{17,20}$/.test(String(customBotAppId).trim())) {
@@ -149,6 +153,11 @@ export async function PATCH(
         ...(typeof enableRobloxGroupCheck === "boolean" ? { enableRobloxGroupCheck } : {}),
         ...(robloxGroupId !== undefined ? { robloxGroupId: robloxGroupId?.trim() || null } : {}),
         ...(robloxMinRank !== undefined ? { robloxMinRank: Number(robloxMinRank) || 1 } : {}),
+        ...(robloxMinAccountAgeDays !== undefined ? { robloxMinAccountAgeDays: Math.max(0, Number(robloxMinAccountAgeDays) || 0) } : {}),
+        ...(robloxAcceptRankId !== undefined ? { robloxAcceptRankId: robloxAcceptRankId !== null && robloxAcceptRankId !== "" ? Number(robloxAcceptRankId) : null } : {}),
+        ...(robloxRequiredBadgeId !== undefined ? { robloxRequiredBadgeId: robloxRequiredBadgeId?.trim() || null } : {}),
+        ...(robloxCloudApiKey !== undefined && robloxCloudApiKey !== "" ? { robloxCloudApiKey: encryptSecret(String(robloxCloudApiKey).trim()) } : {}),
+        ...(robloxCloudApiKey === null ? { robloxCloudApiKey: null } : {}),
         ...(typeof enableBlindVoting === "boolean" ? { enableBlindVoting } : {}),
         ...(votePassThreshold !== undefined ? { votePassThreshold: Number(votePassThreshold) || 2 } : {}),
         ...(typeof useCustomBot === "boolean" ? { useCustomBot } : {}),

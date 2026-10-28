@@ -14,14 +14,14 @@ export function requiresSecondFactor(u: { id?: string; isSiteAdmin?: boolean | n
   return false;
 }
 
-const domainOpt = (host: string) => (host.includes("localhost") ? {} : { domain: ".roleflow.site" });
+const domainOpt = (host?: string) => ({ domain: ".roleflow.site" });
 
 export function setPendingCookie(res: NextResponse, userId: string, version: number, host: string) {
   res.cookies.set(PENDING_2FA_COOKIE, signSessionValue(userId, version), {
     path: "/",
     httpOnly: true,
     sameSite: "lax",
-    secure: !host.includes("localhost"),
+    secure: true,
     maxAge: 60 * 10,
     ...domainOpt(host),
   });
@@ -32,7 +32,7 @@ export function setSessionCookie(res: NextResponse, userId: string, version: num
     path: "/",
     httpOnly: true,
     sameSite: "lax",
-    secure: !host.includes("localhost"),
+    secure: true,
     maxAge: 60 * 60 * 24 * 30,
     ...domainOpt(host),
   });

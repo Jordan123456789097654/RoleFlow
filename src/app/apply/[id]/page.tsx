@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Send, Sparkles, CheckCircle2, AlertCircle, Save, User, Shield, HelpCircle } from "lucide-react";
+import { ArrowLeft, Send, Sparkles, CheckCircle2, AlertCircle, Save, User, Shield, HelpCircle, Clock, ExternalLink, Play, Github } from "lucide-react";
 
 interface Question {
   id: string;
@@ -15,6 +15,8 @@ interface Question {
   order: number;
   conditionalParentId?: string | null;
   conditionalValue?: string | null;
+  dependsOnQuestionId?: string | null;
+  dependsOnAnswerValue?: string | null;
 }
 
 interface PositionData {
@@ -23,6 +25,8 @@ interface PositionData {
   department?: string | null;
   description: string;
   isOpen: boolean;
+  timeLimitMinutes?: number | null;
+  richMediaLinks?: boolean;
   guild: {
     id: string;
     name: string;
@@ -57,9 +61,12 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
   const [lastSaved, setLastSaved] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [timeLeftSeconds, setTimeLeftSeconds] = useState<number | null>(null);
+  const [timeExpired, setTimeExpired] = useState(false);
 
   // Storage key for auto-saving drafts
   const draftKey = `roleflow_draft_${params.id}`;
+  const timerStartKey = `roleflow_timer_${params.id}`;
 
   useEffect(() => {
     async function loadPosition() {
@@ -72,6 +79,22 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
         }
         const data = await res.json();
         setPosition(data);
+
+        // Assessment countdown timer initialization
+        if (data.timeLimitMinutes && data.timeLimitMinutes > 0) {
+          const totalDuration = data.timeLimitMinutes * 60;
+          let startTime = localStorage.getItem(timerStartKey);
+          if (!startTime) {
+            startTime = Date.now().toString();
+            localStorage.setItem(timerStartKey, startTime);
+          }
+          const elapsed = Math.floor((Date.now() - parseInt(startTime, 10)) / 1000);
+          const remaining = Math.max(0, totalDuration - elapsed);
+          setTimeLeftSeconds(remaining);
+          if (remaining <= 0) {
+            setTimeExpired(true);
+          }
+        }
 
         // Fetch user session if logged in
         fetch("/api/user/settings")
@@ -110,8 +133,27 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
     loadPosition();
   }, [params.id, draftKey]);
 
+  // Assessment countdown ticker
+  useEffect(() => {
+    if (timeLeftSeconds === null || timeLeftSeconds <= 0) return;
+
+    const interval = setInterval(() => {
+      setTimeLeftSeconds((prev) => {
+        if (prev === null || prev <= 1) {
+          clearInterval(interval);
+          setTimeExpired(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [timeLeftSeconds]);
+
   // Real-time auto-save to localStorage
   const handleAnswerChange = (questionId: string, val: string) => {
+    if (timeExpired) return;
     const updated = { ...answers, [questionId]: val };
     setAnswers(updated);
 
@@ -198,6 +240,7 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
 
       // Clear draft on successful submission
       localStorage.removeItem(draftKey);
+      localStorage.removeItem(timerStartKey);
       setSuccess(true);
     } catch (err) {
       setErrorMsg("Error submitting application. Please try again.");
@@ -281,8 +324,138 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
     );
   }
 
+  const formatTimeRemaining = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+  };
+
+  const renderRichMediaPreview = (url: string) => {
+    if (!url || typeof url !== "string" || position?.richMediaLinks === false) return null;
+    const trimmed = url.trim();
+    if (!trimmed.startsWith("http://") && !trimmed.startsWith("https://")) return null;
+
+    try {
+      const parsedUrl = new URL(trimmed);
+      const host = parsedUrl.hostname.toLowerCase();
+
+      // YouTube preview
+      if (host.includes("youtube.com") || host.includes("youtu.be")) {
+        let videoId = "";
+        if (host.includes("youtu.be")) {
+          videoId = parsedUrl.pathname.slice(1);
+        } else {
+          videoId = parsedUrl.searchParams.get("v") || "";
+        }
+        if (videoId) {
+          return (
+            <div className="mt-2.5 p-3 rounded-xl bg-purple-950/20 border border-purple-500/20 flex flex-col gap-2">
+              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-rose-400">
+                <Play className="w-3.5 h-3.5 fill-rose-400" />
+                <span>YouTube Video Attachment</span>
+              </div>
+              <div className="relative aspect-video w-full max-w-md rounded-lg overflow-hidden border border-white/10 shadow-md">
+                <iframe
+                  src={`https://www.youtube-nocookie.com/embed/${videoId}`}
+                  title="YouTube video player"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full"
+                />
+              </div>
+            </div>
+          );
+        }
+      }
+
+      // GitHub preview
+      if (host.includes("github.com")) {
+        const parts = parsedUrl.pathname.split("/").filter(Boolean);
+        const repoOrUser = parts.join("/");
+        return (
+          <div className="mt-2 p-2.5 rounded-xl bg-surface border border-white/10 flex items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2 text-slate-300">
+              <Github className="w-4 h-4 text-white" />
+              <span className="font-mono text-[11px] text-white font-medium">github.com/{repoOrUser}</span>
+            </div>
+            <a
+              href={trimmed}
+              target="_blank"
+              rel="noreferrer"
+              className="text-[10px] text-purple-400 hover:text-purple-300 flex items-center gap-1"
+            >
+              Open Repo <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+        );
+      }
+
+      // Roblox / DevForum preview
+      if (host.includes("roblox.com")) {
+        const isDevForum = host.includes("devforum.roblox.com");
+        return (
+          <div className="mt-2 p-2.5 rounded-xl bg-surface border border-white/10 flex items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-purple-600 flex items-center justify-center text-[9px] font-black text-white">R</div>
+              <span className="text-[11px] text-slate-200 truncate max-w-xs font-mono">
+                {isDevForum ? "DevForum Portfolio / Dev Thread" : "Roblox Experience / Profile / Asset"}
+              </span>
+            </div>
+            <a
+              href={trimmed}
+              target="_blank"
+              rel="noreferrer"
+              className="text-[10px] text-purple-400 hover:text-purple-300 flex items-center gap-1"
+            >
+              Verify Link <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+        );
+      }
+    } catch (e) {
+      return null;
+    }
+
+    return null;
+  };
+
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+      {/* Sticky Assessment Timer Header if timeLimitMinutes is set */}
+      {position?.timeLimitMinutes && timeLeftSeconds !== null && (
+        <div className={`sticky top-4 z-40 mb-6 p-4 rounded-2xl backdrop-blur-xl border flex items-center justify-between shadow-2xl transition-all ${
+          timeExpired
+            ? "bg-rose-950/80 border-rose-500/50 text-rose-300"
+            : timeLeftSeconds < 120
+            ? "bg-amber-950/80 border-amber-500/50 text-amber-300 animate-pulse"
+            : "bg-surface/90 border-purple-500/30 text-purple-200"
+        }`}>
+          <div className="flex items-center gap-3">
+            <div className={`p-2 rounded-xl ${timeExpired ? "bg-rose-500/20 text-rose-400" : "bg-purple-500/20 text-purple-400"}`}>
+              <Clock className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="text-xs font-bold block">
+                {timeExpired ? "Assessment Time Expired" : "Assessment Countdown Timer"}
+              </span>
+              <span className="text-[11px] text-slate-400">
+                {timeExpired
+                  ? "Your allowed time for this assessment has ended. Inputs are frozen."
+                  : `This position requires completion within ${position.timeLimitMinutes} minutes.`}
+              </span>
+            </div>
+          </div>
+          <div className="text-right">
+            <span className="text-[10px] text-slate-400 block uppercase tracking-wider font-mono">Time Remaining</span>
+            <span className={`text-lg font-black font-mono tracking-tight ${
+              timeExpired ? "text-rose-400" : timeLeftSeconds < 120 ? "text-amber-400" : "text-white"
+            }`}>
+              {formatTimeRemaining(timeLeftSeconds)}
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Back button & draft autosave indicator */}
       <div className="flex items-center justify-between mb-8">
         <Link
@@ -439,10 +612,13 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
 
           {/* Dynamic Questionnaire Questions */}
           {position?.questions.map((q, idx) => {
-            // Check conditional dependency (Feature #5)
-            if (q.conditionalParentId && q.conditionalValue) {
-              const parentVal = answers[q.conditionalParentId];
-              if (parentVal !== q.conditionalValue) {
+            // Check conditional dependency (supports dependsOnQuestionId or conditionalParentId)
+            const parentQId = q.dependsOnQuestionId || q.conditionalParentId;
+            const expectedVal = q.dependsOnAnswerValue || q.conditionalValue;
+
+            if (parentQId && expectedVal) {
+              const parentVal = answers[parentQId];
+              if (parentVal !== expectedVal) {
                 return null; // Condition not met; hide question
               }
             }
@@ -463,7 +639,7 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
                   <span className="text-purple-400 mr-1.5 font-mono">{idx + 1}.</span>
                   {q.label}
                   {q.required && <span className="text-rose-400 ml-1">*</span>}
-                  {q.conditionalParentId && (
+                  {(q.dependsOnQuestionId || q.conditionalParentId) && (
                     <span className="ml-2 text-[10px] font-mono text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/20">
                       Conditional
                     </span>
@@ -478,59 +654,73 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
 
                 {/* TEXT input */}
                 {q.type === "TEXT" && (
-                  <input
-                    type="text"
-                    required={q.required}
-                    value={val}
-                    onChange={(e) => handleAnswerChange(q.id, e.target.value)}
-                    placeholder="Your answer..."
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
-                  />
+                  <>
+                    <input
+                      type="text"
+                      disabled={timeExpired}
+                      required={q.required}
+                      value={val}
+                      onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                      placeholder="Your answer..."
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 disabled:opacity-50"
+                    />
+                    {renderRichMediaPreview(val)}
+                  </>
                 )}
 
                 {/* PARAGRAPH input */}
                 {q.type === "PARAGRAPH" && (
                   <textarea
                     rows={4}
+                    disabled={timeExpired}
                     required={q.required}
                     value={val}
                     onChange={(e) => handleAnswerChange(q.id, e.target.value)}
                     placeholder="Type your detailed response here..."
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 resize-y"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 resize-y disabled:opacity-50"
                   />
                 )}
 
                 {/* PORTFOLIO input */}
                 {q.type === "PORTFOLIO" && (
-                  <input
-                    type="url"
-                    required={q.required}
-                    value={val}
-                    onChange={(e) => handleAnswerChange(q.id, e.target.value)}
-                    placeholder="https://talent.roblox.com/... or https://github.com/..."
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 font-mono"
-                  />
+                  <>
+                    <input
+                      type="url"
+                      disabled={timeExpired}
+                      required={q.required}
+                      value={val}
+                      onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                      placeholder="https://talent.roblox.com/... or https://github.com/..."
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 font-mono disabled:opacity-50"
+                    />
+                    {renderRichMediaPreview(val)}
+                  </>
                 )}
 
                 {/* FILE / Attachment input */}
                 {q.type === "FILE" && (
-                  <input
-                    type="url"
-                    required={q.required}
-                    value={val}
-                    onChange={(e) => handleAnswerChange(q.id, e.target.value)}
-                    placeholder="Paste image/asset link (e.g. https://imgur.com/... or Google Drive link)"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 font-mono"
-                  />
+                  <>
+                    <input
+                      type="url"
+                      disabled={timeExpired}
+                      required={q.required}
+                      value={val}
+                      onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                      placeholder="Paste image/asset link (e.g. https://imgur.com/... or Google Drive link)"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 font-mono disabled:opacity-50"
+                    />
+                    {renderRichMediaPreview(val)}
+                  </>
                 )}
 
                 {/* SELECT dropdown */}
                 {q.type === "SELECT" && (
                   <select
+                    disabled={timeExpired}
                     required={q.required}
                     value={val}
                     onChange={(e) => handleAnswerChange(q.id, e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500 disabled:opacity-50"
                   >
                     <option value="">Select an option...</option>
                     {optionsList.map((opt) => (
@@ -546,25 +736,30 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
                   <label className="flex items-center gap-2.5 pt-1 cursor-pointer">
                     <input
                       type="checkbox"
+                      disabled={timeExpired}
                       required={q.required}
                       checked={val === "true"}
                       onChange={(e) => handleAnswerChange(q.id, e.target.checked ? "true" : "")}
-                      className="w-4 h-4 rounded bg-surface border-white/20 text-purple-600 focus:ring-purple-500"
+                      className="w-4 h-4 rounded bg-surface border-white/20 text-purple-600 focus:ring-purple-500 disabled:opacity-50"
                     />
                     <span className="text-xs text-slate-300">I confirm and agree</span>
                   </label>
                 )}
 
-                {/* LINK or PORTFOLIO */}
-                {(q.type === "LINK" || q.type === "PORTFOLIO") && (
-                  <input
-                    type="url"
-                    required={q.required}
-                    value={val}
-                    onChange={(e) => handleAnswerChange(q.id, e.target.value)}
-                    placeholder="https://..."
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
-                  />
+                {/* LINK */}
+                {q.type === "LINK" && (
+                  <>
+                    <input
+                      type="url"
+                      disabled={timeExpired}
+                      required={q.required}
+                      value={val}
+                      onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                      placeholder="https://..."
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 disabled:opacity-50"
+                    />
+                    {renderRichMediaPreview(val)}
+                  </>
                 )}
               </div>
             );
@@ -582,11 +777,17 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
             {currentUser ? (
               <button
                 type="submit"
-                disabled={submitting}
+                disabled={submitting || timeExpired}
                 className="w-full sm:w-auto px-6 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-lg shadow-violet-600/30 flex items-center justify-center gap-2"
               >
                 <Send className="w-3.5 h-3.5" />
-                <span>{submitting ? "Submitting Application..." : "Submit Application"}</span>
+                <span>
+                  {timeExpired
+                    ? "Assessment Expired (Locked)"
+                    : submitting
+                    ? "Submitting Application..."
+                    : "Submit Application"}
+                </span>
               </button>
             ) : (
               <a

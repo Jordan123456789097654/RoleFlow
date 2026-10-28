@@ -13,7 +13,12 @@ export default function OwnerExtrasPanel({ guildId }: { guildId: string }) {
     discordInviteUrl: "",
     customBotAppId: "",
     customBotPublicKey: "",
+    robloxMinAccountAgeDays: 0,
+    robloxCloudApiKey: "",
+    robloxAcceptRankId: "",
+    robloxRequiredBadgeId: "",
   });
+  const [hasApiKey, setHasApiKey] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
@@ -21,6 +26,7 @@ export default function OwnerExtrasPanel({ guildId }: { guildId: string }) {
   useEffect(() => {
     fetch(`/api/guilds/${guildId}/dashboard`).then((r) => r.json()).then((d) => {
       const g = d.guild ?? d;
+      setHasApiKey(Boolean(g.hasRobloxCloudApiKey));
       setForm({
         applicationsOpen: g.applicationsOpen ?? true,
         showApplicantCount: g.showApplicantCount ?? true,
@@ -29,6 +35,10 @@ export default function OwnerExtrasPanel({ guildId }: { guildId: string }) {
         discordInviteUrl: g.discordInviteUrl ?? "",
         customBotAppId: g.customBotAppId ?? "",
         customBotPublicKey: g.customBotPublicKey ?? "",
+        robloxMinAccountAgeDays: g.robloxMinAccountAgeDays ?? 0,
+        robloxCloudApiKey: "",
+        robloxAcceptRankId: g.robloxAcceptRankId ?? "",
+        robloxRequiredBadgeId: g.robloxRequiredBadgeId ?? "",
       });
       setLoaded(true);
     });
@@ -49,14 +59,32 @@ export default function OwnerExtrasPanel({ guildId }: { guildId: string }) {
   const save = async () => {
     setSaving(true);
     setMessage(null);
+    const payload: any = {
+      ...form,
+      robloxMinAccountAgeDays: Number(form.robloxMinAccountAgeDays) || 0,
+      robloxAcceptRankId: form.robloxAcceptRankId !== "" ? Number(form.robloxAcceptRankId) : null,
+      robloxRequiredBadgeId: form.robloxRequiredBadgeId.trim() || null,
+    };
+    if (!form.robloxCloudApiKey.trim()) {
+      delete payload.robloxCloudApiKey;
+    }
+
     const res = await fetch(`/api/guilds/${guildId}/settings`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify(payload),
     });
     const data = await res.json();
     setSaving(false);
-    setMessage(res.ok ? { ok: true, text: "Saved." } : { ok: false, text: data.error || "Could not save." });
+    if (res.ok) {
+      if (form.robloxCloudApiKey.trim()) {
+        setHasApiKey(true);
+        setForm((prev) => ({ ...prev, robloxCloudApiKey: "" }));
+      }
+      setMessage({ ok: true, text: "Saved." });
+    } else {
+      setMessage({ ok: false, text: data.error || "Could not save." });
+    }
   };
 
   if (!loaded) return <p className="text-sm text-slate-500">Loading community settings...</p>;
@@ -98,6 +126,61 @@ export default function OwnerExtrasPanel({ guildId }: { guildId: string }) {
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-slate-300">Discord invite</label>
             <input value={form.discordInviteUrl} onChange={(e) => setForm({ ...form, discordInviteUrl: e.target.value })} placeholder="https://discord.gg/..." className={field} />
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 space-y-3">
+        <div>
+          <h3 className="text-sm font-bold text-white">Roblox Open Cloud & Gating</h3>
+          <p className="text-xs text-slate-500">Configure automated account age checks, badge ownership prerequisites, and automatic group ranking upon acceptance.</p>
+        </div>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-slate-300">Minimum Roblox Account Age (Days)</label>
+            <input
+              type="number"
+              min={0}
+              value={form.robloxMinAccountAgeDays}
+              onChange={(e) => setForm({ ...form, robloxMinAccountAgeDays: Number(e.target.value) })}
+              placeholder="0 (disabled)"
+              className={field}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-slate-300">Required Roblox Badge ID</label>
+            <input
+              value={form.robloxRequiredBadgeId}
+              onChange={(e) => setForm({ ...form, robloxRequiredBadgeId: e.target.value })}
+              placeholder="e.g. 2124849123"
+              className={field}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-slate-300">
+              Auto-Accept Group Rank (1-255)
+            </label>
+            <input
+              type="number"
+              min={1}
+              max={255}
+              value={form.robloxAcceptRankId}
+              onChange={(e) => setForm({ ...form, robloxAcceptRankId: e.target.value })}
+              placeholder="Rank number in Roblox Group"
+              className={field}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-slate-300">
+              Roblox Open Cloud API Key {hasApiKey && <span className="text-emerald-400 font-semibold">(Configured & Encrypted)</span>}
+            </label>
+            <input
+              type="password"
+              value={form.robloxCloudApiKey}
+              onChange={(e) => setForm({ ...form, robloxCloudApiKey: e.target.value })}
+              placeholder={hasApiKey ? "•••••••••••••••• (Leave blank to keep current key)" : "Enter Open Cloud API key"}
+              className={field}
+            />
           </div>
         </div>
       </section>

@@ -78,7 +78,7 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { isOpen, isPublic, title, department, description, acceptRoleId } = body;
+    const { isOpen, isPublic, title, department, description, acceptRoleId, timeLimitMinutes, richMediaLinks } = body;
 
     const updated = await prisma.position.update({
       where: { id: params.id },
@@ -89,6 +89,8 @@ export async function PATCH(
         ...(department !== undefined ? { department } : {}),
         ...(description ? { description: description.trim() } : {}),
         ...(acceptRoleId !== undefined ? { acceptRoleId: acceptRoleId?.trim() || null } : {}),
+        ...(timeLimitMinutes !== undefined ? { timeLimitMinutes: timeLimitMinutes === null || timeLimitMinutes === "" ? null : Number(timeLimitMinutes) } : {}),
+        ...(richMediaLinks !== undefined ? { richMediaLinks: Boolean(richMediaLinks) } : {}),
       },
     });
 

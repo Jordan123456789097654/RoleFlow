@@ -6,7 +6,16 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(request: Request) {
   try {
-    const { guildId, title, department, description, acceptRoleId, isPublic } = await request.json();
+    const {
+      guildId,
+      title,
+      department,
+      description,
+      acceptRoleId,
+      isPublic,
+      timeLimitMinutes,
+      richMediaLinks,
+    } = await request.json();
 
     const __a = await authorizeGuild(String(guildId || ""), "manage");
     if (!__a.ok) return __a.response;
@@ -31,6 +40,8 @@ export async function POST(request: Request) {
         acceptRoleId: acceptRoleId || null,
         isPublic: isPublic ?? true,
         isOpen: true,
+        timeLimitMinutes: timeLimitMinutes !== undefined && timeLimitMinutes !== null && timeLimitMinutes !== "" ? Number(timeLimitMinutes) : null,
+        richMediaLinks: richMediaLinks !== undefined ? Boolean(richMediaLinks) : true,
       },
     });
 

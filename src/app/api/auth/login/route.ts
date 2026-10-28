@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 const OAUTH_STATE_COOKIE = "rf_oauth_state";
 
 export async function GET() {
-  const clientId = process.env.DISCORD_CLIENT_ID;
+  const clientId = process.env.DISCORD_CLIENT_ID || "1565049592788025344";
   if (!clientId) {
     return NextResponse.json({ error: "Discord login is not configured." }, { status: 500 });
   }
@@ -16,7 +16,7 @@ export async function GET() {
   const state = randomBytes(24).toString("base64url");
   const params = new URLSearchParams({
     client_id: clientId,
-    redirect_uri: oauthRedirectUri(),
+    redirect_uri: "https://roleflow.site/api/auth/callback",
     response_type: "code",
     scope: "identify email guilds",
     state,

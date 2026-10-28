@@ -35,7 +35,10 @@ const FEATURES = [
 export default async function HomePage() {
   const [guilds, totalOpenPositions, communityCount] = await Promise.all([
     prisma.guild.findMany({
-      include: { positions: { where: { isOpen: true } } },
+      include: {
+        positions: { where: { isOpen: true } },
+        reviews: { select: { rating: true } },
+      },
       take: 6,
       orderBy: { createdAt: "desc" },
     }),
@@ -119,24 +122,35 @@ export default async function HomePage() {
 
         {guilds.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {guilds.map((g) => (
-              <CommunityCard
-                key={g.id}
-                guild={{
-                  id: g.id,
-                  name: g.name,
-                  icon: g.icon,
-                  banner: g.banner,
-                  vanitySlug: g.vanitySlug,
-                  isVerified: g.isVerified,
-                  verifiedBadge: g.verifiedBadge,
-                  memberCount: g.memberCount,
-                  tags: g.tags,
-                  positionsCount: g.positions.length,
-                  description: g.description,
-                }}
-              />
-            ))}
+            {guilds.map((g) => {
+              const reviewsCount = g.reviews.length;
+              const avgRating =
+                reviewsCount > 0
+                  ? Number((g.reviews.reduce((acc, r) => acc + r.rating, 0) / reviewsCount).toFixed(1))
+                  : null;
+
+              return (
+                <CommunityCard
+                  key={g.id}
+                  guild={{
+                    id: g.id,
+                    name: g.name,
+                    icon: g.icon,
+                    banner: g.banner,
+                    vanitySlug: g.vanitySlug,
+                    isVerified: g.isVerified,
+                    verifiedBadge: g.verifiedBadge,
+                    memberCount: g.memberCount,
+                    tags: g.tags,
+                    category: g.category,
+                    positionsCount: g.positions.length,
+                    description: g.description,
+                    rating: avgRating,
+                    reviewsCount,
+                  }}
+                />
+              );
+            })}
           </div>
         ) : (
           <div className="rf-card p-10 text-center text-sm text-slate-400">No communities yet. Be the first to open applications.</div>

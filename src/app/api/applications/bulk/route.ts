@@ -6,6 +6,10 @@ import { getCurrentUser } from "@/lib/auth";
 import { BotDispatcher } from "@/lib/bot-dispatcher";
 import { dispatchCommunityWebhook } from "@/lib/webhook-dispatcher";
 import { sendApplicationStatusEmail } from "@/lib/email";
+import { decryptSecret } from "@/lib/crypto";
+import { setGroupMemberRank } from "@/lib/roblox";
+import { recordAudit } from "@/lib/audit";
+import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
 
@@ -102,6 +106,55 @@ export async function POST(request: Request) {
           decisionNote: decisionNote || `Batch ${newStatus.toLowerCase()} by ${user.username}`,
           reviewedByUsername: user.username,
         }).catch((e) => console.warn("Bot batch dispatch err:", e));
+
+        // Roblox Open Cloud Auto-Ranking on ACCEPTED
+        if (newStatus === "ACCEPTED" && guild.robloxCloudApiKey && guild.robloxGroupId && guild.robloxAcceptRankId && app.user.robloxId) {
+          try {
+            const decryptedKey = decryptSecret(guild.robloxCloudApiKey);
+            if (decryptedKey) {
+              setGroupMemberRank(
+                guild.robloxGroupId,
+                app.user.robloxId,
+                guild.robloxAcceptRankId,
+                decryptedKey
+              ).then((rankResult) => {
+                if (rankResult.success) {
+                  logger.info(`Batch auto-ranked applicant ${app.user.username} (Roblox: ${app.user.robloxId}) in group ${guild.robloxGroupId}`);
+                  recordAudit({
+                    actorId: user.id,
+                    action: "ROBLOX_AUTO_RANK_SUCCESS",
+                    targetId: app.id,
+                    details: {
+                      guildId: guild.id,
+                      robloxGroupId: guild.robloxGroupId,
+                      robloxUserId: app.user.robloxId,
+                      targetRank: guild.robloxAcceptRankId,
+                      roleId: rankResult.roleId,
+                      via: "bulk",
+                    },
+                  }).catch(() => {});
+                } else {
+                  logger.warn(`Batch auto-ranking failed for ${app.user.username}: ${rankResult.error}`);
+                  recordAudit({
+                    actorId: user.id,
+                    action: "ROBLOX_AUTO_RANK_FAILURE",
+                    targetId: app.id,
+                    details: {
+                      guildId: guild.id,
+                      robloxGroupId: guild.robloxGroupId,
+                      robloxUserId: app.user.robloxId,
+                      targetRank: guild.robloxAcceptRankId,
+                      error: rankResult.error,
+                      via: "bulk",
+                    },
+                  }).catch(() => {});
+                }
+              }).catch((e) => console.warn("Batch auto-rank error:", e));
+            }
+          } catch (robloxErr) {
+            console.warn("Roblox batch ranking setup error:", robloxErr);
+          }
+        }
       }
 
       await dispatchCommunityWebhook({

@@ -84,6 +84,10 @@ interface GuildData {
   enableRobloxGroupCheck?: boolean;
   robloxGroupId?: string | null;
   robloxMinRank?: number;
+  robloxMinAccountAgeDays?: number;
+  robloxAcceptRankId?: number | null;
+  robloxRequiredBadgeId?: string | null;
+  hasRobloxCloudApiKey?: boolean;
   enableBlindVoting: boolean;
   votePassThreshold?: number;
   plan?: string;
@@ -108,6 +112,8 @@ interface GuildData {
     description: string;
     isOpen: boolean;
     acceptRoleId?: string | null;
+    timeLimitMinutes?: number | null;
+    richMediaLinks?: boolean;
     questions: Array<{
       id: string;
       label: string;
@@ -118,6 +124,8 @@ interface GuildData {
       order: number;
       conditionalParentId?: string | null;
       conditionalValue?: string | null;
+      dependsOnQuestionId?: string | null;
+      dependsOnAnswerValue?: string | null;
     }>;
     _count: { applications: true };
   }>;
@@ -222,6 +230,11 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
   const [robloxGroupCheckToggle, setRobloxGroupCheckToggle] = useState(false);
   const [robloxGroupIdInput, setRobloxGroupIdInput] = useState("");
   const [robloxMinRankInput, setRobloxMinRankInput] = useState(1);
+  const [robloxMinAccountAgeDaysInput, setRobloxMinAccountAgeDaysInput] = useState(0);
+  const [robloxAcceptRankIdInput, setRobloxAcceptRankIdInput] = useState<string>("");
+  const [robloxRequiredBadgeIdInput, setRobloxRequiredBadgeIdInput] = useState("");
+  const [robloxCloudApiKeyInput, setRobloxCloudApiKeyInput] = useState("");
+  const [hasRobloxCloudApiKey, setHasRobloxCloudApiKey] = useState(false);
   const [blindVotingToggle, setBlindVotingToggle] = useState(false);
   const [votePassThresholdInput, setVotePassThresholdInput] = useState(2);
   const [newBlacklistVal, setNewBlacklistVal] = useState("");
@@ -234,6 +247,8 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
   const [newPosDept, setNewPosDept] = useState("Development");
   const [newPosDesc, setNewPosDesc] = useState("");
   const [newPosRole, setNewPosRole] = useState("");
+  const [newPosTimeLimit, setNewPosTimeLimit] = useState("");
+  const [newPosRichMedia, setNewPosRichMedia] = useState(true);
   const [newQModal, setNewQModal] = useState(false);
   const [newQLabel, setNewQLabel] = useState("");
   const [newQType, setNewQType] = useState("TEXT");
@@ -242,6 +257,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
   const [newQRequired, setNewQRequired] = useState(true);
   const [newQCondParent, setNewQCondParent] = useState("");
   const [newQCondVal, setNewQCondVal] = useState("");
+  const [editingQId, setEditingQId] = useState<string | null>(null);
 
   // Question & Opening Import state
   const [importQModal, setImportQModal] = useState(false);
@@ -263,6 +279,8 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
   const [editPosRole, setEditPosRole] = useState("");
   const [editPosIsOpen, setEditPosIsOpen] = useState(true);
   const [editPosIsPublic, setEditPosIsPublic] = useState(true);
+  const [editPosTimeLimit, setEditPosTimeLimit] = useState("");
+  const [editPosRichMedia, setEditPosRichMedia] = useState(true);
   const [savingPosEdit, setSavingPosEdit] = useState(false);
 
   const [loading, setLoading] = useState(true);
@@ -333,6 +351,11 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
         setRobloxGroupCheckToggle(data.enableRobloxGroupCheck || false);
         setRobloxGroupIdInput(data.robloxGroupId || "");
         setRobloxMinRankInput(data.robloxMinRank || 1);
+        setRobloxMinAccountAgeDaysInput(data.robloxMinAccountAgeDays || 0);
+        setRobloxAcceptRankIdInput(data.robloxAcceptRankId !== null && data.robloxAcceptRankId !== undefined ? String(data.robloxAcceptRankId) : "");
+        setRobloxRequiredBadgeIdInput(data.robloxRequiredBadgeId || "");
+        setHasRobloxCloudApiKey(Boolean(data.hasRobloxCloudApiKey));
+        setRobloxCloudApiKeyInput("");
         setBlindVotingToggle(data.enableBlindVoting || false);
         setVotePassThresholdInput(data.votePassThreshold || 2);
         setWebhookUrlInput(data.webhookUrl || "");
@@ -725,6 +748,8 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
     setEditPosRole(pos.acceptRoleId || "");
     setEditPosIsOpen(pos.isOpen ?? true);
     setEditPosIsPublic(pos.isPublic ?? true);
+    setEditPosTimeLimit(pos.timeLimitMinutes ? String(pos.timeLimitMinutes) : "");
+    setEditPosRichMedia(pos.richMediaLinks ?? true);
     setEditPosModal(true);
   };
 
@@ -743,6 +768,8 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           acceptRoleId: editPosRole.trim() || null,
           isOpen: editPosIsOpen,
           isPublic: editPosIsPublic,
+          timeLimitMinutes: editPosTimeLimit ? parseInt(editPosTimeLimit, 10) : null,
+          richMediaLinks: editPosRichMedia,
         }),
       });
       if (res.ok) {
@@ -819,6 +846,10 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           enableRobloxGroupCheck: robloxGroupCheckToggle,
           robloxGroupId: robloxGroupIdInput,
           robloxMinRank: Number(robloxMinRankInput),
+          robloxMinAccountAgeDays: Number(robloxMinAccountAgeDaysInput) || 0,
+          robloxAcceptRankId: robloxAcceptRankIdInput !== "" ? Number(robloxAcceptRankIdInput) : null,
+          robloxRequiredBadgeId: robloxRequiredBadgeIdInput.trim() || null,
+          ...(robloxCloudApiKeyInput.trim() ? { robloxCloudApiKey: robloxCloudApiKeyInput.trim() } : {}),
           enableBlindVoting: blindVotingToggle,
           votePassThreshold: Number(votePassThresholdInput),
           webhookUrl: webhookUrlInput,
@@ -1386,18 +1417,6 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
         >
           <Settings className="w-3.5 h-3.5" />
           <span>Community Settings & Gating</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab("templates")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors ${
-            activeTab === "templates"
-              ? "bg-purple-600 text-white shadow-md shadow-purple-600/30"
-              : "text-slate-400 hover:text-white hover:bg-white/5"
-          }`}
-        >
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>Form Templates</span>
         </button>
       </div>
 
@@ -3023,6 +3042,57 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                       className="w-full px-3 py-1.5 rounded-lg bg-surface border border-white/10 text-xs text-white font-mono focus:border-purple-500"
                     />
                   </div>
+                  <div>
+                    <label className="block text-[11px] font-medium text-slate-300 mb-1">
+                      Minimum Account Age (Days)
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={robloxMinAccountAgeDaysInput}
+                      onChange={(e) => setRobloxMinAccountAgeDaysInput(Math.max(0, Number(e.target.value)))}
+                      placeholder="0 (disabled)"
+                      className="w-full px-3 py-1.5 rounded-lg bg-surface border border-white/10 text-xs text-white font-mono focus:border-purple-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-medium text-slate-300 mb-1">
+                      Required Roblox Badge ID
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 2124849123"
+                      value={robloxRequiredBadgeIdInput}
+                      onChange={(e) => setRobloxRequiredBadgeIdInput(e.target.value)}
+                      className="w-full px-3 py-1.5 rounded-lg bg-surface border border-white/10 text-xs text-white font-mono focus:border-purple-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-medium text-slate-300 mb-1">
+                      Auto-Accept Target Rank (1-255)
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      max={255}
+                      value={robloxAcceptRankIdInput}
+                      onChange={(e) => setRobloxAcceptRankIdInput(e.target.value)}
+                      placeholder="Group Rank upon acceptance"
+                      className="w-full px-3 py-1.5 rounded-lg bg-surface border border-white/10 text-xs text-white font-mono focus:border-purple-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-medium text-slate-300 mb-1">
+                      Roblox Open Cloud API Key {hasRobloxCloudApiKey && <span className="text-emerald-400 font-bold">(Saved)</span>}
+                    </label>
+                    <input
+                      type="password"
+                      placeholder={hasRobloxCloudApiKey ? "•••••••••••••••• (Leave blank to keep current key)" : "Paste Open Cloud API Key"}
+                      value={robloxCloudApiKeyInput}
+                      onChange={(e) => setRobloxCloudApiKeyInput(e.target.value)}
+                      className="w-full px-3 py-1.5 rounded-lg bg-surface border border-white/10 text-xs text-white font-mono focus:border-purple-500"
+                    />
+                  </div>
                 </div>
               )}
             </div>
@@ -3125,54 +3195,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
         </div>
       )}
 
-      {/* TAB 5: 1-CLICK FORM TEMPLATES */}
-      {activeTab === "templates" && (
-        <div className="space-y-4">
-          <div className="mb-4">
-            <h2 className="text-base font-bold text-white">1-Click Starter Form Templates</h2>
-            <p className="text-xs text-slate-400">
-              Instantly create standard recruiting forms with pre-built questions for your community.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {FORM_TEMPLATES.map((tmpl) => (
-              <div
-                key={tmpl.id}
-                className="glass-panel rounded-2xl border border-white/10 p-5 flex flex-col justify-between space-y-4"
-              >
-                <div>
-                  <span className="text-[10px] font-bold text-purple-400 uppercase tracking-wider block mb-1">
-                    {tmpl.category}
-                  </span>
-                  <h3 className="text-sm font-bold text-white mb-1.5">{tmpl.name}</h3>
-                  <p className="text-xs text-slate-400 leading-relaxed mb-3">
-                    {tmpl.description}
-                  </p>
-                  <span className="text-[11px] text-slate-500">
-                    {tmpl.defaultQuestions.length} pre-configured questions
-                  </span>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActiveTab("builder");
-                    setNewPosTitle(tmpl.name);
-                    setNewPosDept(tmpl.category);
-                    setNewPosDesc(tmpl.description);
-                    setNewPosModal(true);
-                  }}
-                  className="w-full py-2 rounded-xl bg-white/5 hover:bg-purple-600 text-white text-xs font-semibold border border-white/10 hover:border-purple-500 transition-colors"
-                >
-                  Use Template
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-          {/* Modal: Import Applications (CSV / JSON) */}
+      {/* Modal: Import Applications (CSV / JSON) */}
       {importModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="glass-panel border border-white/10 rounded-2xl p-6 max-w-xl w-full space-y-4 shadow-2xl">

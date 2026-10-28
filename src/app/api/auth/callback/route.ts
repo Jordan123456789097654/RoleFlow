@@ -29,7 +29,7 @@ export async function GET(request: Request) {
   if (!clientId || !clientSecret) {
     return NextResponse.redirect(new URL("/?error=oauth_error", request.url));
   }
-  const redirectUri = oauthRedirectUri();
+  const redirectUri = "https://roleflow.site/api/auth/callback";
 
   try {
     // 1. Exchange authorization code for access token

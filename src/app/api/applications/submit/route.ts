@@ -6,6 +6,7 @@ import { dispatchCommunityWebhook } from "@/lib/webhook-dispatcher";
 import { sendApplicationSubmissionReceipt } from "@/lib/email";
 import { logger } from "@/lib/logger";
 import { discordSafe } from "@/lib/sanitize";
+import { checkRobloxAccountAge, checkUserBadgeOwnership } from "@/lib/roblox";
 
 export async function POST(request: Request) {
   try {
@@ -105,8 +106,13 @@ export async function POST(request: Request) {
       );
     }
 
-    // 2b. Check Roblox Group Membership & Rank (Feature #2)
-    if (position.guild.enableRobloxGroupCheck && position.guild.robloxGroupId) {
+    // 2b. Check Roblox Requirements (Group Membership, Rank, Account Age, and Required Badge)
+    const requiresRobloxCheck =
+      (position.guild.enableRobloxGroupCheck && position.guild.robloxGroupId) ||
+      (position.guild.robloxMinAccountAgeDays && position.guild.robloxMinAccountAgeDays > 0) ||
+      Boolean(position.guild.robloxRequiredBadgeId);
+
+    if (requiresRobloxCheck) {
       const targetRobloxUser = robloxUsername || user.robloxUsername;
       if (!targetRobloxUser) {
         return NextResponse.json(
@@ -138,28 +144,53 @@ export async function POST(request: Request) {
           );
         }
 
-        const groupRes = await fetch(`https://groups.roblox.com/v2/users/${rUserId}/groups/roles`);
-        if (groupRes.ok) {
-          const groupData = await groupRes.json();
-          const targetGroup = groupData.data?.find((g: any) => String(g.group.id) === String(position.guild.robloxGroupId));
-          
-          if (!targetGroup) {
+        // Check Minimum Account Age
+        if (position.guild.robloxMinAccountAgeDays && position.guild.robloxMinAccountAgeDays > 0) {
+          const ageCheck = await checkRobloxAccountAge(rUserId, position.guild.robloxMinAccountAgeDays);
+          if (!ageCheck.valid) {
             return NextResponse.json(
-              { error: `You must join the community's official Roblox group (ID: ${position.guild.robloxGroupId}) before applying.` },
-              { status: 403 }
-            );
-          }
-
-          const requiredRank = position.guild.robloxMinRank || 1;
-          if (targetGroup.role.rank < requiredRank) {
-            return NextResponse.json(
-              { error: `You need rank ${requiredRank}+ in the Roblox group to apply (Your current rank is ${targetGroup.role.rank} - "${targetGroup.role.name}").` },
+              { error: ageCheck.error || `Your Roblox account must be at least ${position.guild.robloxMinAccountAgeDays} days old to apply.` },
               { status: 403 }
             );
           }
         }
+
+        // Check Required Badge
+        if (position.guild.robloxRequiredBadgeId && position.guild.robloxRequiredBadgeId.trim()) {
+          const badgeCheck = await checkUserBadgeOwnership(rUserId, position.guild.robloxRequiredBadgeId.trim());
+          if (!badgeCheck.owned) {
+            return NextResponse.json(
+              { error: badgeCheck.error || `You do not own the required Roblox badge (ID: ${position.guild.robloxRequiredBadgeId}) to apply.` },
+              { status: 403 }
+            );
+          }
+        }
+
+        // Check Group Membership & Rank
+        if (position.guild.enableRobloxGroupCheck && position.guild.robloxGroupId) {
+          const groupRes = await fetch(`https://groups.roblox.com/v2/users/${rUserId}/groups/roles`);
+          if (groupRes.ok) {
+            const groupData = await groupRes.json();
+            const targetGroup = groupData.data?.find((g: any) => String(g.group.id) === String(position.guild.robloxGroupId));
+            
+            if (!targetGroup) {
+              return NextResponse.json(
+                { error: `You must join the community's official Roblox group (ID: ${position.guild.robloxGroupId}) before applying.` },
+                { status: 403 }
+              );
+            }
+
+            const requiredRank = position.guild.robloxMinRank || 1;
+            if (targetGroup.role.rank < requiredRank) {
+              return NextResponse.json(
+                { error: `You need rank ${requiredRank}+ in the Roblox group to apply (Your current rank is ${targetGroup.role.rank} - "${targetGroup.role.name}").` },
+                { status: 403 }
+              );
+            }
+          }
+        }
       } catch (e) {
-        console.error("Roblox group verification error:", e);
+        console.error("Roblox verification error:", e);
       }
     }
 

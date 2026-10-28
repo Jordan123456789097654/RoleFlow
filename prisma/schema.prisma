@@ -29,6 +29,7 @@ model User {
   supportCodeExpiresAt DateTime?     // Expiration timestamp
   applications         Application[]
   reviews              Review[]
+  communityReviews     CommunityReview[]
   resetTokens          PasswordResetToken[]
   createdAt            DateTime      @default(now())
   sessionVersion       Int           @default(0) // Bumped to revoke all sessions
@@ -62,6 +63,7 @@ model Guild {
   isPaused                   Boolean          @default(false) // Founder or owner paused community
   memberCount                Int              @default(0)
   tags                       String?          // Comma-separated: "Roblox,Studio,Development"
+  category                   String?          // e.g. "Roblox Studios", "Emergency Services", "Tech & Dev", "Gaming Clans", "Creator Networks"
   
   // Premium License & Plan
   plan                       String           @default("FREE") // FREE, PRO, ENTERPRISE, LIFETIME
@@ -104,6 +106,10 @@ model Guild {
   enableRobloxGroupCheck     Boolean          @default(false)
   robloxGroupId              String?
   robloxMinRank              Int              @default(1)
+  robloxMinAccountAgeDays    Int              @default(0)
+  robloxCloudApiKey          String?          // Encrypted Roblox Open Cloud API key
+  robloxAcceptRankId         Int?             // Target role rank number (1-255) to promote accepted applicants to in the group
+  robloxRequiredBadgeId      String?          // Optional required Roblox badge ID
   
   // Feature 3: Multi-Reviewer Blind Voting
   enableBlindVoting          Boolean          @default(false)
@@ -114,22 +120,25 @@ model Guild {
   blacklists                 Blacklist[]
   cannedResponses            CannedResponse[]
   staffTeam                  GuildStaff[]
+  reviews                    CommunityReview[]
   createdAt                  DateTime         @default(now())
 }
 
 model Position {
-  id           String        @id @default(cuid())
-  guildId      String
-  guild        Guild         @relation(fields: [guildId], references: [id], onDelete: Cascade)
-  title        String
-  department   String?       // e.g. "Development", "Staff & Moderation", "Design"
-  description  String
-  isPublic     Boolean       @default(true)
-  acceptRoleId String?       // Discord role ID granted upon acceptance (#1)
-  isOpen       Boolean       @default(true)
-  questions    Question[]
-  applications Application[]
-  createdAt    DateTime      @default(now())
+  id               String        @id @default(cuid())
+  guildId          String
+  guild            Guild         @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  title            String
+  department       String?       // e.g. "Development", "Staff & Moderation", "Design"
+  description      String
+  isPublic         Boolean       @default(true)
+  acceptRoleId     String?       // Discord role ID granted upon acceptance (#1)
+  isOpen           Boolean       @default(true)
+  timeLimitMinutes Int?          // Optional timed quiz/test countdown duration in minutes
+  richMediaLinks   Boolean       @default(true) // enables media/portfolio auto-preview on external links
+  questions        Question[]
+  applications     Application[]
+  createdAt        DateTime      @default(now())
 }
 
 model Question {
@@ -144,6 +153,8 @@ model Question {
   order               Int      @default(0)
   conditionalParentId String?  // ID of parent question this question depends on (#5)
   conditionalValue    String?  // Value of parent question that triggers this question (#5)
+  dependsOnQuestionId String?  // ID of the question this depends on
+  dependsOnAnswerValue String? // The expected answer value that reveals this question
   answers             Answer[]
 }
 
@@ -230,6 +241,20 @@ model Review {
   comment       String
   score         Int?        // 1-5 rating or vote (1: DENY, 5: APPROVE)
   createdAt     DateTime    @default(now())
+}
+
+model CommunityReview {
+  id        String   @id @default(cuid())
+  guildId   String
+  guild     Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating    Int      // 1-5 stars
+  comment   String   // review text up to 500 chars
+  createdAt DateTime @default(now())
+
+  @@unique([guildId, userId])
+  @@index([guildId])
 }
 
 model Blacklist {

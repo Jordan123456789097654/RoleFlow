@@ -30,6 +30,9 @@ export async function POST(
         const options = typeof q === "object" && q.options ? (typeof q.options === "string" ? q.options : JSON.stringify(q.options)) : null;
         const required = typeof q === "object" && q.required !== undefined ? Boolean(q.required) : true;
 
+        const dependsOnQuestionId = (typeof q === "object" && (q.dependsOnQuestionId || q.conditionalParentId)) ? String(q.dependsOnQuestionId || q.conditionalParentId) : null;
+        const dependsOnAnswerValue = (typeof q === "object" && (q.dependsOnAnswerValue || q.conditionalValue)) ? String(q.dependsOnAnswerValue || q.conditionalValue) : null;
+
         const created = await prisma.question.create({
           data: {
             positionId: params.id,
@@ -39,6 +42,10 @@ export async function POST(
             options,
             required,
             order: nextOrder++,
+            conditionalParentId: dependsOnQuestionId,
+            conditionalValue: dependsOnAnswerValue,
+            dependsOnQuestionId,
+            dependsOnAnswerValue,
           },
         });
         createdQuestions.push(created);
@@ -60,7 +67,12 @@ export async function POST(
       required,
       conditionalParentId,
       conditionalValue,
+      dependsOnQuestionId: rawDependsOnId,
+      dependsOnAnswerValue: rawDependsOnVal,
     } = body;
+
+    const parentId = rawDependsOnId !== undefined ? (rawDependsOnId || null) : (conditionalParentId || null);
+    const triggerVal = rawDependsOnVal !== undefined ? (rawDependsOnVal || null) : (conditionalValue || null);
 
     if (!label || !type) {
       return NextResponse.json({ error: "Label and question type are required" }, { status: 400 });
@@ -83,8 +95,10 @@ export async function POST(
         options: options ? (typeof options === "string" ? options : JSON.stringify(options)) : null,
         required: Boolean(required),
         order: newOrder,
-        conditionalParentId: conditionalParentId || null,
-        conditionalValue: conditionalValue || null,
+        conditionalParentId: parentId,
+        conditionalValue: triggerVal,
+        dependsOnQuestionId: parentId,
+        dependsOnAnswerValue: triggerVal,
       },
     });
 

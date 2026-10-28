@@ -35,9 +35,9 @@ export function clearSessionCookie(res: NextResponse) {
 }
 
 export function appOrigin(): string {
-  return process.env.NEXT_PUBLIC_APP_URL || (isProd() ? "https://roleflow.site" : "http://localhost:3000");
+  return "https://roleflow.site";
 }
 
 export function oauthRedirectUri(): string {
-  return process.env.DISCORD_REDIRECT_URI || `${appOrigin()}/api/auth/callback`;
+  return "https://roleflow.site/api/auth/callback";
 }

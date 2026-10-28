@@ -1,9 +1,10 @@
 /** Fields that must never leave the server in API responses. */
 export function sanitizeGuild<T extends Record<string, any>>(guild: T, opts: { keepLicense?: boolean } = {}) {
-  const { customBotToken, licenseKey, ...rest } = guild;
+  const { customBotToken, licenseKey, robloxCloudApiKey, ...rest } = guild;
   return {
     ...rest,
     hasCustomBotToken: Boolean(customBotToken),
+    hasRobloxCloudApiKey: Boolean(robloxCloudApiKey),
     ...(opts.keepLicense ? { licenseKey } : {}),
   };
 }

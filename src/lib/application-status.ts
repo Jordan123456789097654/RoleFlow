@@ -4,6 +4,9 @@ import { dispatchCommunityWebhook } from "./webhook-dispatcher";
 import { sendApplicationStatusEmail } from "./email";
 import { recordAudit } from "./audit";
 import { isSiteAdminUser } from "./roles";
+import { decryptSecret } from "./crypto";
+import { setGroupMemberRank } from "./roblox";
+import { logger } from "./logger";
 
 export const STATUSES = ["PENDING", "UNDER_REVIEW", "INTERVIEW", "ACCEPTED", "REJECTED"] as const;
 export type AppStatus = (typeof STATUSES)[number];
@@ -44,6 +47,58 @@ export async function changeApplicationStatus(args: {
       });
     } catch (err) {
       console.error("Status update email sending failed:", err);
+    }
+  }
+
+  // Roblox Open Cloud Auto-Ranking on ACCEPTED
+  if (args.status === "ACCEPTED") {
+    const guild = application.position.guild;
+    const applicant = application.user;
+
+    if (guild.robloxCloudApiKey && guild.robloxGroupId && guild.robloxAcceptRankId && applicant.robloxId) {
+      try {
+        const decryptedKey = decryptSecret(guild.robloxCloudApiKey);
+        if (decryptedKey) {
+          const rankResult = await setGroupMemberRank(
+            guild.robloxGroupId,
+            applicant.robloxId,
+            guild.robloxAcceptRankId,
+            decryptedKey
+          );
+
+          if (rankResult.success) {
+            logger.info(`Auto-ranked applicant ${applicant.username} (Roblox: ${applicant.robloxId}) to rank/role ${guild.robloxAcceptRankId} in group ${guild.robloxGroupId}`);
+            await recordAudit({
+              actorId: args.actorId,
+              action: "ROBLOX_AUTO_RANK_SUCCESS",
+              targetId: application.id,
+              details: {
+                guildId: guild.id,
+                robloxGroupId: guild.robloxGroupId,
+                robloxUserId: applicant.robloxId,
+                targetRank: guild.robloxAcceptRankId,
+                roleId: rankResult.roleId,
+              },
+            });
+          } else {
+            logger.warn(`Failed auto-ranking applicant ${applicant.username} in group ${guild.robloxGroupId}: ${rankResult.error}`);
+            await recordAudit({
+              actorId: args.actorId,
+              action: "ROBLOX_AUTO_RANK_FAILURE",
+              targetId: application.id,
+              details: {
+                guildId: guild.id,
+                robloxGroupId: guild.robloxGroupId,
+                robloxUserId: applicant.robloxId,
+                targetRank: guild.robloxAcceptRankId,
+                error: rankResult.error,
+              },
+            });
+          }
+        }
+      } catch (robloxErr: any) {
+        logger.error("Roblox auto-ranking process exception:", { error: robloxErr?.message || String(robloxErr) });
+      }
     }
   }
 
