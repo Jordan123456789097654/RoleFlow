@@ -987,111 +987,128 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
         </div>
       )}
 
-      {/* TAB 3: DISCORD BOT, WHITE-LABEL & NOTIFICATION CUSTOMIZATION */}
+      {/* TAB 3: DISCORD INTEGRATION & HOSTED BOT */}
       {activeTab === "bot" && (
         <div className="max-w-2xl glass-panel rounded-2xl border border-white/10 p-6 sm:p-8 space-y-6">
           <div>
             <h2 className="text-base font-bold text-white mb-1">
-              Discord Bot Configuration & Embed Customization
+              Discord Bot & Integration Mode
             </h2>
             <p className="text-xs text-slate-400">
-              Customize your alerts, staff pings, embed colors, and white-label bot token.
+              Choose how your community wants to handle applications — pure web portal or automated via your own bot token.
             </p>
           </div>
 
-          {/* Toggle Custom Bot */}
-          <div className="p-4 rounded-xl bg-surface border border-white/10 flex items-center justify-between">
-            <div>
-              <span className="text-xs font-bold text-white block">
-                Use Custom Community Bot Token (White-label)
-              </span>
-              <p className="text-[11px] text-slate-400">
-                When enabled, embeds and role assignments are dispatched from your own Discord bot!
+          {/* Mode Selector Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div
+              onClick={() => setUseCustomBotState(false)}
+              className={`p-4 rounded-xl cursor-pointer border transition-all ${
+                !useCustomBotState
+                  ? "bg-purple-950/30 border-purple-500 shadow-md shadow-purple-500/10"
+                  : "bg-surface/50 border-white/5 hover:border-white/20"
+              }`}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-white">Web-Only Mode</span>
+                {!useCustomBotState && <CheckCircle className="w-4 h-4 text-purple-400" />}
+              </div>
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                No Discord bot needed! Staff review, interview, and manage applicants entirely through the RoleFlow web dashboard.
               </p>
             </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={useCustomBotState}
-                onChange={(e) => setUseCustomBotState(e.target.checked)}
-                className="sr-only peer"
-              />
-              <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
-            </label>
+
+            <div
+              onClick={() => setUseCustomBotState(true)}
+              className={`p-4 rounded-xl cursor-pointer border transition-all ${
+                useCustomBotState
+                  ? "bg-purple-950/30 border-purple-500 shadow-md shadow-purple-500/10"
+                  : "bg-surface/50 border-white/5 hover:border-white/20"
+              }`}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-white">Hosted Bot Automation</span>
+                {useCustomBotState && <CheckCircle className="w-4 h-4 text-purple-400" />}
+              </div>
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                We host and dispatch your bot for you! Automatic staff channel embeds, role grants on accept, and applicant DMs.
+              </p>
+            </div>
           </div>
 
-          {/* Token input (if custom enabled) */}
+          {/* Token input & settings (if hosted bot enabled) */}
           {useCustomBotState && (
-            <div className="space-y-1.5 p-4 rounded-xl bg-purple-950/20 border border-purple-500/20">
-              <label className="block text-xs font-bold text-white flex items-center gap-1.5">
-                <Key className="w-3.5 h-3.5 text-purple-400" />
-                Custom Discord Bot Token
-              </label>
-              <input
-                type="password"
-                placeholder="Enter bot token from Discord Developer Portal..."
-                value={botTokenInput}
-                onChange={(e) => setBotTokenInput(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
-              />
+            <div className="space-y-4 pt-2">
+              <div className="space-y-1.5 p-4 rounded-xl bg-purple-950/20 border border-purple-500/20">
+                <label className="block text-xs font-bold text-white flex items-center gap-1.5">
+                  <Key className="w-3.5 h-3.5 text-purple-400" />
+                  Your Discord Bot Token
+                </label>
+                <input
+                  type="password"
+                  placeholder="Enter bot token from Discord Developer Portal..."
+                  value={botTokenInput}
+                  onChange={(e) => setBotTokenInput(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                />
+                <p className="text-[10px] text-slate-400">
+                  RoleFlow securely stores your token to dispatch embeds and grant roles on your server&apos;s behalf.
+                </p>
+              </div>
+
+              {/* Staff Log Channel ID */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-white">
+                  Staff Alert Channel ID (#application-logs)
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. 119876543210987654"
+                  value={logChannelInput}
+                  onChange={(e) => setLogChannelInput(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                />
+              </div>
+
+              {/* Staff Ping Role */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-white flex items-center gap-1.5">
+                  <Bell className="w-3.5 h-3.5 text-purple-400" />
+                  Staff Ping Role ID (Optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. 1046538179399929957 (Pings this role on new applications)"
+                  value={staffPingRoleInput}
+                  onChange={(e) => setStaffPingRoleInput(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                />
+              </div>
+
+              {/* Custom Embed Color */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-white flex items-center gap-1.5">
+                  <Palette className="w-3.5 h-3.5 text-purple-400" />
+                  Discord Embed Hex Color
+                </label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="color"
+                    value={embedColorInput}
+                    onChange={(e) => setEmbedColorInput(e.target.value)}
+                    className="w-10 h-10 rounded-xl bg-transparent border border-white/10 cursor-pointer"
+                  />
+                  <input
+                    type="text"
+                    value={embedColorInput}
+                    onChange={(e) => setEmbedColorInput(e.target.value)}
+                    placeholder="#8B5CF6"
+                    className="w-32 px-3 py-2 rounded-xl bg-surface border border-white/10 text-xs text-white font-mono focus:outline-none focus:border-purple-500"
+                  />
+                </div>
+              </div>
             </div>
           )}
-
-          {/* Staff Log Channel ID */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-white">
-              Staff Alert Channel ID (#application-logs)
-            </label>
-            <input
-              type="text"
-              placeholder="e.g. 119876543210987654"
-              value={logChannelInput}
-              onChange={(e) => setLogChannelInput(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
-            />
-          </div>
-
-          {/* Staff Ping Role */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-white flex items-center gap-1.5">
-              <Bell className="w-3.5 h-3.5 text-purple-400" />
-              Staff Ping Role ID (Optional)
-            </label>
-            <input
-              type="text"
-              placeholder="e.g. 1046538179399929957 (Pings this role on new applications)"
-              value={staffPingRoleInput}
-              onChange={(e) => setStaffPingRoleInput(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
-            />
-            <p className="text-[10px] text-slate-400">
-              Right-click your @Staff or @Recruiter role in Discord server settings to copy its Role ID.
-            </p>
-          </div>
-
-          {/* Custom Embed Color */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-white flex items-center gap-1.5">
-              <Palette className="w-3.5 h-3.5 text-purple-400" />
-              Custom Discord Embed Hex Color
-            </label>
-            <div className="flex items-center gap-3">
-              <input
-                type="color"
-                value={embedColorInput}
-                onChange={(e) => setEmbedColorInput(e.target.value)}
-                className="w-10 h-10 rounded-xl bg-transparent border border-white/10 cursor-pointer"
-              />
-              <input
-                type="text"
-                value={embedColorInput}
-                onChange={(e) => setEmbedColorInput(e.target.value)}
-                placeholder="#8B5CF6"
-                className="w-32 px-3 py-2 rounded-xl bg-surface border border-white/10 text-xs text-white font-mono focus:outline-none focus:border-purple-500"
-              />
-              <span className="text-[11px] text-slate-400">Color of embed borders in Discord</span>
-            </div>
-          </div>
 
           <button
             onClick={handleSaveSettings}
@@ -1099,7 +1116,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
             className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold flex items-center gap-2 shadow-lg shadow-violet-600/30"
           >
             <Save className="w-3.5 h-3.5" />
-            <span>{savingSettings ? "Saving..." : "Save Bot Settings"}</span>
+            <span>{savingSettings ? "Saving..." : "Save Integration Settings"}</span>
           </button>
         </div>
       )}

@@ -7,11 +7,9 @@
     "build": "prisma generate && next build",
     "postinstall": "prisma generate",
     "start": "next start -p 3000",
-    "bot": "tsx src/bot/index.ts",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
-    "db:studio": "prisma studio",
-    "dev:all": "concurrently -k -p \"[{name}]\" -n \"WEB,BOT\" -c \"magenta.bold,cyan.bold\" \"next dev -p 3000\" \"tsx src/bot/index.ts\""
+    "db:studio": "prisma studio"
   },
   "dependencies": {
     "@prisma/client": "^5.21.1",

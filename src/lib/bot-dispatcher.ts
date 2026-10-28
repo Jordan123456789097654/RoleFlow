@@ -22,47 +22,35 @@ interface StatusChangeParams {
 }
 
 /**
- * Dispatches Discord actions using either the Community's Custom Bot token or the Global AppliBot token.
+ * Dispatches automated Discord actions directly via Discord REST API using the community's custom bot token.
+ * If the community chooses "No Bot", actions are safely skipped.
  */
 export class BotDispatcher {
   /**
-   * Retrieves the active token for the guild (custom token if enabled, otherwise global token)
-   */
-  private static async getBotTokenForGuild(guildId: string): Promise<{ token: string | null; isCustom: boolean }> {
-    const guild = await prisma.guild.findUnique({
-      where: { id: guildId },
-      select: { useCustomBot: true, customBotToken: true },
-    });
-
-    if (guild?.useCustomBot && guild.customBotToken) {
-      return { token: guild.customBotToken, isCustom: true };
-    }
-
-    return { token: process.env.DISCORD_BOT_TOKEN || null, isCustom: false };
-  }
-
-  /**
-   * Sends an application notification embed into the community's configured staff channel
+   * Sends an application notification embed into the community's configured staff channel using their custom bot token.
    */
   static async sendApplicationAlert(params: SendApplicationAlertParams): Promise<boolean> {
     try {
       const guild = await prisma.guild.findUnique({
         where: { id: params.guildId },
-        select: { logChannelId: true, name: true, embedColor: true, staffPingRoleId: true },
+        select: {
+          logChannelId: true,
+          name: true,
+          embedColor: true,
+          staffPingRoleId: true,
+          useCustomBot: true,
+          customBotToken: true,
+        },
       });
 
-      if (!guild?.logChannelId) {
-        console.log(`[BotDispatcher] No staff log channel set for guild ${params.guildId}. Skipping embed.`);
-        return false;
-      }
-
-      const { token, isCustom } = await this.getBotTokenForGuild(params.guildId);
-      if (!token || token.includes("your_discord_bot_token")) {
-        console.log(`[BotDispatcher] [Dev Mode] Application alert simulated for ${params.applicantUsername} (${params.positionTitle})`);
+      // If community chose not to have a bot or didn't provide a token/channel, skip
+      if (!guild?.useCustomBot || !guild.customBotToken || !guild.logChannelId) {
+        console.log(`[BotDispatcher] Community ${params.guildId} is in Web-Only mode (No Bot). Skipping Discord alert.`);
         return true;
       }
 
-      const webReviewUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/dashboard/${params.guildId}?appId=${params.applicationId}`;
+      const token = guild.customBotToken.trim();
+      const webReviewUrl = `${process.env.NEXT_PUBLIC_APP_URL || "https://roleflow.site"}/dashboard/${params.guildId}`;
 
       const fields = params.summaryAnswers.slice(0, 4).map((ans) => ({
         name: ans.label.length > 250 ? ans.label.slice(0, 247) + "..." : ans.label,
@@ -94,7 +82,7 @@ export class BotDispatcher {
         thumbnail: params.applicantAvatar ? { url: params.applicantAvatar } : undefined,
         fields,
         footer: {
-          text: isCustom ? `${guild.name} Staff Portal` : "RoleFlow Application System",
+          text: `${guild.name} • Powered by RoleFlow`,
         },
         timestamp: new Date().toISOString(),
       };
@@ -106,23 +94,8 @@ export class BotDispatcher {
             {
               type: 2, // Button
               style: 5, // Link
-              label: "Review on RoleFlow",
+              label: "Review Application on RoleFlow",
               url: webReviewUrl,
-              emoji: { name: "🌐" },
-            },
-            {
-              type: 2,
-              style: 3, // Success / Green
-              label: "Quick Accept",
-              custom_id: `quick_accept_${params.applicationId}`,
-              emoji: { name: "✅" },
-            },
-            {
-              type: 2,
-              style: 4, // Danger / Red
-              label: "Quick Reject",
-              custom_id: `quick_reject_${params.applicationId}`,
-              emoji: { name: "❌" },
             },
           ],
         },
@@ -149,7 +122,7 @@ export class BotDispatcher {
   }
 
   /**
-   * Handles status updates (Accept role assignment, DMs to user, Interview channels)
+   * Handles status updates (Accept role assignment, DMs to applicant, Interview tickets)
    */
   static async handleStatusChange(params: StatusChangeParams): Promise<void> {
     try {
@@ -162,15 +135,13 @@ export class BotDispatcher {
         },
       });
 
-      if (!guild) return;
-
-      const { token } = await this.getBotTokenForGuild(params.guildId);
-      if (!token || token.includes("your_discord_bot_token")) {
-        console.log(`[BotDispatcher] [Dev Mode] Status change simulated: ${params.applicantDiscordId} -> ${params.newStatus}`);
-        return;
+      if (!guild?.useCustomBot || !guild.customBotToken) {
+        return; // No Bot configured for this community
       }
 
-      // 1. If ACCEPTED: Assign Discord Role automatically
+      const token = guild.customBotToken.trim();
+
+      // 1. If ACCEPTED: Assign Discord Role automatically using their bot token
       const targetPosition = guild.positions[0];
       if (params.newStatus === "ACCEPTED" && targetPosition?.acceptRoleId) {
         try {
@@ -181,7 +152,7 @@ export class BotDispatcher {
               headers: { Authorization: `Bot ${token}` },
             }
           );
-          console.log(`[BotDispatcher] Role ${targetPosition.acceptRoleId} granted to <@${params.applicantDiscordId}>`);
+          console.log(`[BotDispatcher] Auto-assigned role ${targetPosition.acceptRoleId} to user ${params.applicantDiscordId}`);
         } catch (err) {
           console.error("[BotDispatcher] Error assigning role:", err);
         }
@@ -205,13 +176,11 @@ export class BotDispatcher {
 
           if (threadRes.ok) {
             const threadData = (await threadRes.json()) as { id: string };
-            // Save thread ID to application
             await prisma.application.update({
               where: { id: params.applicationId },
               data: { interviewChannelId: threadData.id },
             });
 
-            // Post greeting in the interview thread
             await fetch(`https://discord.com/api/v10/channels/${threadData.id}/messages`, {
               method: "POST",
               headers: {
@@ -242,10 +211,10 @@ export class BotDispatcher {
         if (dmChannelRes.ok) {
           const dmData = (await dmChannelRes.json()) as { id: string };
           const statusColors: Record<string, number> = {
-            ACCEPTED: 0x10b981, // Emerald Green
-            REJECTED: 0xf43f5e, // Crimson Rose
-            INTERVIEW: 0x06b6d4, // Cyan
-            UNDER_REVIEW: 0xf59e0b, // Amber
+            ACCEPTED: 0x10b981,
+            REJECTED: 0xf43f5e,
+            INTERVIEW: 0x06b6d4,
+            UNDER_REVIEW: 0xf59e0b,
           };
 
           const statusTitles: Record<string, string> = {
@@ -262,7 +231,7 @@ export class BotDispatcher {
             fields: params.decisionNote
               ? [{ name: "Note from Staff", value: params.decisionNote }]
               : [],
-            footer: { text: "RoleFlow Application System" },
+            footer: { text: `${guild.name} • Powered by RoleFlow` },
             timestamp: new Date().toISOString(),
           };
 
@@ -276,7 +245,7 @@ export class BotDispatcher {
           });
         }
       } catch (err) {
-        console.log(`[BotDispatcher] Could not DM user <@${params.applicantDiscordId}> (DMs might be closed).`);
+        console.log(`[BotDispatcher] Could not DM user <@${params.applicantDiscordId}>.`);
       }
     } catch (err) {
       console.error("[BotDispatcher] Error handling status change:", err);
