@@ -16,11 +16,10 @@ export async function GET(request: Request) {
   let redirectUri = process.env.DISCORD_REDIRECT_URI;
   if (!redirectUri) {
     if (host.includes("localhost")) {
-      redirectUri = `http://localhost:3000/api/auth/callback`;
-    } else if (host.startsWith("www.")) {
-      redirectUri = `https://www.roleflow.site/api/auth/callback`;
+      redirectUri = "http://localhost:3000/api/auth/callback";
     } else {
-      redirectUri = `https://roleflow.site/api/auth/callback`;
+      // Always use apex domain https://roleflow.site to guarantee matching Discord's registered redirect URI
+      redirectUri = "https://roleflow.site/api/auth/callback";
     }
   }
 
@@ -85,12 +84,14 @@ export async function GET(request: Request) {
     });
 
     // 4. Set session cookie and redirect home
+    const isLocalhost = host.includes("localhost");
     const response = NextResponse.redirect(new URL("/", request.url));
     response.cookies.set("roleflow_user_id", user.id, {
       path: "/",
       httpOnly: true,
       maxAge: 60 * 60 * 24 * 30, // 30 days
       sameSite: "lax",
+      ...(isLocalhost ? {} : { domain: ".roleflow.site" }),
     });
 
     return response;

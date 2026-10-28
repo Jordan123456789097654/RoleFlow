@@ -9,11 +9,10 @@ export async function GET(request: Request) {
 
   if (!redirectUri) {
     if (host.includes("localhost")) {
-      redirectUri = `http://localhost:3000/api/auth/callback`;
-    } else if (host.startsWith("www.")) {
-      redirectUri = `https://www.roleflow.site/api/auth/callback`;
+      redirectUri = "http://localhost:3000/api/auth/callback";
     } else {
-      redirectUri = `https://roleflow.site/api/auth/callback`;
+      // Always use apex domain https://roleflow.site to guarantee matching Discord's registered redirect URI
+      redirectUri = "https://roleflow.site/api/auth/callback";
     }
   }
 
