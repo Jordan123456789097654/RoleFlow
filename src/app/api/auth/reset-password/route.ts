@@ -1,3 +1,5 @@
+import { requiresSecondFactor, setPendingCookie } from "@/lib/second-factor";
+import { signSessionValue } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
@@ -45,10 +47,10 @@ export async function POST(request: Request) {
     const passwordHash = await bcrypt.hash(newPassword, saltRounds);
 
     // Update user password and mark token as used
-    await prisma.$transaction([
+    const [updatedUser] = await prisma.$transaction([
       prisma.user.update({
         where: { id: resetRecord.userId },
-        data: { passwordHash },
+        data: { passwordHash, sessionVersion: { increment: 1 } }, // revokes all other sessions
       }),
       prisma.passwordResetToken.update({
         where: { id: resetRecord.id },
@@ -56,13 +58,24 @@ export async function POST(request: Request) {
       }),
     ]);
 
+    if (requiresSecondFactor(updatedUser)) {
+      const pendingRes = NextResponse.json({
+        success: true,
+        requires2fa: true,
+        redirect: "/auth/2fa",
+        message: "Password updated. Enter your 2FA code to finish signing in.",
+      });
+      setPendingCookie(pendingRes, updatedUser.id, updatedUser.sessionVersion, request.headers.get("host") || "");
+      return pendingRes;
+    }
+
     // Create session cookie so user is logged in automatically
     const response = NextResponse.json({
       success: true,
       message: "Password reset successful! You are now logged in.",
     });
 
-    response.cookies.set("roleflow_user_id", resetRecord.userId, {
+    response.cookies.set("roleflow_user_id", signSessionValue(resetRecord.userId, updatedUser.sessionVersion), {
       path: "/",
       httpOnly: true,
       sameSite: "lax",

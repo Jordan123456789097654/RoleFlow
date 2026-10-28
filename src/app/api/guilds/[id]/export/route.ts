@@ -1,3 +1,4 @@
+import { authorizeGuild } from "@/lib/guild-access";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
@@ -5,6 +6,7 @@ export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
+  const __a = await authorizeGuild(params.id, "decide"); if (!__a.ok) return __a.response;
   try {
     const guild = await prisma.guild.findUnique({
       where: { id: params.id },

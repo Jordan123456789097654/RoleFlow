@@ -108,6 +108,9 @@ export function Footer() {
                 <Link href="/acceptable-use" className="hover:text-purple-300 transition-colors">
                   Acceptable Use Policy
                 </Link>
+                <Link href="/cookies" className="hover:text-purple-300 transition-colors">Cookies</Link>
+                <Link href="/billing" className="hover:text-purple-300 transition-colors">Billing</Link>
+                <Link href="/community-guidelines" className="hover:text-purple-300 transition-colors">Community Guidelines</Link>
               </li>
               <li>
                 <span className="text-slate-500">GDPR & Discord Developer Compliant</span>

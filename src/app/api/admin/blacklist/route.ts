@@ -1,3 +1,4 @@
+import { verifySessionValue } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
@@ -8,7 +9,7 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   try {
     const cookieStore = cookies();
-    const userId = cookieStore.get("roleflow_user_id")?.value;
+    const userId = await verifySessionValue(cookieStore.get("roleflow_user_id")?.value);
 
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -34,7 +35,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const cookieStore = cookies();
-    const userId = cookieStore.get("roleflow_user_id")?.value;
+    const userId = await verifySessionValue(cookieStore.get("roleflow_user_id")?.value);
 
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -69,7 +70,7 @@ export async function POST(request: Request) {
 
       await prisma.user.updateMany({
         where: { id: targetValue.trim() },
-        data: { isBanned: true },
+        data: { isBanned: true, sessionVersion: { increment: 1 } },
       });
 
       if (targetUser && targetUser.email) {
@@ -92,7 +93,7 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
   try {
     const cookieStore = cookies();
-    const userId = cookieStore.get("roleflow_user_id")?.value;
+    const userId = await verifySessionValue(cookieStore.get("roleflow_user_id")?.value);
 
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

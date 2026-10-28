@@ -9,7 +9,10 @@
     "start": "next start -p 3000",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "test": "tsx --test src/lib/session.test.ts",
+    "discord:register": "tsx scripts/register-discord-commands.ts",
+    "review:communities": "tsx scripts/review-communities.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.21.1",

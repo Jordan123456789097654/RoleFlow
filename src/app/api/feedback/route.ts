@@ -1,3 +1,4 @@
+import { verifySessionValue } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
@@ -28,7 +29,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const cookieStore = cookies();
-    const userId = cookieStore.get("roleflow_user_id")?.value;
+    const userId = await verifySessionValue(cookieStore.get("roleflow_user_id")?.value);
 
     let authorId = null;
     let authorName = null;
@@ -74,7 +75,7 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   try {
     const cookieStore = cookies();
-    const userId = cookieStore.get("roleflow_user_id")?.value;
+    const userId = await verifySessionValue(cookieStore.get("roleflow_user_id")?.value);
 
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -110,7 +111,7 @@ export async function PATCH(request: Request) {
 export async function DELETE(request: Request) {
   try {
     const cookieStore = cookies();
-    const userId = cookieStore.get("roleflow_user_id")?.value;
+    const userId = await verifySessionValue(cookieStore.get("roleflow_user_id")?.value);
 
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

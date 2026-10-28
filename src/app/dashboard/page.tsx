@@ -339,7 +339,7 @@ export default function DashboardHubPage() {
                   </div>
 
                   {/* Quick Action Buttons */}
-                  <div className="grid grid-cols-3 gap-2 mt-4 pt-1">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-4 pt-1">
                     <Link
                       href={`/dashboard/${g.id}?tab=builder`}
                       className="px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-[11px] font-medium text-slate-300 hover:text-white text-center transition-colors border border-white/5"

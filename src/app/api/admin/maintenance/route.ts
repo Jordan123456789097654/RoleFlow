@@ -1,3 +1,5 @@
+import { isFounderUser } from "@/lib/roles";
+import { verifySessionValue } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
@@ -25,14 +27,14 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const cookieStore = cookies();
-    const userId = cookieStore.get("roleflow_user_id")?.value;
+    const userId = await verifySessionValue(cookieStore.get("roleflow_user_id")?.value);
 
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const currentUser = await prisma.user.findUnique({ where: { id: userId } });
-    const isFounder = currentUser?.isSiteAdmin || currentUser?.id === "1046538179399929957";
+    const isFounder = !!currentUser && isFounderUser(currentUser);
 
     if (!isFounder) {
       return NextResponse.json({ error: "Forbidden: Founder authorization required" }, { status: 403 });

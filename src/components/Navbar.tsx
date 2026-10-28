@@ -125,6 +125,17 @@ export function Navbar({ user }: NavbarProps) {
               <Compass className="w-3.5 h-3.5" />
               <span>Browse Openings</span>
             </Link>
+            <Link
+              href="/marketplace"
+              className={cn(
+                "px-3 py-1.5 rounded-xl text-xs font-medium transition-all",
+                pathname === "/marketplace"
+                  ? "text-white bg-white/10 shadow-sm"
+                  : "text-slate-400 hover:text-white hover:bg-white/5"
+              )}
+            >
+              <span>Templates</span>
+            </Link>
 
             {user && (
               <Link
@@ -412,6 +423,15 @@ export function Navbar({ user }: NavbarProps) {
           >
             <Compass className="w-4 h-4" />
             <span>Browse Openings</span>
+          </Link>
+          <Link
+            href="/marketplace"
+            className={cn(
+              "flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium",
+              pathname === "/marketplace" ? "text-white bg-white/10" : "text-slate-300 hover:bg-white/5"
+            )}
+          >
+            <span>Template Marketplace</span>
           </Link>
 
           {user && (

@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { logger } from "./logger";
+import { logEvent } from "./health";
 
 const resendApiKey = process.env.RESEND_API_KEY || "";
 const resend = new Resend(resendApiKey);
@@ -463,5 +464,35 @@ export async function sendModerationNoticeEmail({
     return { success: true, id: data?.id };
   } catch (err: any) {
     return { success: false, error: err.message };
+  }
+}
+
+/** Short account-security notice (new device sign-in, support access). */
+export async function sendSecurityNoticeEmail({
+  toEmail,
+  username,
+  heading,
+  message,
+}: {
+  toEmail: string;
+  username: string;
+  heading: string;
+  message: string;
+}): Promise<EmailResult> {
+  const esc = (v: string) => v.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const html = renderEmailShell(
+    heading,
+    `<p>Hi ${esc(username)},</p><p>${esc(message)}</p><p>If this wasn't you, change your password and contact RoleFlow support.</p>`
+  );
+  try {
+    const { data, error } = await resend.emails.send({ from: FROM_EMAIL, to: toEmail, subject: heading, html });
+    if (error) {
+      await logEvent("ERROR", "email", `Security notice to ${toEmail} failed: ${error.message}`);
+      return { success: false, error: error.message };
+    }
+    return { success: true, id: data?.id };
+  } catch (err: any) {
+    await logEvent("ERROR", "email", `Security notice to ${toEmail} threw: ${err?.message || "send failed"}`);
+    return { success: false, error: err?.message || "send failed" };
   }
 }

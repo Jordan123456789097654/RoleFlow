@@ -295,7 +295,7 @@ export default function FeedbackPage() {
           {formType === "BUG_REPORT" && (
             <div>
               <label className="block text-xs font-semibold text-slate-300 mb-1">Severity Level</label>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                 {["LOW", "NORMAL", "HIGH", "CRITICAL"].map((sev) => (
                   <button
                     key={sev}

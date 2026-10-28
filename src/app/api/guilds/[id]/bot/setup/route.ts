@@ -1,3 +1,5 @@
+import { isGuildPaid } from "@/lib/licensing";
+import { verifySessionValue } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
@@ -10,7 +12,7 @@ export async function POST(
 ) {
   try {
     const cookieStore = cookies();
-    const userId = cookieStore.get("roleflow_user_id")?.value;
+    const userId = await verifySessionValue(cookieStore.get("roleflow_user_id")?.value);
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -117,6 +119,9 @@ export async function POST(
     const staffRoleId = createdRoles["Staff Reviewer"] || null;
 
     // 4. Update Guild settings in DB
+    if (!(await isGuildPaid(params.id))) {
+      return NextResponse.json({ error: "Custom bots need a license. Redeem a key to unlock them." }, { status: 402 });
+    }
     const updated = await prisma.guild.update({
       where: { id: params.id },
       data: {

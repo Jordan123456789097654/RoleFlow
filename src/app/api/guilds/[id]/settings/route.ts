@@ -1,3 +1,5 @@
+import { isGuildPaid } from "@/lib/licensing";
+import { verifySessionValue } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
@@ -10,7 +12,7 @@ export async function PATCH(
 ) {
   try {
     const cookieStore = cookies();
-    const userId = cookieStore.get("roleflow_user_id")?.value;
+    const userId = await verifySessionValue(cookieStore.get("roleflow_user_id")?.value);
 
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized. Please log in." }, { status: 401 });
@@ -66,6 +68,7 @@ export async function PATCH(
       embedColor,
       webhookUrl,
       portalTheme,
+      portalLayout,
       portalAccentColor,
       discordWidgetEnabled,
     } = body;
@@ -81,6 +84,9 @@ export async function PATCH(
       }
     }
 
+    if ((useCustomBot === true || (webhookUrl && String(webhookUrl).trim())) && !(await isGuildPaid(params.id))) {
+      return NextResponse.json({ error: "Custom bots and webhook logs need a license. Redeem a key to unlock them." }, { status: 402 });
+    }
     const updated = await prisma.guild.update({
       where: { id: params.id },
       data: {
@@ -106,6 +112,7 @@ export async function PATCH(
         ...(embedColor ? { embedColor: embedColor.trim() } : {}),
         ...(webhookUrl !== undefined ? { webhookUrl: webhookUrl?.trim() || null } : {}),
         ...(portalTheme !== undefined ? { portalTheme: portalTheme?.trim() || "obsidian" } : {}),
+        ...(["banner", "minimal", "cards"].includes(portalLayout) ? { portalLayout } : {}),
         ...(portalAccentColor !== undefined ? { portalAccentColor: portalAccentColor?.trim() || "#8B5CF6" } : {}),
         ...(typeof discordWidgetEnabled === "boolean" ? { discordWidgetEnabled } : {}),
       },

@@ -1,0 +1,64 @@
+import { createHmac, timingSafeEqual } from "crypto";
+
+export const SESSION_COOKIE_NAME = "roleflow_user_id";
+
+function getSecret(): string | null {
+  const secret = process.env.APP_SECRET;
+  return secret && secret.length >= 16 ? secret : null;
+}
+
+function hmac(payload: string, secret: string): string {
+  return createHmac("sha256", secret).update(payload).digest("base64url");
+}
+
+/**
+ * Cookie format: "<userId>.<sessionVersion>.<hmac>".
+ * The sessionVersion must match the user's current value in the database,
+ * so bumping it (password reset, ban) revokes every existing session.
+ */
+export function signSessionValue(userId: string, sessionVersion: number): string {
+  const secret = getSecret();
+  if (!secret) {
+    throw new Error("APP_SECRET must be set (at least 16 characters) to create sessions.");
+  }
+  const payload = `${userId}.${sessionVersion}`;
+  return `${payload}.${hmac(payload, secret)}`;
+}
+
+/** Checks the signature only. Does not confirm the session is still valid. */
+export function parseSessionValue(raw: string | undefined | null): { userId: string; sessionVersion: number } | null {
+  const secret = getSecret();
+  if (!raw || !secret) return null;
+
+  const lastDot = raw.lastIndexOf(".");
+  if (lastDot <= 0) return null;
+  const payload = raw.slice(0, lastDot);
+  const sig = raw.slice(lastDot + 1);
+
+  const expected = hmac(payload, secret);
+  const a = Buffer.from(sig);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length || !timingSafeEqual(a, b)) return null;
+
+  const versionDot = payload.lastIndexOf(".");
+  if (versionDot <= 0) return null;
+  const userId = payload.slice(0, versionDot);
+  const sessionVersion = Number(payload.slice(versionDot + 1));
+  if (!Number.isInteger(sessionVersion)) return null;
+
+  return { userId, sessionVersion };
+}
+
+/** Full check: signature valid AND session version still current. Returns the user ID or null. */
+export async function verifySessionValue(raw: string | undefined | null): Promise<string | null> {
+  const parsed = parseSessionValue(raw);
+  if (!parsed) return null;
+
+  const { prisma } = await import("./prisma");
+  const user = await prisma.user.findUnique({
+    where: { id: parsed.userId },
+    select: { sessionVersion: true },
+  });
+  if (!user || user.sessionVersion !== parsed.sessionVersion) return null;
+  return parsed.userId;
+}

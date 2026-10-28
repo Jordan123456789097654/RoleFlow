@@ -1,3 +1,4 @@
+import { logEvent } from "./health";
 import { prisma } from "./prisma";
 
 interface SendApplicationAlertParams {
@@ -89,19 +90,14 @@ export class BotDispatcher {
         timestamp: new Date().toISOString(),
       };
 
-      const components = [
-        {
-          type: 1, // ActionRow
-          components: [
-            {
-              type: 2, // Button
-              style: 5, // Link
-              label: "Review Application on RoleFlow",
-              url: webReviewUrl,
-            },
-          ],
-        },
-      ];
+      const linkButton = { type: 2, style: 5, label: "Review on RoleFlow", url: webReviewUrl };
+      const quickButtons = guild.useCustomBot
+        ? []
+        : [
+            { type: 2, style: 3, label: "Quick Accept", custom_id: `rf:accept:${params.applicationId}` },
+            { type: 2, style: 4, label: "Quick Reject", custom_id: `rf:reject:${params.applicationId}` },
+          ];
+      const components = [{ type: 1, components: [linkButton, ...quickButtons] }];
 
       const res = await fetch(`https://discord.com/api/v10/channels/${guild.logChannelId}/messages`, {
         method: "POST",
@@ -116,9 +112,14 @@ export class BotDispatcher {
         }),
       });
 
+      if (!res.ok) {
+        const body = await res.text().catch(() => "");
+        await logEvent("ERROR", "bot", `Alert for application ${params.applicationId} failed: ${res.status} ${body.slice(0, 200)}`);
+      }
       return res.ok;
     } catch (err) {
       console.error("[BotDispatcher] Failed to send application alert:", err);
+      await logEvent("ERROR", "bot", `Alert for application ${params.applicationId} threw: ${String(err).slice(0, 200)}`);
       return false;
     }
   }

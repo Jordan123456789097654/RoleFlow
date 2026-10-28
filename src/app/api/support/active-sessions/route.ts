@@ -1,3 +1,4 @@
+import { verifySessionValue } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
@@ -7,7 +8,7 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   try {
     const cookieStore = cookies();
-    const callerId = cookieStore.get("roleflow_user_id")?.value;
+    const callerId = await verifySessionValue(cookieStore.get("roleflow_user_id")?.value);
 
     if (!callerId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

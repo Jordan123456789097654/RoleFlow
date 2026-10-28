@@ -1,3 +1,4 @@
+import { authorizePosition } from "@/lib/guild-access";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
@@ -7,6 +8,7 @@ export async function POST(
   request: Request,
   { params }: { params: { id: string } }
 ) {
+  const __a = await authorizePosition(params.id, "manage"); if (!__a.ok) return __a.response;
   try {
     const body = await request.json();
 
@@ -98,6 +100,7 @@ export async function PATCH(
   request: Request,
   { params }: { params: { id: string } }
 ) {
+  const __a = await authorizePosition(params.id, "manage"); if (!__a.ok) return __a.response;
   try {
     const { questions } = await request.json(); // Array of { id, order }
 

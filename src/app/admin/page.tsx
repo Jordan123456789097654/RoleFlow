@@ -2,6 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import ModerationPanel from "@/components/admin/ModerationPanel";
+import HealthPanel from "@/components/admin/HealthPanel";
+import MetricsPanel from "@/components/admin/MetricsPanel";
+import AccountsPanel from "@/components/admin/AccountsPanel";
+import FlagsPanel from "@/components/admin/FlagsPanel";
 import {
   Shield,
   BadgeCheck,
@@ -103,7 +108,8 @@ interface BlacklistEntry {
 }
 
 export default function SiteAdminPage() {
-  const [activeTab, setActiveTab] = useState<"guilds" | "staff" | "licenses" | "changelog" | "blacklist" | "feedback">("guilds");
+  const [activeTab, setActiveTab] = useState<"guilds" | "staff" | "licenses" | "changelog" | "blacklist" | "feedback" | "moderation" | "health" | "metrics" | "accounts" | "flags">("guilds");
+  const [whoami, setWhoami] = useState<{ username: string; isFounder: boolean; isAdmin: boolean } | null>(null);
   const [guilds, setGuilds] = useState<AdminGuild[]>([]);
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [changelogs, setChangelogs] = useState<ChangelogItem[]>([]);
@@ -149,6 +155,7 @@ export default function SiteAdminPage() {
   const [blacklisting, setBlacklisting] = useState(false);
 
   useEffect(() => {
+    fetch("/api/admin/whoami").then((r) => (r.ok ? r.json() : null)).then(setWhoami);
     fetchGuilds();
     fetchUsers();
     fetchLicenses();
@@ -677,9 +684,9 @@ export default function SiteAdminPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Shield className="w-5 h-5 text-purple-400" />
-            <h1 className="text-2xl font-black text-white">Founder Master Command Console</h1>
+            <h1 className="text-2xl font-black text-white">{whoami?.isFounder ? "Founder Master Command Console" : "Site Admin Console"}</h1>
             <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30 font-mono">
-              Jordan (Founder)
+              {whoami?.username ?? ""} {whoami?.isFounder ? "(Founder)" : "(Admin)"}
             </span>
           </div>
           <p className="text-xs text-slate-400">
@@ -695,6 +702,8 @@ export default function SiteAdminPage() {
         )}
       </div>
 
+      {whoami?.isFounder && (
+<>
       {/* Platform Maintenance Mode Toggle */}
       <div
         className={`p-5 rounded-2xl border transition-all flex flex-col gap-4 ${
@@ -793,8 +802,61 @@ export default function SiteAdminPage() {
         </div>
       </div>
 
+</>
+      )}
+
       {/* Tabs */}
       <div className="flex flex-wrap items-center gap-2 sm:gap-3 border-b border-surface-border pb-3">
+        <button
+          onClick={() => setActiveTab("moderation")}
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+            activeTab === "moderation" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30" : "text-slate-400 hover:text-white hover:bg-white/5"
+          }`}
+        >
+          <span>Moderation</span>
+        </button>
+        <button
+          onClick={() => setActiveTab("accounts")}
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+            activeTab === "accounts" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30" : "text-slate-400 hover:text-white hover:bg-white/5"
+          }`}
+        >
+          <span>Accounts</span>
+        </button>
+        <button
+          onClick={() => setActiveTab("health")}
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+            activeTab === "health" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30" : "text-slate-400 hover:text-white hover:bg-white/5"
+          }`}
+        >
+          <span>Health</span>
+        </button>
+        <button
+          onClick={() => setActiveTab("metrics")}
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+            activeTab === "metrics" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30" : "text-slate-400 hover:text-white hover:bg-white/5"
+          }`}
+        >
+          <span>Metrics</span>
+        </button>
+        {whoami?.isFounder && (
+          <>
+        <button
+            onClick={() => setActiveTab("flags")}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+              activeTab === "flags" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30" : "text-slate-400 hover:text-white hover:bg-white/5"
+            }`}
+          >
+            <span>Feature Flags</span>
+          </button>
+            </>
+        )}
+        {whoami?.isFounder && (
+          <a href="/admin/audit" className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-white/5">
+            <span>Audit Log</span>
+          </a>
+        )}
+
         <button
           onClick={() => setActiveTab("guilds")}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
@@ -817,6 +879,7 @@ export default function SiteAdminPage() {
           <Users className="w-4 h-4" />
           <span>Site Staff & Admins ({users.filter((u) => u.isSupportStaff || u.isSiteAdmin || u.siteRole).length})</span>
         </button>
+        {whoami?.isFounder && (
         <button
           onClick={() => setActiveTab("licenses")}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
@@ -828,6 +891,7 @@ export default function SiteAdminPage() {
           <Key className="w-4 h-4" />
           <span>License Keys (Coming Soon)</span>
         </button>
+        )}
         <button
           onClick={() => setActiveTab("changelog")}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
@@ -864,6 +928,12 @@ export default function SiteAdminPage() {
       </div>
 
       {/* TAB 1: COMMUNITIES */}
+      {activeTab === "moderation" && <ModerationPanel />}
+      {activeTab === "accounts" && <AccountsPanel />}
+      {activeTab === "health" && <HealthPanel />}
+      {activeTab === "metrics" && <MetricsPanel />}
+      {activeTab === "flags" && whoami?.isFounder && <FlagsPanel />}
+
       {activeTab === "guilds" && (
         <div className="space-y-6">
           {/* Global Stat Cards */}

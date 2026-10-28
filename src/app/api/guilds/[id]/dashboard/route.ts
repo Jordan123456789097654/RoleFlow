@@ -1,3 +1,4 @@
+import { verifySessionValue } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
@@ -10,7 +11,7 @@ export async function GET(
 ) {
   try {
     const cookieStore = cookies();
-    const userId = cookieStore.get("roleflow_user_id")?.value;
+    const userId = await verifySessionValue(cookieStore.get("roleflow_user_id")?.value);
 
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized. Please log in." }, { status: 401 });
@@ -48,7 +49,7 @@ export async function GET(
     const staffMember = guild.staffTeam.find((s) => s.userId === currentUser.id);
     const isStaff = !!staffMember;
 
-    if (!isOwner && !isSiteAdmin && !isStaff) {
+    if (!isOwner && !isSiteAdmin && !(isStaff && staffMember?.permissions !== "view_only")) {
       return NextResponse.json(
         { error: "Forbidden: You do not own or manage this community." },
         { status: 403 }

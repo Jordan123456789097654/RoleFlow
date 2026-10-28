@@ -1,0 +1,64 @@
+import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { prisma } from "@/lib/prisma";
+import { verifySessionValue, SESSION_COOKIE_NAME } from "@/lib/session";
+import { isSiteAdminUser } from "@/lib/roles";
+import { recordAudit } from "@/lib/audit";
+
+export const dynamic = "force-dynamic";
+
+async function requireAdmin() {
+  const userId = await verifySessionValue(cookies().get(SESSION_COOKIE_NAME)?.value);
+  if (!userId) return null;
+  const me = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, isSiteAdmin: true, siteRole: true } });
+  return me && isSiteAdminUser(me) ? me : null;
+}
+
+/** Open reports grouped by target, most distinct reporters first. */
+export async function GET() {
+  const me = await requireAdmin();
+  if (!me) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+  const open = await prisma.contentReport.findMany({ where: { status: "OPEN" }, orderBy: { createdAt: "desc" } });
+  const grouped = new Map<string, { targetType: string; targetId: string; reporters: Set<string>; reasons: string[]; latest: Date }>();
+  for (const r of open) {
+    const key = `${r.targetType}:${r.targetId}`;
+    const g = grouped.get(key) ?? { targetType: r.targetType, targetId: r.targetId, reporters: new Set(), reasons: [], latest: r.createdAt };
+    g.reporters.add(r.reporterId);
+    if (g.reasons.length < 5) g.reasons.push(r.reason);
+    if (r.createdAt > g.latest) g.latest = r.createdAt;
+    grouped.set(key, g);
+  }
+
+  const guildIds = [...grouped.values()].filter((g) => g.targetType === "GUILD").map((g) => g.targetId);
+  const guilds = await prisma.guild.findMany({ where: { id: { in: guildIds } }, select: { id: true, name: true, isPaused: true } });
+  const guildMap = Object.fromEntries(guilds.map((g) => [g.id, g]));
+
+  const rows = [...grouped.values()]
+    .map((g) => ({
+      targetType: g.targetType,
+      targetId: g.targetId,
+      targetName: g.targetType === "GUILD" ? guildMap[g.targetId]?.name ?? "(deleted)" : g.targetId,
+      isPaused: g.targetType === "GUILD" ? guildMap[g.targetId]?.isPaused ?? false : null,
+      distinctReporters: g.reporters.size,
+      reasons: g.reasons,
+      latestAt: g.latest,
+    }))
+    .sort((a, b) => b.distinctReporters - a.distinctReporters);
+  return NextResponse.json(rows);
+}
+
+/** Close all open reports on a target: DISMISS (no action) or ACTION (acted on). */
+export async function POST(request: Request) {
+  const me = await requireAdmin();
+  if (!me) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+  const { targetType, targetId, decision } = await request.json();
+  if (!["DISMISS", "ACTION"].includes(decision)) return NextResponse.json({ error: "Invalid decision" }, { status: 400 });
+  const result = await prisma.contentReport.updateMany({
+    where: { targetType, targetId: String(targetId), status: "OPEN" },
+    data: { status: decision === "DISMISS" ? "DISMISSED" : "ACTIONED" },
+  });
+  await recordAudit({ actorId: me.id, action: "REPORTS_CLOSE", targetId: String(targetId), details: { decision, count: result.count } });
+  return NextResponse.json({ success: true, closed: result.count });
+}

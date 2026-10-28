@@ -1,199 +1,68 @@
-import React from "react";
-import Link from "next/link";
-import { Lock, ArrowLeft, Eye, ShieldCheck, Database, Mail, CheckCircle2, FileText, UserCheck } from "lucide-react";
+import LegalDocument from "@/components/legal/LegalDocument";
+
+const sections = [
+  { title: "Who we are", paragraphs: [
+    "RoleFlow is operated by [LEGAL ENTITY NAME]. For privacy requests, contact [CONTACT EMAIL]. [If required, insert the name and contact details of your data protection representative.]",
+  ]},
+  { title: "Information we collect", paragraphs: [
+    "Account information from Discord: your Discord user ID, username, display name, avatar, and email address if you grant that permission.",
+    "Roblox information if you link an account: your Roblox user ID, username, avatar, and account age.",
+    "Application information you provide: answers to community questions, uploaded links, portfolio items, and status history.",
+    "Community and staff information: messages, reviews and votes, internal notes, staff permissions, and community settings you enter.",
+    "Security and account records: login device records (a hash of your browser's user-agent string, the first seen and last seen dates, and the browser name), two-factor setup for site administrators (encrypted secrets and hashed recovery codes), and audit log entries that record privileged actions.",
+    "Technical information: operational error and delivery records, IP-address-based rate limit counters held briefly in memory, and standard request logs kept by our hosting provider.",
+    "Cookies and local storage: described in our Cookie Policy.",
+  ]},
+  { title: "How we use information", paragraphs: [
+    "To provide the Service: sign you in, show and route applications, send notifications, and run community features.",
+    "To keep the Service secure: detect abuse, enforce our policies, prevent fraud, and investigate reports.",
+    "To run the business: manage licenses, provide support, measure aggregate usage such as weekly community counts, and improve the Service.",
+    "To comply with law and respond to valid legal requests.",
+  ]},
+  { title: "Legal bases (EEA and UK)", paragraphs: [
+    "Where the GDPR or UK GDPR applies, we rely on: performance of a contract (providing the Service you asked for); legitimate interests (security, abuse prevention, aggregate analytics, and business operations, weighed against your rights); consent (optional features such as Roblox linking and email notifications, which you can withdraw at any time); and legal obligation where applicable.",
+  ]},
+  { title: "Who sees your information", paragraphs: [
+    "Community owners and their staff see applications and applicant information submitted to their community, including linked Discord and Roblox details, and the reviews and notes staff add.",
+    "Site administrators and the founder can see account, moderation, and audit information needed to operate the platform, as described in our Community Guidelines.",
+    "Service providers process information for us under contract: Discord (sign-in and bot delivery), our email provider (transactional email), and our hosting and database providers. [List processors and their locations before publishing.]",
+    "We do not sell your personal information, and we do not use advertising cookies.",
+  ]},
+  { title: "Retention", paragraphs: [
+    "We keep account information while your account exists. Applications remain with the community that received them, subject to that community's own retention practices. When you delete your account, we delete your profile and the applications you submitted. Some records are kept for longer where required by law, for security, or to resolve disputes, including audit log entries and punishment records.",
+  ]},
+  { title: "Security", paragraphs: [
+    "We use encryption in transit, signed session cookies that are checked against a per-account version so sessions can be revoked, two-factor authentication for site administrators, role-based access controls, and audit logging of privileged actions. No system is perfectly secure, and you should use a strong, unique password for any linked service and enable Discord's two-factor authentication.",
+  ]},
+  { title: "Your rights", paragraphs: [
+    "Depending on where you live, you may have the right to access, correct, delete, or export your personal information; to object to or restrict processing; to withdraw consent; and to complain to a supervisory authority.",
+    "You can download a copy of your data from Settings, and you can delete your account there. For other requests, email [CONTACT EMAIL]. We will verify your identity before responding and aim to respond within 30 days.",
+    "California residents have additional rights under the CCPA/CPRA, including the right to know and the right to delete. We do not sell or share personal information for cross-context behavioral advertising.",
+  ]},
+  { title: "Children", paragraphs: [
+    "The Service is not directed to children under 13, or the higher minimum age in your country. We do not knowingly collect personal information from them. If you believe a child has provided information to us, contact [CONTACT EMAIL] and we will delete it.",
+  ]},
+  { title: "International transfers", paragraphs: [
+    "We may process information in countries other than where you live, including the United States. Where required, we rely on appropriate safeguards such as standard contractual clauses. [Confirm the transfer mechanisms in use before publishing.]",
+  ]},
+  { title: "Cookies", paragraphs: [
+    "We use cookies and local storage as described in our Cookie Policy.",
+  ]},
+  { title: "Changes to this policy", paragraphs: [
+    "We will post changes here and update the date above. For material changes we will give at least 14 days' notice, and where required we will seek your consent again.",
+  ]},
+  { title: "Contact", paragraphs: [
+    "Privacy questions and requests: [CONTACT EMAIL]. Postal address: [POSTAL ADDRESS].",
+  ]},
+];
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-16">
-      <Link
-        href="/"
-        className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white mb-8 transition-colors"
-      >
-        <ArrowLeft className="w-3.5 h-3.5" />
-        Back to RoleFlow Home
-      </Link>
-
-      <div className="border border-white/10 rounded-3xl bg-surface/90 backdrop-blur-xl p-8 sm:p-12 shadow-2xl space-y-8">
-        {/* Document Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400">
-              <ShieldCheck className="w-6 h-6" />
-            </div>
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-black text-white">Privacy Policy</h1>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Data Protection, Collection Standards & GDPR/CCPA Compliance
-              </p>
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-purple-500/10 text-purple-300 border border-purple-500/20">
-              VERSION 2.4
-            </span>
-            <span className="px-3 py-1 rounded-full text-[10px] font-mono font-medium bg-white/5 text-slate-300 border border-white/10">
-              Effective: October 2026
-            </span>
-          </div>
-        </div>
-
-        {/* Commitment Statement */}
-        <div className="p-4 rounded-2xl bg-purple-950/20 border border-purple-500/30 text-xs text-slate-300 space-y-1">
-          <span className="font-bold text-white block">Our Core Privacy Commitment:</span>
-          <p className="text-slate-400 leading-relaxed">
-            RoleFlow operates under a zero-monetization-of-personal-data rule. We do <strong>NOT</strong> sell, rent, monetize, or broker your personal information to third-party advertisers, data aggregators, or marketing firms under any circumstance.
-          </p>
-        </div>
-
-        {/* Legal Sections */}
-        <div className="space-y-8 text-sm text-slate-300 leading-relaxed">
-          {/* Section 1: Information We Collect */}
-          <section className="space-y-3">
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
-              <span className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 text-[11px] font-mono flex items-center justify-center text-purple-400">1</span>
-              <span>Information We Collect & Sources</span>
-            </h2>
-            <p>
-              We collect information strictly necessary to provide recruitment workflows and Discord server automation:
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1 text-xs">
-              <div className="p-4 rounded-xl bg-black/40 border border-white/5 space-y-1.5">
-                <span className="font-bold text-white block">Discord OAuth2 Data</span>
-                <p className="text-slate-400">
-                  When you sign in using Discord, we collect your public Discord User ID, username, discriminator, verified email address, and avatar image hash. We never receive or request your Discord password.
-                </p>
-              </div>
-
-              <div className="p-4 rounded-xl bg-black/40 border border-white/5 space-y-1.5">
-                <span className="font-bold text-white block">Application Questionnaire Responses</span>
-                <p className="text-slate-400">
-                  Information you voluntarily submit in candidate forms (responses, portfolio links, and attachments). This information is visible exclusively to you and the designated staff of that specific community.
-                </p>
-              </div>
-
-              <div className="p-4 rounded-xl bg-black/40 border border-white/5 space-y-1.5">
-                <span className="font-bold text-white block">Roblox Creator Identifiers</span>
-                <p className="text-slate-400">
-                  When linking a Roblox account, we query public Roblox endpoints (<code className="text-purple-300">users.roblox.com</code>) to display your public 3D avatar and verify group membership ranks. We never collect passwords or .ROBLOSECURITY cookies.
-                </p>
-              </div>
-
-              <div className="p-4 rounded-xl bg-black/40 border border-white/5 space-y-1.5">
-                <span className="font-bold text-white block">Client-Side Draft Storage</span>
-                <p className="text-slate-400">
-                  To prevent lost answers during typing, application responses are temporarily cached in your browser&apos;s local memory (<code className="text-purple-300">localStorage</code>) and never transmitted until you press Submit.
-                </p>
-              </div>
-            </div>
-          </section>
-
-          {/* Section 2: How We Use Data */}
-          <section className="space-y-3">
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
-              <span className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 text-[11px] font-mono flex items-center justify-center text-purple-400">2</span>
-              <span>How We Use Your Information</span>
-            </h2>
-            <ul className="list-disc pl-5 space-y-1.5 text-xs text-slate-400">
-              <li>To authenticate your identity across community application portals without requiring duplicate account creation.</li>
-              <li>To deliver candidate submissions directly to authorized community reviewers in web queues and Discord alert channels.</li>
-              <li>To execute automated Discord server role assignment and application status notification direct messages upon candidate acceptance.</li>
-              <li>To enforce anti-spam protections, re-application cooldowns, and prevent abusive bot submissions.</li>
-            </ul>
-          </section>
-
-          {/* Section 3: Data Sharing & Disclosures */}
-          <section className="space-y-3">
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
-              <span className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 text-[11px] font-mono flex items-center justify-center text-purple-400">3</span>
-              <span>Data Sharing & Third-Party Services</span>
-            </h2>
-            <p>
-              We do not share your data except with authorized service infrastructure required to deliver RoleFlow:
-            </p>
-            <ul className="list-disc pl-5 space-y-1.5 text-xs text-slate-400">
-              <li><strong>Target Community Reviewers:</strong> Authorized server administrators and staff of the communities you apply to.</li>
-              <li><strong>Discord API:</strong> To verify guild memberships, send direct messages, and assign roles via Discord REST endpoints.</li>
-              <li><strong>Hosting & Database Infrastructure:</strong> Encrypted cloud database infrastructure hosted within secure enterprise-grade data centers.</li>
-            </ul>
-          </section>
-
-          {/* Section 4: GDPR & CCPA Rights */}
-          <section className="space-y-3">
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
-              <span className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 text-[11px] font-mono flex items-center justify-center text-purple-400">4</span>
-              <span>Your Data Rights (GDPR & CCPA Compliance)</span>
-            </h2>
-            <p>
-              Regardless of your geographical location, RoleFlow provides comprehensive data rights:
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-              <div className="p-3 rounded-xl bg-white/5 border border-white/5">
-                <span className="font-bold text-white block mb-1">Right to Access</span>
-                View all your active and historic applications in your personal &quot;My Applications&quot; dashboard.
-              </div>
-              <div className="p-3 rounded-xl bg-white/5 border border-white/5">
-                <span className="font-bold text-white block mb-1">Right to Rectify</span>
-                Update linked Roblox accounts and sync updated Discord avatars from your settings at any time.
-              </div>
-              <div className="p-3 rounded-xl bg-white/5 border border-white/5">
-                <span className="font-bold text-white block mb-1">Right to Erasure</span>
-                Request complete account and application data purge by emailing our data team.
-              </div>
-            </div>
-          </section>
-
-          {/* Section 5: Security Standards */}
-          <section className="space-y-3">
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
-              <span className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 text-[11px] font-mono flex items-center justify-center text-purple-400">5</span>
-              <span>Security & Encryption Standards</span>
-            </h2>
-            <p>
-              All traffic between your browser and RoleFlow is encrypted using TLS 1.3/HTTPS. Authentication sessions utilize encrypted HTTP-only cookies protected with strict SameSite flags. Bot tokens and confidential integration parameters are stored securely and never transmitted to the client.
-            </p>
-          </section>
-
-          {/* Section 6: Data Retention & Automated Purging */}
-          <section className="space-y-3">
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
-              <span className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 text-[11px] font-mono flex items-center justify-center text-purple-400">6</span>
-              <span>Data Retention Periods & Archival</span>
-            </h2>
-            <p>
-              Candidate application logs and responses are retained for the active lifecycle of the target community server or until archived by authorized community staff. Password recovery tokens expire after 1 hour and are immediately purged from database storage upon use. Temporary support diagnostic codes expire in 15 minutes and cannot be reused.
-            </p>
-          </section>
-
-          {/* Section 7: Children's Online Privacy Protection (COPPA) */}
-          <section className="space-y-3">
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
-              <span className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 text-[11px] font-mono flex items-center justify-center text-purple-400">7</span>
-              <span>Children&apos;s Online Privacy (COPPA Compliance)</span>
-            </h2>
-            <p>
-              RoleFlow does not knowingly collect, solicit, or maintain personally identifiable information from children under the age of 13. Users must meet the minimum digital consent age mandated by Discord Inc. and applicable local regulations (13+ in the United States, 13–16 in the European Union). Accounts identified as underage will be terminated with all associated application submissions deleted.
-            </p>
-          </section>
-
-          {/* Contact Section */}
-          <section className="p-5 rounded-2xl bg-black/40 border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div>
-              <span className="text-xs font-bold text-white block">Privacy Officer & Data Deletion Requests</span>
-              <p className="text-xs text-slate-400 mt-0.5">
-                To request data export or complete account purge, contact our privacy desk.
-              </p>
-            </div>
-            <a
-              href="mailto:support@roleflow.site"
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition-all shadow-md shrink-0"
-            >
-              <Mail className="w-3.5 h-3.5" />
-              <span>support@roleflow.site</span>
-            </a>
-          </section>
-        </div>
-      </div>
-    </div>
+    <LegalDocument
+      title="Privacy Policy"
+      subtitle="How RoleFlow collects, uses, and protects personal information"
+      updated="October 28, 2026"
+      sections={sections}
+    />
   );
 }

@@ -1,3 +1,5 @@
+import { communityLimit } from "@/lib/licensing";
+import { verifySessionValue } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
@@ -7,7 +9,7 @@ export const dynamic = "force-dynamic";
 export async function POST(request: Request) {
   try {
     const cookieStore = cookies();
-    const userId = cookieStore.get("roleflow_user_id")?.value;
+    const userId = await verifySessionValue(cookieStore.get("roleflow_user_id")?.value);
 
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized. Please log in first." }, { status: 401 });
@@ -37,6 +39,10 @@ export async function POST(request: Request) {
     }
 
     // Create Guild
+    const ownedCount = await prisma.guild.count({ where: { ownerId: userId } });
+    if (ownedCount >= (await communityLimit(userId))) {
+      return NextResponse.json({ error: "Your plan allows a limited number of communities. Redeem a license key in Settings to add more." }, { status: 402 });
+    }
     const newGuild = await prisma.guild.create({
       data: {
         id: cleanId,

@@ -1,3 +1,5 @@
+import { recordAudit } from "@/lib/audit";
+import { verifySessionValue } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
@@ -7,7 +9,7 @@ export const dynamic = "force-dynamic";
 export async function GET(request: Request) {
   try {
     const cookieStore = cookies();
-    const userId = cookieStore.get("roleflow_user_id")?.value;
+    const userId = await verifySessionValue(cookieStore.get("roleflow_user_id")?.value);
 
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -18,15 +20,6 @@ export async function GET(request: Request) {
 
     if (!isFounder) {
       return NextResponse.json({ error: "Forbidden: Founder access required" }, { status: 403 });
-    }
-
-    // Auto-purge any temporary accounts starting with imported_
-    try {
-      await prisma.user.deleteMany({
-        where: { id: { startsWith: "imported_" } },
-      });
-    } catch (e) {
-      console.warn("Auto-cleanup imported_ users warning:", e);
     }
 
     const { searchParams } = new URL(request.url);
@@ -74,14 +67,14 @@ export async function GET(request: Request) {
 export async function PATCH(request: Request) {
   try {
     const cookieStore = cookies();
-    const userId = cookieStore.get("roleflow_user_id")?.value;
+    const userId = await verifySessionValue(cookieStore.get("roleflow_user_id")?.value);
 
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const currentUser = await prisma.user.findUnique({ where: { id: userId } });
-    const isFounder = currentUser?.isSiteAdmin || currentUser?.id === "1046538179399929957";
+    const isFounder = currentUser?.siteRole === "FOUNDER" || currentUser?.id === "1046538179399929957";
 
     if (!isFounder) {
       return NextResponse.json({ error: "Forbidden: Founder access required" }, { status: 403 });
@@ -123,6 +116,7 @@ export async function PATCH(request: Request) {
       data: updateData,
     });
 
+    await recordAudit({ actorId: userId!, action: "USER_ROLE_UPDATE", targetId: targetUserId, details: { siteRole, isSupportStaff, isSiteAdmin } });
     return NextResponse.json({ success: true, user: updated });
   } catch (err) {
     console.error("Admin user role update error:", err);
@@ -133,14 +127,14 @@ export async function PATCH(request: Request) {
 export async function DELETE(request: Request) {
   try {
     const cookieStore = cookies();
-    const userId = cookieStore.get("roleflow_user_id")?.value;
+    const userId = await verifySessionValue(cookieStore.get("roleflow_user_id")?.value);
 
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const currentUser = await prisma.user.findUnique({ where: { id: userId } });
-    const isFounder = currentUser?.isSiteAdmin || currentUser?.id === "1046538179399929957";
+    const isFounder = currentUser?.siteRole === "FOUNDER" || currentUser?.id === "1046538179399929957";
 
     if (!isFounder) {
       return NextResponse.json({ error: "Forbidden: Founder access required" }, { status: 403 });
@@ -162,6 +156,7 @@ export async function DELETE(request: Request) {
         return NextResponse.json({ error: "Cannot delete Platform Founder." }, { status: 400 });
       }
       await prisma.user.delete({ where: { id: targetUserId } });
+      await recordAudit({ actorId: userId!, action: "USER_DELETE", targetId: targetUserId });
       return NextResponse.json({ success: true, message: "User deleted." });
     }
 

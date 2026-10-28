@@ -1,5 +1,8 @@
 "use client";
 
+import OverviewPanel from "@/components/dashboard/OverviewPanel";
+import SavedReplyPicker from "@/components/dashboard/SavedReplyPicker";
+
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
@@ -161,7 +164,7 @@ interface GuildData {
 
 export default function DashboardPage({ params }: { params: { guildId: string } }) {
   const [guild, setGuild] = useState<GuildData | null>(null);
-  const [activeTab, setActiveTab] = useState<"applications" | "builder" | "bot" | "staff" | "settings" | "gating" | "templates">("applications");
+  const [activeTab, setActiveTab] = useState<"overview" | "applications" | "builder" | "bot" | "staff" | "settings" | "gating" | "templates">("overview");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [selectedApp, setSelectedApp] = useState<any | null>(null);
   const [decisionNote, setDecisionNote] = useState("");
@@ -182,6 +185,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
   // Portal Themes & Webhooks
   const [webhookUrlInput, setWebhookUrlInput] = useState("");
   const [portalThemeInput, setPortalThemeInput] = useState("obsidian");
+  const [portalLayoutInput, setPortalLayoutInput] = useState("banner");
   const [portalAccentColorInput, setPortalAccentColorInput] = useState("#8B5CF6");
   const [discordWidgetToggle, setDiscordWidgetToggle] = useState(false);
 
@@ -331,6 +335,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
         setVotePassThresholdInput(data.votePassThreshold || 2);
         setWebhookUrlInput(data.webhookUrl || "");
         setPortalThemeInput(data.portalTheme || "obsidian");
+        setPortalLayoutInput(data.portalLayout || "banner");
         setPortalAccentColorInput(data.portalAccentColor || "#8B5CF6");
         setDiscordWidgetToggle(data.discordWidgetEnabled || false);
         setStaffList(data.staffTeam || []);
@@ -815,6 +820,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           votePassThreshold: Number(votePassThresholdInput),
           webhookUrl: webhookUrlInput,
           portalTheme: portalThemeInput,
+          portalLayout: portalLayoutInput,
           portalAccentColor: portalAccentColorInput,
           discordWidgetEnabled: discordWidgetToggle,
         }),
@@ -1310,6 +1316,16 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
       {/* Tabs */}
       <div className="flex items-center gap-2 border-b border-white/5 pb-3 mb-6 overflow-x-auto">
         <button
+          onClick={() => setActiveTab("overview")}
+          className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 shrink-0 transition-colors ${
+            activeTab === "overview"
+              ? "bg-purple-600 text-white shadow-md shadow-purple-600/30"
+              : "text-slate-400 hover:text-white hover:bg-white/5"
+          }`}
+        >
+          <span>Overview</span>
+        </button>
+        <button
           onClick={() => setActiveTab("applications")}
           className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors ${
             activeTab === "applications"
@@ -1465,7 +1481,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Left Column: Applicant Cards List */}
-            <div className="lg:col-span-5 space-y-3 max-h-[750px] overflow-y-auto pr-1">
+            <div className={`lg:col-span-5 space-y-3 lg:max-h-[750px] lg:overflow-y-auto pr-1 ${selectedApp ? "hidden lg:block" : "block"}`}>
               {filteredApps.length === 0 ? (
                 <div className="p-8 text-center glass-panel rounded-2xl border border-white/5">
                   <p className="text-xs text-slate-400">No applications match this filter.</p>
@@ -1556,7 +1572,16 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
             </div>
 
             {/* Right Column: Full Application Detail View */}
-            <div className="lg:col-span-7">
+            <div className={`lg:col-span-7 ${selectedApp ? "block" : "hidden lg:block"}`}>
+              {selectedApp && (
+                <button
+                  type="button"
+                  onClick={() => { setSelectedApp(null); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                  className="lg:hidden mb-3 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-semibold text-slate-200"
+                >
+                  ← Back to applications
+                </button>
+              )}
               {selectedApp ? (
                 <div className="glass-panel rounded-2xl border border-white/10 p-6 space-y-6">
                   {/* Header Detail */}
@@ -1626,7 +1651,8 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                     </div>
 
                     <div className="pt-2">
-                      <input
+                      <div className="pb-2"><SavedReplyPicker guildId={guild.id} type="REJECT" currentText={decisionNote} onPick={setDecisionNote} /></div>
+                        <input
                         type="text"
                         placeholder="Optional feedback / decision note (included in applicant's notification)..."
                         value={decisionNote}
@@ -1704,6 +1730,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                     </div>
 
                     <div className="flex items-center gap-2 pt-1">
+                      <SavedReplyPicker guildId={guild.id} currentText={newChatContent} onPick={setNewChatContent} />
                       <input
                         type="text"
                         placeholder="Ask applicant a clarification question..."
@@ -1937,6 +1964,51 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
       )}
 
       {/* TAB 2: VISUAL FORM BUILDER */}
+          {activeTab === "overview" && (
+            <OverviewPanel guildId={guild.id} onOpenApplications={() => setActiveTab("applications")} />
+          )}
+
+          {activeTab === "staff" && (
+            <div className="space-y-6">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+                <h3 className="mb-1 text-lg font-bold text-white">Appoint Team Member</h3>
+                <p className="mb-4 text-sm text-slate-400">Add staff by their Discord user ID. Only the community owner can manage the team.</p>
+                <form onSubmit={handleAddStaff} className="grid gap-3 md:grid-cols-2">
+                  <input value={newStaffUserId} onChange={(e) => setNewStaffUserId(e.target.value)} placeholder="Discord User ID (17-20 digits)" required className="rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none focus:border-purple-500" />
+                  <input value={newStaffUsername} onChange={(e) => setNewStaffUsername(e.target.value)} placeholder="Display name (optional)" className="rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none focus:border-purple-500" />
+                  <input value={newStaffTitle} onChange={(e) => setNewStaffTitle(e.target.value)} placeholder="Role title, e.g. Lead Recruiter" className="rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none focus:border-purple-500" />
+                  <select value={newStaffPerms} onChange={(e) => setNewStaffPerms(e.target.value)} className="rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none focus:border-purple-500">
+                    <option value="view_only">View only</option>
+                    <option value="vote_only">Vote only</option>
+                    <option value="full_decision">Full decision (accept / reject)</option>
+                    <option value="position_editor">Position editor</option>
+                  </select>
+                  <button type="submit" disabled={addingStaff || !newStaffUserId.trim()} className="rounded-lg bg-purple-600 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-500 disabled:opacity-50 md:col-span-2">
+                    {addingStaff ? "Adding..." : "Add staff member"}
+                  </button>
+                </form>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+                <h3 className="mb-3 text-lg font-bold text-white">Current team ({staffList.length})</h3>
+                {staffList.length === 0 ? (
+                  <p className="text-sm text-slate-500">No staff yet.</p>
+                ) : (
+                  <ul>
+                    {staffList.map((s: any) => (
+                      <li key={s.userId} className="flex items-center justify-between border-b border-white/5 py-3">
+                        <div>
+                          <div className="font-medium text-white">{s.username || s.userId}</div>
+                          <div className="text-xs text-slate-400">{s.roleTitle} · {s.permissions}</div>
+                        </div>
+                        <button onClick={() => handleDeleteStaff(s.userId)} className="text-xs text-rose-400 hover:text-rose-300">Remove</button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+          )}
+
       {activeTab === "builder" && (
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -2756,6 +2828,18 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                   <option value="emerald" className="bg-slate-900">Emerald Forest</option>
                   <option value="royal" className="bg-slate-900">Royal Purple</option>
                   <option value="crimson" className="bg-slate-900">Crimson Glow</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1">Community Page Layout</label>
+                <select
+                  value={portalLayoutInput}
+                  onChange={(e) => setPortalLayoutInput(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500 cursor-pointer"
+                >
+                  <option value="banner" className="bg-slate-900">Banner-led (default)</option>
+                  <option value="minimal" className="bg-slate-900">Minimal (no banner)</option>
+                  <option value="cards" className="bg-slate-900">Card-led (openings in a grid)</option>
                 </select>
               </div>
 

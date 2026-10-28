@@ -1,3 +1,7 @@
+import { sendSecurityNoticeEmail } from "@/lib/email";
+import { recordAudit } from "@/lib/audit";
+import { signSessionValue } from "@/lib/session";
+import { verifySessionValue } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
@@ -7,7 +11,7 @@ export const dynamic = "force-dynamic";
 export async function POST(request: Request) {
   try {
     const cookieStore = cookies();
-    const callerId = cookieStore.get("roleflow_user_id")?.value;
+    const callerId = await verifySessionValue(await verifySessionValue(cookieStore.get("roleflow_user_id")?.value));
 
     if (!callerId) {
       return NextResponse.json(
@@ -52,6 +56,16 @@ export async function POST(request: Request) {
       );
     }
 
+    if (targetUser.email && targetUser.emailNotifications !== false) {
+      sendSecurityNoticeEmail({
+        toEmail: targetUser.email,
+        username: targetUser.username,
+        heading: "Support staff opened a diagnostic session",
+        message: "A RoleFlow support staff member opened a temporary diagnostic session on your account. If you didn't request support, contact us.",
+      }).catch((e) => console.error("Support notice email failed:", e));
+    }
+    await recordAudit({ actorId: callerId, action: "SUPPORT_SESSION_START", targetId: targetUser.id });
+
     // Calculate remaining seconds
     const remainingMs = targetUser.supportCodeExpiresAt
       ? targetUser.supportCodeExpiresAt.getTime() - now.getTime()
@@ -71,7 +85,7 @@ export async function POST(request: Request) {
     });
 
     // Set cookie valid for the remainder of the 10-minute code
-    response.cookies.set("roleflow_user_id", targetUser.id, {
+    response.cookies.set("roleflow_user_id", signSessionValue(targetUser.id, targetUser.sessionVersion), {
       path: "/",
       httpOnly: true,
       maxAge: remainingSeconds,

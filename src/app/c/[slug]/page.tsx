@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { BadgeCheck, Users, Briefcase, ArrowLeft, ArrowRight, Shield, ExternalLink } from "lucide-react";
+import ReportButton from "@/components/ReportButton";
 
 export const revalidate = 0;
 
@@ -62,6 +63,8 @@ export default async function CommunityPortalPage({ params }: CommunityPortalPro
     },
   };
   const currentTheme = themePresets[guild.portalTheme || "obsidian"] || themePresets.obsidian;
+  const accent = (guild as any).accentColor || "#8b5cf6";
+  const layout = (guild as any).portalLayout || "list";
 
   const badges = guild.verifiedBadges
     ? guild.verifiedBadges.split(",").map((b) => b.trim()).filter(Boolean)
@@ -81,6 +84,7 @@ export default async function CommunityPortalPage({ params }: CommunityPortalPro
 
       {/* Community Banner & Header Profile */}
       <div className={`rounded-3xl overflow-hidden glass-panel border ${currentTheme.borderGlow} mb-10 shadow-2xl`}>
+        <div className="h-1 w-full" style={{ background: accent }} />
         {/* Banner */}
         <div className={`relative h-44 sm:h-56 w-full bg-gradient-to-r ${currentTheme.bannerGradient} overflow-hidden`}>
           {guild.banner ? (
@@ -134,6 +138,7 @@ export default async function CommunityPortalPage({ params }: CommunityPortalPro
               >
                 Staff Portal
               </Link>
+              <ReportButton targetType="GUILD" targetId={guild.id} />
             </div>
           </div>
 
@@ -173,7 +178,7 @@ export default async function CommunityPortalPage({ params }: CommunityPortalPro
             <p className="text-xs text-slate-400">There are no active openings for this community right now.</p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className={layout === "cards" ? "grid grid-cols-1 md:grid-cols-2 gap-4" : "space-y-4"}>
             {guild.positions.map((pos) => (
               <div
                 key={pos.id}
@@ -213,7 +218,7 @@ export default async function CommunityPortalPage({ params }: CommunityPortalPro
       </div>
 
       {/* Discord Widget Embed */}
-      {guild.discordWidgetEnabled && (
+      {guild.discordWidgetEnabled && /^\d{17,20}$/.test(guild.id) && (
         <div className="mt-10 rounded-2xl overflow-hidden border border-white/10 glass-panel p-5">
           <h3 className="text-xs font-bold uppercase tracking-wider text-purple-400 mb-3 flex items-center gap-2">
             <Users className="w-3.5 h-3.5" />

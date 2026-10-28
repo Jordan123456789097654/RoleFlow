@@ -1,3 +1,4 @@
+import { recordAudit } from "@/lib/audit";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
@@ -92,6 +93,7 @@ export async function POST(
       },
     });
 
+    await recordAudit({ actorId: user.id, action: "STAFF_UPSERT", targetId: params.id, details: { userId: staff.userId, permissions: sanitizedPerms, roleTitle: staff.roleTitle } });
     return NextResponse.json({ success: true, staff });
   } catch (err: any) {
     console.error("Add guild staff error:", err);
@@ -133,6 +135,7 @@ export async function DELETE(
       },
     });
 
+    await recordAudit({ actorId: user.id, action: "STAFF_REMOVE", targetId: params.id, details: { userId: targetUserId } });
     return NextResponse.json({ success: true });
   } catch (err: any) {
     console.error("Delete guild staff error:", err);

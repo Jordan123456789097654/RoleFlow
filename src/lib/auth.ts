@@ -1,3 +1,4 @@
+import { verifySessionValue } from "./session";
 import { cookies } from "next/headers";
 import { prisma } from "./prisma";
 
@@ -22,7 +23,7 @@ export interface CurrentUser {
  */
 export async function getCurrentUser(): Promise<CurrentUser | null> {
   const cookieStore = cookies();
-  const userId = cookieStore.get("roleflow_user_id")?.value;
+  const userId = await verifySessionValue(cookieStore.get("roleflow_user_id")?.value);
 
   if (!userId) {
     return null;

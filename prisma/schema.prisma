@@ -23,6 +23,7 @@ model User {
   siteRole             String?       @default("USER") // FOUNDER, ADMIN, MODERATOR, SUPPORT, STAFF, USER
   isBanned             Boolean       @default(false) // Globally blacklisted/banned user
   plan                 String        @default("FREE") // FREE, PRO, LIFETIME
+  planExpiresAt        DateTime?     // null = no expiry (LIFETIME or never set)
   licenseKey           String?
   supportCode          String?       // 10-minute temporary support login code
   supportCodeExpiresAt DateTime?     // Expiration timestamp
@@ -30,6 +31,11 @@ model User {
   reviews              Review[]
   resetTokens          PasswordResetToken[]
   createdAt            DateTime      @default(now())
+  sessionVersion       Int           @default(0) // Bumped to revoke all sessions
+  totpSecret           String?       // TOTP secret (base32), required for site admins
+  totpEnabled          Boolean       @default(false)
+  totpRecoveryCodes    String?       // JSON array of bcrypt-hashed one-time recovery codes
+  loginDevices         LoginDevice[]
 }
 
 model PasswordResetToken {
@@ -59,6 +65,7 @@ model Guild {
   
   // Premium License & Plan
   plan                       String           @default("FREE") // FREE, PRO, ENTERPRISE, LIFETIME
+  planExpiresAt              DateTime?        // null = no expiry
   licenseKey                 String?
   licenseExpiresAt           DateTime?
 
@@ -75,6 +82,7 @@ model Guild {
   interviewCatId             String?          // Category for interview threads/channels
 
   // Portal Customization & Themes
+  portalLayout String @default("banner") // banner | minimal | cards
   portalTheme                String?          @default("obsidian") // obsidian, cyberpunk, emerald, royal, crimson
   portalAccentColor          String?          @default("#8B5CF6")
   discordWidgetEnabled       Boolean          @default(false)
@@ -269,4 +277,86 @@ model LicenseKey {
   redeemedAt     DateTime?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String
+  action    String
+  targetId  String?
+  details   String?
+  createdAt DateTime @default(now())
+
+  @@index([actorId])
+  @@index([createdAt])
+}
+
+model LoginDevice {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fingerprint String   // SHA-256 of the user-agent
+  userAgent   String?
+  createdAt   DateTime @default(now())
+  lastSeenAt  DateTime @default(now())
+
+  @@unique([userId, fingerprint])
+}
+
+model SharedTemplate {
+  id                  String   @id @default(cuid())
+  title               String
+  description         String?
+  positionTitle       String
+  department          String?
+  positionDescription String?
+  questionsJson       String   // JSON array of { label, type, description, options, required }
+  authorGuildId       String
+  authorName          String
+  importCount         Int      @default(0)
+  createdAt           DateTime @default(now())
+
+  @@index([importCount])
+}
+
+model Punishment {
+  id           String    @id @default(cuid())
+  targetType   String    // USER or GUILD
+  targetId     String
+  action       String    // WARNING, SUSPENSION, BAN (users); PAUSE, BLACKLIST (guilds)
+  reason       String
+  expiresAt    DateTime?
+  issuedById   String
+  createdAt    DateTime  @default(now())
+  liftedAt     DateTime?
+  appealStatus String    @default("NONE") // NONE, PENDING, APPROVED, DENIED
+  appealText   String?
+  appealedAt   DateTime?
+  decisionNote String?
+
+  @@index([targetType, targetId])
+  @@index([appealStatus])
+}
+
+model ContentReport {
+  id         String   @id @default(cuid())
+  targetType String   // GUILD or POSITION
+  targetId   String
+  reporterId String
+  reason     String
+  status     String   @default("OPEN") // OPEN, DISMISSED, ACTIONED
+  createdAt  DateTime @default(now())
+
+  @@unique([targetType, targetId, reporterId])
+  @@index([targetType, targetId, status])
+}
+
+model SystemEvent {
+  id        String   @id @default(cuid())
+  level     String   // INFO, WARN, ERROR
+  source    String   // email, bot, interactions, auth
+  message   String
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
 }

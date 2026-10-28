@@ -1,3 +1,5 @@
+import { recordAudit } from "@/lib/audit";
+import { verifySessionValue } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
@@ -10,7 +12,7 @@ export async function DELETE(
 ) {
   try {
     const cookieStore = cookies();
-    const userId = cookieStore.get("roleflow_user_id")?.value;
+    const userId = await verifySessionValue(cookieStore.get("roleflow_user_id")?.value);
 
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -56,6 +58,7 @@ export async function DELETE(
     await prisma.applicationMessage.deleteMany({ where: { applicationId: params.id } });
     await prisma.application.delete({ where: { id: params.id } });
 
+    await recordAudit({ actorId: userId, action: "APPLICATION_DELETE", targetId: params.id });
     return NextResponse.json({ success: true, message: "Application deleted." });
   } catch (err: any) {
     console.error("Delete application error:", err);

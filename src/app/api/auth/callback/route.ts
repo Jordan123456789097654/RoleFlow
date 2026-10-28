@@ -1,3 +1,5 @@
+import { requiresSecondFactor, setPendingCookie, notifyNewDevice } from "@/lib/second-factor";
+import { signSessionValue } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
@@ -73,6 +75,19 @@ export async function GET(request: Request) {
       return NextResponse.redirect(new URL("/?error=account_suspended", request.url));
     }
 
+    const activePunishment = await prisma.punishment.findFirst({
+      where: {
+        targetType: "USER",
+        targetId: discordUser.id,
+        liftedAt: null,
+        action: { in: ["BAN", "SUSPENSION"] },
+        OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+      },
+    });
+    if (activePunishment) {
+      return NextResponse.redirect(new URL("/?error=account_suspended", request.url));
+    }
+
     // 3. Upsert User in database
     const user = await prisma.user.upsert({
       where: { id: discordUser.id },
@@ -93,10 +108,17 @@ export async function GET(request: Request) {
       },
     });
 
+    if (requiresSecondFactor(user)) {
+      const pending = NextResponse.redirect(new URL("/auth/2fa", request.url));
+      setPendingCookie(pending, user.id, user.sessionVersion, host);
+      return pending;
+    }
+    await notifyNewDevice(user, request);
+
     // 4. Set session cookie and redirect home
     const isLocalhost = host.includes("localhost");
     const response = NextResponse.redirect(new URL("/", request.url));
-    response.cookies.set("roleflow_user_id", user.id, {
+    response.cookies.set("roleflow_user_id", signSessionValue(user.id, user.sessionVersion), {
       path: "/",
       httpOnly: true,
       maxAge: 60 * 60 * 24 * 30, // 30 days
