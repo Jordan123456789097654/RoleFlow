@@ -39,7 +39,7 @@ export async function PATCH(
       positionTitle: application.position.title,
       newStatus: status,
       decisionNote,
-      reviewedByUsername: user.username,
+      reviewedByUsername: user?.username || "Staff",
     });
 
     return NextResponse.json({ success: true, application: updated });

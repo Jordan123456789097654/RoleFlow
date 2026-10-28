@@ -11,6 +11,26 @@ export const revalidate = 0;
 export default async function MyApplicationsPage() {
   const user = await getCurrentUser();
 
+  if (!user) {
+    return (
+      <div className="max-w-md mx-auto px-4 py-24 text-center">
+        <div className="w-16 h-16 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 mx-auto mb-4">
+          <FileText className="w-8 h-8" />
+        </div>
+        <h1 className="text-xl font-bold text-white mb-2">Sign In Required</h1>
+        <p className="text-xs text-slate-400 mb-6 leading-relaxed">
+          Please log in with your Discord account via OAuth2 to view and track your submitted applications.
+        </p>
+        <a
+          href="/api/auth/login"
+          className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold shadow-lg shadow-violet-600/30 transition-all inline-flex items-center gap-2"
+        >
+          <span>Login with Discord</span>
+        </a>
+      </div>
+    );
+  }
+
   const applications = await prisma.application.findMany({
     where: { userId: user.id },
     include: {

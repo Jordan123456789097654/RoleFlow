@@ -6,6 +6,14 @@ import { BotDispatcher } from "@/lib/bot-dispatcher";
 export async function POST(request: Request) {
   try {
     const user = await getCurrentUser();
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "Please log in with Discord before submitting an application." },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const { positionId, robloxUsername, answers } = body;
 

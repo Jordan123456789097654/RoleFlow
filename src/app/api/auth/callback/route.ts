@@ -9,9 +9,10 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL("/?error=missing_code", request.url));
   }
 
-  const clientId = process.env.DISCORD_CLIENT_ID;
+  const origin = new URL(request.url).origin;
+  const clientId = process.env.DISCORD_CLIENT_ID || "1565049592788025344";
   const clientSecret = process.env.DISCORD_CLIENT_SECRET;
-  const redirectUri = process.env.DISCORD_REDIRECT_URI || "http://localhost:3000/api/auth/callback";
+  const redirectUri = process.env.DISCORD_REDIRECT_URI || `${origin}/api/auth/callback`;
 
   try {
     // 1. Exchange authorization code for access token
