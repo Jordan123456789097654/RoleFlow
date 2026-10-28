@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { AlertTriangle, ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
+import { AlertTriangle, ArrowLeft, CheckCircle2, XCircle, ShieldAlert, Mail, Ban, Lock } from "lucide-react";
 
 export default function AcceptableUsePage() {
   return (
@@ -13,66 +13,162 @@ export default function AcceptableUsePage() {
         Back to RoleFlow Home
       </Link>
 
-      <div className="border border-white/10 rounded-2xl bg-surface/80 backdrop-blur-xl p-8 sm:p-12 shadow-2xl">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400">
-            <AlertTriangle className="w-5 h-5" />
+      <div className="border border-white/10 rounded-3xl bg-surface/90 backdrop-blur-xl p-8 sm:p-12 shadow-2xl space-y-8">
+        {/* Document Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400">
+              <ShieldAlert className="w-6 h-6" />
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-black text-white">Acceptable Use Policy</h1>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Anti-Abuse Standards, Platform Integrity & Prohibited Activities
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white">Acceptable Use Policy</h1>
-            <p className="text-xs text-slate-400">Community rules, anti-abuse standards, and platform integrity</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-rose-500/10 text-rose-300 border border-rose-500/20">
+              ANTI-ABUSE DIRECTIVE
+            </span>
+            <span className="px-3 py-1 rounded-full text-[10px] font-mono font-medium bg-white/5 text-slate-300 border border-white/10">
+              Effective: October 2026
+            </span>
           </div>
         </div>
 
-        <div className="prose prose-invert prose-purple max-w-none space-y-6 text-sm text-slate-300 leading-relaxed">
-          <section>
-            <h2 className="text-lg font-bold text-white mb-2">1. Purpose & Standards</h2>
-            <p>
-              To keep RoleFlow a trusted ecosystem for gaming communities, Roblox creators, and applicants, all users, communities, and custom bots must adhere to this Acceptable Use Policy.
-            </p>
-          </section>
+        {/* Introduction */}
+        <div className="p-4 rounded-2xl bg-rose-950/20 border border-rose-500/30 text-xs text-slate-300 space-y-1">
+          <span className="font-bold text-white block">Zero-Tolerance Anti-Abuse Standards:</span>
+          <p className="text-slate-400 leading-relaxed">
+            RoleFlow is engineered to empower trustworthy Discord communities and Roblox creators. We maintain a zero-tolerance policy against credential harvesting, phishing, plagiarism, and harassment. Violations will result in immediate community suspension and global platform blacklisting.
+          </p>
+        </div>
 
-          <section>
-            <h2 className="text-lg font-bold text-white mb-2">2. Prohibited Conduct for Applicants</h2>
-            <div className="space-y-2">
-              <div className="flex items-start gap-2.5 text-xs text-slate-300">
+        {/* Policy Sections */}
+        <div className="space-y-8 text-sm text-slate-300 leading-relaxed">
+          {/* Section 1: Prohibited Activities for All Users */}
+          <section className="space-y-3">
+            <h2 className="text-base font-bold text-white flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 text-[11px] font-mono flex items-center justify-center text-rose-400">1</span>
+              <span>Prohibited Conduct for All Users</span>
+            </h2>
+            <div className="space-y-2.5 text-xs">
+              <div className="flex items-start gap-3 p-3.5 rounded-xl bg-black/40 border border-white/5">
                 <XCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                <span><strong>Plagiarism & Stolen Portfolios:</strong> Submitting assets, script showcases, or answers copied from other developers or claiming credit for another user&apos;s work.</span>
+                <div>
+                  <strong className="text-white block mb-0.5">Phishing & Credential Solicitation</strong>
+                  <span className="text-slate-400">Never input, request, or harvest account passwords, one-time verification tokens (2FA), Discord authorization codes, Roblox security cookies (.ROBLOSECURITY), or credit card credentials.</span>
+                </div>
               </div>
-              <div className="flex items-start gap-2.5 text-xs text-slate-300">
+
+              <div className="flex items-start gap-3 p-3.5 rounded-xl bg-black/40 border border-white/5">
                 <XCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                <span><strong>Spamming & Cooldown Evasion:</strong> Using alternate Discord accounts to bypass rejection cooldowns or flooding forms with nonsensical text.</span>
+                <div>
+                  <strong className="text-white block mb-0.5">Malicious Links & Token Stealers</strong>
+                  <span className="text-slate-400">Inserting links leading to token loggers, malicious executable files, Discord Nitro scams, or unauthorized third-party redirectors is strictly prohibited and immediately reported.</span>
+                </div>
               </div>
-              <div className="flex items-start gap-2.5 text-xs text-slate-300">
+
+              <div className="flex items-start gap-3 p-3.5 rounded-xl bg-black/40 border border-white/5">
                 <XCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                <span><strong>Malicious Links:</strong> Inserting phishing links, token loggers, or unauthorized executables into portfolio fields.</span>
+                <div>
+                  <strong className="text-white block mb-0.5">Automated Flooding & Form Scraping</strong>
+                  <span className="text-slate-400">Using automated headless bots, request scrapers, or botnets to mass-submit synthetic or spam application forms to community portals.</span>
+                </div>
               </div>
             </div>
           </section>
 
-          <section>
-            <h2 className="text-lg font-bold text-white mb-2">3. Prohibited Conduct for Community Admins</h2>
-            <div className="space-y-2">
-              <div className="flex items-start gap-2.5 text-xs text-slate-300">
+          {/* Section 2: Prohibited Conduct for Applicants */}
+          <section className="space-y-3">
+            <h2 className="text-base font-bold text-white flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 text-[11px] font-mono flex items-center justify-center text-rose-400">2</span>
+              <span>Applicant Integrity & Portfolio Standards</span>
+            </h2>
+            <div className="space-y-2.5 text-xs">
+              <div className="flex items-start gap-3 p-3.5 rounded-xl bg-black/40 border border-white/5">
                 <XCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                <span><strong>Harvesting Sensitive Data:</strong> Creating questions requesting passwords, personal identification numbers, real-life home addresses, or financial data.</span>
+                <div>
+                  <strong className="text-white block mb-0.5">Asset Plagiarism & Stolen Portfolios</strong>
+                  <span className="text-slate-400">Submitting Roblox 3D models, Luau code showcases, graphics, or moderation resumes crafted by other developers while claiming original authorship.</span>
+                </div>
               </div>
-              <div className="flex items-start gap-2.5 text-xs text-slate-300">
+
+              <div className="flex items-start gap-3 p-3.5 rounded-xl bg-black/40 border border-white/5">
                 <XCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                <span><strong>Malicious Role Grants:</strong> Misusing auto-role assignment to bypass server safety perimeters.</span>
+                <div>
+                  <strong className="text-white block mb-0.5">Cooldown Evasion with Alternate Accounts</strong>
+                  <span className="text-slate-400">Creating or authenticating secondary Discord accounts to circumvent rejection cooldown timers or server blacklists set by community owners.</span>
+                </div>
               </div>
-              <div className="flex items-start gap-2.5 text-xs text-slate-300">
+
+              <div className="flex items-start gap-3 p-3.5 rounded-xl bg-black/40 border border-white/5">
                 <XCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                <span><strong>Discriminatory Hiring:</strong> Discriminating against applicants based on protected characteristics in violation of law.</span>
+                <div>
+                  <strong className="text-white block mb-0.5">Impersonation of Staff or Developers</strong>
+                  <span className="text-slate-400">Falsely linking notable Roblox usernames or claiming official affiliation with Roblox Corporation or prominent development studios.</span>
+                </div>
               </div>
             </div>
           </section>
 
-          <section>
-            <h2 className="text-lg font-bold text-white mb-2">4. Enforcement & Verified Badge Revocation</h2>
-            <p>
-              Site administrators reserve the right to ban offending users, shut down abusive community portals, and revoke **Verified Badges** for any violation of these rules. Reports can be submitted to <span className="text-rose-400">abuse@roleflow.site</span>.
+          {/* Section 3: Prohibited Conduct for Community Admins */}
+          <section className="space-y-3">
+            <h2 className="text-base font-bold text-white flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 text-[11px] font-mono flex items-center justify-center text-rose-400">3</span>
+              <span>Community Lead & Administrator Standards</span>
+            </h2>
+            <div className="space-y-2.5 text-xs">
+              <div className="flex items-start gap-3 p-3.5 rounded-xl bg-black/40 border border-white/5">
+                <XCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-white block mb-0.5">Inappropriate Questionnaire Prompts</strong>
+                  <span className="text-slate-400">Community leads must not create questions requesting sensitive personal identifiable information (PII), national identification numbers, real-world residential addresses, or financial records.</span>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 p-3.5 rounded-xl bg-black/40 border border-white/5">
+                <XCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-white block mb-0.5">Abusive Bot Automations</strong>
+                  <span className="text-slate-400">Configuring automated acceptance actions to grant dangerous administrative roles or mass-ping server members in violation of Discord developer policies.</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Section 4: Enforcement & Global Blacklists */}
+          <section className="space-y-3">
+            <h2 className="text-base font-bold text-white flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 text-[11px] font-mono flex items-center justify-center text-rose-400">4</span>
+              <span>Investigation & Enforcement Actions</span>
+            </h2>
+            <p className="text-xs text-slate-400">
+              RoleFlow platform administrators actively monitor submission logs and community activities. Confirmed violations of this policy result in:
             </p>
+            <ul className="list-disc pl-5 space-y-1 text-xs text-slate-400">
+              <li>Immediate revocation of official Partner and Verified Community badges.</li>
+              <li>Administrative pausing or permanent deletion of community portals and application openings.</li>
+              <li>Permanent global blacklisting of the offending Discord User ID and linked Roblox creator identities.</li>
+            </ul>
+          </section>
+
+          {/* Reporting Section */}
+          <section className="p-5 rounded-2xl bg-black/40 border border-rose-500/20 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <span className="text-xs font-bold text-white block">Report Abuse or Malicious Portals</span>
+              <p className="text-xs text-slate-400 mt-0.5">
+                If you encounter a community or applicant violating this policy, notify our trust and safety desk immediately.
+              </p>
+            </div>
+            <a
+              href="mailto:support@roleflow.site"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition-all shadow-md shrink-0"
+            >
+              <Mail className="w-3.5 h-3.5" />
+              <span>support@roleflow.site</span>
+            </a>
           </section>
         </div>
       </div>
