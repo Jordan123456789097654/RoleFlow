@@ -240,6 +240,8 @@ export async function POST(request: Request) {
       summaryAnswers,
     });
 
+    const applicantMention = user.id.startsWith("usr_") ? `**Applicant:** ${user.username} (Web Applicant)` : `**Applicant:** ${user.username} (<@${user.id}>)`;
+
     // Also dispatch to configured community Discord webhook
     await dispatchCommunityWebhook({
       guildId: position.guildId,

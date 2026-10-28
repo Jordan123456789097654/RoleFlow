@@ -67,7 +67,7 @@ export function Footer() {
                   className="inline-flex items-center gap-1.5 text-purple-400 hover:text-purple-300 font-medium transition-colors"
                 >
                   <MessageCircle className="w-3.5 h-3.5" />
-                  <span>RoFlow Support Discord</span>
+                  <span>RoleFlow Support Discord</span>
                   <ExternalLink className="w-3 h-3" />
                 </a>
               </li>

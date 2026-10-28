@@ -78,8 +78,8 @@ export default function DashboardHubPage() {
 
   const handleCreateCommunity = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!serverId.trim() || !serverName.trim()) {
-      setConnectError("Server ID and Server Name are required.");
+    if (!serverName.trim()) {
+      setConnectError("Community Name is required.");
       return;
     }
 
@@ -91,7 +91,7 @@ export default function DashboardHubPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          id: serverId.trim(),
+          id: serverId.trim() || undefined,
           name: serverName.trim(),
           vanitySlug: vanitySlug.trim() || undefined,
           description: description.trim() || undefined,
@@ -375,7 +375,7 @@ export default function DashboardHubPage() {
                 <div className="w-8 h-8 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
                   <Server className="w-4 h-4" />
                 </div>
-                <h3 className="text-base font-bold text-white">Connect Discord Server</h3>
+                <h3 className="text-base font-bold text-white">Create or Connect Community</h3>
               </div>
               <button
                 onClick={() => setShowConnectModal(false)}
@@ -394,33 +394,33 @@ export default function DashboardHubPage() {
 
               <div>
                 <label className="block text-xs font-medium text-slate-300 mb-1">
-                  Discord Server ID *
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. 1565063649679122684"
-                  value={serverId}
-                  onChange={(e) => setServerId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/40 border border-surface-border text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
-                />
-                <p className="text-[10px] text-slate-500 mt-1">
-                  Right-click your server icon in Discord ➔ Copy Server ID.
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
                   Community Name *
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. RoleFlow Official"
+                  placeholder="e.g. RoleFlow Studios, Apex Community"
                   value={serverName}
                   onChange={(e) => setServerName(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-black/40 border border-surface-border text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
                 />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1 flex items-center justify-between">
+                  <span>Discord Server ID</span>
+                  <span className="text-[10px] text-slate-500 font-normal">Optional</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. 1565063649679122684 (leave blank if no Discord)"
+                  value={serverId}
+                  onChange={(e) => setServerId(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/40 border border-surface-border text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                />
+                <p className="text-[10px] text-slate-500 mt-1">
+                  Optional. If provided, enables Discord role sync and audit logs. Leave blank to manage via web only.
+                </p>
               </div>
 
               <div>

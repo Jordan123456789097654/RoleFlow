@@ -126,7 +126,7 @@ export default function TermsOfServicePage() {
               <span>10-Minute Support Mode & Diagnostic Authorization</span>
             </h2>
             <p>
-              RoleFlow features a 10-Minute Support Mode enabling members to generate a temporary single-use code (<code className="text-purple-300 font-mono">RF-XXXX-XXXX</code>). By generating and providing this code to RoFlow verified support staff:
+              RoleFlow features a 10-Minute Support Mode enabling members to generate a temporary single-use code (<code className="text-purple-300 font-mono">RF-XXXX-XXXX</code>). By generating and providing this code to RoleFlow verified support staff:
             </p>
             <ul className="list-disc pl-5 space-y-1.5 text-xs text-slate-400">
               <li>You explicitly grant designated staff temporary, read-write diagnostic delegation to inspect configuration glitches on your behalf.</li>

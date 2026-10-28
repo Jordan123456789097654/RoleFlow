@@ -38,6 +38,9 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const [position, setPosition] = useState<PositionData | null>(null);
   const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [applicantName, setApplicantName] = useState("");
+  const [applicantDiscord, setApplicantDiscord] = useState("");
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [robloxUsername, setRobloxUsername] = useState("");
   const [robloxProfile, setRobloxProfile] = useState<{
     id: number;
@@ -70,6 +73,20 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
         const data = await res.json();
         setPosition(data);
 
+        // Fetch user session if logged in
+        fetch("/api/user/settings")
+          .then((r) => (r.ok ? r.json() : null))
+          .then((u) => {
+            if (u && u.username) {
+              setCurrentUser(u);
+              setApplicantName(u.username);
+              if (u.robloxUsername && !robloxUsername) {
+                setRobloxUsername(u.robloxUsername);
+              }
+            }
+          })
+          .catch(() => {});
+
         // Load saved draft from localStorage
         const savedDraft = localStorage.getItem(draftKey);
         if (savedDraft) {
@@ -77,6 +94,7 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
             const parsed = JSON.parse(savedDraft);
             setAnswers(parsed.answers || {});
             if (parsed.robloxUsername) setRobloxUsername(parsed.robloxUsername);
+            if (parsed.applicantName) setApplicantName(parsed.applicantName);
             setLastSaved("Restored from draft");
           } catch (e) {
             console.error(e);
@@ -163,6 +181,8 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           positionId: params.id,
+          applicantName: applicantName.trim() || (currentUser?.username ?? ""),
+          applicantDiscord: applicantDiscord.trim() || undefined,
           robloxUsername: position?.guild.enableRobloxAuth ? robloxUsername : undefined,
           answers,
         }),
@@ -306,6 +326,42 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Applicant Discord Authentication */}
+          {currentUser ? (
+            <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-300 font-bold text-xs">
+                  {currentUser.username?.[0]?.toUpperCase() || "U"}
+                </div>
+                <div>
+                  <span className="text-xs font-semibold text-white block">{currentUser.username}</span>
+                  <span className="text-[10px] text-slate-400">Authenticated Discord Applicant</span>
+                </div>
+              </div>
+              <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+                Connected
+              </span>
+            </div>
+          ) : (
+            <div className="p-5 rounded-2xl bg-purple-950/20 border border-purple-500/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div>
+                <h4 className="text-xs font-bold text-white flex items-center gap-1.5 mb-1">
+                  <Shield className="w-4 h-4 text-purple-400" />
+                  Discord Login Required
+                </h4>
+                <p className="text-[11px] text-slate-400">
+                  Please connect with Discord so the community staff can verify your identity and notify you of review updates.
+                </p>
+              </div>
+              <a
+                href="/api/auth/login"
+                className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shrink-0 transition-all shadow-md shadow-purple-600/30"
+              >
+                Log In with Discord
+              </a>
+            </div>
+          )}
+
           {/* Optional Roblox Account Verification */}
           {position?.guild.enableRobloxAuth && (
             <div className="p-4 rounded-2xl bg-purple-950/20 border border-purple-500/20 space-y-3">
@@ -523,14 +579,23 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
               </Link>.
             </p>
 
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-lg shadow-violet-600/30 flex items-center justify-center gap-2"
-            >
-              <Send className="w-3.5 h-3.5" />
-              <span>{submitting ? "Submitting Application..." : "Submit Application"}</span>
-            </button>
+            {currentUser ? (
+              <button
+                type="submit"
+                disabled={submitting}
+                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-lg shadow-violet-600/30 flex items-center justify-center gap-2"
+              >
+                <Send className="w-3.5 h-3.5" />
+                <span>{submitting ? "Submitting Application..." : "Submit Application"}</span>
+              </button>
+            ) : (
+              <a
+                href="/api/auth/login"
+                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition-all shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2"
+              >
+                <span>Connect with Discord to Apply</span>
+              </a>
+            )}
           </div>
         </form>
       </div>

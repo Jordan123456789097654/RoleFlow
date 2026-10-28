@@ -889,7 +889,7 @@ export default function SettingsPage() {
                     <div>
                       <h3 className="text-base font-bold text-white">10-Minute Support Mode</h3>
                       <p className="text-xs text-slate-400">
-                        Grant temporary diagnostic access to RoFlow staff to troubleshoot your account or community.
+                        Grant temporary diagnostic access to RoleFlow staff to troubleshoot your account or community.
                       </p>
                     </div>
                   </div>
@@ -909,7 +909,7 @@ export default function SettingsPage() {
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                       <div>
                         <p className="text-xs font-medium text-slate-400 mb-1">
-                          Share this temporary code with RoFlow staff in your ticket:
+                          Share this temporary code with RoleFlow staff in your ticket:
                         </p>
                         <div className="flex items-center gap-3">
                           <span className="text-2xl sm:text-3xl font-black font-mono tracking-wider text-purple-300">
@@ -972,7 +972,7 @@ export default function SettingsPage() {
                   <div className="flex items-center gap-3">
                     <LifeBuoy className="w-5 h-5 text-purple-400" />
                     <div>
-                      <p className="text-xs font-bold text-white">RoFlow Community & Support Discord</p>
+                      <p className="text-xs font-bold text-white">RoleFlow Community & Support Discord</p>
                       <p className="text-[11px] text-slate-400">Server ID: 1565063649679122684</p>
                     </div>
                   </div>
@@ -994,7 +994,7 @@ export default function SettingsPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Shield className="w-5 h-5 text-purple-400" />
-                      <h3 className="text-sm font-bold text-white">RoFlow Support Specialist Access</h3>
+                      <h3 className="text-sm font-bold text-white">RoleFlow Support Specialist Access</h3>
                     </div>
                     <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
                       STAFF ROLE ACTIVE

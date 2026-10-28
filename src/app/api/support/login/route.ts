@@ -21,7 +21,7 @@ export async function POST(request: Request) {
 
     if (!isStaff) {
       return NextResponse.json(
-        { error: "Access denied. Only authorized RoFlow Support Staff can initiate diagnostic sessions." },
+        { error: "Access denied. Only authorized RoleFlow Support Staff can initiate diagnostic sessions." },
         { status: 403 }
       );
     }

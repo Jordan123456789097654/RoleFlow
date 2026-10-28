@@ -29,6 +29,7 @@ interface NavbarProps {
     robloxUsername?: string | null;
     isSiteAdmin?: boolean;
     isSupportStaff?: boolean;
+    siteRole?: string;
     hasCommunities?: boolean;
   } | null;
 }
@@ -77,10 +78,16 @@ export function Navbar({ user }: NavbarProps) {
     setMobileMenuOpen(false);
   }, [pathname]);
 
-  const roleLabel = user?.isSiteAdmin
+  const roleLabel = user?.id === "1046538179399929957"
+    ? "Platform Founder"
+    : user?.siteRole === "ADMIN" || user?.isSiteAdmin
     ? "Site Admin"
-    : user?.isSupportStaff
+    : user?.siteRole === "MODERATOR"
+    ? "Moderator"
+    : user?.siteRole === "SUPPORT"
     ? "Support Staff"
+    : user?.siteRole === "STAFF"
+    ? "Ordinary Staff"
     : user?.hasCommunities
     ? "Community Lead"
     : "Member";

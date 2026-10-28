@@ -4,6 +4,49 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const position = await prisma.position.findUnique({
+      where: { id: params.id },
+      include: {
+        guild: {
+          select: {
+            id: true,
+            name: true,
+            icon: true,
+            banner: true,
+            isVerified: true,
+            verifiedBadge: true,
+            verifiedBadges: true,
+            enableRobloxAuth: true,
+            enableRobloxGroupCheck: true,
+            robloxGroupId: true,
+            robloxMinRank: true,
+            cooldownDays: true,
+            isPaused: true,
+            portalTheme: true,
+            portalAccentColor: true,
+          },
+        },
+        questions: {
+          orderBy: { order: "asc" },
+        },
+      },
+    });
+
+    if (!position) {
+      return NextResponse.json({ error: "Position not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(position);
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}
+
 export async function PATCH(
   request: Request,
   { params }: { params: { id: string } }

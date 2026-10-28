@@ -16,12 +16,14 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { id, name, vanitySlug, description, tags } = body;
 
-    if (!id || !name) {
-      return NextResponse.json({ error: "Server ID and Name are required." }, { status: 400 });
+    if (!name || !name.trim()) {
+      return NextResponse.json({ error: "Community Name is required." }, { status: 400 });
     }
 
-    // Clean inputs
-    const cleanId = id.trim();
+    // Clean inputs - ID is optional; generate a clean unique community ID if not provided
+    const cleanId = id && id.trim()
+      ? id.trim()
+      : `c_${Math.random().toString(36).substring(2, 8)}${Date.now().toString(36)}`;
     const cleanName = name.trim();
     const slug = (vanitySlug || cleanName.toLowerCase().replace(/[^a-z0-9]/g, "-")).replace(/^-+|-+$/g, "");
 
@@ -46,6 +48,7 @@ export async function POST(request: Request) {
         banner: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80",
         icon: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&auto=format&fit=crop&q=80",
         cooldownDays: 7,
+        requireInGuild: false,
         enableRobloxAuth: true,
         enableBlindVoting: false,
         useCustomBot: false,

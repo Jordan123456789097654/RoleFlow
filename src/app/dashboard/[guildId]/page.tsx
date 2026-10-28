@@ -38,6 +38,7 @@ import {
   AlertTriangle,
   ChevronUp,
   ChevronDown,
+  Pencil,
 } from "lucide-react";
 import { StatusBadge } from "@/components/StatusBadge";
 import { formatDate } from "@/lib/utils";
@@ -247,6 +248,16 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
   const [importPosRawText, setImportPosRawText] = useState("");
   const [importingPos, setImportingPos] = useState(false);
   const [importPosMsg, setImportPosMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  // Edit Position / Application Opening state
+  const [editPosModal, setEditPosModal] = useState(false);
+  const [editPosTitle, setEditPosTitle] = useState("");
+  const [editPosDept, setEditPosDept] = useState("");
+  const [editPosDesc, setEditPosDesc] = useState("");
+  const [editPosRole, setEditPosRole] = useState("");
+  const [editPosIsOpen, setEditPosIsOpen] = useState(true);
+  const [editPosIsPublic, setEditPosIsPublic] = useState(true);
+  const [savingPosEdit, setSavingPosEdit] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [forbidden, setForbidden] = useState(false);
@@ -697,6 +708,49 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
       }
     } catch (e) {
       alert("Failed to remove staff");
+    }
+  };
+
+  const openEditPositionModal = (pos: any) => {
+    setEditPosTitle(pos.title || "");
+    setEditPosDept(pos.department || "");
+    setEditPosDesc(pos.description || "");
+    setEditPosRole(pos.acceptRoleId || "");
+    setEditPosIsOpen(pos.isOpen ?? true);
+    setEditPosIsPublic(pos.isPublic ?? true);
+    setEditPosModal(true);
+  };
+
+  const handleSavePositionEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activePosition || !editPosTitle.trim()) return;
+    setSavingPosEdit(true);
+    try {
+      const res = await fetch(`/api/positions/${activePosition.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: editPosTitle.trim(),
+          department: editPosDept.trim() || undefined,
+          description: editPosDesc.trim() || undefined,
+          acceptRoleId: editPosRole.trim() || null,
+          isOpen: editPosIsOpen,
+          isPublic: editPosIsPublic,
+        }),
+      });
+      if (res.ok) {
+        setEditPosModal(false);
+        setActionSuccess("Application opening updated successfully!");
+        setTimeout(() => setActionSuccess(null), 3000);
+        fetchGuildData();
+      } else {
+        const err = await res.json();
+        alert(err.error || "Failed to update opening");
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSavingPosEdit(false);
     }
   };
 
@@ -1288,7 +1342,10 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           }`}
         >
           <Bot className="w-3.5 h-3.5" />
-          <span>Discord Bot & Alerts</span>
+          <span>Discord Bot</span>
+          <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono">
+            SOON
+          </span>
         </button>
 
         <button
@@ -1965,6 +2022,15 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
 
                     <div className="flex items-center gap-2 shrink-0">
                       <button
+                        onClick={() => openEditPositionModal(activePosition)}
+                        className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white text-xs font-semibold flex items-center gap-1.5 border border-white/10 transition-colors shadow-sm"
+                        title="Edit application name, department, description, and settings"
+                      >
+                        <Pencil className="w-3.5 h-3.5 text-purple-400" />
+                        <span>Edit Opening</span>
+                      </button>
+
+                      <button
                         onClick={() => handleTogglePositionOpen(activePosition.id, activePosition.isOpen)}
                         className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                           activePosition.isOpen
@@ -2266,7 +2332,48 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
 
       {/* TAB 3: DISCORD INTEGRATION & HOSTED BOT */}
       {activeTab === "bot" && (
-        <div className="max-w-2xl glass-panel rounded-2xl border border-white/10 p-6 sm:p-8 space-y-6">
+        <div className="max-w-3xl space-y-6 animate-fadeIn">
+          {/* Coming Soon Notice Card */}
+          <div className="glass-panel rounded-2xl border border-amber-500/30 bg-amber-500/5 p-6 sm:p-8 space-y-4 shadow-xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-start sm:items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+                  <Bot className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-bold text-white">Discord Bot Dispatcher</h3>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                      COMING SOON
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+                    Automated custom Discord bot token hosting, 1-click server channel creators, and automated role assigners are currently in development for RoleFlow v2.0.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-xl bg-black/40 border border-white/5 space-y-2">
+              <div className="flex items-center gap-2 text-xs font-semibold text-emerald-400">
+                <CheckCircle2 className="w-4 h-4" />
+                <span>Discord Integration is 100% Optional for Communities</span>
+              </div>
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                You do not need a Discord server or bot to run your applications. You can manage, review, score, and interview candidates right through this RoleFlow dashboard.
+              </p>
+              <div className="pt-2 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("settings")}
+                  className="px-3 py-1.5 rounded-lg bg-purple-600/30 hover:bg-purple-600/40 text-purple-300 hover:text-white border border-purple-500/30 text-xs font-semibold transition-colors"
+                >
+                  Configure Discord Webhooks (Operational Now) →
+                </button>
+              </div>
+            </div>
+          </div>
+        <div className="glass-panel rounded-2xl border border-white/10 p-6 sm:p-8 space-y-6 opacity-60 pointer-events-none">
           <div>
             <h2 className="text-base font-bold text-white mb-1">
               Discord Bot & Integration Mode
@@ -2467,6 +2574,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
             <Save className="w-3.5 h-3.5" />
             <span>{savingSettings ? "Saving..." : "Save Integration Settings"}</span>
           </button>
+        </div>
         </div>
       )}
 
@@ -3315,6 +3423,128 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                 >
                   <Upload className="w-3.5 h-3.5" />
                   <span>{importingPos ? "Importing..." : "Create Opening & Questions"}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Opening / Position Modal */}
+      {editPosModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+          <div className="w-full max-w-lg bg-surface border border-surface-border rounded-2xl shadow-2xl overflow-hidden p-6 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-4 border-b border-surface-border mb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+                  <Pencil className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">Edit Application Opening</h3>
+                  <p className="text-[11px] text-slate-400">Modify application title, department, and requirements</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setEditPosModal(false)}
+                className="text-slate-400 hover:text-white text-xs p-1"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSavePositionEdit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1">
+                  Application Name / Title *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Lead Developer, Community Moderator"
+                  value={editPosTitle}
+                  onChange={(e) => setEditPosTitle(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/40 border border-surface-border text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-slate-300 mb-1">
+                    Department
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Moderation, Development"
+                    value={editPosDept}
+                    onChange={(e) => setEditPosDept(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-black/40 border border-surface-border text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-slate-300 mb-1">
+                    Acceptance Discord Role ID
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Role ID (Optional)"
+                    value={editPosRole}
+                    onChange={(e) => setEditPosRole(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-black/40 border border-surface-border text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1">
+                  Job Description & Candidate Criteria
+                </label>
+                <textarea
+                  rows={4}
+                  placeholder="Outline responsibilities, required qualifications, and expectations..."
+                  value={editPosDesc}
+                  onChange={(e) => setEditPosDesc(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/40 border border-surface-border text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 resize-y"
+                />
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 space-y-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={editPosIsOpen}
+                    onChange={(e) => setEditPosIsOpen(e.target.checked)}
+                    className="w-4 h-4 rounded bg-surface border-white/20 text-purple-600 focus:ring-purple-500"
+                  />
+                  <span className="text-xs text-slate-200 font-medium">Accepting New Applications (Open)</span>
+                </label>
+
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={editPosIsPublic}
+                    onChange={(e) => setEditPosIsPublic(e.target.checked)}
+                    className="w-4 h-4 rounded bg-surface border-white/20 text-purple-600 focus:ring-purple-500"
+                  />
+                  <span className="text-xs text-slate-200 font-medium">Display Publicly on Community Portal</span>
+                </label>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-surface-border">
+                <button
+                  type="button"
+                  onClick={() => setEditPosModal(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingPosEdit}
+                  className="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-md shadow-purple-600/30 flex items-center gap-1.5"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  <span>{savingPosEdit ? "Saving Changes..." : "Save Changes"}</span>
                 </button>
               </div>
             </form>

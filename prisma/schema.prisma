@@ -17,7 +17,8 @@ model User {
   robloxUsername       String?
   robloxAvatar         String?
   isSiteAdmin          Boolean       @default(false)
-  isSupportStaff       Boolean       @default(false) // Verified RoFlow Customer Support Staff
+  isSupportStaff       Boolean       @default(false) // Verified RoleFlow Customer Support Staff
+  siteRole             String?       @default("USER") // FOUNDER, ADMIN, MODERATOR, SUPPORT, STAFF, USER
   isBanned             Boolean       @default(false) // Globally blacklisted/banned user
   plan                 String        @default("FREE") // FREE, PRO, LIFETIME
   licenseKey           String?

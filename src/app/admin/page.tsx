@@ -76,6 +76,7 @@ interface AdminUser {
   robloxUsername: string | null;
   isSiteAdmin: boolean;
   isSupportStaff: boolean;
+  siteRole?: string | null;
   isBanned?: boolean;
   createdAt: string;
   _count: {
@@ -383,7 +384,7 @@ export default function SiteAdminPage() {
     }
   };
 
-  const handleToggleSupportStaff = async (targetUserId: string, currentStatus: boolean) => {
+  const handleSetUserRole = async (targetUserId: string, newRole: string) => {
     setUpdatingUserId(targetUserId);
     try {
       const res = await fetch(`/api/admin/users`, {
@@ -391,24 +392,39 @@ export default function SiteAdminPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           targetUserId,
-          isSupportStaff: !currentStatus,
+          siteRole: newRole,
         }),
       });
 
       if (res.ok) {
-        setMessage(
-          !currentStatus
-            ? "Granted Support Staff role to user!"
-            : "Revoked Support Staff role from user."
-        );
+        setMessage(`Updated role to ${newRole}!`);
         setTimeout(() => setMessage(null), 3000);
-        fetchUsers(userSearchTerm);
+        setUsers((prev) =>
+          prev.map((u) =>
+            u.id === targetUserId
+              ? {
+                  ...u,
+                  siteRole: newRole,
+                  isSiteAdmin: newRole === "ADMIN" || newRole === "FOUNDER",
+                  isSupportStaff: newRole !== "USER",
+                }
+              : u
+          )
+        );
+      } else {
+        const err = await res.json();
+        setMessage(err.error || "Failed to update role");
+        setTimeout(() => setMessage(null), 3000);
       }
     } catch (e) {
       console.error(e);
     } finally {
       setUpdatingUserId(null);
     }
+  };
+
+  const handleToggleSupportStaff = async (targetUserId: string, currentStatus: boolean) => {
+    handleSetUserRole(targetUserId, currentStatus ? "USER" : "SUPPORT");
   };
 
   const handleCreateChangelog = async (e: React.FormEvent) => {
@@ -750,7 +766,7 @@ export default function SiteAdminPage() {
           }`}
         >
           <Users className="w-4 h-4" />
-          <span>Support Staff ({users.filter((u) => u.isSupportStaff).length})</span>
+          <span>Site Staff & Admins ({users.filter((u) => u.isSupportStaff || u.isSiteAdmin || u.siteRole).length})</span>
         </button>
         <button
           onClick={() => setActiveTab("licenses")}
@@ -1036,46 +1052,54 @@ export default function SiteAdminPage() {
                       </td>
                       <td className="py-3 px-4">
                         {u.id === "1046538179399929957" ? (
-                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono">
-                            FOUNDER
+                          <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono inline-flex items-center gap-1 shadow-sm">
+                            👑 FOUNDER
                           </span>
-                        ) : u.isSupportStaff ? (
-                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30 font-mono">
-                            SUPPORT SPECIALIST
+                        ) : u.siteRole === "ADMIN" || u.isSiteAdmin ? (
+                          <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30 font-mono inline-flex items-center gap-1">
+                            🛡️ SITE ADMIN
+                          </span>
+                        ) : u.siteRole === "MODERATOR" ? (
+                          <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-mono inline-flex items-center gap-1">
+                            ⚖️ MODERATOR
+                          </span>
+                        ) : u.siteRole === "SUPPORT" || u.isSupportStaff ? (
+                          <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30 font-mono inline-flex items-center gap-1">
+                            🎧 SUPPORT SPECIALIST
+                          </span>
+                        ) : u.siteRole === "STAFF" ? (
+                          <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30 font-mono inline-flex items-center gap-1">
+                            📋 ORDINARY STAFF
                           </span>
                         ) : (
-                          <span className="px-2 py-0.5 rounded text-[10px] bg-white/5 text-slate-400 font-mono">
-                            MEMBER
+                          <span className="px-2.5 py-1 rounded-lg text-[10px] bg-white/5 text-slate-400 font-mono inline-flex items-center gap-1">
+                            👤 MEMBER
                           </span>
                         )}
                       </td>
                       <td className="py-3 px-4 text-right">
                         {u.id === "1046538179399929957" ? (
-                          <span className="text-[11px] text-amber-400 font-bold">Platform Owner</span>
+                          <span className="text-[11px] text-amber-400 font-bold px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                            Platform Founder
+                          </span>
                         ) : (
-                          <button
-                            onClick={() => handleToggleSupportStaff(u.id, u.isSupportStaff)}
-                            disabled={updatingUserId === u.id}
-                            className={`px-3 py-1.5 rounded-lg font-semibold text-xs transition-all flex items-center gap-1.5 ml-auto ${
-                              u.isSupportStaff
-                                ? "bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-white border border-rose-500/30"
-                                : "bg-purple-600 hover:bg-purple-500 text-white shadow-md shadow-purple-600/30"
-                            }`}
-                          >
-                            {updatingUserId === u.id ? (
-                              <span>Saving...</span>
-                            ) : u.isSupportStaff ? (
-                              <>
-                                <UserMinus className="w-3.5 h-3.5" />
-                                <span>Revoke Support Role</span>
-                              </>
-                            ) : (
-                              <>
-                                <UserCheck className="w-3.5 h-3.5" />
-                                <span>Appoint Support Staff</span>
-                              </>
+                          <div className="flex items-center justify-end gap-2">
+                            <select
+                              value={u.siteRole || (u.isSiteAdmin ? "ADMIN" : u.isSupportStaff ? "SUPPORT" : "USER")}
+                              onChange={(e) => handleSetUserRole(u.id, e.target.value)}
+                              disabled={updatingUserId === u.id}
+                              className="px-2.5 py-1 rounded-lg bg-surface border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500 font-medium cursor-pointer"
+                            >
+                              <option value="USER" className="bg-surface text-slate-300">Member</option>
+                              <option value="STAFF" className="bg-surface text-purple-300">Ordinary Staff</option>
+                              <option value="SUPPORT" className="bg-surface text-blue-300">Support Specialist</option>
+                              <option value="MODERATOR" className="bg-surface text-emerald-300">Platform Moderator</option>
+                              <option value="ADMIN" className="bg-surface text-rose-300">Site Administrator</option>
+                            </select>
+                            {updatingUserId === u.id && (
+                              <span className="text-[10px] text-purple-400 font-mono animate-pulse">Saving...</span>
                             )}
-                          </button>
+                          </div>
                         )}
                       </td>
                     </tr>
