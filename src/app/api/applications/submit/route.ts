@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { BotDispatcher } from "@/lib/bot-dispatcher";
+import { logger } from "@/lib/logger";
 
 export async function POST(request: Request) {
   try {
@@ -144,6 +145,13 @@ export async function POST(request: Request) {
       applicantAvatar: user.avatar,
       robloxUsername: robloxUsername || user.robloxUsername,
       summaryAnswers,
+    });
+
+    logger.info("New candidate application submitted", {
+      applicationId: application.id,
+      position: position.title,
+      guildId: position.guildId,
+      applicant: user.username,
     });
 
     return NextResponse.json({
