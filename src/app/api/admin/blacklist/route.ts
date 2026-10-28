@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
+import { sendModerationNoticeEmail } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
@@ -60,12 +61,25 @@ export async function POST(request: Request) {
       },
     });
 
-    // If targetType is DISCORD_ID, also mark user as isBanned
+    // If targetType is DISCORD_ID, mark user as isBanned and dispatch moderation notice email
     if (targetType === "DISCORD_ID") {
+      const targetUser = await prisma.user.findUnique({
+        where: { id: targetValue.trim() },
+      });
+
       await prisma.user.updateMany({
         where: { id: targetValue.trim() },
         data: { isBanned: true },
       });
+
+      if (targetUser && targetUser.email) {
+        sendModerationNoticeEmail({
+          toEmail: targetUser.email,
+          username: targetUser.username,
+          actionType: "BLACKLIST",
+          reason: reason?.trim() || "Violated platform acceptable use policies",
+        }).catch((e) => console.warn("Moderation notice email failed:", e));
+      }
     }
 
     return NextResponse.json({ success: true, entry });

@@ -146,7 +146,18 @@ function renderEmailShell(title: string, contentHtml: string): string {
     <table class="main" width="100%" cellpadding="0" cellspacing="0">
       <tr>
         <td class="header">
-          <div class="logo-badge">RoleFlow</div>
+          <table align="center" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+            <tr>
+              <td style="vertical-align: middle; padding-right: 12px;">
+                <img src="https://roleflow.site/logo.png" alt="RoleFlow Logo" width="38" height="38" style="display: block; border-radius: 10px; border: 1px solid rgba(139, 92, 246, 0.4); box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);" />
+              </td>
+              <td style="vertical-align: middle;">
+                <span style="font-size: 20px; font-weight: 900; letter-spacing: 0.5px; color: #ffffff; text-transform: uppercase; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                  Role<span style="color: #a78bfa;">Flow</span>
+                </span>
+              </td>
+            </tr>
+          </table>
         </td>
       </tr>
       <tr>
@@ -362,6 +373,90 @@ export async function sendApplicationSubmissionReceipt({
       to: [toEmail],
       subject: `Application Received: ${positionTitle} at ${communityName}`,
       html: renderEmailShell(`Application Received: ${positionTitle}`, contentHtml),
+    });
+
+    if (error) return { success: false, error: error.message };
+    return { success: true, id: data?.id };
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * 4. Send Account Moderation / Punishment Notice Email
+ */
+export async function sendModerationNoticeEmail({
+  toEmail,
+  username,
+  actionType,
+  reason,
+  expiresAt,
+}: {
+  toEmail: string;
+  username: string;
+  actionType: "WARNING" | "SUSPENSION" | "BAN" | "BLACKLIST";
+  reason: string;
+  expiresAt?: string | null;
+}): Promise<EmailResult> {
+  const isPermanent = !expiresAt;
+
+  let badgeColor = "#ef4444";
+  let title = "Account Moderation Notice";
+  let actionLabel = "Account Suspended";
+
+  if (actionType === "WARNING") {
+    badgeColor = "#f59e0b";
+    title = "Official Policy Warning";
+    actionLabel = "Warning Issued";
+  } else if (actionType === "BLACKLIST") {
+    badgeColor = "#e11d48";
+    title = "Platform Blacklist Notice";
+    actionLabel = "Permanently Blacklisted";
+  } else if (actionType === "BAN") {
+    badgeColor = "#dc2626";
+    title = "Account Termination Notice";
+    actionLabel = "Account Banned";
+  }
+
+  const contentHtml = `
+    <div style="margin-bottom: 20px;">
+      <span style="display: inline-block; padding: 4px 12px; border-radius: 6px; font-weight: 800; font-size: 11px; text-transform: uppercase; background: rgba(239, 68, 68, 0.15); color: ${badgeColor}; border: 1px solid rgba(239, 68, 68, 0.3);">
+        ${actionLabel}
+      </span>
+    </div>
+
+    <h1>${title}</h1>
+    <p>Hi <strong>${username}</strong>,</p>
+    <p>This is an automated notice from the <strong>RoleFlow Trust & Safety Team</strong> regarding enforcement action taken on your account.</p>
+
+    <div class="card" style="border-left: 4px solid ${badgeColor};">
+      <p style="margin: 0 0 8px 0; font-size: 11px; font-weight: 700; color: #a78bfa; text-transform: uppercase;">Moderation Details:</p>
+      <p style="margin: 0 0 6px 0; font-size: 13px; color: #f1f5f9;"><strong>Action:</strong> ${actionLabel}</p>
+      <p style="margin: 0 0 6px 0; font-size: 13px; color: #f1f5f9;"><strong>Reason:</strong> ${reason}</p>
+      <p style="margin: 0; font-size: 13px; color: #f1f5f9;"><strong>Duration:</strong> ${isPermanent ? "Permanent" : expiresAt}</p>
+    </div>
+
+    <p style="font-size: 13px; color: #cbd5e1; line-height: 1.6;">
+      While this restriction is active, your ability to submit candidate applications, manage communities, or access candidate pools may be suspended in accordance with our <a href="${APP_URL}/acceptable-use" style="color: #a78bfa; text-decoration: underline;">Acceptable Use Policy</a>.
+    </p>
+
+    <div class="card" style="background: rgba(255, 255, 255, 0.03);">
+      <p style="margin: 0; font-size: 12px; color: #94a3b8;">
+        If you believe this penalty was issued in error or wish to submit an appeal, please open a ticket in our official community support server or email <a href="mailto:support@roleflow.site" style="color: #a78bfa;">support@roleflow.site</a> with your account ID.
+      </p>
+    </div>
+
+    <div class="button-container">
+      <a href="https://discord.gg/tKPbCXbmr9" class="btn" style="background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);">Submit Moderation Appeal</a>
+    </div>
+  `;
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: [toEmail],
+      subject: `[RoleFlow Notice] ${title} - Action Taken on Your Account`,
+      html: renderEmailShell(title, contentHtml),
     });
 
     if (error) return { success: false, error: error.message };
