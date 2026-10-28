@@ -95,7 +95,7 @@ export default async function HomePage() {
         </Link>
         <span className="w-1 h-1 rounded-full bg-slate-600" />
         <Link
-          href="/dashboard/meridian_studios"
+          href="/dashboard"
           className="hover:text-purple-300 transition-colors"
         >
           Manage a community

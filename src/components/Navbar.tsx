@@ -63,7 +63,7 @@ export function Navbar({ user }: NavbarProps) {
             </Link>
 
             <Link
-              href="/dashboard/meridian_studios"
+              href="/dashboard"
               className={cn(
                 "px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
                 pathname.startsWith("/dashboard")
@@ -71,7 +71,7 @@ export function Navbar({ user }: NavbarProps) {
                   : "text-slate-400 hover:text-white hover:bg-white/5"
               )}
             >
-              Manage Community
+              Dashboard
             </Link>
 
             {user?.isSiteAdmin && (

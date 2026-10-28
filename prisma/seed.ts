@@ -6,6 +6,18 @@ async function main() {
   console.log("🌱 Seeding AppliX database...");
 
   // 1. Create or upsert Admin User (Jordan)
+  const jordanUser = await prisma.user.upsert({
+    where: { id: "1046538179399929957" },
+    update: { isSiteAdmin: true },
+    create: {
+      id: "1046538179399929957",
+      username: "Jordan",
+      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
+      robloxUsername: "JordanDev",
+      isSiteAdmin: true,
+    },
+  });
+
   const adminUser = await prisma.user.upsert({
     where: { id: "dev_admin_user" },
     update: {},
@@ -42,6 +54,31 @@ async function main() {
   });
 
   // 2. Seed Communities (Matching the screenshot!)
+  // RoleFlow Official (Guild ID: 1565063649679122684)
+  const roleflowOfficial = await prisma.guild.upsert({
+    where: { id: "1565063649679122684" },
+    update: {
+      ownerId: jordanUser.id,
+    },
+    create: {
+      id: "1565063649679122684",
+      name: "RoleFlow Official",
+      vanitySlug: "roleflow",
+      ownerId: jordanUser.id,
+      isVerified: true,
+      verifiedBadge: "OFFICIAL",
+      memberCount: 3200,
+      tags: "Recruitment,Discord,Roblox,Official",
+      description: "Official RoleFlow community server. Recruitment, staff applications, developer portal, and community support.",
+      banner: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80",
+      icon: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&auto=format&fit=crop&q=80",
+      cooldownDays: 7,
+      enableRobloxAuth: true,
+      enableBlindVoting: true,
+      useCustomBot: false,
+    },
+  });
+
   // Meridian Studios
   const meridian = await prisma.guild.upsert({
     where: { id: "meridian_studios" },
@@ -105,6 +142,79 @@ async function main() {
   });
 
   // 3. Seed Positions & Questions
+  // RoleFlow Official Positions
+  const posRfMod = await prisma.position.upsert({
+    where: { id: "pos_rf_mod" },
+    update: {},
+    create: {
+      id: "pos_rf_mod",
+      guildId: roleflowOfficial.id,
+      title: "Community Moderator & Support Lead",
+      department: "Moderation",
+      description: "Manage community safety, resolve member disputes, enforce server guidelines, and support creators using RoleFlow.",
+      isPublic: true,
+      isOpen: true,
+      questions: {
+        create: [
+          {
+            label: "What is your Discord username and tag?",
+            description: "Used to ping you and verify roles.",
+            type: "TEXT",
+            required: true,
+            order: 0,
+          },
+          {
+            label: "Time Commitment per Week",
+            description: "How many hours can you dedicate?",
+            type: "SELECT",
+            options: JSON.stringify(["5-10 Hours", "10-20 Hours", "20+ Hours"]),
+            required: true,
+            order: 1,
+          },
+          {
+            label: "Conflict Resolution Scenario",
+            description: "Describe a situation where you diffused toxicity or drama effectively.",
+            type: "LONG_TEXT",
+            required: true,
+            order: 2,
+          },
+        ],
+      },
+    },
+  });
+
+  const posRfScripter = await prisma.position.upsert({
+    where: { id: "pos_rf_scripter" },
+    update: {},
+    create: {
+      id: "pos_rf_scripter",
+      guildId: roleflowOfficial.id,
+      title: "Lead Roblox Systems Programmer",
+      department: "Development",
+      description: "Build robust, networked game systems, server-client architecture, and Roblox studio integrations.",
+      isPublic: true,
+      isOpen: true,
+      questions: {
+        create: [
+          {
+            label: "Roblox DevForum / Portfolio URL",
+            description: "Link to your portfolio or games you scripted.",
+            type: "TEXT",
+            required: true,
+            order: 0,
+          },
+          {
+            label: "Framework & Architecture Preference",
+            description: "What state management / network frameworks do you use?",
+            type: "LONG_TEXT",
+            required: true,
+            order: 1,
+          },
+        ],
+      },
+    },
+  });
+
   // Position 1: Meridian Senior Scripter
   const pos1 = await prisma.position.upsert({
     where: { id: "pos_meridian_scripter" },

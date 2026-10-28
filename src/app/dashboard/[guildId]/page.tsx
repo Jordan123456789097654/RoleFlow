@@ -28,6 +28,7 @@ import {
   Bell,
   HelpCircle,
   ListPlus,
+  Server,
 } from "lucide-react";
 import { StatusBadge } from "@/components/StatusBadge";
 import { formatDate } from "@/lib/utils";
@@ -322,6 +323,33 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
     } catch (e) {}
   };
 
+  const [initLoading, setInitLoading] = useState(false);
+
+  const handleAutoInit = async () => {
+    setInitLoading(true);
+    try {
+      const res = await fetch("/api/guilds/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: params.guildId,
+          name: params.guildId === "1565063649679122684" ? "RoleFlow Official" : `Community (${params.guildId})`,
+          vanitySlug: params.guildId === "1565063649679122684" ? "roleflow" : undefined,
+        }),
+      });
+      if (res.ok) {
+        fetchGuildData();
+      } else {
+        const err = await res.json();
+        alert(err.error || "Please log in first to initialize this server.");
+      }
+    } catch (e: any) {
+      alert("Error initializing server");
+    } finally {
+      setInitLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-24 text-center">
@@ -334,10 +362,29 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
   if (!guild) {
     return (
       <div className="max-w-md mx-auto px-4 py-24 text-center">
-        <h2 className="text-base font-bold text-white mb-2">Community Not Found</h2>
-        <Link href="/" className="text-xs text-purple-400 hover:underline">
-          Return Home
-        </Link>
+        <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mx-auto mb-4 text-purple-400">
+          <Server className="w-6 h-6" />
+        </div>
+        <h2 className="text-xl font-bold text-white mb-2">Community Not Initialized</h2>
+        <p className="text-xs text-slate-400 mb-6 leading-relaxed">
+          Discord Server ID <span className="font-mono text-purple-300 font-semibold">{params.guildId}</span> is not registered on RoleFlow yet.
+        </p>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+          <button
+            onClick={handleAutoInit}
+            disabled={initLoading}
+            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-xs font-semibold transition-all shadow-lg shadow-violet-600/30 flex items-center justify-center gap-2"
+          >
+            <Sparkles className="w-4 h-4" />
+            <span>{initLoading ? "Initializing..." : "Initialize Community Now"}</span>
+          </button>
+          <Link
+            href="/dashboard"
+            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-slate-300 transition-colors text-center"
+          >
+            All Communities
+          </Link>
+        </div>
       </div>
     );
   }
