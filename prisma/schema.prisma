@@ -8,17 +8,20 @@ datasource db {
 }
 
 model User {
-  id             String        @id // Discord User ID
-  username       String
-  discriminator  String?
-  avatar         String?
-  email          String?       // Discord verified email
-  robloxId       String?       // Linked Roblox User ID
-  robloxUsername String?
-  isSiteAdmin    Boolean       @default(false)
-  applications   Application[]
-  reviews        Review[]
-  createdAt      DateTime      @default(now())
+  id                   String        @id // Discord User ID
+  username             String
+  discriminator        String?
+  avatar               String?
+  email                String?       // Discord verified email
+  robloxId             String?       // Linked Roblox User ID
+  robloxUsername       String?
+  robloxAvatar         String?
+  isSiteAdmin          Boolean       @default(false)
+  supportCode          String?       // 10-minute temporary support login code
+  supportCodeExpiresAt DateTime?     // Expiration timestamp
+  applications         Application[]
+  reviews              Review[]
+  createdAt            DateTime      @default(now())
 }
 
 model Guild {

@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { Shield, Sparkles, ExternalLink } from "lucide-react";
+import { Shield, Sparkles, ExternalLink, MessageCircle } from "lucide-react";
 
 export function Footer() {
   return (
@@ -20,7 +20,7 @@ export function Footer() {
             </p>
             <div className="flex items-center gap-2 text-xs text-purple-400">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>roleflow.org • All Systems Operational</span>
+              <span>roleflow.site • All Systems Operational</span>
             </div>
           </div>
 
@@ -41,36 +41,44 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/dashboard/meridian_studios" className="hover:text-purple-300 transition-colors">
+                <Link href="/dashboard" className="hover:text-purple-300 transition-colors">
                   Community Dashboard
                 </Link>
               </li>
               <li>
-                <Link href="/admin" className="hover:text-purple-300 transition-colors">
-                  Verified Badges & Admin
+                <Link href="/settings" className="hover:text-purple-300 transition-colors">
+                  Account Settings & Support
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Discord Bot & Integrations */}
+          {/* Community & Support Discord */}
           <div>
             <h4 className="text-xs font-semibold text-white uppercase tracking-wider mb-3">
-              Integrations
+              Community & Support
             </h4>
             <ul className="space-y-2 text-xs text-slate-400">
-              <li className="flex items-center gap-1">
-                <span>RoleFlow Discord Client</span>
-                <span className="px-1.5 py-0.5 rounded text-[10px] bg-purple-500/20 text-purple-300 font-mono">v14</span>
+              <li>
+                <a
+                  href="https://discord.gg/ZSGBbyEnWA"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-purple-400 hover:text-purple-300 font-medium transition-colors"
+                >
+                  <MessageCircle className="w-3.5 h-3.5" />
+                  <span>RoFlow Support Discord</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
               </li>
               <li>
-                <span className="text-slate-400">White-label Custom Bots</span>
+                <span className="text-slate-400">Hosted Server Automation</span>
               </li>
               <li>
-                <span className="text-slate-400">Roblox Account Verification</span>
+                <span className="text-slate-400">Roblox Identity Verification</span>
               </li>
               <li>
-                <span className="text-slate-400">Automated Interview Tickets</span>
+                <span className="text-slate-400">10-Minute Support Mode</span>
               </li>
             </ul>
           </div>
@@ -104,12 +112,16 @@ export function Footer() {
         </div>
 
         <div className="pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
-          <p>© {new Date().getFullYear()} RoleFlow (roleflow.org). Built for high-growth Discord communities and studios.</p>
+          <p>© {new Date().getFullYear()} RoleFlow (roleflow.site). Built for high-growth Discord communities and studios.</p>
           <div className="flex items-center gap-4">
             <Link href="/terms" className="hover:text-slate-400">Terms</Link>
             <Link href="/privacy" className="hover:text-slate-400">Privacy</Link>
             <Link href="/acceptable-use" className="hover:text-slate-400">Acceptable Use</Link>
           </div>
+        </div>
+
+        <div className="mt-4 pt-4 border-t border-white/5 text-center text-[10px] text-slate-600">
+          RoleFlow is an independent recruitment platform and is not affiliated with, endorsed by, or sponsored by Discord Inc. or Roblox Corporation.
         </div>
       </div>
     </footer>

@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Sparkles, Shield, User, Search, Layers, Compass, ExternalLink } from "lucide-react";
+import { Sparkles, Shield, User, Search, Layers, Compass, ExternalLink, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface NavbarProps {
@@ -123,6 +123,13 @@ export function Navbar({ user }: NavbarProps) {
                 alt={user.username}
                 className="w-8 h-8 rounded-full border border-purple-500/40 object-cover ring-2 ring-purple-500/10"
               />
+              <Link
+                href="/settings"
+                title="Account Settings & Support"
+                className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors"
+              >
+                <Settings className="w-4 h-4" />
+              </Link>
               <a
                 href="/api/auth/logout"
                 title="Logout"
