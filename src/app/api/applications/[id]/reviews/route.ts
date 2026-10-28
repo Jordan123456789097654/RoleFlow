@@ -90,3 +90,53 @@ export async function POST(
     return NextResponse.json({ error: "Failed to record review or vote" }, { status: 500 });
   }
 }
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const reviewId = searchParams.get("reviewId");
+
+    if (!reviewId) {
+      return NextResponse.json({ error: "reviewId required" }, { status: 400 });
+    }
+
+    const review = await prisma.review.findUnique({
+      where: { id: reviewId },
+      include: {
+        application: {
+          include: {
+            position: { select: { guildId: true } },
+          },
+        },
+      },
+    });
+
+    if (!review) {
+      return NextResponse.json({ error: "Review not found" }, { status: 404 });
+    }
+
+    const isAuthor = review.reviewerId === user.id;
+    const isOwner = user.isSiteAdmin || user.id === "1046538179399929957";
+
+    if (!isAuthor && !isOwner) {
+      return NextResponse.json({ error: "Forbidden: You can only delete your own reviews" }, { status: 403 });
+    }
+
+    await prisma.review.delete({
+      where: { id: reviewId },
+    });
+
+    return NextResponse.json({ success: true, message: "Review deleted" });
+  } catch (err: any) {
+    console.error("Delete review error:", err);
+    return NextResponse.json({ error: err.message || "Failed to delete review" }, { status: 500 });
+  }
+}

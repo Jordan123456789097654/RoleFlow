@@ -29,21 +29,36 @@ export async function DELETE(
       return NextResponse.json({ error: "Application not found" }, { status: 404 });
     }
 
+    const currentUser = await prisma.user.findUnique({ where: { id: userId } });
     const isOwner = application.position.guild.ownerId === userId;
     const isApplicant = application.userId === userId;
-    const isSiteAdmin = userId === "1046538179399929957";
+    const isSiteAdmin = currentUser?.isSiteAdmin || userId === "1046538179399929957";
 
-    // Only community owner, applicant themselves, or site admin can delete
+    let isStaff = false;
     if (!isOwner && !isApplicant && !isSiteAdmin) {
-      return NextResponse.json({ error: "Forbidden: Access denied." }, { status: 403 });
+      const staffMember = await prisma.guildStaff.findUnique({
+        where: {
+          guildId_userId: {
+            guildId: application.position.guildId,
+            userId,
+          },
+        },
+      });
+      isStaff = staffMember ? ["full_decision", "position_editor"].includes(staffMember.permissions) : false;
     }
 
-    await prisma.application.delete({
-      where: { id: params.id },
-    });
+    if (!isOwner && !isApplicant && !isSiteAdmin && !isStaff) {
+      return NextResponse.json({ error: "Forbidden: You do not have permission to delete this application." }, { status: 403 });
+    }
+
+    await prisma.answer.deleteMany({ where: { applicationId: params.id } });
+    await prisma.review.deleteMany({ where: { applicationId: params.id } });
+    await prisma.applicationMessage.deleteMany({ where: { applicationId: params.id } });
+    await prisma.application.delete({ where: { id: params.id } });
 
     return NextResponse.json({ success: true, message: "Application deleted." });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error("Delete application error:", err);
+    return NextResponse.json({ error: err.message || "Failed to delete application" }, { status: 500 });
   }
 }

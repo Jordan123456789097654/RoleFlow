@@ -419,6 +419,25 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
     }
   };
 
+  const handleDeleteReview = async (appId: string, reviewId: string) => {
+    if (!confirm("Delete this review note?")) return;
+    try {
+      const res = await fetch(`/api/applications/${appId}/reviews?reviewId=${reviewId}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        setActionSuccess("Review note deleted.");
+        setTimeout(() => setActionSuccess(null), 3000);
+        fetchGuildData();
+      } else {
+        const err = await res.json();
+        alert(err.error || "Failed to delete review");
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const handleDeleteApplication = async (appId: string) => {
     if (!confirm("Are you sure you want to permanently delete this application? This cannot be undone.")) return;
     try {
@@ -436,7 +455,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
     }
   };
 
-  const handleBulkAction = async (action: "ACCEPT" | "REJECT" | "TAG", tag?: string) => {
+  const handleBulkAction = async (action: "ACCEPT" | "REJECT" | "TAG" | "DELETE", tag?: string) => {
     if (selectedAppIds.length === 0) return;
     setBulkProcessing(true);
     try {
@@ -1444,7 +1463,20 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                             )}
                           </div>
                         </div>
-                        <StatusBadge status={app.status} size="sm" />
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <StatusBadge status={app.status} size="sm" />
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteApplication(app.id);
+                            }}
+                            className="p-1 rounded-md hover:bg-rose-500/20 text-slate-500 hover:text-rose-400 transition-colors"
+                            title="Delete this application"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
 
                       {app.user.robloxUsername && (
@@ -1715,12 +1747,22 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                       <div key={rev.id} className="p-3 rounded-xl bg-white/5 border border-white/5 text-xs space-y-1">
                         <div className="flex items-center justify-between">
                           <span className="font-semibold text-white">{rev.reviewer.username}</span>
-                          {rev.score && (
-                            <span className="flex items-center gap-1 text-amber-400">
-                              <Star className="w-3 h-3 fill-amber-400" />
-                              {rev.score}/5
-                            </span>
-                          )}
+                          <div className="flex items-center gap-2">
+                            {rev.score && (
+                              <span className="flex items-center gap-1 text-amber-400">
+                                <Star className="w-3 h-3 fill-amber-400" />
+                                {rev.score}/5
+                              </span>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteReview(selectedApp.id, rev.id)}
+                              className="p-1 rounded hover:bg-rose-500/20 text-slate-500 hover:text-rose-400 transition-colors"
+                              title="Delete review note"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
                         </div>
                         <p className="text-slate-300">{rev.comment}</p>
                       </div>
@@ -1799,6 +1841,21 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                 className="px-3.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition-all shadow-md shadow-rose-600/30"
               >
                 Batch Deny
+              </button>
+
+              <button
+                type="button"
+                disabled={bulkProcessing}
+                onClick={() => {
+                  if (confirm(`Are you sure you want to permanently delete all ${selectedAppIds.length} selected applications? This cannot be undone.`)) {
+                    handleBulkAction("DELETE");
+                  }
+                }}
+                className="px-3.5 py-1.5 rounded-lg bg-red-600/20 hover:bg-red-600/40 text-red-300 border border-red-500/30 text-xs font-bold transition-all shadow-md flex items-center gap-1.5"
+                title="Permanently delete selected applications"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Batch Delete</span>
               </button>
 
               <button

@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth";
 import { BotDispatcher } from "@/lib/bot-dispatcher";
 import { dispatchCommunityWebhook } from "@/lib/webhook-dispatcher";
-import { getCurrentUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "guildId and non-empty applicationIds array required" }, { status: 400 });
     }
 
-    // Verify user owns the community, is staff member with permissions, or is super-admin
+    // Verify community permissions
     const guild = await prisma.guild.findUnique({
       where: { id: guildId },
       include: { staffTeam: true },
@@ -39,6 +39,27 @@ export async function POST(request: Request) {
     }
 
     // Process Batch Actions
+    if (action === "DELETE") {
+      await prisma.answer.deleteMany({
+        where: { applicationId: { in: applicationIds } },
+      });
+      await prisma.review.deleteMany({
+        where: { applicationId: { in: applicationIds } },
+      });
+      await prisma.applicationMessage.deleteMany({
+        where: { applicationId: { in: applicationIds } },
+      });
+      const deleted = await prisma.application.deleteMany({
+        where: { id: { in: applicationIds } },
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: `Permanently deleted ${deleted.count} application(s).`,
+        processedCount: deleted.count,
+      });
+    }
+
     if (action === "ACCEPT" || action === "REJECT") {
       const newStatus = action === "ACCEPT" ? "ACCEPTED" : "REJECTED";
 
@@ -79,6 +100,7 @@ export async function POST(request: Request) {
       return NextResponse.json({
         success: true,
         message: `Successfully updated ${apps.length} applications to ${newStatus}.`,
+        processedCount: apps.length,
         count: apps.length,
       });
     }
@@ -104,6 +126,7 @@ export async function POST(request: Request) {
       return NextResponse.json({
         success: true,
         message: `Added tag "${tag}" to ${apps.length} applications.`,
+        processedCount: apps.length,
       });
     }
 
