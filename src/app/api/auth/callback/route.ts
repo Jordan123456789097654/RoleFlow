@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
@@ -9,18 +11,17 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL("/?error=missing_code", request.url));
   }
 
-  const host = request.headers.get("host") || "";
+  const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || "";
+  const isLocal = host.includes("localhost") || host.includes("127.0.0.1");
   const clientId = process.env.DISCORD_CLIENT_ID || "1565049592788025344";
   const clientSecret = process.env.DISCORD_CLIENT_SECRET;
 
-  let redirectUri = process.env.DISCORD_REDIRECT_URI;
-  if (!redirectUri) {
-    if (host.includes("localhost")) {
-      redirectUri = "http://localhost:3000/api/auth/callback";
-    } else {
-      // Always use apex domain https://roleflow.site to guarantee matching Discord's registered redirect URI
-      redirectUri = "https://roleflow.site/api/auth/callback";
-    }
+  // Production always uses apex domain https://roleflow.site
+  let redirectUri = "https://roleflow.site/api/auth/callback";
+  if (isLocal) {
+    redirectUri = "http://localhost:3000/api/auth/callback";
+  } else if (process.env.DISCORD_REDIRECT_URI && !process.env.DISCORD_REDIRECT_URI.includes("localhost")) {
+    redirectUri = process.env.DISCORD_REDIRECT_URI;
   }
 
   try {
