@@ -32,7 +32,7 @@ const sections = [
     "Do not post content you do not have the right to use. Respect the copyright, trademarks, and other rights of others, including game assets, logos, and music.",
   ]},
   { title: "Reporting and enforcement", paragraphs: [
-    "Report violations with the Report button on a community or position page, or by contacting [CONTACT EMAIL]. We review reports and may remove content, pause or blacklist communities, suspend or ban accounts, or close reports without action.",
+    "Report violations with the Report button on a community or position page, or by contacting support@roleflow.site. We review reports and may remove content, pause or blacklist communities, suspend or ban accounts, or close reports without action.",
     "Repeated or serious violations may result in permanent removal. Appeals follow our Community Guidelines.",
   ]},
 ];

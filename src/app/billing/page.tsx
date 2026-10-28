@@ -15,16 +15,16 @@ const sections = [
     "When a license expires, paid features are locked again. Your data, communities, applications, and settings are kept. You can renew by redeeming another key. Expired features are not deleted.",
   ]},
   { title: "Pricing, payment, and taxes", paragraphs: [
-    "[PRICING AND PAYMENT TERMS TO BE INSERTED WHEN PAID LICENSES LAUNCH.] Prices may be shown exclusive or inclusive of applicable taxes. You are responsible for taxes that apply to your purchase, except where we are required to collect and remit them.",
+    "During the open beta, licenses are granted promotionally or through authorized partner distribution. When commercial licensing tiers launch, prices will be clearly listed in USD prior to purchase. Prices may be shown exclusive or inclusive of applicable sales taxes depending on your location. You are responsible for taxes that apply to your purchase, except where we are required to collect and remit them.",
   ]},
   { title: "Refunds", paragraphs: [
-    "[REFUND POLICY TO BE INSERTED BEFORE PAID LICENSES LAUNCH. Consider how it interacts with consumer rights in your jurisdiction, including statutory cooling-off periods for digital goods.] Keys that have been redeemed are generally non-refundable unless required by law or approved by us in writing.",
+    "Digital license keys that have been redeemed and activated to a community server are non-refundable, except where required by mandatory consumer protection regulations or statutory cooling-off periods in your jurisdiction. If you experience an unresolvable technical fault with an activated license, please contact our support desk.",
   ]},
   { title: "Transfers and misuse", paragraphs: [
     "License keys are for the community or account they were redeemed for. Do not resell, share, or publicly post keys. We may revoke a key that has been obtained fraudulently, shared publicly, or used in breach of our Terms, and we will tell you when we do.",
   ]},
   { title: "Disputes and contact", paragraphs: [
-    "If you have a billing question, email [CONTACT EMAIL] with your key ID or community name. These terms are part of our Terms of Service.",
+    "If you have a billing question, email support@roleflow.site with your key ID or community name, or open a support ticket in our community server at https://discord.gg/tKPbCXbmr9. These terms are part of our Terms of Service.",
   ]},
 ];
 

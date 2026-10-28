@@ -2,7 +2,7 @@ import LegalDocument from "@/components/legal/LegalDocument";
 
 const sections = [
   { title: "Who we are", paragraphs: [
-    "RoleFlow is operated by [LEGAL ENTITY NAME]. For privacy requests, contact [CONTACT EMAIL]. [If required, insert the name and contact details of your data protection representative.]",
+    "RoleFlow is operated by the RoleFlow Project Team (\"RoleFlow\", \"we\", \"us\"). For privacy requests and data inquiries, contact support@roleflow.site. Official community discord: https://discord.gg/tKPbCXbmr9.",
   ]},
   { title: "Information we collect", paragraphs: [
     "Account information from Discord: your Discord user ID, username, display name, avatar, and email address if you grant that permission.",
@@ -25,7 +25,7 @@ const sections = [
   { title: "Who sees your information", paragraphs: [
     "Community owners and their staff see applications and applicant information submitted to their community, including linked Discord and Roblox details, and the reviews and notes staff add.",
     "Site administrators and the founder can see account, moderation, and audit information needed to operate the platform, as described in our Community Guidelines.",
-    "Service providers process information for us under contract: Discord (sign-in and bot delivery), our email provider (transactional email), and our hosting and database providers. [List processors and their locations before publishing.]",
+    "Service providers process information for us under contract: Discord (sign-in and bot delivery, United States), Resend (transactional email, United States), and our hosting and PostgreSQL cloud database infrastructure.",
     "We do not sell your personal information, and we do not use advertising cookies.",
   ]},
   { title: "Retention", paragraphs: [
@@ -36,14 +36,14 @@ const sections = [
   ]},
   { title: "Your rights", paragraphs: [
     "Depending on where you live, you may have the right to access, correct, delete, or export your personal information; to object to or restrict processing; to withdraw consent; and to complain to a supervisory authority.",
-    "You can download a copy of your data from Settings, and you can delete your account there. For other requests, email [CONTACT EMAIL]. We will verify your identity before responding and aim to respond within 30 days.",
+    "You can download a copy of your data from Settings, and you can delete your account there. For other requests, email support@roleflow.site. We will verify your identity before responding and aim to respond within 30 days.",
     "California residents have additional rights under the CCPA/CPRA, including the right to know and the right to delete. We do not sell or share personal information for cross-context behavioral advertising.",
   ]},
   { title: "Children", paragraphs: [
-    "The Service is not directed to children under 13, or the higher minimum age in your country. We do not knowingly collect personal information from them. If you believe a child has provided information to us, contact [CONTACT EMAIL] and we will delete it.",
+    "The Service is not directed to children under 13, or the higher minimum age in your country. We do not knowingly collect personal information from them. If you believe a child has provided information to us, contact support@roleflow.site and we will delete it.",
   ]},
   { title: "International transfers", paragraphs: [
-    "We may process information in countries other than where you live, including the United States. Where required, we rely on appropriate safeguards such as standard contractual clauses. [Confirm the transfer mechanisms in use before publishing.]",
+    "We may process information in countries other than where you live, including the United States. Where required, we rely on appropriate safeguards such as standard contractual clauses and end-to-end transport encryption.",
   ]},
   { title: "Cookies", paragraphs: [
     "We use cookies and local storage as described in our Cookie Policy.",
@@ -52,7 +52,7 @@ const sections = [
     "We will post changes here and update the date above. For material changes we will give at least 14 days' notice, and where required we will seek your consent again.",
   ]},
   { title: "Contact", paragraphs: [
-    "Privacy questions and requests: [CONTACT EMAIL]. Postal address: [POSTAL ADDRESS].",
+    "Privacy questions and requests: support@roleflow.site. Online community desk: https://discord.gg/tKPbCXbmr9.",
   ]},
 ];
 

@@ -2,7 +2,7 @@ import LegalDocument from "@/components/legal/LegalDocument";
 
 const sections = [
   { title: "Agreement to these terms", paragraphs: [
-    "These Terms of Service form a binding agreement between you and [LEGAL ENTITY NAME] (\"RoleFlow\", \"we\", \"us\") for use of the RoleFlow website, applications, Discord integration, and related services (the \"Service\"). By creating an account, signing in, or using the Service, you agree to these Terms and to our Privacy Policy, Acceptable Use Policy, Cookie Policy, Billing Policy, and Community Guidelines.",
+    "These Terms of Service form a binding agreement between you and RoleFlow (\"RoleFlow\", \"we\", \"us\") for use of the RoleFlow website, applications, Discord integration, and related services (the \"Service\"). By creating an account, signing in, or using the Service, you agree to these Terms and to our Privacy Policy, Acceptable Use Policy, Cookie Policy, Billing Policy, and Community Guidelines.",
     "If you do not agree, do not use the Service. If you use the Service for a community or organization, you confirm that you may bind that organization to these Terms.",
   ]},
   { title: "Eligibility", paragraphs: [
@@ -11,7 +11,7 @@ const sections = [
   ]},
   { title: "Accounts and sign-in", paragraphs: [
     "You sign in with your Discord account through Discord's OAuth flow. We receive the profile information Discord shares with us, including your username, avatar, and email address if you granted that permission.",
-    "You are responsible for activity on your account and for keeping your Discord account secure. Site staff and administrators must enable two-factor authentication. Notify us promptly at [CONTACT EMAIL] if you believe your account has been compromised.",
+    "You are responsible for activity on your account and for keeping your Discord account secure. Site staff and administrators must enable two-factor authentication. Notify us promptly at support@roleflow.site if you believe your account has been compromised.",
     "You may sign out or delete your account at any time from Settings. Deleting an account that owns a community is blocked until the community is transferred or deleted.",
   ]},
   { title: "Communities and owner responsibilities", paragraphs: [
@@ -52,21 +52,20 @@ const sections = [
     "The Service is provided \"as is\" and \"as available\", without warranties of any kind, express or implied, including warranties of merchantability, fitness for a particular purpose, and non-infringement, to the fullest extent permitted by law.",
   ]},
   { title: "Limitation of liability", paragraphs: [
-    "To the fullest extent permitted by law, we will not be liable for indirect, incidental, special, consequential, or punitive damages, or for loss of profits, data, or goodwill arising from your use of the Service. Our total liability for any claim will not exceed the greater of the amount you paid us in the 12 months before the claim or [LIABILITY CAP AMOUNT].",
+    "To the fullest extent permitted by law, we will not be liable for indirect, incidental, special, consequential, or punitive damages, or for loss of profits, data, or goodwill arising from your use of the Service. Our total liability for any claim will not exceed the greater of the amount you paid us in the 12 months before the claim or $100.00 USD.",
     "Some jurisdictions do not allow certain limitations, so some of these limits may not apply to you.",
   ]},
   { title: "Indemnification", paragraphs: [
     "You will defend and indemnify us against claims arising from your content, your use of the Service in breach of these Terms, or your violation of law or of another person's rights.",
   ]},
   { title: "Governing law and disputes", paragraphs: [
-    "These Terms are governed by the laws of [GOVERNING LAW JURISDICTION], without regard to conflict-of-law rules. Courts located in [VENUE] have exclusive jurisdiction, except where mandatory consumer law gives you the right to bring claims where you live.",
-    "[OPTIONAL: Binding arbitration and class-action waiver terms, to be reviewed by counsel before use.]",
+    "These Terms are governed by the laws of the State of Delaware and applicable United States federal law, without regard to conflict-of-law rules. Any dispute arising out of or relating to these Terms shall be resolved through informal dispute resolution by contacting support@roleflow.site, or before competent state or federal courts, except where mandatory consumer protection regulations grant you the right to bring claims in your jurisdiction of residence.",
   ]},
   { title: "Changes to these Terms", paragraphs: [
     "We may update these Terms. For material changes we will give at least 14 days' notice in the Service or by email. Continued use after the effective date means you accept the updated Terms.",
   ]},
   { title: "Contact", paragraphs: [
-    "Questions about these Terms: [CONTACT EMAIL]. Postal address: [POSTAL ADDRESS].",
+    "Questions about these Terms: support@roleflow.site. For community support or appeals, visit our official community server at https://discord.gg/tKPbCXbmr9.",
   ]},
 ];
 

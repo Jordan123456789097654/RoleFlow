@@ -22,7 +22,7 @@ const sections = [
     "Most browsers let you block or delete cookies and clear local storage. If you block the essential cookies, you will not be able to stay signed in. Clearing local storage removes saved drafts and the overview timestamp.",
   ]},
   { title: "Changes and contact", paragraphs: [
-    "We will update this policy when our use of cookies changes. Questions: [CONTACT EMAIL].",
+    "We will update this policy when our use of cookies changes. Questions: support@roleflow.site.",
   ]},
 ];
 
