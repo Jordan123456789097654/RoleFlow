@@ -9,10 +9,20 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL("/?error=missing_code", request.url));
   }
 
-  const origin = new URL(request.url).origin;
+  const host = request.headers.get("host") || "";
   const clientId = process.env.DISCORD_CLIENT_ID || "1565049592788025344";
   const clientSecret = process.env.DISCORD_CLIENT_SECRET;
-  const redirectUri = process.env.DISCORD_REDIRECT_URI || `${origin}/api/auth/callback`;
+
+  let redirectUri = process.env.DISCORD_REDIRECT_URI;
+  if (!redirectUri) {
+    if (host.includes("localhost")) {
+      redirectUri = `http://localhost:3000/api/auth/callback`;
+    } else if (host.startsWith("www.")) {
+      redirectUri = `https://www.roleflow.site/api/auth/callback`;
+    } else {
+      redirectUri = `https://roleflow.site/api/auth/callback`;
+    }
+  }
 
   try {
     // 1. Exchange authorization code for access token
