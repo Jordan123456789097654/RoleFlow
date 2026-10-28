@@ -16,6 +16,7 @@ import {
   ArrowRight,
   Server,
   FileCheck,
+  BadgeCheck,
 } from "lucide-react";
 import { StatusBadge } from "@/components/StatusBadge";
 
@@ -27,6 +28,7 @@ interface GuildSummary {
   vanitySlug?: string | null;
   isVerified?: boolean;
   verifiedBadge?: string | null;
+  verifiedBadges?: string | null;
   useCustomBot?: boolean;
   _count: {
     positions: number;
@@ -270,12 +272,26 @@ export default function DashboardHubPage() {
                           className="w-12 h-12 rounded-xl object-cover border border-white/10"
                         />
                         <div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <h3 className="text-base font-bold text-white group-hover:text-purple-300 transition-colors">
                               {g.name}
                             </h3>
                             {g.isVerified && (
-                              <StatusBadge status={g.verifiedBadge || "OFFICIAL"} />
+                              <div className="flex items-center gap-1 flex-wrap">
+                                {(g.verifiedBadges || g.verifiedBadge || "OFFICIAL")
+                                  .split(",")
+                                  .map((b) => b.trim())
+                                  .filter(Boolean)
+                                  .map((badge) => (
+                                    <span
+                                      key={badge}
+                                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[10px] font-bold"
+                                    >
+                                      <BadgeCheck className="w-3 h-3 text-purple-400 fill-purple-400/20" />
+                                      {badge.replace("_", " ")}
+                                    </span>
+                                  ))}
+                              </div>
                             )}
                           </div>
                           <p className="text-[11px] text-slate-400 font-mono mt-0.5">
