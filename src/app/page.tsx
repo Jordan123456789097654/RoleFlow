@@ -171,7 +171,7 @@ export default async function HomePage() {
           </div>
           <h3 className="text-sm font-bold text-white">White-label Discord Bot</h3>
           <p className="text-xs text-slate-400 leading-relaxed">
-            Use the default AppliBot or enter your community&apos;s custom bot token. Automatic role assignments, quick Discord buttons, and interview tickets.
+            Choose Web-Only mode or let RoleFlow host your bot token. Automatic role assignments, custom embed colors, staff pings, and applicant alerts.
           </p>
         </div>
       </div>

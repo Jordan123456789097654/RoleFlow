@@ -12,6 +12,7 @@ interface NavbarProps {
     username: string;
     avatar: string | null;
     isSiteAdmin?: boolean;
+    hasCommunities?: boolean;
   } | null;
 }
 
@@ -50,29 +51,34 @@ export function Navbar({ user }: NavbarProps) {
               </span>
             </Link>
 
-            <Link
-              href="/my-applications"
-              className={cn(
-                "px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
-                pathname === "/my-applications"
-                  ? "text-white bg-white/5"
-                  : "text-slate-400 hover:text-white hover:bg-white/5"
-              )}
-            >
-              My Applications
-            </Link>
+            {user && (
+              <Link
+                href="/my-applications"
+                className={cn(
+                  "px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
+                  pathname === "/my-applications"
+                    ? "text-white bg-white/5"
+                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                )}
+              >
+                My Applications
+              </Link>
+            )}
 
-            <Link
-              href="/dashboard"
-              className={cn(
-                "px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
-                pathname.startsWith("/dashboard")
-                  ? "text-white bg-white/5"
-                  : "text-slate-400 hover:text-white hover:bg-white/5"
-              )}
-            >
-              Dashboard
-            </Link>
+            {/* ONLY show Dashboard / Manage Community if user owns a community or is admin */}
+            {user?.hasCommunities && (
+              <Link
+                href="/dashboard"
+                className={cn(
+                  "px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
+                  pathname.startsWith("/dashboard")
+                    ? "text-white bg-white/5"
+                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                )}
+              >
+                Dashboard
+              </Link>
+            )}
 
             {user?.isSiteAdmin && (
               <Link

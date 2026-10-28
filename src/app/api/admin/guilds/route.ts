@@ -1,8 +1,25 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
+
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
+    const cookieStore = cookies();
+    const userId = cookieStore.get("roleflow_user_id")?.value;
+
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized. Please log in." }, { status: 401 });
+    }
+
+    const currentUser = await prisma.user.findUnique({ where: { id: userId } });
+    const isSiteAdmin = currentUser?.isSiteAdmin || currentUser?.id === "1046538179399929957";
+
+    if (!isSiteAdmin) {
+      return NextResponse.json({ error: "Forbidden: Site Super-Admin required." }, { status: 403 });
+    }
+
     const guilds = await prisma.guild.findMany({
       include: {
         _count: {

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Shield, BadgeCheck, Users, Briefcase, Sparkles, CheckCircle2, ArrowLeft, Star, Search } from "lucide-react";
+import { Shield, BadgeCheck, Users, Briefcase, Sparkles, CheckCircle2, ArrowLeft, Star, Search, AlertTriangle } from "lucide-react";
 
 interface AdminGuild {
   id: string;
@@ -20,6 +20,7 @@ interface AdminGuild {
 export default function SiteAdminPage() {
   const [guilds, setGuilds] = useState<AdminGuild[]>([]);
   const [loading, setLoading] = useState(true);
+  const [unauthorized, setUnauthorized] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [badgeInputs, setBadgeInputs] = useState<Record<string, string>>({});
@@ -32,6 +33,10 @@ export default function SiteAdminPage() {
   async function fetchGuilds() {
     try {
       const res = await fetch("/api/admin/guilds");
+      if (res.status === 401 || res.status === 403) {
+        setUnauthorized(true);
+        return;
+      }
       if (res.ok) {
         const data = await res.json();
         setGuilds(data);
@@ -73,6 +78,43 @@ export default function SiteAdminPage() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="max-w-6xl mx-auto px-4 py-24 text-center">
+        <div className="w-8 h-8 rounded-full border-2 border-purple-500 border-t-transparent animate-spin mx-auto mb-4" />
+        <p className="text-xs text-slate-400">Loading admin console...</p>
+      </div>
+    );
+  }
+
+  if (unauthorized) {
+    return (
+      <div className="max-w-md mx-auto px-4 py-24 text-center">
+        <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mx-auto mb-4 text-rose-400">
+          <Shield className="w-6 h-6" />
+        </div>
+        <h2 className="text-xl font-bold text-white mb-2">Admin Access Required</h2>
+        <p className="text-xs text-slate-400 mb-6 leading-relaxed">
+          This console is restricted to the platform super-admin (Discord ID: 1046538179399929957). Please log in with your authorized Discord account.
+        </p>
+        <div className="flex items-center justify-center gap-3">
+          <a
+            href="/api/auth/login"
+            className="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-xs font-semibold text-white transition-all shadow-md shadow-violet-600/30"
+          >
+            Login with Discord
+          </a>
+          <Link
+            href="/"
+            className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-slate-300 transition-colors"
+          >
+            Home
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   const filtered = guilds.filter(
     (g) =>
       g.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -86,7 +128,7 @@ export default function SiteAdminPage() {
         className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white mb-6 transition-colors"
       >
         <ArrowLeft className="w-3.5 h-3.5" />
-        Back to AppliX Home
+        Back to RoleFlow Home
       </Link>
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
@@ -151,76 +193,61 @@ export default function SiteAdminPage() {
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-surface/80 border-b border-white/5 text-slate-400 uppercase tracking-wider text-[10px]">
+            <thead className="bg-white/5 text-slate-400 uppercase tracking-wider font-semibold">
               <tr>
-                <th className="p-4">Community</th>
-                <th className="p-4">Status & Openings</th>
-                <th className="p-4">Badge Title</th>
-                <th className="p-4 text-right">Award Verified Badge</th>
+                <th className="py-3 px-4">Community</th>
+                <th className="py-3 px-4">Guild ID</th>
+                <th className="py-3 px-4">Openings</th>
+                <th className="py-3 px-4">Applications</th>
+                <th className="py-3 px-4">Badge Preset</th>
+                <th className="py-3 px-4 text-right">Verification Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-white/5 text-slate-300">
               {filtered.map((g) => (
                 <tr key={g.id} className="hover:bg-white/[0.02] transition-colors">
-                  <td className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-surface-card border border-white/10 overflow-hidden shrink-0">
-                        {g.icon ? (
-                          <img src={g.icon} alt={g.name} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full bg-violet-600 flex items-center justify-center font-bold text-white">
-                            {g.name.charAt(0)}
-                          </div>
-                        )}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-1.5 font-bold text-white">
-                          <span>{g.name}</span>
-                          {g.isVerified && (
-                            <BadgeCheck className="w-4 h-4 text-purple-400 fill-purple-400/20" />
-                          )}
-                        </div>
-                        <span className="text-[10px] text-slate-500 font-mono">
-                          ID: {g.id}
-                        </span>
-                      </div>
+                  <td className="py-3 px-4">
+                    <div className="flex items-center gap-2.5">
+                      <img
+                        src={g.icon || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&auto=format&fit=crop&q=80"}
+                        alt={g.name}
+                        className="w-7 h-7 rounded-lg object-cover"
+                      />
+                      <span className="font-semibold text-white">{g.name}</span>
                     </div>
                   </td>
-
-                  <td className="p-4">
-                    <div className="space-y-0.5">
-                      <span className="text-slate-300 block">
-                        {g.positionsCount} openings • {g.applicationsCount} apps
-                      </span>
-                      <span className="text-slate-500 text-[10px]">
-                        {g.memberCount.toLocaleString()} Discord members
-                      </span>
-                    </div>
-                  </td>
-
-                  <td className="p-4">
-                    <input
-                      type="text"
+                  <td className="py-3 px-4 font-mono text-slate-400">{g.id}</td>
+                  <td className="py-3 px-4">{g.positionsCount}</td>
+                  <td className="py-3 px-4">{g.applicationsCount}</td>
+                  <td className="py-3 px-4">
+                    <select
                       value={badgeInputs[g.id] || "OFFICIAL"}
                       onChange={(e) =>
                         setBadgeInputs({ ...badgeInputs, [g.id]: e.target.value })
                       }
-                      placeholder="e.g. PARTNER, OFFICIAL"
-                      className="px-2.5 py-1 rounded-lg bg-surface border border-white/10 text-xs text-purple-300 w-36 uppercase font-mono focus:outline-none focus:border-purple-500"
-                    />
+                      className="bg-surface border border-white/10 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-purple-500"
+                    >
+                      <option value="OFFICIAL">OFFICIAL (Purple)</option>
+                      <option value="PARTNER">PARTNER (Cyan)</option>
+                      <option value="VERIFIED">VERIFIED (Emerald)</option>
+                      <option value="EARLY_ACCESS">EARLY_ACCESS (Amber)</option>
+                    </select>
                   </td>
-
-                  <td className="p-4 text-right">
+                  <td className="py-3 px-4 text-right">
                     <button
                       onClick={() => handleToggleVerify(g.id, g.isVerified)}
                       disabled={updatingId === g.id}
-                      className={`px-3.5 py-1.5 rounded-xl font-bold text-xs transition-all shadow-md ${
+                      className={`px-3 py-1.5 rounded-lg font-semibold text-xs transition-all ${
                         g.isVerified
-                          ? "bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30"
-                          : "bg-violet-600 hover:bg-violet-500 text-white shadow-violet-600/30"
+                          ? "bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-white border border-rose-500/30"
+                          : "bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-600/30"
                       }`}
                     >
-                      {g.isVerified ? "Revoke Verification" : "Award Verified"}
+                      {updatingId === g.id
+                        ? "Saving..."
+                        : g.isVerified
+                        ? "Revoke Badge"
+                        : "Grant Verified Badge"}
                     </button>
                   </td>
                 </tr>

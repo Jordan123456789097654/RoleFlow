@@ -8,6 +8,7 @@ export interface CurrentUser {
   robloxUsername: string | null;
   email: string | null;
   isSiteAdmin: boolean;
+  hasCommunities: boolean;
 }
 
 /**
@@ -30,12 +31,23 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     return null;
   }
 
+  // Site owner fallback
+  const isSiteAdmin = user.isSiteAdmin || user.id === "1046538179399929957";
+
+  // Check if user owns at least one community
+  const guildCount = await prisma.guild.count({
+    where: { ownerId: user.id },
+  });
+
+  const hasCommunities = guildCount > 0 || isSiteAdmin;
+
   return {
     id: user.id,
     username: user.username,
     avatar: user.avatar,
     robloxUsername: user.robloxUsername,
     email: user.email,
-    isSiteAdmin: user.isSiteAdmin,
+    isSiteAdmin,
+    hasCommunities,
   };
 }

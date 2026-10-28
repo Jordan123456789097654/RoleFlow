@@ -29,6 +29,9 @@ import {
   HelpCircle,
   ListPlus,
   Server,
+  CheckCircle2,
+  Send,
+  RefreshCw,
 } from "lucide-react";
 import { StatusBadge } from "@/components/StatusBadge";
 import { formatDate } from "@/lib/utils";
@@ -137,8 +140,17 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
   const [newQRequired, setNewQRequired] = useState(true);
 
   const [loading, setLoading] = useState(true);
+  const [forbidden, setForbidden] = useState(false);
+  const [unauthorized, setUnauthorized] = useState(false);
   const [savingSettings, setSavingSettings] = useState(false);
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
+
+  // Bot Management states
+  const [verifyingBot, setVerifyingBot] = useState(false);
+  const [botVerifiedInfo, setBotVerifiedInfo] = useState<any | null>(null);
+  const [settingUpBot, setSettingUpBot] = useState(false);
+  const [testingEmbed, setTestingEmbed] = useState(false);
+  const [botFeedbackMsg, setBotFeedbackMsg] = useState<{ text: string; error?: boolean } | null>(null);
 
   useEffect(() => {
     fetchGuildData();
@@ -147,6 +159,14 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
   async function fetchGuildData() {
     try {
       const res = await fetch(`/api/guilds/${params.guildId}/dashboard`);
+      if (res.status === 403) {
+        setForbidden(true);
+        return;
+      }
+      if (res.status === 401) {
+        setUnauthorized(true);
+        return;
+      }
       if (res.ok) {
         const data = await res.json();
         setGuild(data);
@@ -350,11 +370,111 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
     }
   };
 
+  const handleVerifyBot = async () => {
+    if (!botTokenInput.trim()) {
+      setBotFeedbackMsg({ text: "Please enter a bot token first.", error: true });
+      return;
+    }
+    setVerifyingBot(true);
+    setBotFeedbackMsg(null);
+    try {
+      const res = await fetch(`/api/guilds/${params.guildId}/bot/verify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ botToken: botTokenInput.trim() }),
+      });
+      const data = await res.json();
+      if (res.ok && data.valid) {
+        setBotVerifiedInfo(data.bot);
+        setBotFeedbackMsg({ text: `Connected: ${data.bot.username}#${data.bot.discriminator}` });
+      } else {
+        setBotFeedbackMsg({ text: data.error || "Invalid bot token", error: true });
+      }
+    } catch (e: any) {
+      setBotFeedbackMsg({ text: e.message, error: true });
+    } finally {
+      setVerifyingBot(false);
+    }
+  };
+
+  const handleAutoSetupChannels = async () => {
+    setSettingUpBot(true);
+    setBotFeedbackMsg(null);
+    try {
+      const res = await fetch(`/api/guilds/${params.guildId}/bot/setup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ botToken: botTokenInput.trim() || undefined }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        if (data.logChannelId) setLogChannelInput(data.logChannelId);
+        if (data.staffRoleId) setStaffPingRoleInput(data.staffRoleId);
+        setBotFeedbackMsg({ text: "Channels (#applications-log) and Roles (@Staff Reviewer) created on Discord!" });
+        fetchGuildData();
+      } else {
+        setBotFeedbackMsg({ text: data.error || "Failed to set up server channels", error: true });
+      }
+    } catch (e: any) {
+      setBotFeedbackMsg({ text: e.message, error: true });
+    } finally {
+      setSettingUpBot(false);
+    }
+  };
+
+  const handleSendTestEmbed = async () => {
+    setTestingEmbed(true);
+    setBotFeedbackMsg(null);
+    try {
+      const res = await fetch(`/api/guilds/${params.guildId}/bot/test-embed`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setBotFeedbackMsg({ text: "Test embed successfully sent to your Discord channel!" });
+      } else {
+        setBotFeedbackMsg({ text: data.error || "Failed sending test embed", error: true });
+      }
+    } catch (e: any) {
+      setBotFeedbackMsg({ text: e.message, error: true });
+    } finally {
+      setTestingEmbed(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-24 text-center">
         <div className="w-8 h-8 rounded-full border-2 border-purple-500 border-t-transparent animate-spin mx-auto mb-4" />
         <p className="text-xs text-slate-400">Loading community dashboard...</p>
+      </div>
+    );
+  }
+
+  if (forbidden) {
+    return (
+      <div className="max-w-md mx-auto px-4 py-24 text-center">
+        <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mx-auto mb-4 text-rose-400">
+          <Shield className="w-6 h-6" />
+        </div>
+        <h2 className="text-xl font-bold text-white mb-2">Access Denied</h2>
+        <p className="text-xs text-slate-400 mb-6 leading-relaxed">
+          You do not own or manage this community. Applicant data, review notes, and bot settings are private to authorized community staff.
+        </p>
+        <div className="flex items-center justify-center gap-3">
+          <Link
+            href="/dashboard"
+            className="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-xs font-semibold text-white transition-all shadow-md shadow-violet-600/30"
+          >
+            Your Communities
+          </Link>
+          <Link
+            href="/"
+            className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-slate-300 transition-colors"
+          >
+            Home
+          </Link>
+        </div>
       </div>
     );
   }
@@ -1087,10 +1207,21 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           {useCustomBotState && (
             <div className="space-y-4 pt-2">
               <div className="space-y-1.5 p-4 rounded-xl bg-purple-950/20 border border-purple-500/20">
-                <label className="block text-xs font-bold text-white flex items-center gap-1.5">
-                  <Key className="w-3.5 h-3.5 text-purple-400" />
-                  Your Discord Bot Token
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold text-white flex items-center gap-1.5">
+                    <Key className="w-3.5 h-3.5 text-purple-400" />
+                    Your Discord Bot Token
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleVerifyBot}
+                    disabled={verifyingBot}
+                    className="text-[11px] text-purple-300 hover:text-white flex items-center gap-1 px-2.5 py-1 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 transition-colors"
+                  >
+                    <RefreshCw className={`w-3 h-3 ${verifyingBot ? "animate-spin" : ""}`} />
+                    <span>{verifyingBot ? "Verifying..." : "Verify Token"}</span>
+                  </button>
+                </div>
                 <input
                   type="password"
                   placeholder="Enter bot token from Discord Developer Portal..."
@@ -1098,19 +1229,80 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                   onChange={(e) => setBotTokenInput(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
                 />
-                <p className="text-[10px] text-slate-400">
-                  RoleFlow securely stores your token to dispatch embeds and grant roles on your server&apos;s behalf.
-                </p>
+                {botVerifiedInfo ? (
+                  <div className="flex items-center gap-2 mt-2 p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>
+                      🟢 Bot Online: <strong>{botVerifiedInfo.username}#{botVerifiedInfo.discriminator}</strong>
+                    </span>
+                  </div>
+                ) : (
+                  <p className="text-[10px] text-slate-400">
+                    RoleFlow securely stores your token to dispatch embeds and grant roles on your server&apos;s behalf.
+                  </p>
+                )}
               </div>
+
+              {/* 1-Click Server Setup Box */}
+              <div className="p-4 rounded-xl bg-surface/60 border border-surface-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div>
+                  <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                    1-Click Discord Server Auto-Setup
+                  </h4>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    Creates <strong>#applications-log</strong> and <strong>@Staff Reviewer</strong> role on your Discord server automatically.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAutoSetupChannels}
+                  disabled={settingUpBot}
+                  className="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white text-xs font-semibold shrink-0 transition-all shadow-md shadow-purple-600/30 flex items-center gap-1.5"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>{settingUpBot ? "Creating..." : "Auto-Setup Server"}</span>
+                </button>
+              </div>
+
+              {botFeedbackMsg && (
+                <div
+                  className={`p-3 rounded-xl border text-xs flex items-center gap-2 ${
+                    botFeedbackMsg.error
+                      ? "bg-rose-500/10 border-rose-500/30 text-rose-300"
+                      : "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
+                  }`}
+                >
+                  {botFeedbackMsg.error ? (
+                    <XCircle className="w-4 h-4 shrink-0" />
+                  ) : (
+                    <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  )}
+                  <span>{botFeedbackMsg.text}</span>
+                </div>
+              )}
 
               {/* Staff Log Channel ID */}
               <div className="space-y-1.5">
-                <label className="block text-xs font-bold text-white">
-                  Staff Alert Channel ID (#application-logs)
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold text-white">
+                    Staff Alert Channel ID (#applications-log)
+                  </label>
+                  {logChannelInput && (
+                    <button
+                      type="button"
+                      onClick={handleSendTestEmbed}
+                      disabled={testingEmbed}
+                      className="text-[11px] text-violet-300 hover:text-white flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-violet-500/20 hover:bg-violet-500/30 transition-colors"
+                    >
+                      <Send className="w-3 h-3" />
+                      <span>{testingEmbed ? "Sending..." : "Send Test Embed"}</span>
+                    </button>
+                  )}
+                </div>
                 <input
                   type="text"
-                  placeholder="e.g. 119876543210987654"
+                  placeholder="e.g. 1565068094857154571"
                   value={logChannelInput}
                   onChange={(e) => setLogChannelInput(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
