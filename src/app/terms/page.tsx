@@ -51,9 +51,10 @@ const sections = [
   { title: "Disclaimers", paragraphs: [
     "The Service is provided \"as is\" and \"as available\", without warranties of any kind, express or implied, including warranties of merchantability, fitness for a particular purpose, and non-infringement, to the fullest extent permitted by law.",
   ]},
-  { title: "Limitation of liability", paragraphs: [
-    "To the fullest extent permitted by law, we will not be liable for indirect, incidental, special, consequential, or punitive damages, or for loss of profits, data, or goodwill arising from your use of the Service. Our total liability for any claim will not exceed the greater of the amount you paid us in the 12 months before the claim or $100.00 USD.",
-    "Some jurisdictions do not allow certain limitations, so some of these limits may not apply to you.",
+  { title: "Limitation of liability & Total Disclaimer", paragraphs: [
+    "To the maximum extent permitted by applicable law, RoleFlow, its founders, operators, contributors, and affiliates shall have ZERO liability to you or any third party for any direct, indirect, incidental, special, consequential, exemplary, or punitive damages whatsoever.",
+    "This includes, without limitation, damages for loss of profits, revenue, data, goodwill, service interruptions, server downtime, community disputes, or unauthorized access, whether based on warranty, contract, tort (including negligence), product liability, or any other legal theory, even if we have been advised of the possibility of such damages.",
+    "Your sole and exclusive remedy for dissatisfaction with the Service is to discontinue using RoleFlow. Under no circumstances will RoleFlow assume any financial, operational, or legal liability in connection with your use of the platform.",
   ]},
   { title: "Indemnification", paragraphs: [
     "You will defend and indemnify us against claims arising from your content, your use of the Service in breach of these Terms, or your violation of law or of another person's rights.",
