@@ -79,9 +79,14 @@ export default function ForgotPasswordPage() {
               </div>
 
               <h1 className="text-2xl font-extrabold text-white mb-2">Reset Password</h1>
-              <p className="text-xs text-slate-400 mb-6 leading-relaxed">
+              <p className="text-xs text-slate-400 mb-4 leading-relaxed">
                 Enter your account email address and we&apos;ll send you a password reset link powered by RoleFlow mail service.
               </p>
+
+              <div className="p-3 mb-6 rounded-xl bg-slate-900/60 border border-slate-800 text-[11px] text-slate-400 leading-normal flex items-start gap-2">
+                <span className="text-purple-400 font-bold shrink-0">Security Notice:</span>
+                <span>RoleFlow staff will never ask for your password. If you signed in via Discord, continue using official Discord OAuth.</span>
+              </div>
 
               {errorMsg && (
                 <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
