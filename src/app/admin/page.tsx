@@ -275,6 +275,15 @@ export default function SiteAdminPage() {
       ? current.filter((b) => b !== badgeName)
       : [...current, badgeName];
 
+    // Optimistic update
+    setGuilds((prev) =>
+      prev.map((g) =>
+        g.id === guildId
+          ? { ...g, verifiedBadges: updated.join(","), isVerified: updated.length > 0 }
+          : g
+      )
+    );
+
     try {
       const res = await fetch("/api/admin/verify", {
         method: "POST",

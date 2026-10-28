@@ -47,6 +47,7 @@ export async function GET() {
         vanitySlug: g.vanitySlug,
         isVerified: g.isVerified,
         verifiedBadge: g.verifiedBadge,
+        verifiedBadges: g.verifiedBadges,
         isPaused: g.isPaused,
         memberCount: g.memberCount,
         tags: g.tags,

@@ -236,6 +236,18 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
   const [newQCondParent, setNewQCondParent] = useState("");
   const [newQCondVal, setNewQCondVal] = useState("");
 
+  // Question & Opening Import state
+  const [importQModal, setImportQModal] = useState(false);
+  const [importQRawText, setImportQRawText] = useState("");
+  const [importQFormat, setImportQFormat] = useState<"lines" | "json" | "csv">("lines");
+  const [importingQ, setImportingQ] = useState(false);
+  const [importQMsg, setImportQMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  const [importPosModal, setImportPosModal] = useState(false);
+  const [importPosRawText, setImportPosRawText] = useState("");
+  const [importingPos, setImportingPos] = useState(false);
+  const [importPosMsg, setImportPosMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
   const [loading, setLoading] = useState(true);
   const [forbidden, setForbidden] = useState(false);
   const [unauthorized, setUnauthorized] = useState(false);
@@ -747,6 +759,136 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
       alert(e.message || "Error saving settings");
     } finally {
       setSavingSettings(false);
+    }
+  };
+
+  const handleImportQuestionsSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!importQRawText.trim() || !activePosition) return;
+    setImportingQ(true);
+    setImportQMsg(null);
+
+    try {
+      let questionsPayload: any[] = [];
+
+      if (importQFormat === "json") {
+        const parsed = JSON.parse(importQRawText.trim());
+        questionsPayload = Array.isArray(parsed) ? parsed : parsed.questions || [parsed];
+      } else if (importQFormat === "csv") {
+        const lines = importQRawText.trim().split(/\r?\n/).filter(Boolean);
+        const startIndex = lines[0].toLowerCase().includes("label") || lines[0].toLowerCase().includes("question") ? 1 : 0;
+        for (let i = startIndex; i < lines.length; i++) {
+          const parts = lines[i].split(",").map(p => p.trim().replace(/^[\"\']|[\"\']$/g, ""));
+          if (!parts[0]) continue;
+          questionsPayload.push({
+            label: parts[0],
+            type: parts[1] || "TEXT",
+            required: parts[2] ? parts[2].toLowerCase() === "true" || parts[2] === "1" : true,
+            options: parts[3] || undefined,
+            description: parts[4] || undefined,
+          });
+        }
+      } else {
+        // "lines" format: 1 question per line (ideal for Google Forms / notepad paste)
+        const lines = importQRawText.trim().split(/\r?\n/).filter(Boolean);
+        for (const line of lines) {
+          const clean = line.replace(/^\d+[\.\)]\s*/, "").trim();
+          if (!clean) continue;
+          const isParagraph = clean.toLowerCase().includes("why") || clean.toLowerCase().includes("tell us") || clean.toLowerCase().includes("describe") || clean.toLowerCase().includes("experience");
+          questionsPayload.push({
+            label: clean,
+            type: isParagraph ? "PARAGRAPH" : "TEXT",
+            required: true,
+          });
+        }
+      }
+
+      const res = await fetch(`/api/positions/${activePosition.id}/questions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ questions: questionsPayload }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setImportQMsg({ type: "success", text: data.message || `Imported ${data.count} questions!` });
+        setImportQRawText("");
+        fetchGuildData();
+        setTimeout(() => {
+          setImportQModal(false);
+          setImportQMsg(null);
+        }, 1500);
+      } else {
+        setImportQMsg({ type: "error", text: data.error || "Failed to import questions." });
+      }
+    } catch (err: any) {
+      setImportQMsg({ type: "error", text: err.message || "Invalid question format." });
+    } finally {
+      setImportingQ(false);
+    }
+  };
+
+  const handleExportFormJson = (pos: any) => {
+    if (!pos) return;
+    const formExport = {
+      title: pos.title,
+      department: pos.department,
+      description: pos.description,
+      questions: (pos.questions || []).map((q: any) => ({
+        label: q.label,
+        type: q.type,
+        required: q.required,
+        options: q.options || undefined,
+        description: q.description || undefined,
+      })),
+    };
+    const blob = new Blob([JSON.stringify(formExport, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${pos.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_form_template.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImportOpeningSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!importPosRawText.trim()) return;
+    setImportingPos(true);
+    setImportPosMsg(null);
+
+    try {
+      const parsed = JSON.parse(importPosRawText.trim());
+      const res = await fetch("/api/positions/import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          guildId: params.guildId,
+          title: parsed.title || parsed.name || "Imported Opening",
+          department: parsed.department || "General",
+          description: parsed.description || "Imported application form.",
+          acceptRoleId: parsed.acceptRoleId || undefined,
+          questions: parsed.questions || [],
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setImportPosMsg({ type: "success", text: data.message || "Opening and questions imported!" });
+        setImportPosRawText("");
+        setSelectedPosId(data.position.id);
+        fetchGuildData();
+        setTimeout(() => {
+          setImportPosModal(false);
+          setImportPosMsg(null);
+        }, 1500);
+      } else {
+        setImportPosMsg({ type: "error", text: data.error || "Failed to import opening." });
+      }
+    } catch (err: any) {
+      setImportPosMsg({ type: "error", text: err.message || "Invalid JSON form structure." });
+    } finally {
+      setImportingPos(false);
     }
   };
 
@@ -1690,13 +1832,25 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                 Design custom application questionnaires, questions types, and required fields.
               </p>
             </div>
-            <button
-              onClick={() => setNewPosModal(true)}
-              className="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-violet-600/30"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Create New Opening</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setImportPosModal(true)}
+                className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                title="Import entire form or opening from JSON"
+              >
+                <Upload className="w-3.5 h-3.5 text-purple-400" />
+                <span>Import Opening (JSON)</span>
+              </button>
+
+              <button
+                onClick={() => setNewPosModal(true)}
+                className="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-violet-600/30"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Create New Opening</span>
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -2873,6 +3027,244 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           </div>
         </div>
       )}
+      {/* Modal: Import Questions in Bulk */}
+      {importQModal && activePosition && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="glass-panel border border-white/10 rounded-2xl p-6 max-w-xl w-full space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <Upload className="w-4 h-4 text-purple-400" />
+                <h3 className="text-base font-bold text-white">Import Questions into {activePosition.title}</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setImportQModal(false)}
+                className="text-slate-400 hover:text-white text-xs font-semibold"
+              >
+                ✕ Close
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Quickly paste questions from Google Forms, Discord, or notes. Questions will be automatically appended to this opening!
+            </p>
+
+            <form onSubmit={handleImportQuestionsSubmit} className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setImportQFormat("lines")}
+                    className={`px-3 py-1 rounded-lg text-xs font-semibold border transition-colors ${
+                      importQFormat === "lines"
+                        ? "bg-purple-600 text-white border-purple-500"
+                        : "bg-surface border-white/10 text-slate-400"
+                    }`}
+                  >
+                    1 Question Per Line
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setImportQFormat("json")}
+                    className={`px-3 py-1 rounded-lg text-xs font-semibold border transition-colors ${
+                      importQFormat === "json"
+                        ? "bg-purple-600 text-white border-purple-500"
+                        : "bg-surface border-white/10 text-slate-400"
+                    }`}
+                  >
+                    JSON
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setImportQFormat("csv")}
+                    className={`px-3 py-1 rounded-lg text-xs font-semibold border transition-colors ${
+                      importQFormat === "csv"
+                        ? "bg-purple-600 text-white border-purple-500"
+                        : "bg-surface border-white/10 text-slate-400"
+                    }`}
+                  >
+                    CSV
+                  </button>
+                </div>
+
+                <label className="px-3 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-purple-300 font-semibold cursor-pointer">
+                  <span>Load File</span>
+                  <input
+                    type="file"
+                    accept=".txt,.csv,.json"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const reader = new FileReader();
+                      reader.onload = (evt) => {
+                        const content = evt.target?.result as string;
+                        if (content) setImportQRawText(content);
+                      };
+                      reader.readAsText(file);
+                    }}
+                  />
+                </label>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-medium text-slate-300 mb-1">
+                  {importQFormat === "lines"
+                    ? "Paste your list of questions (one per line):"
+                    : importQFormat === "json"
+                    ? 'Paste JSON array of questions (e.g. [{"label": "Age", "type": "NUMBER"}]):'
+                    : "Paste CSV rows (Label, Type, Required, Options, Description):"}
+                </label>
+                <textarea
+                  rows={7}
+                  required
+                  value={importQRawText}
+                  onChange={(e) => setImportQRawText(e.target.value)}
+                  placeholder={
+                    importQFormat === "lines"
+                      ? "What is your Discord username and tag?\nWhat is your Roblox profile URL?\nHow long have you been scripting in Luau?\nLink your portfolio or past game links.\nWhy do you want to join our studio?"
+                      : importQFormat === "json"
+                      ? '[\n  {\n    "label": "Roblox Profile URL",\n    "type": "TEXT",\n    "required": true\n  },\n  {\n    "label": "Why do you want to join?",\n    "type": "PARAGRAPH",\n    "required": true\n  }\n]'
+                      : "Roblox Profile, TEXT, true\nWhy do you want to join?, PARAGRAPH, true\nYears of Experience, NUMBER, false"
+                  }
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/10 text-xs text-white font-mono placeholder-slate-600 focus:outline-none focus:border-purple-500"
+                />
+              </div>
+
+              {importQMsg && (
+                <div
+                  className={`p-3 rounded-xl text-xs flex items-center gap-2 ${
+                    importQMsg.type === "success"
+                      ? "bg-emerald-500/15 border border-emerald-500/30 text-emerald-300"
+                      : "bg-rose-500/15 border border-rose-500/30 text-rose-300"
+                  }`}
+                >
+                  {importQMsg.type === "success" ? (
+                    <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+                  ) : (
+                    <AlertTriangle className="w-4 h-4 shrink-0 text-rose-400" />
+                  )}
+                  <span>{importQMsg.text}</span>
+                </div>
+              )}
+
+              <div className="flex items-center justify-end gap-2.5 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setImportQModal(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={importingQ || !importQRawText.trim()}
+                  className="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-md shadow-purple-600/30 flex items-center gap-1.5"
+                >
+                  <Upload className="w-3.5 h-3.5" />
+                  <span>{importingQ ? "Importing..." : "Import Questions"}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Import Entire Opening & Form */}
+      {importPosModal && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="glass-panel border border-white/10 rounded-2xl p-6 max-w-xl w-full space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <Upload className="w-4 h-4 text-purple-400" />
+                <h3 className="text-base font-bold text-white">Import Entire Opening & Questions</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setImportPosModal(false)}
+                className="text-slate-400 hover:text-white text-xs font-semibold"
+              >
+                ✕ Close
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Import a full application opening along with all questionnaire questions from a saved RoleFlow template or JSON file.
+            </p>
+
+            <form onSubmit={handleImportOpeningSubmit} className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] text-slate-400">JSON Template Format:</span>
+                <label className="px-3 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-purple-300 font-semibold cursor-pointer">
+                  <span>Load JSON File</span>
+                  <input
+                    type="file"
+                    accept=".json"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const reader = new FileReader();
+                      reader.onload = (evt) => {
+                        const content = evt.target?.result as string;
+                        if (content) setImportPosRawText(content);
+                      };
+                      reader.readAsText(file);
+                    }}
+                  />
+                </label>
+              </div>
+
+              <div>
+                <textarea
+                  rows={8}
+                  required
+                  value={importPosRawText}
+                  onChange={(e) => setImportPosRawText(e.target.value)}
+                  placeholder={`{\n  "title": "Lead Scripter",\n  "department": "Development",\n  "description": "We are seeking an experienced Luau gameplay programmer.",\n  "questions": [\n    { "label": "Roblox Profile Link", "type": "TEXT", "required": true },\n    { "label": "Describe your Luau framework experience", "type": "PARAGRAPH", "required": true }\n  ]\n}`}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/10 text-xs text-white font-mono placeholder-slate-600 focus:outline-none focus:border-purple-500"
+                />
+              </div>
+
+              {importPosMsg && (
+                <div
+                  className={`p-3 rounded-xl text-xs flex items-center gap-2 ${
+                    importPosMsg.type === "success"
+                      ? "bg-emerald-500/15 border border-emerald-500/30 text-emerald-300"
+                      : "bg-rose-500/15 border border-rose-500/30 text-rose-300"
+                  }`}
+                >
+                  {importPosMsg.type === "success" ? (
+                    <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+                  ) : (
+                    <AlertTriangle className="w-4 h-4 shrink-0 text-rose-400" />
+                  )}
+                  <span>{importPosMsg.text}</span>
+                </div>
+              )}
+
+              <div className="flex items-center justify-end gap-2.5 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setImportPosModal(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={importingPos || !importPosRawText.trim()}
+                  className="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-md shadow-purple-600/30 flex items-center gap-1.5"
+                >
+                  <Upload className="w-3.5 h-3.5" />
+                  <span>{importingPos ? "Importing..." : "Create Opening & Questions"}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
