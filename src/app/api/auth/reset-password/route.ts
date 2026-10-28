@@ -1,4 +1,4 @@
-import { requiresSecondFactor, setPendingCookie } from "@/lib/second-factor";
+// Password reset API route
 import { signSessionValue } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
@@ -57,17 +57,6 @@ export async function POST(request: Request) {
         data: { used: true },
       }),
     ]);
-
-    if (requiresSecondFactor(updatedUser)) {
-      const pendingRes = NextResponse.json({
-        success: true,
-        requires2fa: true,
-        redirect: "/auth/2fa",
-        message: "Password updated. Enter your 2FA code to finish signing in.",
-      });
-      setPendingCookie(pendingRes, updatedUser.id, updatedUser.sessionVersion, request.headers.get("host") || "");
-      return pendingRes;
-    }
 
     // Create session cookie so user is logged in automatically
     const response = NextResponse.json({

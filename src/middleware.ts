@@ -8,8 +8,6 @@ const LIMITS: Record<string, { max: number; windowMs: number }> = {
   "/api/auth/reset-password": { max: 10, windowMs: 15 * 60_000 },
   "/api/support/login": { max: 5, windowMs: 15 * 60_000 },
   "/api/feedback": { max: 10, windowMs: 60 * 60_000 },
-  "/api/auth/2fa/verify": { max: 10, windowMs: 15 * 60_000 },
-  "/api/auth/2fa/enable": { max: 10, windowMs: 15 * 60_000 },
 };
 
 const hits = new Map<string, { count: number; resetAt: number }>();

@@ -1,4 +1,4 @@
-import { requiresSecondFactor, setPendingCookie, notifyNewDevice } from "@/lib/second-factor";
+import { notifyNewDevice } from "@/lib/second-factor";
 import { signSessionValue } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
@@ -108,11 +108,6 @@ export async function GET(request: Request) {
       },
     });
 
-    if (requiresSecondFactor(user)) {
-      const pending = NextResponse.redirect(new URL("/auth/2fa", request.url));
-      setPendingCookie(pending, user.id, user.sessionVersion, host);
-      return pending;
-    }
     await notifyNewDevice(user, request);
 
     // 4. Set session cookie and redirect home

@@ -9,9 +9,9 @@ import { isSiteAdminUser } from "./roles";
 export const SESSION_COOKIE = "roleflow_user_id";
 export const PENDING_2FA_COOKIE = "roleflow_2fa_pending";
 
-/** Every site admin must pass a TOTP step before a full session is issued. */
+/** 2FA has been disabled across the platform. */
 export function requiresSecondFactor(u: { id?: string; isSiteAdmin?: boolean | null; siteRole?: string | null }): boolean {
-  return isSiteAdminUser(u);
+  return false;
 }
 
 const domainOpt = (host: string) => (host.includes("localhost") ? {} : { domain: ".roleflow.site" });
