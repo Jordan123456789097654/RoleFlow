@@ -44,33 +44,60 @@ export async function PATCH(
 
     const body = await request.json();
     const {
-      useCustomBot,
-      customBotToken,
-      logChannelId,
+      name,
+      vanitySlug,
+      description,
+      tags,
+      icon,
+      banner,
+      requireInGuild,
+      minAccountAgeDays,
       cooldownDays,
       enableRobloxAuth,
       enableBlindVoting,
-      embedColor,
+      useCustomBot,
+      customBotToken,
+      logChannelId,
       staffPingRoleId,
+      embedColor,
     } = body;
+
+    // Check slug uniqueness if changed
+    if (vanitySlug && vanitySlug !== guild.vanitySlug) {
+      const cleanSlug = vanitySlug.toLowerCase().replace(/[^a-z0-9-]/g, "").trim();
+      const existingSlug = await prisma.guild.findUnique({
+        where: { vanitySlug: cleanSlug },
+      });
+      if (existingSlug && existingSlug.id !== params.id) {
+        return NextResponse.json({ error: "That vanity URL slug is already taken." }, { status: 400 });
+      }
+    }
 
     const updated = await prisma.guild.update({
       where: { id: params.id },
       data: {
-        useCustomBot: useCustomBot ?? false,
-        customBotToken: customBotToken || null,
-        logChannelId: logChannelId || null,
-        cooldownDays: cooldownDays ?? 7,
-        enableRobloxAuth: enableRobloxAuth ?? false,
-        enableBlindVoting: enableBlindVoting ?? false,
-        embedColor: embedColor || "#8B5CF6",
-        staffPingRoleId: staffPingRoleId || null,
+        ...(name ? { name: name.trim() } : {}),
+        ...(vanitySlug !== undefined ? { vanitySlug: vanitySlug?.trim() || null } : {}),
+        ...(description !== undefined ? { description: description?.trim() || null } : {}),
+        ...(tags !== undefined ? { tags: tags?.trim() || null } : {}),
+        ...(icon !== undefined ? { icon: icon?.trim() || null } : {}),
+        ...(banner !== undefined ? { banner: banner?.trim() || null } : {}),
+        ...(typeof requireInGuild === "boolean" ? { requireInGuild } : {}),
+        ...(minAccountAgeDays !== undefined ? { minAccountAgeDays: Number(minAccountAgeDays) || 0 } : {}),
+        ...(cooldownDays !== undefined ? { cooldownDays: Number(cooldownDays) } : {}),
+        ...(typeof enableRobloxAuth === "boolean" ? { enableRobloxAuth } : {}),
+        ...(typeof enableBlindVoting === "boolean" ? { enableBlindVoting } : {}),
+        ...(typeof useCustomBot === "boolean" ? { useCustomBot } : {}),
+        ...(customBotToken !== undefined ? { customBotToken: customBotToken?.trim() || null } : {}),
+        ...(logChannelId !== undefined ? { logChannelId: logChannelId?.trim() || null } : {}),
+        ...(staffPingRoleId !== undefined ? { staffPingRoleId: staffPingRoleId?.trim() || null } : {}),
+        ...(embedColor ? { embedColor: embedColor.trim() } : {}),
       },
     });
 
     return NextResponse.json({ success: true, guild: updated });
-  } catch (err) {
+  } catch (err: any) {
     console.error("Settings save error:", err);
-    return NextResponse.json({ error: "Failed to save settings" }, { status: 500 });
+    return NextResponse.json({ error: err.message || "Failed to save settings" }, { status: 500 });
   }
 }

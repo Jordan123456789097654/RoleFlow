@@ -32,6 +32,7 @@ import {
   CheckCircle2,
   Send,
   RefreshCw,
+  Settings,
 } from "lucide-react";
 import { StatusBadge } from "@/components/StatusBadge";
 import { formatDate } from "@/lib/utils";
@@ -42,12 +43,17 @@ interface GuildData {
   name: string;
   icon?: string | null;
   banner?: string | null;
+  vanitySlug?: string | null;
+  description?: string | null;
+  tags?: string | null;
   useCustomBot: boolean;
   customBotToken?: string | null;
   logChannelId?: string | null;
   staffPingRoleId?: string | null;
   embedColor?: string | null;
   cooldownDays: number;
+  requireInGuild?: boolean;
+  minAccountAgeDays?: number;
   enableRobloxAuth: boolean;
   enableBlindVoting: boolean;
   positions: Array<{
@@ -104,12 +110,22 @@ interface GuildData {
 
 export default function DashboardPage({ params }: { params: { guildId: string } }) {
   const [guild, setGuild] = useState<GuildData | null>(null);
-  const [activeTab, setActiveTab] = useState<"applications" | "builder" | "bot" | "gating" | "templates">("applications");
+  const [activeTab, setActiveTab] = useState<"applications" | "builder" | "bot" | "settings" | "gating" | "templates">("applications");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [selectedApp, setSelectedApp] = useState<any | null>(null);
   const [decisionNote, setDecisionNote] = useState("");
   const [reviewComment, setReviewComment] = useState("");
   const [reviewScore, setReviewScore] = useState<number>(5);
+
+  // Community Admin Config state
+  const [communityNameInput, setCommunityNameInput] = useState("");
+  const [vanitySlugInput, setVanitySlugInput] = useState("");
+  const [descriptionInput, setDescriptionInput] = useState("");
+  const [tagsInput, setTagsInput] = useState("");
+  const [bannerInput, setBannerInput] = useState("");
+  const [iconInput, setIconInput] = useState("");
+  const [requireInGuildToggle, setRequireInGuildToggle] = useState(false);
+  const [minAccountAgeInput, setMinAccountAgeInput] = useState(0);
 
   // Bot Settings state
   const [botTokenInput, setBotTokenInput] = useState("");
@@ -170,6 +186,15 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
       if (res.ok) {
         const data = await res.json();
         setGuild(data);
+        setCommunityNameInput(data.name || "");
+        setVanitySlugInput(data.vanitySlug || "");
+        setDescriptionInput(data.description || "");
+        setTagsInput(data.tags || "");
+        setBannerInput(data.banner || "");
+        setIconInput(data.icon || "");
+        setRequireInGuildToggle(data.requireInGuild || false);
+        setMinAccountAgeInput(data.minAccountAgeDays || 0);
+
         setUseCustomBotState(data.useCustomBot || false);
         setBotTokenInput(data.customBotToken || "");
         setLogChannelInput(data.logChannelId || "");
@@ -235,6 +260,55 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
     }
   };
 
+  const handleDeleteApplication = async (appId: string) => {
+    if (!confirm("Are you sure you want to permanently delete this application? This cannot be undone.")) return;
+    try {
+      const res = await fetch(`/api/applications/${appId}`, { method: "DELETE" });
+      if (res.ok) {
+        setSelectedApp(null);
+        setActionSuccess("Application deleted.");
+        setTimeout(() => setActionSuccess(null), 3000);
+        fetchGuildData();
+      } else {
+        alert("Failed to delete application.");
+      }
+    } catch (e) {
+      alert("Error deleting application");
+    }
+  };
+
+  const handleTogglePositionOpen = async (posId: string, currentOpen: boolean) => {
+    try {
+      const res = await fetch(`/api/positions/${posId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isOpen: !currentOpen }),
+      });
+      if (res.ok) {
+        setActionSuccess(currentOpen ? "Opening closed to new applications." : "Opening reopened!");
+        setTimeout(() => setActionSuccess(null), 3000);
+        fetchGuildData();
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleDeletePosition = async (posId: string) => {
+    if (!confirm("Are you sure you want to permanently delete this opening and all its questions?")) return;
+    try {
+      const res = await fetch(`/api/positions/${posId}`, { method: "DELETE" });
+      if (res.ok) {
+        setSelectedPosId(null);
+        setActionSuccess("Opening deleted.");
+        setTimeout(() => setActionSuccess(null), 3000);
+        fetchGuildData();
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const handleSaveSettings = async () => {
     setSavingSettings(true);
     try {
@@ -242,6 +316,14 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          name: communityNameInput,
+          vanitySlug: vanitySlugInput,
+          description: descriptionInput,
+          tags: tagsInput,
+          banner: bannerInput,
+          icon: iconInput,
+          requireInGuild: requireInGuildToggle,
+          minAccountAgeDays: Number(minAccountAgeInput),
           useCustomBot: useCustomBotState,
           customBotToken: botTokenInput,
           logChannelId: logChannelInput,
@@ -257,9 +339,12 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
         setActionSuccess("Settings saved successfully!");
         setTimeout(() => setActionSuccess(null), 3000);
         fetchGuildData();
+      } else {
+        const data = await res.json();
+        alert(data.error || "Failed to save settings");
       }
-    } catch (e) {
-      console.error(e);
+    } catch (e: any) {
+      alert(e.message || "Error saving settings");
     } finally {
       setSavingSettings(false);
     }
@@ -612,15 +697,15 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
         </button>
 
         <button
-          onClick={() => setActiveTab("gating")}
+          onClick={() => setActiveTab("settings")}
           className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors ${
-            activeTab === "gating"
+            activeTab === "settings"
               ? "bg-purple-600 text-white shadow-md shadow-purple-600/30"
               : "text-slate-400 hover:text-white hover:bg-white/5"
           }`}
         >
-          <Shield className="w-3.5 h-3.5" />
-          <span>Gating, Cooldowns & Blacklist</span>
+          <Settings className="w-3.5 h-3.5" />
+          <span>Community Settings & Gating</span>
         </button>
 
         <button
@@ -773,6 +858,15 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                       >
                         Reject
                       </button>
+
+                      <button
+                        onClick={() => handleDeleteApplication(selectedApp.id)}
+                        className="px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold border border-red-500/20 transition-colors flex items-center gap-1.5 ml-auto"
+                        title="Permanently delete this application"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Delete Application</span>
+                      </button>
                     </div>
 
                     <div className="pt-2">
@@ -916,11 +1010,18 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                 >
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs font-bold text-white truncate">{p.title}</span>
+                    <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
+                      p.isOpen ? "bg-emerald-500/20 text-emerald-300" : "bg-rose-500/20 text-rose-300"
+                    }`}>
+                      {p.isOpen ? "OPEN" : "CLOSED"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-[11px] text-slate-400">
+                    <span>{p.department}</span>
                     <span className="text-[10px] text-purple-300 font-mono">
                       {p.questions?.length || 0} questions
                     </span>
                   </div>
-                  <span className="text-[11px] text-slate-400 block">{p.department}</span>
                 </div>
               ))}
             </div>
@@ -929,21 +1030,49 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
             <div className="lg:col-span-8">
               {activePosition ? (
                 <div className="glass-panel rounded-2xl border border-white/10 p-6 space-y-6">
-                  <div className="flex items-start justify-between pb-4 border-b border-white/10">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-4 border-b border-white/10">
                     <div>
-                      <h3 className="text-base font-bold text-white">{activePosition.title}</h3>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-base font-bold text-white">{activePosition.title}</h3>
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                          activePosition.isOpen ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" : "bg-rose-500/20 text-rose-300 border border-rose-500/30"
+                        }`}>
+                          {activePosition.isOpen ? "ACCEPTING APPLICATIONS" : "APPLICATIONS CLOSED"}
+                        </span>
+                      </div>
                       <p className="text-xs text-slate-400 mt-1 max-w-xl leading-relaxed">
                         {activePosition.description}
                       </p>
                     </div>
 
-                    <button
-                      onClick={() => setNewQModal(true)}
-                      className="px-3.5 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold flex items-center gap-1.5 shrink-0"
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                      <span>Add Question</span>
-                    </button>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={() => handleTogglePositionOpen(activePosition.id, activePosition.isOpen)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                          activePosition.isOpen
+                            ? "bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30"
+                            : "bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30"
+                        }`}
+                      >
+                        {activePosition.isOpen ? "Close Opening" : "Re-open Opening"}
+                      </button>
+
+                      <button
+                        onClick={() => setNewQModal(true)}
+                        className="px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-purple-600/30"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>Add Question</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleDeletePosition(activePosition.id)}
+                        className="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-white border border-red-500/20 transition-colors"
+                        title="Delete this opening"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
 
                   <div className="space-y-3">
@@ -1360,30 +1489,127 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
         </div>
       )}
 
-      {/* TAB 4: GATING, COOLDOWNS & BLACKLIST */}
-      {activeTab === "gating" && (
-        <div className="max-w-2xl space-y-6">
-          <div className="glass-panel rounded-2xl border border-white/10 p-6 space-y-4">
-            <h2 className="text-base font-bold text-white">Application Rules & Gating</h2>
-
-            <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-white">
-                Re-Application Cooldown (Days after Rejection)
-              </label>
-              <input
-                type="number"
-                min={0}
-                max={90}
-                value={cooldownInput}
-                onChange={(e) => setCooldownInput(Number(e.target.value))}
-                className="w-32 px-3.5 py-2 rounded-xl bg-surface border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500"
-              />
-              <p className="text-[10px] text-slate-400">
-                Applicants rejected must wait this many days before re-applying. Set to 0 to disable.
+      {/* TAB 4: COMMUNITY SETTINGS, GATING & POLICIES */}
+      {activeTab === "settings" && (
+        <div className="max-w-3xl space-y-6">
+          {/* General Community Info */}
+          <div className="glass-panel rounded-2xl border border-white/10 p-6 sm:p-8 space-y-5">
+            <div>
+              <h2 className="text-base font-bold text-white mb-1">Community Profile & Branding</h2>
+              <p className="text-xs text-slate-400">
+                Configure your public applicant portal, vanity URL, and branding.
               </p>
             </div>
 
-            <div className="flex items-center justify-between pt-2 border-t border-white/5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1">
+                  Community Name
+                </label>
+                <input
+                  type="text"
+                  value={communityNameInput}
+                  onChange={(e) => setCommunityNameInput(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1">
+                  Custom Vanity URL
+                </label>
+                <div className="flex items-center">
+                  <span className="px-3 py-2.5 bg-black/40 border border-r-0 border-white/10 rounded-l-xl text-[11px] text-slate-500 font-mono">
+                    roleflow.site/c/
+                  </span>
+                  <input
+                    type="text"
+                    value={vanitySlugInput}
+                    onChange={(e) => setVanitySlugInput(e.target.value)}
+                    placeholder="my-server"
+                    className="w-full px-3 py-2.5 rounded-r-xl bg-surface border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500 font-mono"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-slate-300 mb-1">
+                Community Description
+              </label>
+              <textarea
+                rows={2}
+                value={descriptionInput}
+                onChange={(e) => setDescriptionInput(e.target.value)}
+                placeholder="Describe your studio or gaming community..."
+                className="w-full px-3.5 py-2 rounded-xl bg-surface border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500 resize-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-slate-300 mb-1">
+                Tags (Comma-separated)
+              </label>
+              <input
+                type="text"
+                value={tagsInput}
+                onChange={(e) => setTagsInput(e.target.value)}
+                placeholder="Roblox, Studio, Moderation, Development"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1">
+                  Server Icon Image URL
+                </label>
+                <input
+                  type="text"
+                  value={iconInput}
+                  onChange={(e) => setIconInput(e.target.value)}
+                  placeholder="https://..."
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1">
+                  Banner Image URL
+                </label>
+                <input
+                  type="text"
+                  value={bannerInput}
+                  onChange={(e) => setBannerInput(e.target.value)}
+                  placeholder="https://..."
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Application Rules & Gating Policies */}
+          <div className="glass-panel rounded-2xl border border-white/10 p-6 sm:p-8 space-y-4">
+            <h2 className="text-base font-bold text-white mb-1">Access Rules & Security Gating</h2>
+
+            <div className="flex items-center justify-between py-2 border-b border-white/5">
+              <div>
+                <span className="text-xs font-bold text-white block">
+                  Require Membership in Discord Server
+                </span>
+                <p className="text-[10px] text-slate-400">
+                  Applicants must be joined to your Discord server before they are allowed to submit.
+                </p>
+              </div>
+              <input
+                type="checkbox"
+                checked={requireInGuildToggle}
+                onChange={(e) => setRequireInGuildToggle(e.target.checked)}
+                className="w-4 h-4 rounded text-purple-600 cursor-pointer"
+              />
+            </div>
+
+            <div className="flex items-center justify-between py-2 border-b border-white/5">
               <div>
                 <span className="text-xs font-bold text-white block">
                   Enforce Roblox Account Verification
@@ -1396,11 +1622,11 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                 type="checkbox"
                 checked={robloxAuthToggle}
                 onChange={(e) => setRobloxAuthToggle(e.target.checked)}
-                className="w-4 h-4 rounded text-purple-600"
+                className="w-4 h-4 rounded text-purple-600 cursor-pointer"
               />
             </div>
 
-            <div className="flex items-center justify-between pt-2 border-t border-white/5">
+            <div className="flex items-center justify-between py-2 border-b border-white/5">
               <div>
                 <span className="text-xs font-bold text-white block">
                   Staff Blind Voting Mode
@@ -1413,17 +1639,56 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                 type="checkbox"
                 checked={blindVotingToggle}
                 onChange={(e) => setBlindVotingToggle(e.target.checked)}
-                className="w-4 h-4 rounded text-purple-600"
+                className="w-4 h-4 rounded text-purple-600 cursor-pointer"
               />
             </div>
 
-            <button
-              onClick={handleSaveSettings}
-              disabled={savingSettings}
-              className="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold"
-            >
-              Save Gating Policies
-            </button>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-white">
+                  Re-Application Cooldown (Days)
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  max={90}
+                  value={cooldownInput}
+                  onChange={(e) => setCooldownInput(Number(e.target.value))}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500"
+                />
+                <p className="text-[10px] text-slate-400">
+                  Rejected applicants must wait this many days before re-applying. Set to 0 to disable.
+                </p>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-white">
+                  Minimum Discord Account Age (Days)
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  max={365}
+                  value={minAccountAgeInput}
+                  onChange={(e) => setMinAccountAgeInput(Number(e.target.value))}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500"
+                />
+                <p className="text-[10px] text-slate-400">
+                  Prevents freshly created alt accounts from submitting spam applications.
+                </p>
+              </div>
+            </div>
+
+            <div className="pt-3">
+              <button
+                onClick={handleSaveSettings}
+                disabled={savingSettings}
+                className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold flex items-center gap-2 shadow-lg shadow-violet-600/30"
+              >
+                <Save className="w-3.5 h-3.5" />
+                <span>{savingSettings ? "Saving Settings..." : "Save Community Settings"}</span>
+              </button>
+            </div>
           </div>
 
           {/* Blacklist Management */}
@@ -1433,7 +1698,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
               Community Anti-Troll Blacklist
             </h2>
 
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <input
                 type="text"
                 placeholder="Discord ID or Roblox username..."
@@ -1446,14 +1711,14 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                 placeholder="Reason tag..."
                 value={newBlacklistReason}
                 onChange={(e) => setNewBlacklistReason(e.target.value)}
-                className="w-48 px-3 py-2 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                className="sm:w-48 px-3 py-2 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
               />
               <button
                 type="button"
                 onClick={handleAddBlacklist}
-                className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold"
+                className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold shrink-0"
               >
-                Blacklist
+                Add Blacklist
               </button>
             </div>
 
