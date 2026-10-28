@@ -5,6 +5,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { StatusBadge } from "@/components/StatusBadge";
 import { formatDate } from "@/lib/utils";
 import { Clock, Briefcase, FileText, ArrowRight, MessageSquare, AlertCircle } from "lucide-react";
+import { ApplicantChatThread } from "@/components/ApplicantChatThread";
 
 export const revalidate = 0;
 
@@ -39,6 +40,9 @@ export default async function MyApplicationsPage() {
       },
       answers: {
         include: { question: true },
+      },
+      messages: {
+        orderBy: { createdAt: "asc" },
       },
     },
     orderBy: { createdAt: "desc" },
@@ -129,6 +133,12 @@ export default async function MyApplicationsPage() {
                   <p className="leading-relaxed">{app.decisionNote}</p>
                 </div>
               )}
+
+              {/* Clarification Messaging Thread */}
+              <ApplicantChatThread
+                applicationId={app.id}
+                initialMessages={app.messages}
+              />
 
               {/* Submitted Details & Answers preview */}
               <div className="pt-3 border-t border-white/5 flex flex-wrap items-center justify-between text-xs text-slate-500 gap-2">

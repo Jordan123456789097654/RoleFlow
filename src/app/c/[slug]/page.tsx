@@ -34,6 +34,41 @@ export default async function CommunityPortalPage({ params }: CommunityPortalPro
 
   const tags = guild.tags ? guild.tags.split(",").map((t) => t.trim()) : [];
 
+  const themePresets: Record<string, { bannerGradient: string; borderGlow: string; accentClass: string }> = {
+    obsidian: {
+      bannerGradient: "from-violet-950 via-purple-900/60 to-slate-900",
+      borderGlow: "border-purple-500/20",
+      accentClass: "bg-purple-600 hover:bg-purple-500 shadow-purple-600/30",
+    },
+    cyberpunk: {
+      bannerGradient: "from-cyan-950 via-fuchsia-900/60 to-yellow-950/40",
+      borderGlow: "border-cyan-500/30",
+      accentClass: "bg-cyan-500 hover:bg-cyan-400 text-black shadow-cyan-500/40",
+    },
+    emerald: {
+      bannerGradient: "from-emerald-950 via-teal-900/60 to-slate-900",
+      borderGlow: "border-emerald-500/20",
+      accentClass: "bg-emerald-600 hover:bg-emerald-500 shadow-emerald-600/30",
+    },
+    royal: {
+      bannerGradient: "from-indigo-950 via-purple-900/60 to-slate-900",
+      borderGlow: "border-indigo-500/20",
+      accentClass: "bg-indigo-600 hover:bg-indigo-500 shadow-indigo-600/30",
+    },
+    crimson: {
+      bannerGradient: "from-rose-950 via-red-900/60 to-slate-900",
+      borderGlow: "border-rose-500/20",
+      accentClass: "bg-rose-600 hover:bg-rose-500 shadow-rose-600/30",
+    },
+  };
+  const currentTheme = themePresets[guild.portalTheme || "obsidian"] || themePresets.obsidian;
+
+  const badges = guild.verifiedBadges
+    ? guild.verifiedBadges.split(",").map((b) => b.trim()).filter(Boolean)
+    : guild.isVerified
+    ? [guild.verifiedBadge || "VERIFIED"]
+    : [];
+
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <Link
@@ -45,9 +80,9 @@ export default async function CommunityPortalPage({ params }: CommunityPortalPro
       </Link>
 
       {/* Community Banner & Header Profile */}
-      <div className="rounded-3xl overflow-hidden glass-panel border border-white/10 mb-10 shadow-2xl">
+      <div className={`rounded-3xl overflow-hidden glass-panel border ${currentTheme.borderGlow} mb-10 shadow-2xl`}>
         {/* Banner */}
-        <div className="relative h-44 sm:h-56 w-full bg-gradient-to-r from-violet-950 via-purple-900/60 to-slate-900 overflow-hidden">
+        <div className={`relative h-44 sm:h-56 w-full bg-gradient-to-r ${currentTheme.bannerGradient} overflow-hidden`}>
           {guild.banner ? (
             <img src={guild.banner} alt={guild.name} className="w-full h-full object-cover" />
           ) : (
@@ -70,14 +105,17 @@ export default async function CommunityPortalPage({ params }: CommunityPortalPro
               </div>
 
               <div className="pt-2">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <h1 className="text-xl sm:text-2xl font-black text-white">{guild.name}</h1>
-                  {guild.isVerified && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[10px] font-bold">
+                  {badges.map((b) => (
+                    <span
+                      key={b}
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[10px] font-bold"
+                    >
                       <BadgeCheck className="w-3 h-3 text-purple-400 fill-purple-400/20" />
-                      {guild.verifiedBadge || "VERIFIED"}
+                      {b.replace("_", " ")}
                     </span>
-                  )}
+                  ))}
                 </div>
 
                 <div className="flex items-center gap-3 text-xs text-slate-400 mt-1">
@@ -180,6 +218,25 @@ export default async function CommunityPortalPage({ params }: CommunityPortalPro
           </div>
         )}
       </div>
+
+      {/* Discord Widget Embed */}
+      {guild.discordWidgetEnabled && (
+        <div className="mt-10 rounded-2xl overflow-hidden border border-white/10 glass-panel p-5">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-purple-400 mb-3 flex items-center gap-2">
+            <Users className="w-3.5 h-3.5" />
+            Live Discord Community
+          </h3>
+          <iframe
+            src={`https://discord.com/widget?id=${guild.id}&theme=dark`}
+            width="100%"
+            height="350"
+            allowTransparency={true}
+            frameBorder="0"
+            sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"
+            className="rounded-xl w-full"
+          />
+        </div>
+      )}
     </div>
   );
 }

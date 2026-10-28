@@ -37,7 +37,8 @@ model Guild {
   vanitySlug                 String?          @unique // e.g. "meridian", "lucid"
   ownerId                    String
   isVerified                 Boolean          @default(false)
-  verifiedBadge              String?          // e.g. "PARTNER", "OFFICIAL", "COMMUNITY"
+  verifiedBadge              String?          // Single primary badge legacy fallback
+  verifiedBadges             String?          // Multiple badges comma-separated: "OFFICIAL,PARTNER,TOP_STUDIO,VERIFIED"
   isPaused                   Boolean          @default(false) // Founder or owner paused community
   memberCount                Int              @default(0)
   tags                       String?          // Comma-separated: "Roblox,Studio,Development"
@@ -51,12 +52,18 @@ model Guild {
   useCustomBot               Boolean          @default(false)
   customBotToken             String?          // Custom Discord Bot Token
   
-  // Discord Channels & Roles
+  // Discord Channels, Webhooks & Roles
   logChannelId               String?          // Staff review alert channel
+  webhookUrl                 String?          // Discord Webhook for instant dispatch logs
   reviewerRoleId             String?          // Role allowed to review
   staffPingRoleId            String?          // Role pinged when new application arrives
   embedColor                 String?          @default("#8B5CF6") // Custom embed color
   interviewCatId             String?          // Category for interview threads/channels
+
+  // Portal Customization & Themes
+  portalTheme                String?          @default("obsidian") // obsidian, cyberpunk, emerald, royal, crimson
+  portalAccentColor          String?          @default("#8B5CF6")
+  discordWidgetEnabled       Boolean          @default(false)
   
   // Gating & Policy Rules
   cooldownDays               Int              @default(7) // Days after rejection before re-applying
@@ -77,6 +84,7 @@ model Guild {
   positions                  Position[]
   blacklists                 Blacklist[]
   cannedResponses            CannedResponse[]
+  staffTeam                  GuildStaff[]
   createdAt                  DateTime         @default(now())
 }
 
@@ -111,18 +119,65 @@ model Question {
 }
 
 model Application {
-  id                 String    @id @default(cuid())
+  id                 String               @id @default(cuid())
   positionId         String
-  position           Position  @relation(fields: [positionId], references: [id], onDelete: Cascade)
+  position           Position             @relation(fields: [positionId], references: [id], onDelete: Cascade)
   userId             String
-  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  status             String    @default("PENDING") // PENDING, UNDER_REVIEW, INTERVIEW, ACCEPTED, REJECTED
+  user               User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status             String               @default("PENDING") // PENDING, UNDER_REVIEW, INTERVIEW, ACCEPTED, REJECTED
+  tags               String?              // Comma-separated tags: "High Priority,Former Staff,Pending Check"
   answers            Answer[]
   reviews            Review[]
+  messages           ApplicationMessage[]
   interviewChannelId String?
   decisionNote       String?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+}
+
+model ApplicationMessage {
+  id            String      @id @default(cuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  senderId      String      // User ID of staff or applicant
+  senderName    String
+  senderRole    String      @default("STAFF") // STAFF or APPLICANT
+  content       String
+  createdAt     DateTime    @default(now())
+}
+
+model GuildStaff {
+  id          String   @id @default(cuid())
+  guildId     String
+  guild       Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  userId      String   // Discord Snowflake ID of staff member
+  username    String?
+  roleTitle   String   @default("Reviewer") // e.g. "Lead Recruiter", "Staff Reviewer", "Senior Admin"
+  permissions String   @default("vote_only") // view_only, vote_only, full_decision, position_editor
+  createdAt   DateTime @default(now())
+
+  @@unique([guildId, userId])
+}
+
+model FeedbackReport {
+  id          String   @id @default(cuid())
+  type        String   @default("BUG_REPORT") // BUG_REPORT, FEATURE_SUGGESTION
+  title       String
+  description String
+  severity    String?  @default("NORMAL") // LOW, NORMAL, HIGH, CRITICAL
+  category    String?  @default("OTHER") // UI, BOT, APPLICATION, DISCORD, PERFORMANCE, OTHER
+  status      String   @default("OPEN") // OPEN, UNDER_REVIEW, RESOLVED, DISMISSED
+  authorId    String?  // Discord ID
+  authorName  String?  // Discord username
+  adminNotes  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SystemSetting {
+  key       String   @id // e.g. "maintenance_mode", "maintenance_message"
+  value     String
+  updatedAt DateTime @updatedAt
 }
 
 model Answer {

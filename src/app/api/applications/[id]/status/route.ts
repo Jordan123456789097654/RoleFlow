@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { BotDispatcher } from "@/lib/bot-dispatcher";
+import { dispatchCommunityWebhook } from "@/lib/webhook-dispatcher";
 import { getCurrentUser } from "@/lib/auth";
 
 export async function PATCH(
@@ -40,6 +41,14 @@ export async function PATCH(
       newStatus: status,
       decisionNote,
       reviewedByUsername: user?.username || "Staff",
+    });
+
+    // Also dispatch status log to community webhook
+    await dispatchCommunityWebhook({
+      guildId: application.position.guildId,
+      event: "STATUS_UPDATE",
+      title: `⚖️ Application ${status}: ${application.position.title}`,
+      description: `**Applicant:** ${application.user.username} (<@${application.userId}>)\n**Status:** \`${status}\`\n**Reviewed By:** ${user?.username || "Staff Reviewer"}${decisionNote ? `\n**Note:** ${decisionNote}` : ""}`,
     });
 
     return NextResponse.json({ success: true, application: updated });

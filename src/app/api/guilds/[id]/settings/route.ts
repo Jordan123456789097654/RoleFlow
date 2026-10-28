@@ -64,6 +64,10 @@ export async function PATCH(
       logChannelId,
       staffPingRoleId,
       embedColor,
+      webhookUrl,
+      portalTheme,
+      portalAccentColor,
+      discordWidgetEnabled,
     } = body;
 
     // Check slug uniqueness if changed
@@ -100,6 +104,10 @@ export async function PATCH(
         ...(logChannelId !== undefined ? { logChannelId: logChannelId?.trim() || null } : {}),
         ...(staffPingRoleId !== undefined ? { staffPingRoleId: staffPingRoleId?.trim() || null } : {}),
         ...(embedColor ? { embedColor: embedColor.trim() } : {}),
+        ...(webhookUrl !== undefined ? { webhookUrl: webhookUrl?.trim() || null } : {}),
+        ...(portalTheme !== undefined ? { portalTheme: portalTheme?.trim() || "obsidian" } : {}),
+        ...(portalAccentColor !== undefined ? { portalAccentColor: portalAccentColor?.trim() || "#8B5CF6" } : {}),
+        ...(typeof discordWidgetEnabled === "boolean" ? { discordWidgetEnabled } : {}),
       },
     });
 

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
+  Tag,
   Users,
   Briefcase,
   Bot,
@@ -66,6 +67,18 @@ interface GuildData {
   plan?: string;
   licenseKey?: string | null;
   licenseExpiresAt?: string | null;
+  webhookUrl?: string | null;
+  portalTheme?: string | null;
+  portalAccentColor?: string | null;
+  discordWidgetEnabled?: boolean;
+  staffTeam?: Array<{
+    id: string;
+    userId: string;
+    username?: string | null;
+    roleTitle: string;
+    permissions: string;
+    createdAt: string;
+  }>;
   positions: Array<{
     id: string;
     title: string;
@@ -111,6 +124,15 @@ interface GuildData {
       comment: string;
       score?: number | null;
     }>;
+    tags?: string | null;
+    messages?: Array<{
+      id: string;
+      senderId: string;
+      senderName: string;
+      senderRole: string;
+      content: string;
+      createdAt: string;
+    }>;
   }>;
   blacklists: Array<{
     id: string;
@@ -122,12 +144,37 @@ interface GuildData {
 
 export default function DashboardPage({ params }: { params: { guildId: string } }) {
   const [guild, setGuild] = useState<GuildData | null>(null);
-  const [activeTab, setActiveTab] = useState<"applications" | "builder" | "bot" | "settings" | "gating" | "templates">("applications");
+  const [activeTab, setActiveTab] = useState<"applications" | "builder" | "bot" | "staff" | "settings" | "gating" | "templates">("applications");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [selectedApp, setSelectedApp] = useState<any | null>(null);
   const [decisionNote, setDecisionNote] = useState("");
   const [reviewComment, setReviewComment] = useState("");
   const [reviewScore, setReviewScore] = useState<number>(5);
+
+  // Bulk selection & Multi-application review state
+  const [selectedAppIds, setSelectedAppIds] = useState<string[]>([]);
+  const [bulkProcessing, setBulkProcessing] = useState(false);
+  const [tagFilter, setTagFilter] = useState<string>("ALL");
+  const [customTagInput, setCustomTagInput] = useState("");
+
+  // In-App Clarification Thread
+  const [chatMessages, setChatMessages] = useState<any[]>([]);
+  const [newChatContent, setNewChatContent] = useState("");
+  const [sendingChat, setSendingChat] = useState(false);
+
+  // Portal Themes & Webhooks
+  const [webhookUrlInput, setWebhookUrlInput] = useState("");
+  const [portalThemeInput, setPortalThemeInput] = useState("obsidian");
+  const [portalAccentColorInput, setPortalAccentColorInput] = useState("#8B5CF6");
+  const [discordWidgetToggle, setDiscordWidgetToggle] = useState(false);
+
+  // Team & Granular Permissions
+  const [staffList, setStaffList] = useState<any[]>([]);
+  const [newStaffUserId, setNewStaffUserId] = useState("");
+  const [newStaffUsername, setNewStaffUsername] = useState("");
+  const [newStaffTitle, setNewStaffTitle] = useState("Reviewer");
+  const [newStaffPerms, setNewStaffPerms] = useState("vote_only");
+  const [addingStaff, setAddingStaff] = useState(false);
 
   // Community Admin Config state
   const [communityNameInput, setCommunityNameInput] = useState("");
@@ -195,6 +242,12 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
     fetchGuildData();
   }, [params.guildId]);
 
+  useEffect(() => {
+    if (selectedApp?.id) {
+      handleFetchMessages(selectedApp.id);
+    }
+  }, [selectedApp?.id]);
+
   async function fetchGuildData() {
     try {
       const res = await fetch(`/api/guilds/${params.guildId}/dashboard`);
@@ -230,6 +283,11 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
         setRobloxMinRankInput(data.robloxMinRank || 1);
         setBlindVotingToggle(data.enableBlindVoting || false);
         setVotePassThresholdInput(data.votePassThreshold || 2);
+        setWebhookUrlInput(data.webhookUrl || "");
+        setPortalThemeInput(data.portalTheme || "obsidian");
+        setPortalAccentColorInput(data.portalAccentColor || "#8B5CF6");
+        setDiscordWidgetToggle(data.discordWidgetEnabled || false);
+        setStaffList(data.staffTeam || []);
 
         if (data.positions?.length > 0 && !selectedPosId) {
           setSelectedPosId(data.positions[0].id);
@@ -343,6 +401,177 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
     }
   };
 
+  const handleBulkAction = async (action: "ACCEPT" | "REJECT" | "TAG", tag?: string) => {
+    if (selectedAppIds.length === 0) return;
+    setBulkProcessing(true);
+    try {
+      const res = await fetch("/api/applications/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          guildId: params.guildId,
+          applicationIds: selectedAppIds,
+          action,
+          tag,
+        }),
+      });
+      if (res.ok) {
+        const result = await res.json();
+        setActionSuccess(`Bulk action completed for ${result.processedCount} applications`);
+        setTimeout(() => setActionSuccess(null), 3000);
+        setSelectedAppIds([]);
+        fetchGuildData();
+      } else {
+        const err = await res.json();
+        alert(err.error || "Failed to execute bulk action");
+      }
+    } catch (e: any) {
+      alert(e.message || "Bulk action failed");
+    } finally {
+      setBulkProcessing(false);
+    }
+  };
+
+  const handleExportSelectedCsv = () => {
+    const targetApps = selectedAppIds.length > 0
+      ? guild?.applications.filter((a: any) => selectedAppIds.includes(a.id)) || []
+      : filteredApps;
+    if (targetApps.length === 0) {
+      alert("No applications to export.");
+      return;
+    }
+    const headers = ["Application ID", "Applicant Discord", "Applicant Roblox", "Position", "Status", "Tags", "Date Submitted"];
+    const rows = targetApps.map((a: any) => [
+      `"${a.id}"`,
+      `"${(a.user?.username || '').replace(/"/g, '""')}"`,
+      `"${(a.user?.robloxUsername || '').replace(/"/g, '""')}"`,
+      `"${(a.position?.title || '').replace(/"/g, '""')}"`,
+      `"${a.status}"`,
+      `"${(a.tags || '').replace(/"/g, '""')}"`,
+      `"${new Date(a.createdAt).toISOString()}"`,
+    ]);
+    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `${(guild?.name || 'community').replace(/[^a-z0-9]/gi, '_').toLowerCase()}_applications.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleToggleAppTag = async (appId: string, tag: string) => {
+    try {
+      const res = await fetch(`/api/applications/${appId}/tags`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tag }),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        if (selectedApp && selectedApp.id === appId) {
+          setSelectedApp({ ...selectedApp, tags: updated.tags.join(",") });
+        }
+        fetchGuildData();
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleFetchMessages = async (appId: string) => {
+    try {
+      const res = await fetch(`/api/applications/${appId}/messages`);
+      if (res.ok) {
+        const data = await res.json();
+        setChatMessages(Array.isArray(data) ? data : data.messages || []);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleSendMessage = async (appId: string) => {
+    if (!newChatContent.trim()) return;
+    setSendingChat(true);
+    try {
+      const res = await fetch(`/api/applications/${appId}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: newChatContent.trim() }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setChatMessages((prev) => [...prev, data.message]);
+        setNewChatContent("");
+      } else {
+        const err = await res.json();
+        alert(err.error || "Failed to send message");
+      }
+    } catch (e: any) {
+      alert(e.message || "Failed to send message");
+    } finally {
+      setSendingChat(false);
+    }
+  };
+
+  const handleAddStaff = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newStaffUserId.trim()) return;
+    setAddingStaff(true);
+    try {
+      const res = await fetch(`/api/guilds/${params.guildId}/staff`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: newStaffUserId.trim(),
+          username: newStaffUsername.trim() || undefined,
+          roleTitle: newStaffTitle.trim() || "Reviewer",
+          permissions: newStaffPerms,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setStaffList((prev) => {
+          const filtered = prev.filter((s) => s.userId !== data.staff.userId);
+          return [...filtered, data.staff];
+        });
+        setNewStaffUserId("");
+        setNewStaffUsername("");
+        setActionSuccess("Staff member added with custom permissions!");
+        setTimeout(() => setActionSuccess(null), 3000);
+        fetchGuildData();
+      } else {
+        const err = await res.json();
+        alert(err.error || "Failed to add staff member");
+      }
+    } catch (e: any) {
+      alert(e.message || "Failed to add staff");
+    } finally {
+      setAddingStaff(false);
+    }
+  };
+
+  const handleDeleteStaff = async (userId: string) => {
+    if (!confirm("Are you sure you want to remove this staff member?")) return;
+    try {
+      const res = await fetch(`/api/guilds/${params.guildId}/staff?userId=${userId}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        setStaffList((prev) => prev.filter((s) => s.userId !== userId));
+        setActionSuccess("Staff member removed.");
+        setTimeout(() => setActionSuccess(null), 3000);
+        fetchGuildData();
+      } else {
+        const err = await res.json();
+        alert(err.error || "Failed to remove staff member");
+      }
+    } catch (e) {
+      alert("Failed to remove staff");
+    }
+  };
+
   const handleTogglePositionOpen = async (posId: string, currentOpen: boolean) => {
     try {
       const res = await fetch(`/api/positions/${posId}`, {
@@ -402,6 +631,10 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           robloxMinRank: Number(robloxMinRankInput),
           enableBlindVoting: blindVotingToggle,
           votePassThreshold: Number(votePassThresholdInput),
+          webhookUrl: webhookUrlInput,
+          portalTheme: portalThemeInput,
+          portalAccentColor: portalAccentColorInput,
+          discordWidgetEnabled: discordWidgetToggle,
         }),
       });
 
@@ -698,8 +931,9 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
   }
 
   const filteredApps = guild.applications.filter((a) => {
-    if (statusFilter === "ALL") return true;
-    return a.status === statusFilter;
+    const matchesStatus = statusFilter === "ALL" || a.status === statusFilter;
+    const matchesTag = tagFilter === "ALL" || (a.tags && a.tags.split(",").map((t) => t.trim()).includes(tagFilter));
+    return matchesStatus && matchesTag;
   });
 
   const activePosition = guild.positions.find((p) => p.id === selectedPosId) || guild.positions[0];
@@ -800,6 +1034,18 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
         </button>
 
         <button
+          onClick={() => setActiveTab("staff")}
+          className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors ${
+            activeTab === "staff"
+              ? "bg-purple-600 text-white shadow-md shadow-purple-600/30"
+              : "text-slate-400 hover:text-white hover:bg-white/5"
+          }`}
+        >
+          <Users className="w-3.5 h-3.5" />
+          <span>Team & Staff ({staffList.length})</span>
+        </button>
+
+        <button
           onClick={() => setActiveTab("settings")}
           className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors ${
             activeTab === "settings"
@@ -827,21 +1073,68 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
       {/* TAB 1: APPLICATIONS REVIEW KANBAN */}
       {activeTab === "applications" && (
         <div className="space-y-6">
-          {/* Status Filter Bar */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2">
-            {["ALL", "PENDING", "UNDER_REVIEW", "INTERVIEW", "ACCEPTED", "REJECTED"].map((st) => (
+          {/* Status & Tag Filter Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-2 border-b border-white/5">
+            <div className="flex items-center gap-2 overflow-x-auto">
+              {["ALL", "PENDING", "UNDER_REVIEW", "INTERVIEW", "ACCEPTED", "REJECTED"].map((st) => (
+                <button
+                  key={st}
+                  onClick={() => setStatusFilter(st)}
+                  className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors whitespace-nowrap ${
+                    statusFilter === st
+                      ? "bg-white text-black border-white"
+                      : "bg-surface border-white/5 text-slate-400 hover:text-white"
+                  }`}
+                >
+                  {st}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-2">
+              {/* Tag Filter */}
+              <div className="flex items-center gap-1.5 bg-surface px-2.5 py-1 rounded-lg border border-white/10 text-xs">
+                <span className="text-slate-400 text-[11px]">Tag:</span>
+                <select
+                  value={tagFilter}
+                  onChange={(e) => setTagFilter(e.target.value)}
+                  className="bg-transparent text-white text-xs font-medium focus:outline-none cursor-pointer"
+                >
+                  <option value="ALL" className="bg-slate-900 text-white">All Tags</option>
+                  <option value="🔥 High Priority" className="bg-slate-900 text-amber-300">🔥 High Priority</option>
+                  <option value="👀 Under Review" className="bg-slate-900 text-cyan-300">👀 Under Review</option>
+                  <option value="⭐ Former Staff" className="bg-slate-900 text-purple-300">⭐ Former Staff</option>
+                  <option value="🎨 Portfolio Check" className="bg-slate-900 text-emerald-300">🎨 Portfolio Check</option>
+                  <option value="🌱 Trainee" className="bg-slate-900 text-blue-300">🌱 Trainee</option>
+                </select>
+              </div>
+
+              {/* Select All Checkbox */}
               <button
-                key={st}
-                onClick={() => setStatusFilter(st)}
-                className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors whitespace-nowrap ${
-                  statusFilter === st
-                    ? "bg-white text-black border-white"
-                    : "bg-surface border-white/5 text-slate-400 hover:text-white"
-                }`}
+                type="button"
+                onClick={() => {
+                  if (selectedAppIds.length === filteredApps.length) {
+                    setSelectedAppIds([]);
+                  } else {
+                    setSelectedAppIds(filteredApps.map((a: any) => a.id));
+                  }
+                }}
+                className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-medium text-slate-300 border border-white/10 transition-colors"
               >
-                {st}
+                {selectedAppIds.length === filteredApps.length && filteredApps.length > 0 ? "Deselect All" : "Select All"}
               </button>
-            ))}
+
+              {/* Export CSV */}
+              <button
+                type="button"
+                onClick={handleExportSelectedCsv}
+                className="px-2.5 py-1 rounded-lg bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 text-xs font-medium flex items-center gap-1.5 transition-colors"
+                title="Export applications to CSV"
+              >
+                <Download className="w-3 h-3" />
+                <span>Export CSV</span>
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -858,18 +1151,30 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                     <div
                       key={app.id}
                       onClick={() => setSelectedApp(app)}
-                      className={`p-4 rounded-xl cursor-pointer transition-all border ${
+                      className={`p-4 rounded-xl cursor-pointer transition-all border relative ${
                         isSelected
                           ? "bg-purple-950/30 border-purple-500/60 shadow-lg shadow-purple-500/10"
                           : "glass-panel border-white/5 hover:border-white/20"
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2 mb-2">
-                        <div className="flex items-center gap-2.5">
+                        <div className="flex items-start gap-2.5">
+                          <input
+                            type="checkbox"
+                            checked={selectedAppIds.includes(app.id)}
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              setSelectedAppIds((prev) =>
+                                prev.includes(app.id) ? prev.filter((id) => id !== app.id) : [...prev, app.id]
+                              );
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="mt-1 w-4 h-4 rounded text-purple-600 bg-surface border-white/20 focus:ring-purple-500 cursor-pointer"
+                          />
                           <img
                             src={app.user.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"}
                             alt={app.user.username}
-                            className="w-8 h-8 rounded-full border border-white/10"
+                            className="w-8 h-8 rounded-full border border-white/10 shrink-0"
                           />
                           <div>
                             <span className="text-xs font-bold text-white block">
@@ -878,6 +1183,15 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                             <span className="text-[10px] text-purple-300">
                               {app.position.title}
                             </span>
+                            {app.tags && (
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {app.tags.split(",").map((t: string) => t.trim()).filter(Boolean).map((t: string) => (
+                                  <span key={t} className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                                    {t}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         </div>
                         <StatusBadge status={app.status} size="sm" />
@@ -980,6 +1294,99 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                         onChange={(e) => setDecisionNote(e.target.value)}
                         className="w-full px-3 py-2 rounded-lg bg-background border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
                       />
+                    </div>
+                  </div>
+
+                  {/* Applicant Tags & Department Badging */}
+                  <div className="p-4 rounded-xl bg-surface border border-white/5 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                        <Tag className="w-3.5 h-3.5 text-purple-400" />
+                        Applicant Tags & Badges:
+                      </span>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {["🔥 High Priority", "👀 Under Review", "⭐ Former Staff", "🎨 Portfolio Check", "🌱 Trainee"].map((t) => {
+                        const hasTag = selectedApp.tags && selectedApp.tags.split(",").map((x: string) => x.trim()).includes(t);
+                        return (
+                          <button
+                            key={t}
+                            type="button"
+                            onClick={() => handleToggleAppTag(selectedApp.id, t)}
+                            className={`px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all ${
+                              hasTag
+                                ? "bg-purple-600/30 text-purple-200 border-purple-500/50 shadow-sm shadow-purple-500/20"
+                                : "bg-white/5 text-slate-400 border-white/5 hover:text-white hover:bg-white/10"
+                            }`}
+                          >
+                            {t} {hasTag ? "✓" : "+"}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* In-App Applicant Messaging & Clarification Threads */}
+                  <div className="p-4 rounded-xl bg-surface border border-white/5 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-purple-400 flex items-center gap-1.5">
+                        <MessageSquare className="w-3.5 h-3.5" />
+                        Clarification Thread with Applicant
+                      </h3>
+                      <span className="text-[10px] text-slate-400">In-App Chat</span>
+                    </div>
+
+                    <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                      {chatMessages.length === 0 ? (
+                        <p className="text-xs text-slate-500 italic py-2">
+                          No clarification questions asked yet. Send a message below to ask this applicant questions directly.
+                        </p>
+                      ) : (
+                        chatMessages.map((m: any) => (
+                          <div
+                            key={m.id}
+                            className={`p-3 rounded-xl text-xs space-y-1 ${
+                              m.senderRole === "STAFF"
+                                ? "bg-purple-950/30 border border-purple-500/20 text-purple-200 ml-4"
+                                : "bg-white/5 border border-white/5 text-slate-200 mr-4"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="font-bold text-[11px] text-white">
+                                {m.senderName} ({m.senderRole === "STAFF" ? "Staff" : "Applicant"})
+                              </span>
+                              <span className="text-[10px] text-slate-500">{formatDate(m.createdAt)}</span>
+                            </div>
+                            <p className="whitespace-pre-wrap">{m.content}</p>
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2 pt-1">
+                      <input
+                        type="text"
+                        placeholder="Ask applicant a clarification question..."
+                        value={newChatContent}
+                        onChange={(e) => setNewChatContent(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSendMessage(selectedApp.id);
+                          }
+                        }}
+                        className="flex-1 px-3 py-2 rounded-xl bg-background border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                      />
+                      <button
+                        type="button"
+                        disabled={sendingChat || !newChatContent.trim()}
+                        onClick={() => handleSendMessage(selectedApp.id)}
+                        className="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shrink-0"
+                      >
+                        <Send className="w-3.5 h-3.5" />
+                        <span>Send</span>
+                      </button>
                     </div>
                   </div>
 
@@ -1113,6 +1520,55 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
               )}
             </div>
           </div>
+
+          {/* Floating Bulk Action Bar */}
+          {selectedAppIds.length > 0 && (
+            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-900/95 backdrop-blur-xl border border-purple-500/40 shadow-2xl rounded-2xl px-6 py-3.5 flex items-center gap-3.5 animate-in fade-in slide-in-from-bottom-4">
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-purple-600 text-white text-xs font-bold flex items-center justify-center">
+                  {selectedAppIds.length}
+                </span>
+                <span className="text-xs font-semibold text-white">selected</span>
+              </div>
+
+              <div className="h-4 w-px bg-white/20" />
+
+              <button
+                type="button"
+                disabled={bulkProcessing}
+                onClick={() => handleBulkAction("ACCEPT")}
+                className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md shadow-emerald-600/30"
+              >
+                {bulkProcessing ? "Processing..." : "Batch Accept"}
+              </button>
+
+              <button
+                type="button"
+                disabled={bulkProcessing}
+                onClick={() => handleBulkAction("REJECT")}
+                className="px-3.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition-all shadow-md shadow-rose-600/30"
+              >
+                Batch Deny
+              </button>
+
+              <button
+                type="button"
+                onClick={handleExportSelectedCsv}
+                className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-medium transition-all flex items-center gap-1.5"
+              >
+                <Download className="w-3 h-3" />
+                <span>Export CSV</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSelectedAppIds([])}
+                className="text-xs text-slate-400 hover:text-white transition-colors ml-2"
+              >
+                Clear
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -1868,6 +2324,98 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                   className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500"
                 />
               </div>
+            </div>
+          </div>
+
+          {/* Discord Webhooks for Audit Logs */}
+          <div className="glass-panel rounded-2xl border border-white/10 p-6 sm:p-8 space-y-4">
+            <h2 className="text-base font-bold text-white mb-1 flex items-center gap-2">
+              <Bell className="w-4 h-4 text-purple-400" />
+              Discord Audit Log Webhook
+            </h2>
+            <p className="text-xs text-slate-400">
+              Receive instant Discord webhook embeds whenever an application is submitted, accepted, or rejected.
+            </p>
+
+            <div>
+              <label className="block text-xs font-medium text-slate-300 mb-1">
+                Discord Webhook URL
+              </label>
+              <input
+                type="text"
+                value={webhookUrlInput}
+                onChange={(e) => setWebhookUrlInput(e.target.value)}
+                placeholder="https://discord.com/api/webhooks/..."
+                className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white font-mono focus:outline-none focus:border-purple-500"
+              />
+            </div>
+          </div>
+
+          {/* Custom Community Portal Themes & Accents */}
+          <div className="glass-panel rounded-2xl border border-white/10 p-6 sm:p-8 space-y-4">
+            <h2 className="text-base font-bold text-white mb-1 flex items-center gap-2">
+              <Palette className="w-4 h-4 text-purple-400" />
+              Public Portal Theme & Accents
+            </h2>
+            <p className="text-xs text-slate-400">
+              Customize your community&apos;s public portal appearance (/c/[slug]).
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1">
+                  Theme Preset
+                </label>
+                <select
+                  value={portalThemeInput}
+                  onChange={(e) => setPortalThemeInput(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500 cursor-pointer"
+                >
+                  <option value="obsidian" className="bg-slate-900">Obsidian Dark (Default)</option>
+                  <option value="cyberpunk" className="bg-slate-900">Cyberpunk Neon</option>
+                  <option value="emerald" className="bg-slate-900">Emerald Forest</option>
+                  <option value="royal" className="bg-slate-900">Royal Purple</option>
+                  <option value="crimson" className="bg-slate-900">Crimson Glow</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1">
+                  Accent Hex Color
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={portalAccentColorInput}
+                    onChange={(e) => setPortalAccentColorInput(e.target.value)}
+                    className="w-9 h-9 rounded-lg border border-white/10 bg-transparent cursor-pointer shrink-0"
+                  />
+                  <input
+                    type="text"
+                    value={portalAccentColorInput}
+                    onChange={(e) => setPortalAccentColorInput(e.target.value)}
+                    placeholder="#8B5CF6"
+                    className="flex-1 px-3 py-2 rounded-xl bg-surface border border-white/10 text-xs text-white font-mono focus:outline-none focus:border-purple-500"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between py-2 border-t border-white/5">
+              <div>
+                <span className="text-xs font-bold text-white block">
+                  Discord Server Widget Embed
+                </span>
+                <p className="text-[10px] text-slate-400">
+                  Embed live Discord member counts and voice channels directly on your public community portal.
+                </p>
+              </div>
+              <input
+                type="checkbox"
+                checked={discordWidgetToggle}
+                onChange={(e) => setDiscordWidgetToggle(e.target.checked)}
+                className="w-4 h-4 rounded text-purple-600 cursor-pointer"
+              />
             </div>
           </div>
 

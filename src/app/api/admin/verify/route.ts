@@ -20,17 +20,30 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Forbidden: Super-admin required." }, { status: 403 });
     }
 
-    const { guildId, isVerified, verifiedBadge } = await request.json();
+    const body = await request.json();
+    const { guildId, isVerified, verifiedBadge, verifiedBadges } = body;
 
     if (!guildId) {
       return NextResponse.json({ error: "Guild ID required" }, { status: 400 });
     }
 
+    let badgesString = null;
+    if (Array.isArray(verifiedBadges)) {
+      badgesString = verifiedBadges.filter(Boolean).join(",");
+    } else if (typeof verifiedBadges === "string") {
+      badgesString = verifiedBadges;
+    } else if (verifiedBadge) {
+      badgesString = verifiedBadge;
+    }
+
+    const hasBadges = Boolean(badgesString && badgesString.length > 0) || Boolean(isVerified);
+
     const updated = await prisma.guild.update({
       where: { id: guildId },
       data: {
-        isVerified: !!isVerified,
-        verifiedBadge: isVerified ? verifiedBadge || "OFFICIAL" : null,
+        isVerified: hasBadges,
+        verifiedBadge: badgesString ? badgesString.split(",")[0] : null,
+        verifiedBadges: badgesString,
       },
     });
 

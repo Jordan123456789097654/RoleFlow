@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { BotDispatcher } from "@/lib/bot-dispatcher";
+import { dispatchCommunityWebhook } from "@/lib/webhook-dispatcher";
 import { logger } from "@/lib/logger";
 
 export async function POST(request: Request) {
@@ -237,6 +238,19 @@ export async function POST(request: Request) {
       applicantAvatar: user.avatar,
       robloxUsername: robloxUsername || user.robloxUsername,
       summaryAnswers,
+    });
+
+    // Also dispatch to configured community Discord webhook
+    await dispatchCommunityWebhook({
+      guildId: position.guildId,
+      event: "SUBMISSION",
+      title: `📥 New Application: ${position.title}`,
+      description: `**Applicant:** ${user.username} (<@${user.id}>)\n**Roblox:** ${robloxUsername || user.robloxUsername || "Unlinked"}\n[Review on RoleFlow Dashboard](https://roleflow.site/dashboard/${position.guildId})`,
+      fields: summaryAnswers.slice(0, 3).map((a) => ({
+        name: a.label.slice(0, 250),
+        value: a.value.slice(0, 500) || "No answer",
+        inline: false,
+      })),
     });
 
     logger.info("New candidate application submitted", {

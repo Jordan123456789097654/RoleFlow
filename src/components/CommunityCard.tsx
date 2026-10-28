@@ -12,6 +12,7 @@ interface CommunityCardProps {
     vanitySlug?: string | null;
     isVerified?: boolean;
     verifiedBadge?: string | null;
+    verifiedBadges?: string | null;
     memberCount?: number;
     tags?: string | null;
     positionsCount?: number;
@@ -22,6 +23,13 @@ interface CommunityCardProps {
 export function CommunityCard({ guild }: CommunityCardProps) {
   const targetUrl = guild.vanitySlug ? `/c/${guild.vanitySlug}` : `/c/${guild.id}`;
   const tagList = guild.tags ? guild.tags.split(",").map((t) => t.trim()) : [];
+  const badgeList = guild.verifiedBadges
+    ? guild.verifiedBadges.split(",").filter(Boolean)
+    : guild.verifiedBadge
+    ? [guild.verifiedBadge]
+    : guild.isVerified
+    ? ["OFFICIAL"]
+    : [];
 
   return (
     <Link
@@ -63,15 +71,35 @@ export function CommunityCard({ guild }: CommunityCardProps) {
           </div>
 
           <div className="flex-1 min-w-0 pt-3">
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 flex-wrap">
               <h3 className="text-sm font-bold text-white truncate group-hover:text-purple-300 transition-colors">
                 {guild.name}
               </h3>
-              {guild.isVerified && (
-                <div title={`Verified Community (${guild.verifiedBadge || "OFFICIAL"})`}>
-                  <BadgeCheck className="w-4 h-4 text-purple-400 shrink-0 fill-purple-400/20" />
-                </div>
-              )}
+              {badgeList.map((badge) => {
+                const isPartner = badge === "PARTNER";
+                const isTopStudio = badge === "TOP_STUDIO";
+                const isFavorite = badge === "COMMUNITY_FAVORITE";
+                const isEarly = badge === "EARLY_ADOPTER";
+                return (
+                  <span
+                    key={badge}
+                    className={cn(
+                      "px-1.5 py-0.2 rounded text-[9px] font-mono font-bold border",
+                      isPartner
+                        ? "bg-purple-500/20 text-purple-300 border-purple-500/30"
+                        : isTopStudio
+                        ? "bg-amber-500/20 text-amber-300 border-amber-500/30"
+                        : isFavorite
+                        ? "bg-rose-500/20 text-rose-300 border-rose-500/30"
+                        : isEarly
+                        ? "bg-cyan-500/20 text-cyan-300 border-cyan-500/30"
+                        : "bg-blue-500/20 text-blue-300 border-blue-500/30"
+                    )}
+                  >
+                    {badge.replace("_", " ")}
+                  </span>
+                );
+              })}
             </div>
 
             {guild.memberCount ? (

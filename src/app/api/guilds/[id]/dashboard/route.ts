@@ -34,6 +34,7 @@ export async function GET(
           },
         },
         blacklists: true,
+        staffTeam: true,
       },
     });
 
@@ -41,11 +42,13 @@ export async function GET(
       return NextResponse.json({ error: "Guild not found" }, { status: 404 });
     }
 
-    // STRICT PERMISSION CHECK: Must be the community owner or a designated site super-admin
+    // STRICT PERMISSION CHECK: Must be the community owner, appointed sub-staff, or designated site super-admin
     const isOwner = guild.ownerId === currentUser.id;
     const isSiteAdmin = currentUser.isSiteAdmin || currentUser.id === "1046538179399929957";
+    const staffMember = guild.staffTeam.find((s) => s.userId === currentUser.id);
+    const isStaff = !!staffMember;
 
-    if (!isOwner && !isSiteAdmin) {
+    if (!isOwner && !isSiteAdmin && !isStaff) {
       return NextResponse.json(
         { error: "Forbidden: You do not own or manage this community." },
         { status: 403 }
@@ -67,6 +70,9 @@ export async function GET(
           include: { reviewer: true },
           orderBy: { createdAt: "desc" },
         },
+        messages: {
+          orderBy: { createdAt: "asc" },
+        },
       },
       orderBy: { createdAt: "desc" },
     });
@@ -76,6 +82,8 @@ export async function GET(
       applications,
       isOwner,
       isSiteAdmin,
+      staffMember,
+      currentPermission: isOwner || isSiteAdmin ? "owner" : staffMember?.permissions || "view_only",
     });
   } catch (err: any) {
     console.error("Dashboard fetch error:", err);

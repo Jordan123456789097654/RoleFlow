@@ -3,6 +3,8 @@ import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { ChangelogBroadcastModal } from "@/components/ChangelogBroadcastModal";
+import { BetaBanner } from "@/components/BetaBanner";
+import { MaintenanceGuard } from "@/components/MaintenanceGuard";
 import { getCurrentUser } from "@/lib/auth";
 
 export const metadata: Metadata = {
@@ -30,10 +32,13 @@ export default async function RootLayout({
         <div className="fixed inset-0 bg-grid-pattern pointer-events-none opacity-40 z-0" />
 
         <div className="relative z-10 flex flex-col min-h-screen">
-          <ChangelogBroadcastModal />
-          <Navbar user={user} />
-          <main className="flex-1">{children}</main>
-          <Footer />
+          <MaintenanceGuard isStaffOrAdmin={Boolean(user?.isSupportStaff || user?.isSiteAdmin)}>
+            <BetaBanner />
+            <ChangelogBroadcastModal />
+            <Navbar user={user} />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </MaintenanceGuard>
         </div>
       </body>
     </html>

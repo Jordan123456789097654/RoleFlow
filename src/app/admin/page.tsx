@@ -31,6 +31,9 @@ import {
   Unlock,
   Clock,
   Layers,
+  Wrench,
+  Bug,
+  Lightbulb,
 } from "lucide-react";
 
 interface LicenseKeyItem {
@@ -57,6 +60,7 @@ interface AdminGuild {
   vanitySlug?: string | null;
   isVerified: boolean;
   verifiedBadge?: string | null;
+  verifiedBadges?: string | null;
   isPaused?: boolean;
   memberCount: number;
   tags?: string | null;
@@ -98,12 +102,13 @@ interface BlacklistEntry {
 }
 
 export default function SiteAdminPage() {
-  const [activeTab, setActiveTab] = useState<"guilds" | "staff" | "licenses" | "changelog" | "blacklist">("guilds");
+  const [activeTab, setActiveTab] = useState<"guilds" | "staff" | "licenses" | "changelog" | "blacklist" | "feedback">("guilds");
   const [guilds, setGuilds] = useState<AdminGuild[]>([]);
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [changelogs, setChangelogs] = useState<ChangelogItem[]>([]);
   const [blacklists, setBlacklists] = useState<BlacklistEntry[]>([]);
   const [licenses, setLicenses] = useState<LicenseKeyItem[]>([]);
+  const [feedbackList, setFeedbackList] = useState<any[]>([]);
   const [licenseSearch, setLicenseSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [unauthorized, setUnauthorized] = useState(false);
@@ -113,6 +118,11 @@ export default function SiteAdminPage() {
   const [updatingUserId, setUpdatingUserId] = useState<string | null>(null);
   const [badgeInputs, setBadgeInputs] = useState<Record<string, string>>({});
   const [message, setMessage] = useState<string | null>(null);
+
+  // Maintenance Mode state
+  const [maintenanceEnabled, setMaintenanceEnabled] = useState(false);
+  const [maintenanceMsgInput, setMaintenanceMsgInput] = useState("");
+  const [updatingMaintenance, setUpdatingMaintenance] = useState(false);
 
   // New License Key generator state
   const [newKeyTier, setNewKeyTier] = useState<"PRO" | "ENTERPRISE" | "LIFETIME">("PRO");
@@ -143,7 +153,57 @@ export default function SiteAdminPage() {
     fetchLicenses();
     fetchChangelogs();
     fetchBlacklists();
+    fetchMaintenance();
+    fetchFeedback();
   }, []);
+
+  async function fetchMaintenance() {
+    try {
+      const res = await fetch("/api/admin/maintenance");
+      if (res.ok) {
+        const data = await res.json();
+        setMaintenanceEnabled(data.enabled);
+        setMaintenanceMsgInput(data.message || "");
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function fetchFeedback() {
+    try {
+      const res = await fetch("/api/feedback");
+      if (res.ok) {
+        const data = await res.json();
+        setFeedbackList(data);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  const handleToggleMaintenance = async () => {
+    setUpdatingMaintenance(true);
+    try {
+      const res = await fetch("/api/admin/maintenance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          enabled: !maintenanceEnabled,
+          message: maintenanceMsgInput,
+        }),
+      });
+      if (res.ok) {
+        setMaintenanceEnabled(!maintenanceEnabled);
+        setMessage(!maintenanceEnabled ? "Platform Maintenance Mode Activated!" : "Maintenance Mode Disabled. Public access restored.");
+        setTimeout(() => setMessage(null), 4000);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setUpdatingMaintenance(false);
+    }
+  };
 
   async function fetchGuilds() {
     try {
@@ -203,6 +263,54 @@ export default function SiteAdminPage() {
       console.error(e);
     }
   }
+
+  const handleToggleBadge = async (guildId: string, badgeName: string) => {
+    const guild = guilds.find((g) => g.id === guildId);
+    if (!guild) return;
+    const current = (guild.verifiedBadges || guild.verifiedBadge || "")
+      .split(",")
+      .map((b) => b.trim())
+      .filter(Boolean);
+    const updated = current.includes(badgeName)
+      ? current.filter((b) => b !== badgeName)
+      : [...current, badgeName];
+
+    try {
+      const res = await fetch("/api/admin/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          guildId,
+          verifiedBadges: updated,
+          isVerified: updated.length > 0,
+        }),
+      });
+      if (res.ok) {
+        setMessage(`Updated badges for ${guild.name}!`);
+        setTimeout(() => setMessage(null), 3000);
+        fetchGuilds();
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleUpdateFeedbackStatus = async (id: string, status: string, adminNotes?: string) => {
+    try {
+      const res = await fetch("/api/feedback", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status, adminNotes }),
+      });
+      if (res.ok) {
+        setMessage("Feedback status updated!");
+        setTimeout(() => setMessage(null), 3000);
+        fetchFeedback();
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const handleToggleVerify = async (guildId: string, currentStatus: boolean) => {
     setUpdatingId(guildId);
@@ -559,6 +667,58 @@ export default function SiteAdminPage() {
         )}
       </div>
 
+      {/* Platform Maintenance Mode Toggle */}
+      <div
+        className={`p-4 rounded-2xl border transition-all flex flex-col sm:flex-row items-center justify-between gap-4 ${
+          maintenanceEnabled
+            ? "bg-amber-950/30 border-amber-500/40 shadow-lg shadow-amber-500/10"
+            : "bg-black/30 border-white/10"
+        }`}
+      >
+        <div className="flex items-center gap-3">
+          <div
+            className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+              maintenanceEnabled
+                ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                : "bg-white/5 text-slate-400"
+            }`}
+          >
+            <Wrench className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-white">Platform Maintenance Mode</span>
+              <span
+                className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
+                  maintenanceEnabled
+                    ? "bg-amber-500/20 text-amber-300 border border-amber-500/30 animate-pulse"
+                    : "bg-white/5 text-slate-400"
+                }`}
+              >
+                {maintenanceEnabled ? "ACTIVE (PUBLIC ACCESS BLOCKED)" : "DISABLED (PUBLIC ACCESSIBLE)"}
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 mt-0.5">
+              When enabled, only verified Support Staff and Founders can navigate the site. All other visitors see the maintenance screen.
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleToggleMaintenance}
+          disabled={updatingMaintenance}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md shrink-0 flex items-center gap-1.5 ${
+            maintenanceEnabled
+              ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30"
+              : "bg-amber-600 hover:bg-amber-500 text-white shadow-amber-600/30"
+          }`}
+        >
+          <Wrench className="w-3.5 h-3.5" />
+          <span>{updatingMaintenance ? "Updating..." : maintenanceEnabled ? "Deactivate Maintenance" : "Activate Maintenance Mode"}</span>
+        </button>
+      </div>
+
       {/* Tabs */}
       <div className="flex flex-wrap items-center gap-2 sm:gap-3 border-b border-surface-border pb-3">
         <button
@@ -615,6 +775,17 @@ export default function SiteAdminPage() {
         >
           <Ban className="w-4 h-4" />
           <span>Global Blacklist ({blacklists.length})</span>
+        </button>
+        <button
+          onClick={() => setActiveTab("feedback")}
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+            activeTab === "feedback"
+              ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
+              : "text-slate-400 hover:text-white hover:bg-white/5"
+          }`}
+        >
+          <Bug className="w-4 h-4" />
+          <span>Feedback & Bugs ({feedbackList.length})</span>
         </button>
       </div>
 
@@ -698,18 +869,37 @@ export default function SiteAdminPage() {
                         )}
                       </td>
                       <td className="py-3 px-4">
-                        <select
-                          value={badgeInputs[g.id] || "OFFICIAL"}
-                          onChange={(e) =>
-                            setBadgeInputs({ ...badgeInputs, [g.id]: e.target.value })
-                          }
-                          className="bg-surface border border-white/10 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-purple-500"
-                        >
-                          <option value="OFFICIAL">OFFICIAL</option>
-                          <option value="PARTNER">PARTNER</option>
-                          <option value="VERIFIED">VERIFIED</option>
-                          <option value="EARLY_ACCESS">EARLY_ACCESS</option>
-                        </select>
+                        <div className="flex flex-wrap items-center gap-1 max-w-xs">
+                          {["OFFICIAL", "PARTNER", "VERIFIED", "TOP_STUDIO", "COMMUNITY_FAVORITE", "EARLY_ADOPTER"].map((b) => {
+                            const activeBadges = (g.verifiedBadges || g.verifiedBadge || "")
+                              .split(",")
+                              .map((x) => x.trim());
+                            const hasBadge = activeBadges.includes(b);
+                            return (
+                              <button
+                                key={b}
+                                type="button"
+                                onClick={() => handleToggleBadge(g.id, b)}
+                                className={`px-1.5 py-0.5 rounded text-[9px] font-mono font-bold transition-all border ${
+                                  hasBadge
+                                    ? b === "PARTNER"
+                                      ? "bg-purple-500 text-white border-purple-400"
+                                      : b === "TOP_STUDIO"
+                                      ? "bg-amber-500 text-white border-amber-400"
+                                      : b === "COMMUNITY_FAVORITE"
+                                      ? "bg-rose-500 text-white border-rose-400"
+                                      : b === "EARLY_ADOPTER"
+                                      ? "bg-cyan-500 text-white border-cyan-400"
+                                      : "bg-blue-500 text-white border-blue-400"
+                                    : "bg-white/5 text-slate-400 border-white/5 hover:border-white/20"
+                                }`}
+                                title={hasBadge ? `Remove ${b}` : `Add ${b}`}
+                              >
+                                {hasBadge ? `✓ ${b.replace("_", " ")}` : `+ ${b.replace("_", " ")}`}
+                              </button>
+                            );
+                          })}
+                        </div>
                       </td>
                       <td className="py-3 px-4 text-right">
                         <div className="flex items-center justify-end gap-2">
@@ -1443,6 +1633,143 @@ export default function SiteAdminPage() {
                             className="px-3 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-white border border-emerald-500/30 text-xs font-semibold transition-all"
                           >
                             Unban
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+      {/* TAB 5: FEEDBACK & BUG REPORTS */}
+      {activeTab === "feedback" && (
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-purple-950/20 border border-purple-500/20">
+            <div>
+              <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
+                <Bug className="w-4 h-4 text-rose-400" />
+                <span>Community Feedback & Bug Triage</span>
+              </h4>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Inspect, triage, and reply to technical bug reports and feature proposals submitted by users.
+              </p>
+            </div>
+            <Link
+              href="/feedback"
+              target="_blank"
+              className="px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold transition-all flex items-center gap-1.5 shrink-0"
+            >
+              <span>Public Feedback Portal</span>
+              <ExternalLink className="w-3 h-3" />
+            </Link>
+          </div>
+
+          <div className="glass-panel rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
+            <div className="p-4 border-b border-white/10 flex items-center justify-between">
+              <span className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider">
+                All Reports & Suggestions ({feedbackList.length})
+              </span>
+            </div>
+
+            {feedbackList.length === 0 ? (
+              <div className="p-12 text-center text-slate-400 text-xs">
+                No feedback reports logged yet.
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-white/5 text-slate-400 uppercase tracking-wider font-semibold">
+                    <tr>
+                      <th className="py-3 px-4">Type</th>
+                      <th className="py-3 px-4">Title & Details</th>
+                      <th className="py-3 px-4">Severity</th>
+                      <th className="py-3 px-4">Author</th>
+                      <th className="py-3 px-4">Status</th>
+                      <th className="py-3 px-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5 text-slate-300">
+                    {feedbackList.map((item) => (
+                      <tr key={item.id} className="hover:bg-white/[0.02] transition-colors">
+                        <td className="py-3 px-4">
+                          <span
+                            className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
+                              item.type === "BUG_REPORT"
+                                ? "bg-rose-500/20 text-rose-300 border border-rose-500/30"
+                                : "bg-purple-500/20 text-purple-300 border border-purple-500/30"
+                            }`}
+                          >
+                            {item.type === "BUG_REPORT" ? "BUG" : "PROPOSAL"}
+                          </span>
+                        </td>
+
+                        <td className="py-3 px-4 max-w-sm">
+                          <span className="font-bold text-white block">{item.title}</span>
+                          <span className="text-xs text-slate-400 line-clamp-2 mt-0.5 whitespace-pre-wrap">
+                            {item.description}
+                          </span>
+                          {item.adminNotes && (
+                            <span className="text-[10px] text-purple-400 block mt-1">
+                              Staff Note: {item.adminNotes}
+                            </span>
+                          )}
+                        </td>
+
+                        <td className="py-3 px-4">
+                          {item.severity ? (
+                            <span
+                              className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
+                                item.severity === "CRITICAL"
+                                  ? "bg-rose-600 text-white"
+                                  : item.severity === "HIGH"
+                                  ? "bg-amber-600 text-white"
+                                  : "bg-white/5 text-slate-400 border border-white/10"
+                              }`}
+                            >
+                              {item.severity}
+                            </span>
+                          ) : (
+                            <span className="text-slate-500 font-mono">—</span>
+                          )}
+                        </td>
+
+                        <td className="py-3 px-4">
+                          <span className="text-slate-300 font-medium block">
+                            {item.authorName || "Member"}
+                          </span>
+                          <span className="text-[10px] text-slate-500 font-mono">
+                            {new Date(item.createdAt).toLocaleDateString()}
+                          </span>
+                        </td>
+
+                        <td className="py-3 px-4">
+                          <select
+                            value={item.status}
+                            onChange={(e) => handleUpdateFeedbackStatus(item.id, e.target.value)}
+                            className="bg-black/50 border border-white/10 rounded-lg px-2 py-1 text-xs text-white"
+                          >
+                            <option value="OPEN">OPEN</option>
+                            <option value="UNDER_REVIEW">UNDER REVIEW</option>
+                            <option value="RESOLVED">RESOLVED</option>
+                            <option value="DISMISSED">DISMISSED</option>
+                          </select>
+                        </td>
+
+                        <td className="py-3 px-4 text-right">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const note = prompt("Enter developer note for this report:", item.adminNotes || "");
+                              if (note !== null) {
+                                handleUpdateFeedbackStatus(item.id, item.status, note);
+                              }
+                            }}
+                            className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-semibold transition-all border border-white/10"
+                          >
+                            Add Note
                           </button>
                         </td>
                       </tr>
