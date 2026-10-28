@@ -66,7 +66,7 @@ export function Footer() {
             <ul className="space-y-2 text-xs text-slate-400">
               <li>
                 <a
-                  href="https://discord.gg/ZSGBbyEnWA"
+                  href="https://discord.gg/tKPbCXbmr9"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-purple-400 hover:text-purple-300 font-medium transition-colors"

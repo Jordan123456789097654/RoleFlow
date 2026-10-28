@@ -64,7 +64,7 @@ export function MaintenanceGuard({ isStaffOrAdmin, children }: MaintenanceGuardP
               <span>Staff Login Bypass</span>
             </a>
             <a
-              href="https://discord.gg/ZSGBbyEnWA"
+              href="https://discord.gg/tKPbCXbmr9"
               target="_blank"
               rel="noopener noreferrer"
               className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 text-xs font-semibold transition-all flex items-center justify-center gap-2"

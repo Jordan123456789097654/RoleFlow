@@ -977,7 +977,7 @@ export default function SettingsPage() {
                     </div>
                   </div>
                   <a
-                    href="https://discord.gg/ZSGBbyEnWA"
+                    href="https://discord.gg/tKPbCXbmr9"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold transition-all"
