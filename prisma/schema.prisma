@@ -12,7 +12,9 @@ model User {
   username             String
   discriminator        String?
   avatar               String?
-  email                String?       // Discord verified email
+  email                String?       // Discord verified email or registered email
+  passwordHash         String?       // Hashed password for email/password authentication
+  emailNotifications   Boolean       @default(true) // User preference for receiving status emails
   robloxId             String?       // Linked Roblox User ID
   robloxUsername       String?
   robloxAvatar         String?
@@ -26,7 +28,18 @@ model User {
   supportCodeExpiresAt DateTime?     // Expiration timestamp
   applications         Application[]
   reviews              Review[]
+  resetTokens          PasswordResetToken[]
   createdAt            DateTime      @default(now())
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
 }
 
 model Guild {

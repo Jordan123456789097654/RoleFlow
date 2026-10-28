@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { BotDispatcher } from "@/lib/bot-dispatcher";
 import { dispatchCommunityWebhook } from "@/lib/webhook-dispatcher";
+import { sendApplicationStatusEmail } from "@/lib/email";
 import { getCurrentUser } from "@/lib/auth";
 
 export async function PATCH(
@@ -15,7 +16,9 @@ export async function PATCH(
     const application = await prisma.application.findUnique({
       where: { id: params.id },
       include: {
-        position: true,
+        position: {
+          include: { guild: true },
+        },
         user: true,
       },
     });
@@ -31,6 +34,23 @@ export async function PATCH(
         decisionNote: decisionNote || application.decisionNote,
       },
     });
+
+    // 1. Send transactional decision email to applicant if email is available
+    if (application.user.email && application.user.emailNotifications !== false) {
+      try {
+        await sendApplicationStatusEmail({
+          toEmail: application.user.email,
+          applicantName: application.user.username,
+          communityName: application.position.guild.name,
+          positionTitle: application.position.title,
+          status,
+          decisionNote,
+          applicationId: application.id,
+        });
+      } catch (emailErr) {
+        console.error("Status update email sending failed:", emailErr);
+      }
+    }
 
     // Dispatch bot action (auto-role if accepted, DM to applicant, interview ticket if interview)
     await BotDispatcher.handleStatusChange({

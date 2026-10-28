@@ -8,6 +8,7 @@ export interface CurrentUser {
   robloxId: string | null;
   robloxUsername: string | null;
   email: string | null;
+  emailNotifications?: boolean;
   isSiteAdmin: boolean;
   isSupportStaff: boolean;
   siteRole: string; // FOUNDER, ADMIN, MODERATOR, SUPPORT, STAFF, USER
@@ -58,6 +59,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     robloxId: user.robloxId,
     robloxUsername: user.robloxUsername,
     email: user.email,
+    emailNotifications: user.emailNotifications ?? true,
     isSiteAdmin,
     isSupportStaff,
     siteRole,

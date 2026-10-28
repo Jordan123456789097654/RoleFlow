@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { BotDispatcher } from "@/lib/bot-dispatcher";
 import { dispatchCommunityWebhook } from "@/lib/webhook-dispatcher";
+import { sendApplicationStatusEmail } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
@@ -77,8 +78,20 @@ export async function POST(request: Request) {
         },
       });
 
-      // Dispatch bot actions & webhooks asynchronously
+      // Dispatch emails, bot actions & webhooks asynchronously
       for (const app of apps) {
+        if (app.user.email && app.user.emailNotifications !== false) {
+          sendApplicationStatusEmail({
+            toEmail: app.user.email,
+            applicantName: app.user.username,
+            communityName: guild.name,
+            positionTitle: app.position.title,
+            status: newStatus,
+            decisionNote: decisionNote || `Batch ${newStatus.toLowerCase()} by ${user.username}`,
+            applicationId: app.id,
+          }).catch((e) => console.warn("Batch status email error:", e));
+        }
+
         BotDispatcher.handleStatusChange({
           applicationId: app.id,
           guildId: app.position.guildId,

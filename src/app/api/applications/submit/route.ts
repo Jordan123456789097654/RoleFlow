@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { BotDispatcher } from "@/lib/bot-dispatcher";
 import { dispatchCommunityWebhook } from "@/lib/webhook-dispatcher";
+import { sendApplicationSubmissionReceipt } from "@/lib/email";
 import { logger } from "@/lib/logger";
 
 export async function POST(request: Request) {
@@ -241,6 +242,16 @@ export async function POST(request: Request) {
     });
 
     const applicantMention = user.id.startsWith("usr_") ? `**Applicant:** ${user.username} (Web Applicant)` : `**Applicant:** ${user.username} (<@${user.id}>)`;
+
+    // Dispatch receipt confirmation email to applicant if user has email
+    if (user.email && user.emailNotifications !== false) {
+      sendApplicationSubmissionReceipt({
+        toEmail: user.email,
+        applicantName: user.username,
+        communityName: position.guild.name,
+        positionTitle: position.title,
+      }).catch((e) => console.warn("Submission receipt email failed:", e));
+    }
 
     // Also dispatch to configured community Discord webhook
     await dispatchCommunityWebhook({

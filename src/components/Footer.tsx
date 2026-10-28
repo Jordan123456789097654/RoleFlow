@@ -50,6 +50,11 @@ export function Footer() {
                   Account Settings & Support
                 </Link>
               </li>
+              <li>
+                <Link href="/auth/forgot-password" className="hover:text-purple-300 transition-colors">
+                  Reset Password (Email)
+                </Link>
+              </li>
             </ul>
           </div>
 
