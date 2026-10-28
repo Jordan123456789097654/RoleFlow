@@ -9,9 +9,9 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
           {/* Brand Info */}
           <div className="md:col-span-1 space-y-3">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-violet-600 to-purple-400 flex items-center justify-center">
-                <span className="text-white font-bold text-sm">R</span>
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg overflow-hidden bg-surface-border/40 border border-white/10 p-0.5 shadow-md">
+                <img src="/logo.png" alt="RoleFlow Logo" className="w-full h-full object-contain rounded-md" />
               </div>
               <span className="text-lg font-bold text-white">RoleFlow</span>
             </div>

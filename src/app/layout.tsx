@@ -9,6 +9,10 @@ export const metadata: Metadata = {
   title: "RoleFlow — The New Way of Managing Applications",
   description:
     "Communities post openings. People apply once. Staff review, interview, and decide in one place instead of drowning in Discord DMs.",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default async function RootLayout({
