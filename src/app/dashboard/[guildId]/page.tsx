@@ -1,5 +1,6 @@
 "use client";
 
+import OwnerExtrasPanel from "@/components/dashboard/OwnerExtrasPanel";
 import OverviewPanel from "@/components/dashboard/OverviewPanel";
 import SavedReplyPicker from "@/components/dashboard/SavedReplyPicker";
 
@@ -1802,13 +1803,13 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                             await fetch(`/api/applications/${selectedApp.id}/reviews`, {
                               method: "POST",
                               headers: { "Content-Type": "application/json" },
-                              body: JSON.stringify({ score: 5, comment: "👍 Voted to Approve candidate." }),
+                              body: JSON.stringify({ score: 5, comment: "Voted to Approve candidate." }),
                             });
                             fetchGuildData();
                           }}
                           className="flex-1 py-2 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs font-bold transition-all text-center"
                         >
-                          👍 Vote to Approve (+1)
+                          Vote to Approve (+1)
                         </button>
                         <button
                           type="button"
@@ -1816,13 +1817,13 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                             await fetch(`/api/applications/${selectedApp.id}/reviews`, {
                               method: "POST",
                               headers: { "Content-Type": "application/json" },
-                              body: JSON.stringify({ score: 1, comment: "👎 Voted to Deny candidate." }),
+                              body: JSON.stringify({ score: 1, comment: "Voted to Deny candidate." }),
                             });
                             fetchGuildData();
                           }}
                           className="flex-1 py-2 rounded-lg bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 text-xs font-bold transition-all text-center"
                         >
-                          👎 Vote to Deny (-1)
+                          Vote to Deny (-1)
                         </button>
                       </div>
                     </div>
@@ -2522,7 +2523,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                   <div className="flex items-center gap-2 mt-2 p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs">
                     <CheckCircle2 className="w-4 h-4" />
                     <span>
-                      🟢 Bot Online: <strong>{botVerifiedInfo.username}#{botVerifiedInfo.discriminator}</strong>
+                      Bot Online: <strong>{botVerifiedInfo.username}#{botVerifiedInfo.discriminator}</strong>
                     </span>
                   </div>
                 ) : (
@@ -2651,6 +2652,11 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
       )}
 
       {/* TAB 4: COMMUNITY SETTINGS, GATING & POLICIES */}
+      {activeTab === "settings" && (
+        <div className="mb-8">
+          <OwnerExtrasPanel guildId={guild.id} />
+        </div>
+      )}
       {activeTab === "settings" && (
         <div className="max-w-3xl space-y-6">
           {/* License & Subscription Tier Card (Coming Soon) */}

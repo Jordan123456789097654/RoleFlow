@@ -78,7 +78,7 @@ export async function POST(
         method: "POST",
         headers,
         body: JSON.stringify({
-          name: "📋 ROLEFLOW RECRUITMENT",
+          name: "ROLEFLOW RECRUITMENT",
           type: 4,
         }),
       });
@@ -141,7 +141,7 @@ export async function POST(
           body: JSON.stringify({
             embeds: [
               {
-                title: "⚡ RoleFlow Bot Connected & Hosted",
+                title: "RoleFlow Bot Connected & Hosted",
                 description: `Recruitment infrastructure configured for **${guild.name}**!\n\nApplications received at [roleflow.site](https://roleflow.site) will be dispatched directly to this channel.`,
                 color: 0x8b5cf6,
                 fields: [

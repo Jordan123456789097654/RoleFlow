@@ -306,7 +306,7 @@ export function Navbar({ user }: NavbarProps) {
                       </span>
                       {user.robloxUsername && (
                         <span className="text-[10px] text-slate-300 mt-0.5 flex items-center gap-1 font-mono">
-                          <span className="text-purple-400">🎮</span> @{user.robloxUsername}
+                          <span className="text-purple-400"></span> @{user.robloxUsername}
                         </span>
                       )}
                     </div>

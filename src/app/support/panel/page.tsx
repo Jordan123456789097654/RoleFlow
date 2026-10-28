@@ -198,7 +198,7 @@ export default function SupportStaffPanelPage() {
             title="Toggle Platform-Wide Maintenance Mode"
           >
             <AlertTriangle className="w-3.5 h-3.5" />
-            <span>{maintenanceEnabled ? "⚠️ Maintenance ACTIVE" : "Maintenance: OFF"}</span>
+            <span>{maintenanceEnabled ? "Maintenance ACTIVE" : "Maintenance: OFF"}</span>
           </button>
 
           <Link

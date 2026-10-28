@@ -99,7 +99,7 @@ export default function MarketplacePage() {
           {loading ? (
             <p className="text-sm text-slate-500">Loading...</p>
           ) : templates.length === 0 ? (
-            <p className="text-sm text-slate-500">Nothing shared yet. Be the first.</p>
+            <p className="text-sm text-slate-500">No templates have been shared yet.</p>
           ) : (
             templates.map((t) => (
               <div key={t.id} className={`${card} flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between`}>

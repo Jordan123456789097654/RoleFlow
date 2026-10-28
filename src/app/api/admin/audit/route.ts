@@ -21,7 +21,7 @@ export async function GET(request: Request) {
     take: 200,
   });
 
-  const actorIds = Array.from(new Set(logs.map((l) => l.actorId)));
+  const actorIds = [...new Set(logs.map((l) => l.actorId))];
   const actors = await prisma.user.findMany({ where: { id: { in: actorIds } }, select: { id: true, username: true } });
   const names = Object.fromEntries(actors.map((a) => [a.id, a.username]));
 

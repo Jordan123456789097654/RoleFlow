@@ -71,7 +71,21 @@ export async function PATCH(
       portalLayout,
       portalAccentColor,
       discordWidgetEnabled,
+      applicationsOpen,
+      showApplicantCount,
+      welcomeMessage,
+      websiteUrl,
+      discordInviteUrl,
     } = body;
+
+    for (const [label, value] of [["Website", websiteUrl], ["Discord invite", discordInviteUrl]] as const) {
+      if (value && !/^https:\/\/[^\s]+$/.test(String(value).trim())) {
+        return NextResponse.json({ error: `${label} must be a full https:// link.` }, { status: 400 });
+      }
+    }
+    if (welcomeMessage && String(welcomeMessage).length > 500) {
+      return NextResponse.json({ error: "The welcome message must be 500 characters or fewer." }, { status: 400 });
+    }
 
     // Check slug uniqueness if changed
     if (vanitySlug && vanitySlug !== guild.vanitySlug) {
@@ -115,6 +129,11 @@ export async function PATCH(
         ...(["banner", "minimal", "cards"].includes(portalLayout) ? { portalLayout } : {}),
         ...(portalAccentColor !== undefined ? { portalAccentColor: portalAccentColor?.trim() || "#8B5CF6" } : {}),
         ...(typeof discordWidgetEnabled === "boolean" ? { discordWidgetEnabled } : {}),
+        ...(typeof applicationsOpen === "boolean" ? { applicationsOpen } : {}),
+        ...(typeof showApplicantCount === "boolean" ? { showApplicantCount } : {}),
+        ...(welcomeMessage !== undefined ? { welcomeMessage: String(welcomeMessage || "").trim() || null } : {}),
+        ...(websiteUrl !== undefined ? { websiteUrl: String(websiteUrl || "").trim() || null } : {}),
+        ...(discordInviteUrl !== undefined ? { discordInviteUrl: String(discordInviteUrl || "").trim() || null } : {}),
       },
     });
 

@@ -106,7 +106,7 @@ export async function POST(request: Request) {
       await dispatchCommunityWebhook({
         guildId,
         event: "STATUS_UPDATE",
-        title: `📥 Batch Application Action: ${apps.length} ${newStatus}`,
+        title: `Batch Application Action: ${apps.length} ${newStatus}`,
         description: `**Reviewer:** ${user.username}\n**Affected Applicants:** ${apps.map((a) => a.user.username).join(", ")}`,
       });
 

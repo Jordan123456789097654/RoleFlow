@@ -64,7 +64,7 @@ export class BotDispatcher {
       if (params.robloxUsername) {
         fields.unshift({
           name: "Roblox Identity",
-          value: `👤 [${params.robloxUsername}](https://www.roblox.com/search/users?keyword=${params.robloxUsername})`,
+          value: `[${params.robloxUsername}](https://www.roblox.com/search/users?keyword=${params.robloxUsername})`,
           inline: true,
         });
       }
@@ -79,13 +79,13 @@ export class BotDispatcher {
       }
 
       const embed = {
-        title: `📥 New Application: ${params.positionTitle}`,
+        title: `New Application: ${params.positionTitle}`,
         description: `**Applicant:** <@${params.applicantDiscordId}> (\`${params.applicantUsername}\`)\n**Community:** ${guild.name}\n**Status:** ⏳ Pending Staff Review`,
         color: colorInt,
         thumbnail: params.applicantAvatar ? { url: params.applicantAvatar } : undefined,
         fields,
         footer: {
-          text: `${guild.name} • Powered by RoleFlow`,
+          text: `${guild.name} • RoleFlow`,
         },
         timestamp: new Date().toISOString(),
       };
@@ -106,7 +106,7 @@ export class BotDispatcher {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          content: guild.staffPingRoleId ? `🔔 <@&${guild.staffPingRoleId}> New candidate submission!` : undefined,
+          content: guild.staffPingRoleId ? `<@&${guild.staffPingRoleId}> New candidate submission!` : undefined,
           embeds: [embed],
           components,
         }),
@@ -193,7 +193,7 @@ export class BotDispatcher {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                content: `👋 Welcome <@${params.applicantDiscordId}>! Your application for **${params.positionTitle}** has advanced to the **Interview** stage.\nStaff will be with you shortly.`,
+                content: `Welcome <@${params.applicantDiscordId}>! Your application for **${params.positionTitle}** has advanced to the **Interview** stage.\nStaff will be with you shortly.`,
               }),
             });
           }
@@ -223,9 +223,9 @@ export class BotDispatcher {
           };
 
           const statusTitles: Record<string, string> = {
-            ACCEPTED: "🎉 Application Accepted!",
+            ACCEPTED: "Application Accepted!",
             REJECTED: "Update on your application",
-            INTERVIEW: "📅 Interview Invitation",
+            INTERVIEW: "Interview Invitation",
             UNDER_REVIEW: "👀 Application is Under Review",
           };
 
@@ -236,7 +236,7 @@ export class BotDispatcher {
             fields: params.decisionNote
               ? [{ name: "Note from Staff", value: params.decisionNote }]
               : [],
-            footer: { text: `${guild.name} • Powered by RoleFlow` },
+            footer: { text: `${guild.name} • RoleFlow` },
             timestamp: new Date().toISOString(),
           };
 

@@ -82,6 +82,11 @@ model Guild {
   interviewCatId             String?          // Category for interview threads/channels
 
   // Portal Customization & Themes
+  applicationsOpen   Boolean @default(true)
+  showApplicantCount Boolean @default(true)
+  welcomeMessage     String?
+  websiteUrl         String?
+  discordInviteUrl   String?
   portalLayout String @default("banner") // banner | minimal | cards
   portalTheme                String?          @default("obsidian") // obsidian, cyberpunk, emerald, royal, crimson
   portalAccentColor          String?          @default("#8B5CF6")

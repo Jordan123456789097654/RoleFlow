@@ -62,17 +62,17 @@ export default function OverviewPanel({ guildId, onOpenApplications }: { guildId
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <div className={card}>
+      <div className="grid grid-cols-1 divide-y divide-white/10 rounded-2xl border border-white/10 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+        <div className="p-5">
           <div className="text-xs text-slate-400">Waiting for review</div>
           <div className="mt-1 text-2xl font-bold text-white">{waiting.length}</div>
         </div>
-        <div className={card}>
+        <div className="p-5">
           <div className="text-xs text-slate-400">New since your last visit</div>
           <div className="mt-1 text-2xl font-bold text-white">{newSince ?? 0}</div>
           <div className="text-[11px] text-slate-500">{lastVisit ? `Last visit ${new Date(lastVisit).toLocaleString()}` : "First visit"}</div>
         </div>
-        <div className={card}>
+        <div className="p-5">
           <div className="text-xs text-slate-400">Open positions</div>
           <div className="mt-1 text-2xl font-bold text-white">{openPositions.length}</div>
         </div>
@@ -85,7 +85,7 @@ export default function OverviewPanel({ guildId, onOpenApplications }: { guildId
             <button onClick={onOpenApplications} className="text-xs text-purple-400 hover:text-purple-300">View all</button>
           </div>
           {waiting.length === 0 ? (
-            <p className="text-xs text-slate-500">Nothing waiting. Nice work.</p>
+            <p className="text-xs text-slate-500">No applications are waiting for review.</p>
           ) : (
             <ul className="divide-y divide-white/5">
               {waiting.map((a) => (

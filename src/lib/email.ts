@@ -259,14 +259,14 @@ export async function sendApplicationStatusEmail({
   let messageBody = "";
 
   if (status === "ACCEPTED") {
-    headline = "🎉 Application Accepted!";
+    headline = "Application Accepted!";
     statusBadge = `<span class="status-pill status-accepted">✓ Accepted</span>`;
     messageBody = `
       <p>Congratulations <strong>${applicantName}</strong>! The staff team at <strong>${communityName}</strong> has officially <strong>accepted</strong> your application for <strong>${positionTitle}</strong>.</p>
       <p>Please check the candidate portal for onboarding details, instructions, or role synchronization.</p>
     `;
   } else if (status === "INTERVIEW") {
-    headline = "🎙️ You've Been Selected for an Interview!";
+    headline = "You've Been Selected for an Interview!";
     statusBadge = `<span class="status-pill status-interview">✦ Interview Stage</span>`;
     messageBody = `
       <p>Great news <strong>${applicantName}</strong>! Your application for <strong>${positionTitle}</strong> at <strong>${communityName}</strong> has passed the initial screening, and staff would like to interview you.</p>
@@ -353,7 +353,7 @@ export async function sendApplicationSubmissionReceipt({
   const appUrl = `${APP_URL}/my-applications`;
 
   const contentHtml = `
-    <h1>Application Received! 📥</h1>
+    <h1>Application Received! </h1>
     <p>Hi <strong>${applicantName}</strong>,</p>
     <p>Your application for <strong>${positionTitle}</strong> has been successfully submitted to <strong>${communityName}</strong>.</p>
     

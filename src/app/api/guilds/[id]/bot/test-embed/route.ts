@@ -41,7 +41,7 @@ export async function POST(
     }
 
     const embed = {
-      title: "🧪 RoleFlow Test Alert",
+      title: "RoleFlow Test Alert",
       description: `Test embed dispatched successfully from **${guild.name}** dashboard!\n\nBot hosting and embed dispatching are online and functioning.`,
       color: colorInt,
       fields: [

@@ -30,7 +30,8 @@ export async function changeApplicationStatus(args: {
     data: { status: args.status, decisionNote: args.decisionNote || application.decisionNote },
   });
 
-  if (application.user.email && application.user.emailNotifications !== false) {
+  // Decision emails only cover ACCEPTED, REJECTED, INTERVIEW and UNDER_REVIEW. PENDING sends nothing.
+  if (args.status !== "PENDING" && application.user.email && application.user.emailNotifications !== false) {
     try {
       await sendApplicationStatusEmail({
         toEmail: application.user.email,
@@ -59,7 +60,7 @@ export async function changeApplicationStatus(args: {
   await dispatchCommunityWebhook({
     guildId: application.position.guildId,
     event: "STATUS_UPDATE",
-    title: `⚖️ Application ${args.status}: ${application.position.title}`,
+    title: `Application ${args.status}: ${application.position.title}`,
     description: `**Applicant:** ${application.user.username} (<@${application.userId}>)\n**Status:** \`${args.status}\`\n**Reviewed By:** ${args.actorName}${args.decisionNote ? `\n**Note:** ${args.decisionNote}` : ""}`,
   });
 

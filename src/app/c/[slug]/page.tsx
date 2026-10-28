@@ -63,8 +63,6 @@ export default async function CommunityPortalPage({ params }: CommunityPortalPro
     },
   };
   const currentTheme = themePresets[guild.portalTheme || "obsidian"] || themePresets.obsidian;
-  const accent = (guild as any).accentColor || "#8b5cf6";
-  const layout = (guild as any).portalLayout || "list";
 
   const badges = guild.verifiedBadges
     ? guild.verifiedBadges.split(",").map((b) => b.trim()).filter(Boolean)
@@ -148,6 +146,18 @@ export default async function CommunityPortalPage({ params }: CommunityPortalPro
             </p>
           )}
 
+          {(guild.welcomeMessage || guild.websiteUrl || guild.discordInviteUrl) && (
+            <div className="mt-4 space-y-3">
+              {guild.welcomeMessage && (
+                <p className="text-sm text-slate-200 whitespace-pre-wrap rounded-xl border border-white/10 bg-black/20 p-4">{guild.welcomeMessage}</p>
+              )}
+              <div className="flex flex-wrap gap-3 text-xs">
+                {guild.websiteUrl && <a href={guild.websiteUrl} target="_blank" rel="noopener noreferrer nofollow" className="text-purple-300 hover:text-white">Website</a>}
+                {guild.discordInviteUrl && <a href={guild.discordInviteUrl} target="_blank" rel="noopener noreferrer nofollow" className="text-purple-300 hover:text-white">Join our Discord</a>}
+              </div>
+            </div>
+          )}
+
           {/* Tags */}
           {tags.length > 0 && (
             <div className="flex items-center gap-2 mt-4 flex-wrap">
@@ -200,7 +210,7 @@ export default async function CommunityPortalPage({ params }: CommunityPortalPro
 
                 <div className="flex items-center gap-4 shrink-0">
                   <span className="text-xs text-slate-500 hidden sm:block">
-                    {pos._count.applications} submitted
+                    {guild.showApplicantCount && `${pos._count.applications} submitted`}
                   </span>
 
                   <Link

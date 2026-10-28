@@ -44,6 +44,9 @@ export async function POST(request: Request) {
     }
 
     // Check if community is paused by founder or owner
+    if (!position.guild.applicationsOpen) {
+      return NextResponse.json({ error: "This community is not accepting applications right now." }, { status: 403 });
+    }
     if (position.guild.isPaused) {
       return NextResponse.json(
         { error: "This community is currently paused by administrators and not accepting submissions." },
@@ -257,7 +260,7 @@ export async function POST(request: Request) {
     await dispatchCommunityWebhook({
       guildId: position.guildId,
       event: "SUBMISSION",
-      title: `📥 New Application: ${position.title}`,
+      title: `New Application: ${position.title}`,
       description: `**Applicant:** ${user.username} (<@${user.id}>)\n**Roblox:** ${robloxUsername || user.robloxUsername || "Unlinked"}\n[Review on RoleFlow Dashboard](https://roleflow.site/dashboard/${position.guildId})`,
       fields: summaryAnswers.slice(0, 3).map((a) => ({
         name: a.label.slice(0, 250),

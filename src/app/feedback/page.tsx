@@ -374,7 +374,7 @@ export default function FeedbackPage() {
                 onClick={() => setActiveTab("submit")}
                 className="text-purple-400 hover:underline font-bold"
               >
-                Be the first to submit feedback →
+                No feedback yet. Submit the first report.
               </button>
             </div>
           ) : (
