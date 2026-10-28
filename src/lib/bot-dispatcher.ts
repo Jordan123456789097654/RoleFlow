@@ -91,9 +91,7 @@ export class BotDispatcher {
       };
 
       const linkButton = { type: 2, style: 5, label: "Review on RoleFlow", url: webReviewUrl };
-      const quickButtons = guild.useCustomBot
-        ? []
-        : [
+      const quickButtons = [
             { type: 2, style: 3, label: "Quick Accept", custom_id: `rf:accept:${params.applicationId}` },
             { type: 2, style: 4, label: "Quick Reject", custom_id: `rf:reject:${params.applicationId}` },
           ];

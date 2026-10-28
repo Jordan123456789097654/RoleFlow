@@ -76,7 +76,16 @@ export async function PATCH(
       welcomeMessage,
       websiteUrl,
       discordInviteUrl,
+      customBotAppId,
+      customBotPublicKey,
     } = body;
+
+    if (customBotAppId && !/^\d{17,20}$/.test(String(customBotAppId).trim())) {
+      return NextResponse.json({ error: "The bot application ID must be a Discord ID (17-20 digits)." }, { status: 400 });
+    }
+    if (customBotPublicKey && !/^[0-9a-fA-F]{64}$/.test(String(customBotPublicKey).trim())) {
+      return NextResponse.json({ error: "The bot public key must be 64 hex characters." }, { status: 400 });
+    }
 
     for (const [label, value] of [["Website", websiteUrl], ["Discord invite", discordInviteUrl]] as const) {
       if (value && !/^https:\/\/[^\s]+$/.test(String(value).trim())) {
@@ -134,6 +143,8 @@ export async function PATCH(
         ...(welcomeMessage !== undefined ? { welcomeMessage: String(welcomeMessage || "").trim() || null } : {}),
         ...(websiteUrl !== undefined ? { websiteUrl: String(websiteUrl || "").trim() || null } : {}),
         ...(discordInviteUrl !== undefined ? { discordInviteUrl: String(discordInviteUrl || "").trim() || null } : {}),
+        ...(customBotAppId !== undefined ? { customBotAppId: String(customBotAppId || "").trim() || null } : {}),
+        ...(customBotPublicKey !== undefined ? { customBotPublicKey: String(customBotPublicKey || "").trim() || null } : {}),
       },
     });
 

@@ -15,7 +15,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { guildId, applicationIds, action, decisionNote, tag } = await request.json();
+    const { guildId, applicationIds, action, decisionNote, tag, reviewerId, reviewDueAt, needsSecondOpinion } = await request.json();
 
     if (!guildId || !Array.isArray(applicationIds) || applicationIds.length === 0) {
       return NextResponse.json({ error: "guildId and non-empty applicationIds array required" }, { status: 400 });
@@ -116,6 +116,21 @@ export async function POST(request: Request) {
         processedCount: apps.length,
         count: apps.length,
       });
+    }
+
+    if (action === "ASSIGN") {
+      if (reviewerId && guild.ownerId !== reviewerId && !guild.staffTeam.some((s) => s.userId === reviewerId)) {
+        return NextResponse.json({ error: "Reviewers must be the owner or a member of the staff team." }, { status: 400 });
+      }
+      const result = await prisma.application.updateMany({
+        where: { id: { in: applicationIds.map(String) }, position: { guildId } },
+        data: {
+          assignedReviewerId: reviewerId || null,
+          reviewDueAt: reviewDueAt ? new Date(reviewDueAt) : null,
+          ...(typeof needsSecondOpinion === "boolean" ? { needsSecondOpinion } : {}),
+        },
+      });
+      return NextResponse.json({ success: true, updated: result.count });
     }
 
     if (action === "TAG" && tag) {

@@ -10,12 +10,11 @@ export const dynamic = "force-dynamic";
 const SPKI_PREFIX = Buffer.from("302a300506032b6570032100", "hex");
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://roleflow.site";
 
-function validSignature(body: string, signature: string | null, timestamp: string | null): boolean {
-  const pub = process.env.DISCORD_PUBLIC_KEY;
-  if (!pub || !signature || !timestamp) return false;
+function validSignature(body: string, publicKeyHex: string | null, signature: string | null, timestamp: string | null): boolean {
+  if (!publicKeyHex || !signature || !timestamp) return false;
   try {
     const key = createPublicKey({
-      key: Buffer.concat([SPKI_PREFIX, Buffer.from(pub, "hex")]),
+      key: Buffer.concat([SPKI_PREFIX, Buffer.from(publicKeyHex, "hex")]),
       format: "der",
       type: "spki",
     });
@@ -25,17 +24,36 @@ function validSignature(body: string, signature: string | null, timestamp: strin
   }
 }
 
+/** The official bot uses the platform key. A community bot uses the key its owner saved for that application. */
+async function publicKeyFor(applicationId: string | undefined): Promise<string | null> {
+  if (!applicationId) return null;
+  if (applicationId === process.env.DISCORD_CLIENT_ID) return process.env.DISCORD_PUBLIC_KEY || null;
+  const guild = await prisma.guild.findFirst({
+    where: { customBotAppId: applicationId },
+    select: { customBotPublicKey: true },
+  });
+  return guild?.customBotPublicKey ?? null;
+}
+
 const ephemeral = (content: string) => NextResponse.json({ type: 4, data: { content, flags: 64 } });
 
 /** Discord Interactions endpoint: slash commands and the Quick Accept / Quick Reject buttons. */
 export async function POST(request: Request) {
   const raw = await request.text();
-  if (!validSignature(raw, request.headers.get("x-signature-ed25519"), request.headers.get("x-signature-timestamp"))) {
-    await logEvent("WARN", "interactions", "Rejected request with invalid signature");
+  let parsed: any;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return new NextResponse("invalid body", { status: 400 });
+  }
+
+  const key = await publicKeyFor(parsed.application_id);
+  if (!validSignature(raw, key, request.headers.get("x-signature-ed25519"), request.headers.get("x-signature-timestamp"))) {
+    await logEvent("WARN", "interactions", `Rejected request with invalid signature (application ${parsed.application_id ?? "unknown"})`);
     return new NextResponse("invalid request signature", { status: 401 });
   }
 
-  const i = JSON.parse(raw);
+  const i = parsed;
   if (i.type === 1) {
     await logEvent("INFO", "interactions", "Heartbeat: Discord PING verified");
     return NextResponse.json({ type: 1 });
@@ -61,10 +79,7 @@ export async function POST(request: Request) {
 
     if (name === "openings") {
       if (!guildId) return ephemeral("Run this command inside a server.");
-      const positions = await prisma.position.findMany({
-        where: { guildId, isOpen: true },
-        select: { title: true },
-      });
+      const positions = await prisma.position.findMany({ where: { guildId, isOpen: true }, select: { title: true } });
       if (positions.length === 0) return ephemeral("No open positions right now.");
       return ephemeral(positions.map((p) => `• **${p.title}**`).join("\n"));
     }

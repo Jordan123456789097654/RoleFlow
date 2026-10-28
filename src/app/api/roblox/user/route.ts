@@ -1,6 +1,10 @@
+import { isFeatureEnabled } from "@/lib/feature-flags";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
+  if (!(await isFeatureEnabled("roblox_linking"))) {
+    return NextResponse.json({ error: "Roblox linking is currently unavailable." }, { status: 404 });
+  }
   const { searchParams } = new URL(request.url);
   const username = searchParams.get("username");
 

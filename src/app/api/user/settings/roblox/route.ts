@@ -1,3 +1,4 @@
+import { isFeatureEnabled } from "@/lib/feature-flags";
 import { verifySessionValue } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
@@ -6,6 +7,9 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
+  if (!(await isFeatureEnabled("roblox_linking"))) {
+    return NextResponse.json({ error: "Roblox linking is currently unavailable." }, { status: 404 });
+  }
   try {
     const cookieStore = cookies();
     const userId = await verifySessionValue(cookieStore.get("roleflow_user_id")?.value);

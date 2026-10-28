@@ -83,6 +83,8 @@ model Guild {
 
   // Portal Customization & Themes
   applicationsOpen   Boolean @default(true)
+  customBotAppId     String?  // Discord application ID of the community's own bot
+  customBotPublicKey String?  // Discord public key of that bot, for interaction signatures
   showApplicantCount Boolean @default(true)
   welcomeMessage     String?
   websiteUrl         String?
@@ -160,6 +162,9 @@ model Application {
   decisionNote       String?
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
+  assignedReviewerId String?   // Discord ID of the staff member reviewing this application
+  reviewDueAt        DateTime?
+  needsSecondOpinion Boolean     @default(false)
 }
 
 model ApplicationMessage {

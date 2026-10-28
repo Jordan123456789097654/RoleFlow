@@ -1,5 +1,6 @@
 "use client";
 
+import { AssignmentPanel, BulkAssignControl } from "@/components/dashboard/ReviewAssignment";
 import OwnerExtrasPanel from "@/components/dashboard/OwnerExtrasPanel";
 import OverviewPanel from "@/components/dashboard/OverviewPanel";
 import SavedReplyPicker from "@/components/dashboard/SavedReplyPicker";
@@ -1663,6 +1664,19 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                     </div>
                   </div>
 
+                  <AssignmentPanel
+                    key={selectedApp.id}
+                    applicationId={selectedApp.id}
+                    staff={[
+                      ...((guild as any)?.ownerId ? [{ userId: (guild as any).ownerId, username: "Owner" }] : []),
+                      ...staffList.map((s: any) => ({ userId: s.userId, username: s.username || s.userId })),
+                    ]}
+                    initial={{
+                      assignedReviewerId: selectedApp.assignedReviewerId ?? null,
+                      reviewDueAt: selectedApp.reviewDueAt ?? null,
+                      needsSecondOpinion: !!selectedApp.needsSecondOpinion,
+                    }}
+                  />
                   {/* Applicant Tags & Department Badging */}
                   <div className="p-4 rounded-xl bg-surface border border-white/5 space-y-2.5">
                     <div className="flex items-center justify-between">
@@ -1965,6 +1979,15 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
       )}
 
       {/* TAB 2: VISUAL FORM BUILDER */}
+          {activeTab === "applications" && (
+            <BulkAssignControl
+              applicationIds={selectedAppIds}
+              staff={[
+                ...((guild as any)?.ownerId ? [{ userId: (guild as any).ownerId, username: "Owner" }] : []),
+                ...staffList.map((s: any) => ({ userId: s.userId, username: s.username || s.userId })),
+              ]}
+            />
+          )}
           {activeTab === "overview" && (
             <OverviewPanel guildId={guild.id} onOpenApplications={() => setActiveTab("applications")} />
           )}

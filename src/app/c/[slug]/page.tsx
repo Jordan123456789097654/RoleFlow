@@ -209,6 +209,7 @@ export default async function CommunityPortalPage({ params }: CommunityPortalPro
                 </div>
 
                 <div className="flex items-center gap-4 shrink-0">
+                  <ReportButton targetType="POSITION" targetId={pos.id} />
                   <span className="text-xs text-slate-500 hidden sm:block">
                     {guild.showApplicantCount && `${pos._count.applications} submitted`}
                   </span>
