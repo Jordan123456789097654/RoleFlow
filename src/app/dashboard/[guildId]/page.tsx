@@ -33,6 +33,7 @@ import {
   Send,
   RefreshCw,
   Settings,
+  AlertTriangle,
   ChevronUp,
   ChevronDown,
 } from "lucide-react";
@@ -62,6 +63,9 @@ interface GuildData {
   robloxMinRank?: number;
   enableBlindVoting: boolean;
   votePassThreshold?: number;
+  plan?: string;
+  licenseKey?: string | null;
+  licenseExpiresAt?: string | null;
   positions: Array<{
     id: string;
     title: string;
@@ -182,6 +186,11 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
   const [testingEmbed, setTestingEmbed] = useState(false);
   const [botFeedbackMsg, setBotFeedbackMsg] = useState<{ text: string; error?: boolean } | null>(null);
 
+  // License Key Redemption states
+  const [guildLicenseInput, setGuildLicenseInput] = useState("");
+  const [redeemingGuildLicense, setRedeemingGuildLicense] = useState(false);
+  const [guildLicenseMsg, setGuildLicenseMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
   useEffect(() => {
     fetchGuildData();
   }, [params.guildId]);
@@ -235,6 +244,45 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
       setLoading(false);
     }
   }
+
+  const handleRedeemGuildLicense = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!guildLicenseInput.trim() || !guild) return;
+    setRedeemingGuildLicense(true);
+    setGuildLicenseMsg(null);
+    try {
+      const res = await fetch("/api/licenses/redeem", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          key: guildLicenseInput.trim(),
+          guildId: guild.id,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setGuildLicenseMsg({
+          type: "success",
+          text: data.message || `Upgraded to RoleFlow ${data.plan}!`,
+        });
+        setGuildLicenseInput("");
+        fetchGuildData();
+      } else {
+        setGuildLicenseMsg({
+          type: "error",
+          text: data.error || "Failed to redeem license key.",
+        });
+      }
+    } catch (err: any) {
+      setGuildLicenseMsg({
+        type: "error",
+        text: err.message || "An unexpected error occurred during redemption.",
+      });
+    } finally {
+      setRedeemingGuildLicense(false);
+    }
+  };
 
   const handleStatusChange = async (appId: string, newStatus: string) => {
     try {
@@ -1650,6 +1698,83 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
       {/* TAB 4: COMMUNITY SETTINGS, GATING & POLICIES */}
       {activeTab === "settings" && (
         <div className="max-w-3xl space-y-6">
+          {/* License & Subscription Tier Card */}
+          <div className="glass-panel rounded-2xl border border-purple-500/30 bg-purple-950/15 p-6 sm:p-8 space-y-4 shadow-xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400">
+                  <Key className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-white">Community Subscription Tier</h3>
+                    <span
+                      className={`px-2.5 py-0.5 rounded text-[10px] font-mono font-bold ${
+                        guild.plan === "LIFETIME"
+                          ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30"
+                          : guild.plan === "ENTERPRISE"
+                          ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                          : guild.plan === "PRO"
+                          ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
+                          : "bg-white/5 text-slate-400 border border-white/10"
+                      }`}
+                    >
+                      {guild.plan || "FREE"} TIER
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    {guild.licenseExpiresAt
+                      ? `Active subscription until ${new Date(guild.licenseExpiresAt).toLocaleDateString()}`
+                      : guild.plan && guild.plan !== "FREE"
+                      ? "Perpetual lifetime license active on this community"
+                      : "Upgrade with a RoleFlow License Key to unlock custom bots and unbranded portals."}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <form onSubmit={handleRedeemGuildLicense} className="pt-2 space-y-2">
+              <label className="block text-xs font-semibold text-slate-300">
+                Redeem Community License Key
+              </label>
+              <div className="flex flex-col sm:flex-row gap-2.5">
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. RF-PRO-9A8B-7C6D-E5F4"
+                  value={guildLicenseInput}
+                  onChange={(e) => setGuildLicenseInput(e.target.value.toUpperCase())}
+                  className="flex-1 px-3.5 py-2 rounded-xl bg-black/50 border border-white/10 text-xs text-white placeholder-slate-500 font-mono tracking-wider focus:outline-none focus:border-purple-500"
+                />
+                <button
+                  type="submit"
+                  disabled={redeemingGuildLicense || !guildLicenseInput.trim()}
+                  className="px-5 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-md shadow-violet-600/30 flex items-center justify-center gap-1.5 shrink-0"
+                >
+                  <Key className="w-3.5 h-3.5" />
+                  <span>{redeemingGuildLicense ? "Activating..." : "Redeem License"}</span>
+                </button>
+              </div>
+
+              {guildLicenseMsg && (
+                <div
+                  className={`p-3 rounded-xl text-xs flex items-center gap-2 mt-2 ${
+                    guildLicenseMsg.type === "success"
+                      ? "bg-emerald-500/15 border border-emerald-500/30 text-emerald-300"
+                      : "bg-rose-500/15 border border-rose-500/30 text-rose-300"
+                  }`}
+                >
+                  {guildLicenseMsg.type === "success" ? (
+                    <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+                  ) : (
+                    <AlertTriangle className="w-4 h-4 shrink-0 text-rose-400" />
+                  )}
+                  <span>{guildLicenseMsg.text}</span>
+                </div>
+              )}
+            </form>
+          </div>
+
           {/* General Community Info */}
           <div className="glass-panel rounded-2xl border border-white/10 p-6 sm:p-8 space-y-5">
             <div>

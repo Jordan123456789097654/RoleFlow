@@ -33,6 +33,12 @@ export async function GET() {
     const isSupportCodeActive =
       user.supportCode && user.supportCodeExpiresAt && user.supportCodeExpiresAt > now;
 
+    // Fetch communities owned by user for license allocation
+    const ownedGuilds = await prisma.guild.findMany({
+      where: { ownerId: user.id },
+      select: { id: true, name: true, plan: true },
+    });
+
     return NextResponse.json({
       id: user.id,
       username: user.username,
@@ -40,9 +46,11 @@ export async function GET() {
       email: user.email,
       robloxUsername: user.robloxUsername,
       robloxAvatar: user.robloxAvatar,
+      plan: user.plan || "FREE",
       isSiteAdmin: user.isSiteAdmin || user.id === "1046538179399929957",
       isSupportStaff: user.isSupportStaff || user.isSiteAdmin || user.id === "1046538179399929957",
       applicationsCount: user._count.applications,
+      ownedGuilds,
       createdAt: user.createdAt,
       supportMode: {
         isActive: !!isSupportCodeActive,

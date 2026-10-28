@@ -40,9 +40,11 @@ interface UserProfile {
   email: string | null;
   robloxUsername: string | null;
   robloxAvatar: string | null;
+  plan?: string;
   isSiteAdmin: boolean;
   isSupportStaff?: boolean;
   applicationsCount: number;
+  ownedGuilds?: { id: string; name: string; plan: string }[];
   createdAt: string;
   supportMode: {
     isActive: boolean;
@@ -89,6 +91,8 @@ export default function SettingsPage() {
 
   // Activation key state
   const [activationKeyInput, setActivationKeyInput] = useState("");
+  const [redeemGuildId, setRedeemGuildId] = useState<string>("");
+  const [redeemingKey, setRedeemingKey] = useState(false);
   const [activationMsg, setActivationMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   // AI Controls state
@@ -202,13 +206,42 @@ export default function SettingsPage() {
     }
   };
 
-  const handleRedeemKey = (e: React.FormEvent) => {
+  const handleRedeemKey = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!activationKeyInput.trim()) return;
-    if (activationKeyInput.trim().toUpperCase().startsWith("RF-PRO-") || activationKeyInput.trim().toUpperCase().startsWith("FOUNDER")) {
-      setActivationMsg({ type: "success", text: "Key activated! Community Pro features unlocked." });
-    } else {
-      setActivationMsg({ type: "error", text: "Invalid or already redeemed activation key." });
+    setRedeemingKey(true);
+    setActivationMsg(null);
+    try {
+      const res = await fetch("/api/licenses/redeem", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          key: activationKeyInput.trim(),
+          guildId: redeemGuildId || undefined,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setActivationMsg({
+          type: "success",
+          text: data.message || `License successfully activated! Plan upgraded to ${data.plan}.`,
+        });
+        setActivationKeyInput("");
+        fetchProfile();
+      } else {
+        setActivationMsg({
+          type: "error",
+          text: data.error || "Failed to redeem license key.",
+        });
+      }
+    } catch (err: any) {
+      setActivationMsg({
+        type: "error",
+        text: err.message || "An unexpected error occurred during redemption.",
+      });
+    } finally {
+      setRedeemingKey(false);
     }
   };
 
@@ -731,45 +764,79 @@ export default function SettingsPage() {
 
                 <div className="p-6 rounded-2xl bg-purple-950/20 border border-purple-500/30 space-y-3">
                   <div className="flex items-center gap-3">
-                    <Sparkles className="w-5 h-5 text-amber-400" />
+                    <Sparkles className="w-5 h-5 text-amber-400 shrink-0" />
                     <div>
-                      <h4 className="text-sm font-bold text-white">Active Plan: RoleFlow Founder Tier</h4>
+                      <h4 className="text-sm font-bold text-white">
+                        Active Plan: RoleFlow {profile.isSiteAdmin ? "Founder Tier" : profile.plan ? `${profile.plan} Tier` : "Free Tier"}
+                      </h4>
                       <p className="text-xs text-slate-400 mt-0.5">
-                        Lifetime unrestricted access to custom domains, vanity URLs, and automated screening.
+                        {profile.isSiteAdmin
+                          ? "Lifetime unrestricted founder authority across all communities, vanity URLs, and diagnostic consoles."
+                          : "Enter a RoleFlow License Key issued by platform administrators to upgrade your community or account."}
                       </p>
                     </div>
                   </div>
                 </div>
 
                 <form onSubmit={handleRedeemKey} className="space-y-4">
-                  <label className="block text-xs font-semibold text-slate-300">
-                    Redeem License Key
-                  </label>
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <input
-                      type="text"
-                      placeholder="e.g. RF-PRO-XXXX-XXXX-XXXX"
-                      value={activationKeyInput}
-                      onChange={(e) => setActivationKeyInput(e.target.value)}
-                      className="flex-1 px-4 py-2.5 rounded-xl bg-black/50 border border-surface-border text-xs text-white placeholder-slate-500 font-mono tracking-wider focus:outline-none focus:border-purple-500"
-                    />
-                    <button
-                      type="submit"
-                      className="px-6 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-xs font-bold text-white transition-all shadow-md shadow-violet-600/30"
-                    >
-                      Redeem Key
-                    </button>
+                  {profile.ownedGuilds && profile.ownedGuilds.length > 0 && (
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-300 mb-1">
+                        Select Target Entity for License
+                      </label>
+                      <select
+                        value={redeemGuildId}
+                        onChange={(e) => setRedeemGuildId(e.target.value)}
+                        className="w-full px-4 py-2.5 rounded-xl bg-black/50 border border-surface-border text-xs text-white focus:outline-none focus:border-purple-500"
+                      >
+                        <option value="">Personal User Account ({profile.username})</option>
+                        {profile.ownedGuilds.map((g) => (
+                          <option key={g.id} value={g.id}>
+                            Community: {g.name} (Current: {g.plan || "FREE"})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1">
+                      Enter License Key
+                    </label>
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. RF-PRO-XXXX-XXXX-XXXX"
+                        value={activationKeyInput}
+                        onChange={(e) => setActivationKeyInput(e.target.value.toUpperCase())}
+                        className="flex-1 px-4 py-2.5 rounded-xl bg-black/50 border border-surface-border text-xs text-white placeholder-slate-500 font-mono tracking-wider focus:outline-none focus:border-purple-500"
+                      />
+                      <button
+                        type="submit"
+                        disabled={redeemingKey || !activationKeyInput.trim()}
+                        className="px-6 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-xs font-bold text-white transition-all shadow-md shadow-violet-600/30 flex items-center justify-center gap-2 shrink-0"
+                      >
+                        <Key className="w-3.5 h-3.5" />
+                        <span>{redeemingKey ? "Verifying..." : "Redeem License"}</span>
+                      </button>
+                    </div>
                   </div>
 
                   {activationMsg && (
                     <div
-                      className={`p-3 rounded-xl text-xs ${
+                      className={`p-3.5 rounded-xl text-xs flex items-center gap-2 ${
                         activationMsg.type === "success"
-                          ? "bg-emerald-500/10 border border-emerald-500/30 text-emerald-300"
-                          : "bg-rose-500/10 border border-rose-500/30 text-rose-300"
+                          ? "bg-emerald-500/15 border border-emerald-500/30 text-emerald-300"
+                          : "bg-rose-500/15 border border-rose-500/30 text-rose-300"
                       }`}
                     >
-                      {activationMsg.text}
+                      {activationMsg.type === "success" ? (
+                        <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+                      ) : (
+                        <AlertTriangle className="w-4 h-4 shrink-0 text-rose-400" />
+                      )}
+                      <span>{activationMsg.text}</span>
                     </div>
                   )}
                 </form>

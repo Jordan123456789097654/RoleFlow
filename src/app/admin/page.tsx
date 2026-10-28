@@ -24,7 +24,31 @@ import {
   Ban,
   UserX,
   Plus,
+  Key,
+  Copy,
+  Check,
+  Lock,
+  Unlock,
+  Clock,
+  Layers,
 } from "lucide-react";
+
+interface LicenseKeyItem {
+  id: string;
+  key: string;
+  tier: string;
+  scope: string;
+  durationDays: number | null;
+  maxUses: number;
+  usesCount: number;
+  isRevoked: boolean;
+  note: string | null;
+  expiresAt: string | null;
+  redeemedBy: string | null;
+  redeemedByName: string | null;
+  redeemedAt: string | null;
+  createdAt: string;
+}
 
 interface AdminGuild {
   id: string;
@@ -74,11 +98,13 @@ interface BlacklistEntry {
 }
 
 export default function SiteAdminPage() {
-  const [activeTab, setActiveTab] = useState<"guilds" | "staff" | "changelog" | "blacklist">("guilds");
+  const [activeTab, setActiveTab] = useState<"guilds" | "staff" | "licenses" | "changelog" | "blacklist">("guilds");
   const [guilds, setGuilds] = useState<AdminGuild[]>([]);
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [changelogs, setChangelogs] = useState<ChangelogItem[]>([]);
   const [blacklists, setBlacklists] = useState<BlacklistEntry[]>([]);
+  const [licenses, setLicenses] = useState<LicenseKeyItem[]>([]);
+  const [licenseSearch, setLicenseSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [unauthorized, setUnauthorized] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -87,6 +113,16 @@ export default function SiteAdminPage() {
   const [updatingUserId, setUpdatingUserId] = useState<string | null>(null);
   const [badgeInputs, setBadgeInputs] = useState<Record<string, string>>({});
   const [message, setMessage] = useState<string | null>(null);
+
+  // New License Key generator state
+  const [newKeyTier, setNewKeyTier] = useState<"PRO" | "ENTERPRISE" | "LIFETIME">("PRO");
+  const [newKeyScope, setNewKeyScope] = useState<"GUILD" | "USER">("GUILD");
+  const [newKeyDuration, setNewKeyDuration] = useState<string>("null");
+  const [newKeyMaxUses, setNewKeyMaxUses] = useState<number>(1);
+  const [newKeyCustom, setNewKeyCustom] = useState<string>("");
+  const [newKeyNote, setNewKeyNote] = useState<string>("");
+  const [generatingKey, setGeneratingKey] = useState<boolean>(false);
+  const [copiedKeyId, setCopiedKeyId] = useState<string | null>(null);
 
   // New Changelog state
   const [newVersion, setNewVersion] = useState("v1.3.0");
@@ -104,6 +140,7 @@ export default function SiteAdminPage() {
   useEffect(() => {
     fetchGuilds();
     fetchUsers();
+    fetchLicenses();
     fetchChangelogs();
     fetchBlacklists();
   }, []);
@@ -343,6 +380,100 @@ export default function SiteAdminPage() {
     }
   };
 
+  async function fetchLicenses() {
+    try {
+      const res = await fetch("/api/admin/licenses");
+      if (res.ok) {
+        const data = await res.json();
+        setLicenses(data);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  const handleRandomizeKey = () => {
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    const pick = (len: number) => Array.from({ length: len }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
+    const prefix = `RF-${newKeyTier.toUpperCase().slice(0, 4)}`;
+    setNewKeyCustom(`${prefix}-${pick(4)}-${pick(4)}-${pick(4)}`);
+  };
+
+  const handleCreateLicense = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setGeneratingKey(true);
+    try {
+      const res = await fetch("/api/admin/licenses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customKey: newKeyCustom.trim() || undefined,
+          tier: newKeyTier,
+          scope: newKeyScope,
+          durationDays: newKeyDuration === "null" ? null : parseInt(newKeyDuration, 10),
+          maxUses: newKeyMaxUses,
+          note: newKeyNote.trim() || undefined,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setMessage(`Generated license key: ${data.license.key}`);
+        setTimeout(() => setMessage(null), 4000);
+        setNewKeyCustom("");
+        setNewKeyNote("");
+        fetchLicenses();
+      } else {
+        alert(data.error || "Failed to generate license key");
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setGeneratingKey(false);
+    }
+  };
+
+  const handleToggleRevokeLicense = async (id: string, currentRevoked: boolean) => {
+    try {
+      const res = await fetch("/api/admin/licenses", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id,
+          isRevoked: !currentRevoked,
+        }),
+      });
+
+      if (res.ok) {
+        setMessage(!currentRevoked ? "License key revoked." : "License key reactivated.");
+        setTimeout(() => setMessage(null), 3000);
+        fetchLicenses();
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleDeleteLicense = async (id: string) => {
+    if (!confirm("Are you sure you want to permanently delete this license key?")) return;
+    try {
+      const res = await fetch(`/api/admin/licenses?id=${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setMessage("License key deleted.");
+        setTimeout(() => setMessage(null), 3000);
+        fetchLicenses();
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleCopyKey = (key: string, id: string) => {
+    navigator.clipboard.writeText(key);
+    setCopiedKeyId(id);
+    setTimeout(() => setCopiedKeyId(null), 2000);
+  };
+
   if (loading) {
     return (
       <div className="max-w-6xl mx-auto px-4 py-24 text-center">
@@ -451,6 +582,17 @@ export default function SiteAdminPage() {
         >
           <Users className="w-4 h-4" />
           <span>Support Staff ({users.filter((u) => u.isSupportStaff).length})</span>
+        </button>
+        <button
+          onClick={() => setActiveTab("licenses")}
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+            activeTab === "licenses"
+              ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
+              : "text-slate-400 hover:text-white hover:bg-white/5"
+          }`}
+        >
+          <Key className="w-4 h-4" />
+          <span>License Keys ({licenses.length})</span>
         </button>
         <button
           onClick={() => setActiveTab("changelog")}
@@ -742,6 +884,334 @@ export default function SiteAdminPage() {
                 </tbody>
               </table>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB: LICENSE KEYS GENERATOR & MANAGEMENT */}
+      {activeTab === "licenses" && (
+        <div className="space-y-6">
+          {/* Top Banner Stats */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="glass-panel rounded-2xl p-4 border border-white/5">
+              <span className="text-xs text-slate-400 block mb-1">Total Generated</span>
+              <span className="text-2xl font-bold text-white">{licenses.length}</span>
+            </div>
+            <div className="glass-panel rounded-2xl p-4 border border-white/5">
+              <span className="text-xs text-slate-400 block mb-1">Active / Available</span>
+              <span className="text-2xl font-bold text-emerald-400">
+                {licenses.filter((l) => !l.isRevoked && l.usesCount < l.maxUses).length}
+              </span>
+            </div>
+            <div className="glass-panel rounded-2xl p-4 border border-white/5">
+              <span className="text-xs text-slate-400 block mb-1">Fully Redeemed</span>
+              <span className="text-2xl font-bold text-purple-400">
+                {licenses.filter((l) => l.usesCount >= l.maxUses).length}
+              </span>
+            </div>
+            <div className="glass-panel rounded-2xl p-4 border border-white/5">
+              <span className="text-xs text-slate-400 block mb-1">Revoked Keys</span>
+              <span className="text-2xl font-bold text-rose-400">
+                {licenses.filter((l) => l.isRevoked).length}
+              </span>
+            </div>
+          </div>
+
+          {/* Create License Key Form */}
+          <form
+            onSubmit={handleCreateLicense}
+            className="glass-panel p-6 sm:p-8 rounded-2xl border border-purple-500/30 bg-purple-950/10 space-y-5 shadow-2xl"
+          >
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400">
+                  <Key className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">Generate RoleFlow License Key</h3>
+                  <p className="text-xs text-slate-400">
+                    Create customized premium licenses for communities or user accounts.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleRandomizeKey}
+                className="px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 text-xs font-semibold transition-all flex items-center gap-1.5"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span>Auto-Format Random Key</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1">Subscription Tier</label>
+                <select
+                  value={newKeyTier}
+                  onChange={(e) => setNewKeyTier(e.target.value as any)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500"
+                >
+                  <option value="PRO">PRO Tier (Advanced Features)</option>
+                  <option value="ENTERPRISE">ENTERPRISE Tier (Custom Bots & Priority)</option>
+                  <option value="LIFETIME">LIFETIME Access (Perpetual)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1">License Scope</label>
+                <select
+                  value={newKeyScope}
+                  onChange={(e) => setNewKeyScope(e.target.value as any)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500"
+                >
+                  <option value="GUILD">Community / Guild License</option>
+                  <option value="USER">User Account License</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1">Duration & Expiration</label>
+                <select
+                  value={newKeyDuration}
+                  onChange={(e) => setNewKeyDuration(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500"
+                >
+                  <option value="null">Lifetime (No Expiration)</option>
+                  <option value="30">30 Days (1 Month)</option>
+                  <option value="90">90 Days (3 Months)</option>
+                  <option value="365">365 Days (1 Full Year)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1">Max Redemptions</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="10000"
+                  value={newKeyMaxUses}
+                  onChange={(e) => setNewKeyMaxUses(parseInt(e.target.value, 10) || 1)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500 font-mono"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1">
+                  Custom Key Code <span className="text-slate-500 font-normal">(Leave blank to auto-generate)</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. RF-PRO-9A8B-7C6D-E5F4"
+                  value={newKeyCustom}
+                  onChange={(e) => setNewKeyCustom(e.target.value.toUpperCase())}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/10 text-xs text-white placeholder-slate-500 font-mono tracking-wider focus:outline-none focus:border-purple-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1">
+                  Internal Founder Note <span className="text-slate-500 font-normal">(Optional context)</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Issued to Jordan Studios • Partner Agreement"
+                  value={newKeyNote}
+                  onChange={(e) => setNewKeyNote(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={generatingKey}
+              className="px-6 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-lg shadow-violet-600/30 flex items-center gap-2"
+            >
+              <Key className="w-3.5 h-3.5" />
+              <span>{generatingKey ? "Generating..." : "Generate & Issue License Key"}</span>
+            </button>
+          </form>
+
+          {/* License Keys Ledger */}
+          <div className="glass-panel rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
+            <div className="p-4 border-b border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="relative w-full sm:w-80">
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Search by key code, note, or redeemer..."
+                  value={licenseSearch}
+                  onChange={(e) => setLicenseSearch(e.target.value)}
+                  className="w-full pl-9 pr-3 py-1.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                />
+              </div>
+              <span className="text-xs text-slate-400 font-mono">
+                {licenses.length} keys in directory
+              </span>
+            </div>
+
+            {licenses.length === 0 ? (
+              <div className="p-12 text-center text-slate-400 text-xs">
+                No license keys generated yet. Use the form above to issue your first key.
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-white/5 text-slate-400 uppercase tracking-wider font-semibold">
+                    <tr>
+                      <th className="py-3 px-4">License Code</th>
+                      <th className="py-3 px-4">Tier & Scope</th>
+                      <th className="py-3 px-4">Duration</th>
+                      <th className="py-3 px-4">Redemptions</th>
+                      <th className="py-3 px-4">Redeemed By</th>
+                      <th className="py-3 px-4">Status</th>
+                      <th className="py-3 px-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5 text-slate-300">
+                    {licenses
+                      .filter(
+                        (l) =>
+                          l.key.toLowerCase().includes(licenseSearch.toLowerCase()) ||
+                          (l.note && l.note.toLowerCase().includes(licenseSearch.toLowerCase())) ||
+                          (l.redeemedByName && l.redeemedByName.toLowerCase().includes(licenseSearch.toLowerCase()))
+                      )
+                      .map((lic) => {
+                        const isRedeemed = lic.usesCount >= lic.maxUses;
+                        return (
+                          <tr key={lic.id} className="hover:bg-white/[0.02] transition-colors">
+                            <td className="py-3 px-4">
+                              <div className="flex items-center gap-2">
+                                <code className="font-mono font-bold text-white tracking-wider bg-black/40 px-2.5 py-1 rounded-lg border border-white/10">
+                                  {lic.key}
+                                </code>
+                                <button
+                                  type="button"
+                                  onClick={() => handleCopyKey(lic.key, lic.id)}
+                                  className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+                                  title="Copy license key"
+                                >
+                                  {copiedKeyId === lic.id ? (
+                                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                                  ) : (
+                                    <Copy className="w-3.5 h-3.5" />
+                                  )}
+                                </button>
+                              </div>
+                              {lic.note && (
+                                <span className="text-[10px] text-slate-400 block mt-1 font-sans">
+                                  {lic.note}
+                                </span>
+                              )}
+                            </td>
+
+                            <td className="py-3 px-4">
+                              <div className="flex flex-col gap-1 items-start">
+                                <span
+                                  className={`px-2 py-0.5 rounded text-[10px] font-bold font-mono ${
+                                    lic.tier === "LIFETIME"
+                                      ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30"
+                                      : lic.tier === "ENTERPRISE"
+                                      ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                                      : "bg-purple-500/20 text-purple-300 border border-purple-500/30"
+                                  }`}
+                                >
+                                  {lic.tier}
+                                </span>
+                                <span className="text-[10px] text-slate-400 font-mono">
+                                  {lic.scope === "GUILD" ? "COMMUNITY" : "USER"}
+                                </span>
+                              </div>
+                            </td>
+
+                            <td className="py-3 px-4 font-mono text-slate-400">
+                              {lic.durationDays ? `${lic.durationDays} Days` : "Lifetime"}
+                            </td>
+
+                            <td className="py-3 px-4 font-mono">
+                              <span
+                                className={
+                                  isRedeemed
+                                    ? "text-purple-400 font-bold"
+                                    : "text-slate-300"
+                                }
+                              >
+                                {lic.usesCount} / {lic.maxUses}
+                              </span>
+                            </td>
+
+                            <td className="py-3 px-4">
+                              {lic.redeemedByName ? (
+                                <div>
+                                  <span className="font-semibold text-white block">
+                                    {lic.redeemedByName}
+                                  </span>
+                                  {lic.redeemedAt && (
+                                    <span className="text-[10px] text-slate-500 font-mono">
+                                      {new Date(lic.redeemedAt).toLocaleDateString()}
+                                    </span>
+                                  )}
+                                </div>
+                              ) : (
+                                <span className="text-slate-500 italic">Unclaimed</span>
+                              )}
+                            </td>
+
+                            <td className="py-3 px-4">
+                              {lic.isRevoked ? (
+                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30 font-mono">
+                                  REVOKED
+                                </span>
+                              ) : isRedeemed ? (
+                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30 font-mono">
+                                  REDEEMED
+                                </span>
+                              ) : (
+                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-mono">
+                                  ACTIVE
+                                </span>
+                              )}
+                            </td>
+
+                            <td className="py-3 px-4 text-right">
+                              <div className="flex items-center justify-end gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => handleToggleRevokeLicense(lic.id, lic.isRevoked)}
+                                  className={`p-1.5 rounded-lg border transition-all ${
+                                    lic.isRevoked
+                                      ? "bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border-emerald-500/30"
+                                      : "bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border-rose-500/30"
+                                  }`}
+                                  title={lic.isRevoked ? "Reactivate license" : "Revoke license"}
+                                >
+                                  {lic.isRevoked ? (
+                                    <Unlock className="w-3.5 h-3.5" />
+                                  ) : (
+                                    <Lock className="w-3.5 h-3.5" />
+                                  )}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteLicense(lic.id)}
+                                  className="p-1.5 rounded-lg bg-white/5 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 border border-white/5 transition-colors"
+                                  title="Delete key"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
       )}

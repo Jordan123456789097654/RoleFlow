@@ -19,6 +19,8 @@ model User {
   isSiteAdmin          Boolean       @default(false)
   isSupportStaff       Boolean       @default(false) // Verified RoFlow Customer Support Staff
   isBanned             Boolean       @default(false) // Globally blacklisted/banned user
+  plan                 String        @default("FREE") // FREE, PRO, LIFETIME
+  licenseKey           String?
   supportCode          String?       // 10-minute temporary support login code
   supportCodeExpiresAt DateTime?     // Expiration timestamp
   applications         Application[]
@@ -40,6 +42,11 @@ model Guild {
   memberCount                Int              @default(0)
   tags                       String?          // Comma-separated: "Roblox,Studio,Development"
   
+  // Premium License & Plan
+  plan                       String           @default("FREE") // FREE, PRO, ENTERPRISE, LIFETIME
+  licenseKey                 String?
+  licenseExpiresAt           DateTime?
+
   // Custom Bot White-label Configuration
   useCustomBot               Boolean          @default(false)
   customBotToken             String?          // Custom Discord Bot Token
@@ -175,4 +182,22 @@ model CannedResponse {
   content   String
   type      String   // ACCEPT or REJECT
   createdAt DateTime @default(now())
+}
+
+model LicenseKey {
+  id             String    @id @default(cuid())
+  key            String    @unique // e.g. RF-PRO-9A8B-7C6D-E5F4
+  tier           String    @default("PRO") // PRO, ENTERPRISE, LIFETIME
+  scope          String    @default("GUILD") // GUILD, USER
+  durationDays   Int?      // null = lifetime / permanent, or e.g. 30, 90, 365
+  maxUses        Int       @default(1)
+  usesCount      Int       @default(0)
+  isRevoked      Boolean   @default(false)
+  note           String?   // Founder note: "Issued to Jordan Studios"
+  expiresAt      DateTime? // Key redemption cutoff
+  redeemedBy     String?   // User ID or Guild ID
+  redeemedByName String?   // Username or Guild Name for display
+  redeemedAt     DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 }
