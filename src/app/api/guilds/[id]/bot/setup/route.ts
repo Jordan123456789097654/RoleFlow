@@ -119,9 +119,6 @@ export async function POST(
     const staffRoleId = createdRoles["Staff Reviewer"] || null;
 
     // 4. Update Guild settings in DB
-    if (!(await isGuildPaid(params.id))) {
-      return NextResponse.json({ error: "Custom bots need a license. Redeem a key to unlock them." }, { status: 402 });
-    }
     const updated = await prisma.guild.update({
       where: { id: params.id },
       data: {

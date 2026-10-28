@@ -107,9 +107,7 @@ export async function PATCH(
       }
     }
 
-    if ((useCustomBot === true || (webhookUrl && String(webhookUrl).trim())) && !(await isGuildPaid(params.id))) {
-      return NextResponse.json({ error: "Custom bots and webhook logs need a license. Redeem a key to unlock them." }, { status: 402 });
-    }
+    // Guild settings update
     const updated = await prisma.guild.update({
       where: { id: params.id },
       data: {

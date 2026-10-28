@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createPublicKey, verify } from "crypto";
 import { prisma } from "@/lib/prisma";
-import { canDecideInGuild, changeApplicationStatus } from "@/lib/application-status";
+import { canDecideInGuild, canViewInGuild, changeApplicationStatus } from "@/lib/application-status";
 import { logEvent } from "@/lib/health";
 
 export const dynamic = "force-dynamic";
@@ -88,6 +88,75 @@ export async function POST(request: Request) {
       const guild = guildId ? await prisma.guild.findUnique({ where: { id: guildId }, select: { vanitySlug: true } }) : null;
       const url = guild?.vanitySlug ? `${APP_URL}/c/${guild.vanitySlug}` : `${APP_URL}/browse`;
       return ephemeral(`Apply here: ${url}`);
+    }
+
+    if (name === "help") {
+      return ephemeral(
+        "**Applicants:** `/status`, `/openings`, `/apply`\n" +
+        "**Staff:** `/pending`, `/stats`, `/accept <application_id> [note]`, `/reject <application_id> [note]`"
+      );
+    }
+
+    if (name === "pending" || name === "stats") {
+      if (!guildId || !discordUserId) return ephemeral("Run this command inside a community server.");
+      if (!(await canViewInGuild(guildId, discordUserId))) return ephemeral("Only staff can use this command.");
+
+      if (name === "stats") {
+        const groups = await prisma.application.groupBy({
+          by: ["status"],
+          where: { position: { guildId } },
+          _count: { _all: true },
+        });
+        if (groups.length === 0) return ephemeral("No applications yet.");
+        const total = groups.reduce((n, g) => n + g._count._all, 0);
+        return ephemeral(
+          `**${total} applications**\n` + groups.map((g) => `• ${g.status.replace("_", " ").toLowerCase()}: ${g._count._all}`).join("\n")
+        );
+      }
+
+      const waiting = await prisma.application.findMany({
+        where: { position: { guildId }, status: { in: ["PENDING", "UNDER_REVIEW", "INTERVIEW"] } },
+        include: { user: { select: { username: true } }, position: { select: { title: true } } },
+        orderBy: { createdAt: "asc" },
+        take: 10,
+      });
+      if (waiting.length === 0) return ephemeral("Nothing is waiting for review.");
+      return ephemeral(
+        waiting
+          .map((a) => {
+            const days = Math.floor((Date.now() - a.createdAt.getTime()) / 86_400_000);
+            return `• \`${a.id}\` **${a.user.username}** for ${a.position.title} (${days}d)`;
+          })
+          .join("\n")
+      );
+    }
+
+    if (name === "accept" || name === "reject") {
+      if (!guildId || !discordUserId) return ephemeral("Run this command inside a community server.");
+      const options: Array<{ name: string; value: string }> = i.data?.options || [];
+      const applicationId = options.find((o) => o.name === "application_id")?.value?.trim();
+      const note = options.find((o) => o.name === "note")?.value?.trim();
+      if (!applicationId) return ephemeral("Give the application ID from /pending.");
+
+      const app = await prisma.application.findUnique({
+        where: { id: applicationId },
+        select: { position: { select: { guildId: true } } },
+      });
+      if (!app || app.position.guildId !== guildId) return ephemeral("No application with that ID in this community.");
+      if (!(await canDecideInGuild(guildId, discordUserId))) {
+        return ephemeral("You don't have decision permission for this community on RoleFlow.");
+      }
+
+      const status = name === "accept" ? "ACCEPTED" : "REJECTED";
+      const updated = await changeApplicationStatus({
+        applicationId,
+        status,
+        decisionNote: note || null,
+        actorId: discordUserId,
+        actorName: i.member?.user?.username || "Discord staff",
+      });
+      if (!updated) return ephemeral("This application no longer exists.");
+      return ephemeral(`Application \`${applicationId}\` marked **${status}**.`);
     }
 
     return ephemeral("Unknown command.");

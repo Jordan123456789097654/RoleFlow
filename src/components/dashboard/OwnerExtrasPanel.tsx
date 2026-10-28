@@ -113,7 +113,7 @@ export default function OwnerExtrasPanel({ guildId }: { guildId: string }) {
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <button onClick={registerCommandsNow} disabled={registering} className="rounded-lg bg-white/10 px-3 py-1.5 text-xs font-semibold text-white hover:bg-white/20 disabled:opacity-50">
-            {registering ? "Registering..." : "Register /status, /openings, /apply on my bot"}
+            {registering ? "Registering..." : "Register commands on my bot"}
           </button>
           <span className="text-[11px] text-slate-500">Save your settings first. The token must belong to the application ID above.</span>
           {commandMsg && <span className={`text-xs ${commandMsg.ok ? "text-emerald-300" : "text-rose-400"}`}>{commandMsg.text}</span>}

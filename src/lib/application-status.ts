@@ -74,6 +74,16 @@ export async function changeApplicationStatus(args: {
   return updated;
 }
 
+/** Owner, site admin, or any staff member. Used for read-only staff commands. */
+export async function canViewInGuild(guildId: string, userId: string): Promise<boolean> {
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, isSiteAdmin: true, siteRole: true } });
+  if (user && isSiteAdminUser(user)) return true;
+  const guild = await prisma.guild.findUnique({ where: { id: guildId }, select: { ownerId: true } });
+  if (guild?.ownerId === userId) return true;
+  const staff = await prisma.guildStaff.findUnique({ where: { guildId_userId: { guildId, userId } }, select: { id: true } });
+  return !!staff;
+}
+
 /** Owner, site admin, or staff with a decision permission. Used for Discord button clicks. */
 export async function canDecideInGuild(guildId: string, userId: string): Promise<boolean> {
   const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true, isSiteAdmin: true, siteRole: true } });

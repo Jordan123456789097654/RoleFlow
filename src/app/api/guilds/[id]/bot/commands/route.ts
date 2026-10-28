@@ -12,10 +12,6 @@ export async function POST(_request: Request, { params }: { params: { id: string
   const access = await authorizeGuild(params.id, "manage");
   if (!access.ok) return access.response;
 
-  if (!(await isGuildPaid(params.id))) {
-    return NextResponse.json({ error: "Custom bots need a license. Redeem a key to unlock them." }, { status: 402 });
-  }
-
   const guild = await prisma.guild.findUnique({
     where: { id: params.id },
     select: { useCustomBot: true, customBotAppId: true, customBotToken: true },
