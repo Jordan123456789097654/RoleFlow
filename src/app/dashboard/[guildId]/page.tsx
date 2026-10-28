@@ -1361,9 +1361,6 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
         >
           <Bot className="w-3.5 h-3.5" />
           <span>Discord Bot</span>
-          <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono">
-            SOON
-          </span>
         </button>
 
         <button
@@ -2429,22 +2426,22 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
       {/* TAB 3: DISCORD INTEGRATION & HOSTED BOT */}
       {activeTab === "bot" && (
         <div className="max-w-3xl space-y-6 animate-fadeIn">
-          {/* Coming Soon Notice Card */}
-          <div className="glass-panel rounded-2xl border border-amber-500/30 bg-amber-500/5 p-6 sm:p-8 space-y-4 shadow-xl">
+          {/* Active Bot System Notice */}
+          <div className="glass-panel rounded-2xl border border-purple-500/30 bg-purple-950/20 p-6 sm:p-8 space-y-4 shadow-xl">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-start sm:items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+                <div className="w-12 h-12 rounded-2xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400 shrink-0">
                   <Bot className="w-6 h-6" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-base font-bold text-white">Discord Bot Dispatcher</h3>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                      COMING SOON
+                    <h3 className="text-base font-bold text-white">Discord Bot Dispatcher & Automation</h3>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                      LIVE & OPERATIONAL
                     </span>
                   </div>
                   <p className="text-xs text-slate-300 mt-1 leading-relaxed">
-                    Automated custom Discord bot token hosting, 1-click server channel creators, and automated role assigners are currently in development for RoleFlow v2.0.
+                    Custom Discord bot token hosting, 1-click server channel creators, slash commands, and automated embeds are fully active.
                   </p>
                 </div>
               </div>
@@ -2456,20 +2453,12 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                 <span>Discord Integration is 100% Optional for Communities</span>
               </div>
               <p className="text-[11px] text-slate-400 leading-relaxed">
-                You do not need a Discord server or bot to run your applications. You can manage, review, score, and interview candidates right through this RoleFlow dashboard.
+                You can run your applications in pure Web-Only mode, or plug in your bot token below to dispatch real-time embeds, slash commands, and automatic role assignments.
               </p>
-              <div className="pt-2 flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("settings")}
-                  className="px-3 py-1.5 rounded-lg bg-purple-600/30 hover:bg-purple-600/40 text-purple-300 hover:text-white border border-purple-500/30 text-xs font-semibold transition-colors"
-                >
-                  Configure Discord Webhooks (Operational Now) →
-                </button>
-              </div>
             </div>
           </div>
-        <div className="glass-panel rounded-2xl border border-white/10 p-6 sm:p-8 space-y-6 opacity-60 pointer-events-none">
+
+          <div className="glass-panel rounded-2xl border border-white/10 p-6 sm:p-8 space-y-6">
           <div>
             <h2 className="text-base font-bold text-white mb-1">
               Discord Bot & Integration Mode
