@@ -4,6 +4,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { ChangelogBroadcastModal } from "@/components/ChangelogBroadcastModal";
 import { BetaBanner } from "@/components/BetaBanner";
+import { ModerationPunishmentBanner } from "@/components/ModerationPunishmentBanner";
 import { MaintenanceGuard } from "@/components/MaintenanceGuard";
 import { getCurrentUser } from "@/lib/auth";
 
@@ -33,6 +34,7 @@ export default async function RootLayout({
 
         <div className="relative z-10 flex flex-col min-h-screen">
           <MaintenanceGuard isStaffOrAdmin={Boolean(user?.isSupportStaff || user?.isSiteAdmin)}>
+            <ModerationPunishmentBanner isBanned={user?.isBanned} />
             <BetaBanner />
             <ChangelogBroadcastModal />
             <Navbar user={user} />
