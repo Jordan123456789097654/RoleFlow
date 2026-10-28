@@ -3,74 +3,155 @@
 @tailwind utilities;
 
 :root {
-  --background: #08090d;
-  --foreground: #f8fafc;
+  --background: #090a0f;
+  --foreground: #f6f7fb;
+  --iris: #7f66ff;
+  --hairline: rgba(255, 255, 255, 0.07);
+  --hairline-strong: rgba(255, 255, 255, 0.13);
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-feature-settings: "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
 
-/* Background grid styling like Applix */
+h1, h2, h3 {
+  font-family: var(--font-display), var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+p { text-wrap: pretty; }
+
+::selection { background: rgba(127, 102, 255, 0.45); color: #fff; }
+
+/* ---------- Backdrop: soft aurora + masked grid ---------- */
 .bg-grid-pattern {
-  background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 40px 40px;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 55% at 50% 0%, #000 20%, transparent 75%);
+  mask-image: radial-gradient(ellipse 70% 55% at 50% 0%, #000 20%, transparent 75%);
 }
 
-/* Purple ambient glow */
 .ambient-glow {
   position: absolute;
-  top: -150px;
+  top: -220px;
   left: 50%;
   transform: translateX(-50%);
-  width: 700px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.16) 0%, rgba(124, 58, 237, 0.06) 50%, transparent 80%);
+  width: 1100px;
+  height: 620px;
+  max-width: 100vw;
+  background:
+    radial-gradient(40% 55% at 35% 40%, rgba(127, 102, 255, 0.20), transparent 70%),
+    radial-gradient(35% 50% at 68% 45%, rgba(56, 189, 248, 0.09), transparent 70%);
   pointer-events: none;
-  filter: blur(80px);
+  filter: blur(60px);
   z-index: 0;
 }
 
-/* Glassmorphism surfaces */
+/* ---------- Surfaces ---------- */
 .glass-panel {
-  background: rgba(14, 16, 24, 0.7);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(21, 24, 36, 0.92), rgba(16, 18, 26, 0.92));
+  border: 1px solid var(--hairline);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 1px 2px rgba(0, 0, 0, 0.35);
 }
-
 .glass-panel-hover {
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: border-color 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
 }
-
 .glass-panel-hover:hover {
-  border-color: rgba(139, 92, 246, 0.4);
-  box-shadow: 0 8px 30px rgba(139, 92, 246, 0.12);
+  border-color: rgba(127, 102, 255, 0.45);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 12px 32px -12px rgba(0, 0, 0, 0.6);
   transform: translateY(-2px);
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+@layer components {
+/* Reusable primitives for new UI */
+.rf-card {
+  @apply rounded-2xl border border-white/[0.07] bg-surface-card/80;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
-::-webkit-scrollbar-track {
-  background: #08090d;
+.rf-eyebrow {
+  @apply text-[11px] font-semibold uppercase tracking-[0.14em] text-purple-300;
 }
-::-webkit-scrollbar-thumb {
-  background: #1e2238;
-  border-radius: 4px;
+.rf-btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold transition-colors;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #8b5cf6;
+.rf-btn-primary {
+  @apply rf-btn bg-violet-600 text-white hover:bg-violet-500 active:bg-violet-700;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 6px 18px -8px rgba(109, 77, 245, 0.7);
+}
+.rf-btn-ghost {
+  @apply rf-btn border border-white/10 bg-white/[0.04] text-slate-100 hover:bg-white/[0.08] hover:border-white/20;
+}
+.rf-gradient-text {
+  background-image: linear-gradient(100deg, #cfc6ff 0%, #9b88ff 45%, #7dd3fc 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
+}
 
-/* Mobile: no sideways scroll, and no iOS zoom on form fields */
+/* Tailwind's colored glow shadows (shadow-violet-600/30 etc.) become subtle depth instead of neon halos */
+[class*="shadow-violet-"], [class*="shadow-purple-"], [class*="shadow-cyan-"], [class*="shadow-emerald-"] {
+  --tw-shadow-color: rgba(0, 0, 0, 0.35) !important;
+}
+
+/* Entrance animation used by dropdowns and drawers (the old classes had no animation plugin behind them) */
+.animate-in { animation: rf-in 0.16s ease-out both; }
+@keyframes rf-in { from { opacity: 0; transform: translateY(4px) scale(0.99); } to { opacity: 1; transform: none; } }
+
+/* ---------- Accessibility ---------- */
+:focus-visible {
+  outline: 2px solid var(--iris);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+input:focus-visible, textarea:focus-visible, select:focus-visible { outline: none; }
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 100;
+  padding: 0.6rem 1rem;
+  border-radius: 0.75rem;
+  background: #6d4df5;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: top 0.15s;
+}
+.skip-link:focus { top: 1rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- Scrollbar ---------- */
+* { scrollbar-width: thin; scrollbar-color: #2a2f45 transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #232738; border-radius: 999px; border: 2px solid var(--background); }
+::-webkit-scrollbar-thumb:hover { background: #7f66ff; }
+
+/* ---------- Mobile: no sideways scroll, no iOS zoom on form fields, 44px-ish tap targets ---------- */
 html, body { overflow-x: hidden; }
 @media (max-width: 640px) {
   input, select, textarea { font-size: 16px; }

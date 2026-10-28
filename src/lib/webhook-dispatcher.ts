@@ -19,7 +19,12 @@ export async function dispatchCommunityWebhook(payload: WebhookPayload) {
     if (!guild || !guild.webhookUrl) return;
 
     const webhookUrl = guild.webhookUrl.trim();
-    if (!webhookUrl.startsWith("https://discord.com/api/webhooks/")) return;
+    try {
+      const u = new URL(webhookUrl);
+      if (u.protocol !== "https:" || !["discord.com", "discordapp.com"].includes(u.hostname) || !u.pathname.startsWith("/api/webhooks/")) return;
+    } catch {
+      return;
+    }
 
     const embed = {
       title: payload.title,
@@ -35,10 +40,13 @@ export async function dispatchCommunityWebhook(payload: WebhookPayload) {
 
     await fetch(webhookUrl, {
       method: "POST",
+      redirect: "error",
+      signal: AbortSignal.timeout(8000),
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         username: "RoleFlow Logs",
         avatar_url: "https://roleflow.site/logo-square.png",
+        allowed_mentions: { parse: [] },
         embeds: [embed],
       }),
     });

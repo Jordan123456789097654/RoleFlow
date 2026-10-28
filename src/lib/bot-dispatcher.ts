@@ -1,4 +1,6 @@
 import { logEvent } from "./health";
+import { decryptSecret } from "./crypto";
+import { discordSafe } from "./sanitize";
 import { prisma } from "./prisma";
 
 interface SendApplicationAlertParams {
@@ -46,7 +48,7 @@ export class BotDispatcher {
 
       // Determine bot token to use: custom bot if enabled and provided, otherwise official bot token
       const token = (guild?.useCustomBot && guild?.customBotToken?.trim())
-        ? guild.customBotToken.trim()
+        ? decryptSecret(guild.customBotToken)
         : process.env.DISCORD_BOT_TOKEN?.trim();
 
       if (!token || !guild?.logChannelId) {
@@ -64,7 +66,7 @@ export class BotDispatcher {
       if (params.robloxUsername) {
         fields.unshift({
           name: "Roblox Identity",
-          value: `[${params.robloxUsername}](https://www.roblox.com/search/users?keyword=${params.robloxUsername})`,
+          value: `[${discordSafe(params.robloxUsername, 40)}](https://www.roblox.com/search/users?keyword=${encodeURIComponent(String(params.robloxUsername).slice(0, 40))})`,
           inline: true,
         });
       }
@@ -105,6 +107,8 @@ export class BotDispatcher {
         },
         body: JSON.stringify({
           content: guild.staffPingRoleId ? `<@&${guild.staffPingRoleId}> New candidate submission!` : undefined,
+          // Only the configured staff role may be pinged; applicant-supplied text can never trigger @everyone/@here.
+          allowed_mentions: { parse: [], roles: guild.staffPingRoleId ? [guild.staffPingRoleId] : [] },
           embeds: [embed],
           components,
         }),
@@ -137,7 +141,7 @@ export class BotDispatcher {
       });
 
       const token = (guild?.useCustomBot && guild?.customBotToken?.trim())
-        ? guild.customBotToken.trim()
+        ? decryptSecret(guild.customBotToken)
         : process.env.DISCORD_BOT_TOKEN?.trim();
 
       if (!guild || !token) {
@@ -191,7 +195,8 @@ export class BotDispatcher {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                content: `Welcome <@${params.applicantDiscordId}>! Your application for **${params.positionTitle}** has advanced to the **Interview** stage.\nStaff will be with you shortly.`,
+                content: `Welcome <@${params.applicantDiscordId}>! Your application for **${discordSafe(params.positionTitle, 100)}** has advanced to the **Interview** stage.\nStaff will be with you shortly.`,
+                allowed_mentions: { parse: [], users: [params.applicantDiscordId] },
               }),
             });
           }
@@ -244,7 +249,7 @@ export class BotDispatcher {
               Authorization: `Bot ${token}`,
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ embeds: [dmEmbed] }),
+            body: JSON.stringify({ embeds: [dmEmbed], allowed_mentions: { parse: [] } }),
           });
         }
       } catch (err) {

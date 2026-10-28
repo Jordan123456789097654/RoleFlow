@@ -52,7 +52,9 @@ export async function GET(
 
     const escapeCsv = (str: string | null | undefined) => {
       if (!str) return '""';
-      const clean = String(str).replace(/"/g, '""');
+      // Neutralise spreadsheet formulas (=, +, -, @, tab, CR) in applicant-controlled text.
+      const text = /^[=+\-@\t\r]/.test(String(str)) ? `'${str}` : String(str);
+      const clean = text.replace(/"/g, '""');
       return `"${clean}"`;
     };
 

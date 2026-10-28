@@ -1,3 +1,4 @@
+import { isFounderId } from "@/lib/roles";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
@@ -28,7 +29,7 @@ export async function POST(
       return NextResponse.json({ error: "Community not found" }, { status: 404 });
     }
 
-    const isOwner = guild.ownerId === user.id || user.isSiteAdmin || user.id === "1046538179399929957";
+    const isOwner = guild.ownerId === user.id || user.isSiteAdmin || isFounderId(user.id);
     const staffMember = guild.staffTeam.find((s) => s.userId === user.id);
     const hasPermission = isOwner || (staffMember && ["full_decision", "position_editor"].includes(staffMember.permissions));
 
@@ -143,6 +144,6 @@ export async function POST(
     });
   } catch (err: any) {
     console.error("Import applications error:", err);
-    return NextResponse.json({ error: err.message || "Failed to import applications" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to import applications" }, { status: 500 });
   }
 }

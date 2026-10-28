@@ -1,6 +1,8 @@
+import { isFounderId } from "@/lib/roles";
 import { sendSecurityNoticeEmail } from "@/lib/email";
 import { recordAudit } from "@/lib/audit";
 import { signSessionValue } from "@/lib/session";
+import { setSessionCookie } from "@/lib/session-cookie";
 import { verifySessionValue } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
@@ -11,7 +13,7 @@ export const dynamic = "force-dynamic";
 export async function POST(request: Request) {
   try {
     const cookieStore = cookies();
-    const callerId = await verifySessionValue(await verifySessionValue(cookieStore.get("roleflow_user_id")?.value));
+    const callerId = await verifySessionValue(cookieStore.get("roleflow_user_id")?.value);
 
     if (!callerId) {
       return NextResponse.json(
@@ -21,7 +23,7 @@ export async function POST(request: Request) {
     }
 
     const caller = await prisma.user.findUnique({ where: { id: callerId } });
-    const isStaff = caller?.isSupportStaff || caller?.isSiteAdmin || caller?.id === "1046538179399929957";
+    const isStaff = caller?.isSupportStaff || caller?.isSiteAdmin || isFounderId(caller?.id);
 
     if (!isStaff) {
       return NextResponse.json(
@@ -56,6 +58,9 @@ export async function POST(request: Request) {
       );
     }
 
+    // One-time use: burn the code so it cannot be replayed.
+    await prisma.user.update({ where: { id: targetUser.id }, data: { supportCode: null, supportCodeExpiresAt: null } });
+
     if (targetUser.email && targetUser.emailNotifications !== false) {
       sendSecurityNoticeEmail({
         toEmail: targetUser.email,
@@ -85,16 +90,10 @@ export async function POST(request: Request) {
     });
 
     // Set cookie valid for the remainder of the 10-minute code
-    response.cookies.set("roleflow_user_id", signSessionValue(targetUser.id, targetUser.sessionVersion), {
-      path: "/",
-      httpOnly: true,
-      maxAge: remainingSeconds,
-      sameSite: "lax",
-      ...(process.env.NODE_ENV === "production" ? { domain: ".roleflow.site" } : {}),
-    });
+    setSessionCookie(response, signSessionValue(targetUser.id, targetUser.sessionVersion), remainingSeconds);
 
     return response;
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 });
   }
 }

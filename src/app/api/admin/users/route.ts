@@ -1,3 +1,4 @@
+import { isFounderId } from "@/lib/roles";
 import { recordAudit } from "@/lib/audit";
 import { verifySessionValue } from "@/lib/session";
 import { NextResponse } from "next/server";
@@ -16,7 +17,7 @@ export async function GET(request: Request) {
     }
 
     const currentUser = await prisma.user.findUnique({ where: { id: userId } });
-    const isFounder = currentUser?.isSiteAdmin || currentUser?.id === "1046538179399929957";
+    const isFounder = currentUser?.isSiteAdmin || isFounderId(currentUser?.id);
 
     if (!isFounder) {
       return NextResponse.json({ error: "Forbidden: Founder access required" }, { status: 403 });
@@ -74,7 +75,7 @@ export async function PATCH(request: Request) {
     }
 
     const currentUser = await prisma.user.findUnique({ where: { id: userId } });
-    const isFounder = currentUser?.siteRole === "FOUNDER" || currentUser?.id === "1046538179399929957";
+    const isFounder = currentUser?.siteRole === "FOUNDER" || isFounderId(currentUser?.id);
 
     if (!isFounder) {
       return NextResponse.json({ error: "Forbidden: Founder access required" }, { status: 403 });
@@ -88,7 +89,7 @@ export async function PATCH(request: Request) {
     }
 
     // Do not allow demoting the Founder
-    if (targetUserId === "1046538179399929957" && siteRole && siteRole !== "FOUNDER") {
+    if (isFounderId(targetUserId) && siteRole && siteRole !== "FOUNDER") {
       return NextResponse.json({ error: "The Platform Founder role cannot be altered." }, { status: 400 });
     }
 
@@ -134,7 +135,7 @@ export async function DELETE(request: Request) {
     }
 
     const currentUser = await prisma.user.findUnique({ where: { id: userId } });
-    const isFounder = currentUser?.siteRole === "FOUNDER" || currentUser?.id === "1046538179399929957";
+    const isFounder = currentUser?.siteRole === "FOUNDER" || isFounderId(currentUser?.id);
 
     if (!isFounder) {
       return NextResponse.json({ error: "Forbidden: Founder access required" }, { status: 403 });
@@ -152,7 +153,7 @@ export async function DELETE(request: Request) {
     }
 
     if (targetUserId) {
-      if (targetUserId === "1046538179399929957") {
+      if (isFounderId(targetUserId)) {
         return NextResponse.json({ error: "Cannot delete Platform Founder." }, { status: 400 });
       }
       await prisma.user.delete({ where: { id: targetUserId } });
@@ -162,6 +163,6 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json({ error: "Specify userId or purgeImported=true" }, { status: 400 });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 });
   }
 }

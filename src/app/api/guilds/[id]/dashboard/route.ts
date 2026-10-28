@@ -1,7 +1,9 @@
+import { isFounderId } from "@/lib/roles";
 import { verifySessionValue } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
+import { sanitizeGuild, SAFE_USER_SELECT } from "@/lib/sanitize";
 
 export const dynamic = "force-dynamic";
 
@@ -45,7 +47,7 @@ export async function GET(
 
     // STRICT PERMISSION CHECK: Must be the community owner, appointed sub-staff, or designated site super-admin
     const isOwner = guild.ownerId === currentUser.id;
-    const isSiteAdmin = currentUser.isSiteAdmin || currentUser.id === "1046538179399929957";
+    const isSiteAdmin = currentUser.isSiteAdmin || isFounderId(currentUser.id);
     const staffMember = guild.staffTeam.find((s) => s.userId === currentUser.id);
     const isStaff = !!staffMember;
 
@@ -62,13 +64,13 @@ export async function GET(
         position: { guildId: params.id },
       },
       include: {
-        user: true,
+        user: { select: SAFE_USER_SELECT },
         position: true,
         answers: {
           include: { question: true },
         },
         reviews: {
-          include: { reviewer: true },
+          include: { reviewer: { select: SAFE_USER_SELECT } },
           orderBy: { createdAt: "desc" },
         },
         messages: {
@@ -79,7 +81,7 @@ export async function GET(
     });
 
     return NextResponse.json({
-      ...guild,
+      ...sanitizeGuild(guild, { keepLicense: isOwner || isSiteAdmin }),
       applications,
       isOwner,
       isSiteAdmin,

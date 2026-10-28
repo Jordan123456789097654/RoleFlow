@@ -1,3 +1,4 @@
+import { isFounderId } from "@/lib/roles";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
@@ -26,7 +27,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Community not found" }, { status: 404 });
     }
 
-    const isOwner = guild.ownerId === user.id || user.isSiteAdmin || user.id === "1046538179399929957";
+    const isOwner = guild.ownerId === user.id || user.isSiteAdmin || isFounderId(user.id);
     const staff = guild.staffTeam.find((s) => s.userId === user.id);
     const hasPermission = isOwner || (staff && ["position_editor", "full_decision"].includes(staff.permissions));
 
@@ -75,6 +76,6 @@ export async function POST(request: Request) {
     });
   } catch (err: any) {
     console.error("Import position error:", err);
-    return NextResponse.json({ error: err.message || "Failed to import position" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to import position" }, { status: 500 });
   }
 }

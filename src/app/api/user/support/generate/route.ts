@@ -16,8 +16,8 @@ export async function POST() {
     }
 
     // Generate readable, high-entropy 8-character support token: RF-XXXX-XXXX
-    const randomHex = crypto.randomBytes(4).toString("hex").toUpperCase();
-    const code = `RF-${randomHex.slice(0, 4)}-${randomHex.slice(4, 8)}`;
+    const randomHex = crypto.randomBytes(6).toString("hex").toUpperCase();
+    const code = `RF-${randomHex.slice(0, 4)}-${randomHex.slice(4, 8)}-${randomHex.slice(8, 12)}`;
 
     // Set 10-minute expiration
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
@@ -37,6 +37,6 @@ export async function POST() {
       expiresInMinutes: 10,
     });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong." }, { status: 500 });
   }
 }

@@ -1,3 +1,4 @@
+import { isFounderId } from "@/lib/roles";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
@@ -28,7 +29,7 @@ export async function GET(
 
     // Permission check: applicant, guild staff/owner, or site admin
     const isApplicant = application.userId === user.id;
-    const isSiteAdmin = user.isSiteAdmin || user.id === "1046538179399929957";
+    const isSiteAdmin = user.isSiteAdmin || isFounderId(user.id);
 
     let isGuildStaff = false;
     if (!isApplicant && !isSiteAdmin) {
@@ -77,7 +78,7 @@ export async function POST(
     }
 
     const isApplicant = application.userId === user.id;
-    const isSiteAdmin = user.isSiteAdmin || user.id === "1046538179399929957";
+    const isSiteAdmin = user.isSiteAdmin || isFounderId(user.id);
 
     let isGuildStaff = false;
     if (!isApplicant && !isSiteAdmin) {

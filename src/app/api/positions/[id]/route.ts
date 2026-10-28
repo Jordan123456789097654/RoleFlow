@@ -1,3 +1,4 @@
+import { isFounderId } from "@/lib/roles";
 import { verifySessionValue } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
@@ -44,7 +45,7 @@ export async function GET(
 
     return NextResponse.json(position);
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 });
   }
 }
 
@@ -70,7 +71,7 @@ export async function PATCH(
     }
 
     const isOwner = position.guild.ownerId === userId;
-    const isSiteAdmin = userId === "1046538179399929957";
+    const isSiteAdmin = isFounderId(userId);
 
     if (!isOwner && !isSiteAdmin) {
       return NextResponse.json({ error: "Forbidden: You do not own this community." }, { status: 403 });
@@ -93,7 +94,7 @@ export async function PATCH(
 
     return NextResponse.json({ success: true, position: updated });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 });
   }
 }
 
@@ -119,7 +120,7 @@ export async function DELETE(
     }
 
     const isOwner = position.guild.ownerId === userId;
-    const isSiteAdmin = userId === "1046538179399929957";
+    const isSiteAdmin = isFounderId(userId);
 
     if (!isOwner && !isSiteAdmin) {
       return NextResponse.json({ error: "Forbidden: You do not own this community." }, { status: 403 });
@@ -131,6 +132,6 @@ export async function DELETE(
 
     return NextResponse.json({ success: true, message: "Position deleted." });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 });
   }
 }

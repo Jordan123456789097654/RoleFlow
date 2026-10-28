@@ -1,3 +1,4 @@
+import { isFounderId } from "@/lib/roles";
 import { verifySessionValue } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
@@ -15,7 +16,7 @@ export async function GET() {
     }
 
     const caller = await prisma.user.findUnique({ where: { id: callerId } });
-    const isStaff = caller?.isSupportStaff || caller?.isSiteAdmin || caller?.id === "1046538179399929957";
+    const isStaff = caller?.isSupportStaff || caller?.isSiteAdmin || isFounderId(caller?.id);
 
     if (!isStaff) {
       return NextResponse.json({ error: "Forbidden: Support Staff role required" }, { status: 403 });

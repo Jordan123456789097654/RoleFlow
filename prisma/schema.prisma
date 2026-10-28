@@ -71,7 +71,7 @@ model Guild {
 
   // Custom Bot White-label Configuration
   useCustomBot               Boolean          @default(false)
-  customBotToken             String?          // Custom Discord Bot Token
+  customBotToken             String?          // AES-256-GCM encrypted (enc:v1:...). Never returned by the API.
   
   // Discord Channels, Webhooks & Roles
   logChannelId               String?          // Staff review alert channel
@@ -83,7 +83,7 @@ model Guild {
 
   // Portal Customization & Themes
   applicationsOpen   Boolean @default(true)
-  customBotAppId     String?  // Discord application ID of the community's own bot
+  customBotAppId     String?  @unique // Discord application ID of the community's own bot (one community per app)
   customBotPublicKey String?  // Discord public key of that bot, for interaction signatures
   showApplicantCount Boolean @default(true)
   welcomeMessage     String?

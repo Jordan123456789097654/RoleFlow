@@ -1,3 +1,4 @@
+import { decryptSecret } from "@/lib/crypto";
 import { verifySessionValue } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
@@ -24,7 +25,7 @@ export async function POST(
       return NextResponse.json({ error: "Guild not found" }, { status: 404 });
     }
 
-    const token = (guild.customBotToken || process.env.DISCORD_BOT_TOKEN || "").trim();
+    const token = (decryptSecret(guild.customBotToken) || process.env.DISCORD_BOT_TOKEN || "").trim();
     if (!token) {
       return NextResponse.json({ error: "No bot token configured" }, { status: 400 });
     }
@@ -71,6 +72,6 @@ export async function POST(
 
     return NextResponse.json({ success: true, message: "Test embed dispatched to Discord!" });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 });
   }
 }

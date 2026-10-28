@@ -21,6 +21,7 @@ export function setPendingCookie(res: NextResponse, userId: string, version: num
     path: "/",
     httpOnly: true,
     sameSite: "lax",
+    secure: !host.includes("localhost"),
     maxAge: 60 * 10,
     ...domainOpt(host),
   });
@@ -31,6 +32,7 @@ export function setSessionCookie(res: NextResponse, userId: string, version: num
     path: "/",
     httpOnly: true,
     sameSite: "lax",
+    secure: !host.includes("localhost"),
     maxAge: 60 * 60 * 24 * 30,
     ...domainOpt(host),
   });

@@ -1,3 +1,4 @@
+import { isFounderId } from "@/lib/roles";
 import { verifySessionValue } from "./session";
 import { cookies } from "next/headers";
 import { prisma } from "./prisma";
@@ -38,7 +39,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   }
 
   // Derive granular site staff role
-  const isFounder = user.id === "1046538179399929957";
+  const isFounder = isFounderId(user.id);
   const rawRole = user.siteRole || (isFounder ? "FOUNDER" : user.isSiteAdmin ? "ADMIN" : user.isSupportStaff ? "SUPPORT" : "USER");
   const siteRole = isFounder ? "FOUNDER" : rawRole;
 

@@ -1,3 +1,4 @@
+import { isFounderId } from "@/lib/roles";
 import { verifySessionValue } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
@@ -15,7 +16,7 @@ export async function POST(request: Request) {
     }
 
     const currentUser = await prisma.user.findUnique({ where: { id: userId } });
-    const isSiteAdmin = currentUser?.isSiteAdmin || currentUser?.id === "1046538179399929957";
+    const isSiteAdmin = currentUser?.isSiteAdmin || isFounderId(currentUser?.id);
 
     if (!isSiteAdmin) {
       return NextResponse.json({ error: "Forbidden: Super-admin required." }, { status: 403 });
@@ -50,6 +51,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, guild: updated });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Failed to update verification" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to update verification" }, { status: 500 });
   }
 }

@@ -1,3 +1,4 @@
+import { isFounderId } from "@/lib/roles";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
@@ -124,7 +125,7 @@ export async function DELETE(
     }
 
     const isAuthor = review.reviewerId === user.id;
-    const isOwner = user.isSiteAdmin || user.id === "1046538179399929957";
+    const isOwner = user.isSiteAdmin || isFounderId(user.id);
 
     if (!isAuthor && !isOwner) {
       return NextResponse.json({ error: "Forbidden: You can only delete your own reviews" }, { status: 403 });
@@ -137,6 +138,6 @@ export async function DELETE(
     return NextResponse.json({ success: true, message: "Review deleted" });
   } catch (err: any) {
     console.error("Delete review error:", err);
-    return NextResponse.json({ error: err.message || "Failed to delete review" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to delete review" }, { status: 500 });
   }
 }

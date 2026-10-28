@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendPasswordResetEmail } from "@/lib/email";
 import crypto from "crypto";
+import { sha256 } from "@/lib/crypto";
 
 export const dynamic = "force-dynamic";
 
@@ -10,7 +11,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { email } = body;
 
-    if (!email || !email.includes("@")) {
+    if (!email || typeof email !== "string" || !email.includes("@") || email.length > 254) {
       return NextResponse.json(
         { error: "Please provide a valid email address." },
         { status: 400 }
@@ -47,7 +48,7 @@ export async function POST(request: Request) {
     await prisma.passwordResetToken.create({
       data: {
         userId: user.id,
-        token,
+        token: sha256(token), // only the hash is stored; the raw token exists only in the email link
         expiresAt,
       },
     });
@@ -56,10 +57,8 @@ export async function POST(request: Request) {
     const result = await sendPasswordResetEmail(cleanEmail, user.username, token);
 
     if (!result.success) {
-      return NextResponse.json(
-        { error: result.error || "Failed to dispatch email. Please try again shortly." },
-        { status: 500 }
-      );
+      // Do not reveal to the caller that this address has an account.
+      console.error("Password reset email failed:", result.error);
     }
 
     return NextResponse.json({
@@ -68,6 +67,6 @@ export async function POST(request: Request) {
     });
   } catch (err: any) {
     console.error("Forgot password API error:", err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 });
   }
 }

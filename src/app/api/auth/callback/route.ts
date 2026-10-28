@@ -1,5 +1,7 @@
 import { notifyNewDevice } from "@/lib/second-factor";
 import { signSessionValue } from "@/lib/session";
+import { setSessionCookie, oauthRedirectUri } from "@/lib/session-cookie";
+import { timingSafeEqual } from "crypto";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
@@ -13,18 +15,21 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL("/?error=missing_code", request.url));
   }
 
-  const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || "";
-  const isLocal = host.includes("localhost") || host.includes("127.0.0.1");
-  const clientId = process.env.DISCORD_CLIENT_ID || "1565049592788025344";
-  const clientSecret = process.env.DISCORD_CLIENT_SECRET;
-
-  // Production always uses apex domain https://roleflow.site
-  let redirectUri = "https://roleflow.site/api/auth/callback";
-  if (isLocal) {
-    redirectUri = "http://localhost:3000/api/auth/callback";
-  } else if (process.env.DISCORD_REDIRECT_URI && !process.env.DISCORD_REDIRECT_URI.includes("localhost")) {
-    redirectUri = process.env.DISCORD_REDIRECT_URI;
+  // CSRF check: the state Discord echoes back must match the cookie we set when the login began.
+  const state = searchParams.get("state") || "";
+  const expected = request.headers.get("cookie")?.match(/(?:^|;\s*)rf_oauth_state=([^;]+)/)?.[1] || "";
+  const a = Buffer.from(state);
+  const b = Buffer.from(expected);
+  if (!state || a.length !== b.length || !timingSafeEqual(a, b)) {
+    return NextResponse.redirect(new URL("/?error=invalid_state", request.url));
   }
+
+  const clientId = process.env.DISCORD_CLIENT_ID;
+  const clientSecret = process.env.DISCORD_CLIENT_SECRET;
+  if (!clientId || !clientSecret) {
+    return NextResponse.redirect(new URL("/?error=oauth_error", request.url));
+  }
+  const redirectUri = oauthRedirectUri();
 
   try {
     // 1. Exchange authorization code for access token
@@ -32,8 +37,8 @@ export async function GET(request: Request) {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
-        client_id: clientId || "",
-        client_secret: clientSecret || "",
+        client_id: clientId,
+        client_secret: clientSecret,
         grant_type: "authorization_code",
         code,
         redirect_uri: redirectUri,
@@ -41,7 +46,7 @@ export async function GET(request: Request) {
     });
 
     if (!tokenResponse.ok) {
-      console.error("Discord token exchange failed:", await tokenResponse.text());
+      console.error("Discord token exchange failed:", tokenResponse.status);
       return NextResponse.redirect(new URL("/?error=token_exchange_failed", request.url));
     }
 
@@ -111,15 +116,9 @@ export async function GET(request: Request) {
     await notifyNewDevice(user, request);
 
     // 4. Set session cookie and redirect home
-    const isLocalhost = host.includes("localhost");
     const response = NextResponse.redirect(new URL("/", request.url));
-    response.cookies.set("roleflow_user_id", signSessionValue(user.id, user.sessionVersion), {
-      path: "/",
-      httpOnly: true,
-      maxAge: 60 * 60 * 24 * 30, // 30 days
-      sameSite: "lax",
-      ...(isLocalhost ? {} : { domain: ".roleflow.site" }),
-    });
+    setSessionCookie(response, signSessionValue(user.id, user.sessionVersion));
+    response.cookies.set("rf_oauth_state", "", { path: "/", maxAge: 0 });
 
     return response;
   } catch (err) {

@@ -12,7 +12,8 @@
     "db:studio": "prisma studio",
     "test": "tsx --test src/lib/session.test.ts",
     "discord:register": "tsx scripts/register-discord-commands.ts",
-    "review:communities": "tsx scripts/review-communities.ts"
+    "review:communities": "tsx scripts/review-communities.ts",
+    "security:encrypt-tokens": "tsx scripts/encrypt-bot-tokens.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.21.1",

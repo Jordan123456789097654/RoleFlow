@@ -73,7 +73,7 @@ interface GuildData {
   description?: string | null;
   tags?: string | null;
   useCustomBot: boolean;
-  customBotToken?: string | null;
+  hasCustomBotToken?: boolean;
   logChannelId?: string | null;
   staffPingRoleId?: string | null;
   embedColor?: string | null;
@@ -324,7 +324,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
         setMinAccountAgeInput(data.minAccountAgeDays || 0);
 
         setUseCustomBotState(data.useCustomBot || false);
-        setBotTokenInput(data.customBotToken || "");
+        setBotTokenInput(""); // the saved token is never sent back to the browser
         setLogChannelInput(data.logChannelId || "");
         setStaffPingRoleInput(data.staffPingRoleId || "");
         setEmbedColorInput(data.embedColor || "#8B5CF6");
@@ -809,7 +809,8 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           requireInGuild: requireInGuildToggle,
           minAccountAgeDays: Number(minAccountAgeInput),
           useCustomBot: useCustomBotState,
-          customBotToken: botTokenInput,
+          // Only send a token when the owner typed a new one; empty means "keep the saved token".
+          ...(botTokenInput.trim() ? { customBotToken: botTokenInput.trim() } : {}),
           logChannelId: logChannelInput,
           staffPingRoleId: staffPingRoleInput,
           embedColor: embedColorInput,
@@ -2526,7 +2527,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                 </div>
                 <input
                   type="password"
-                  placeholder="Enter bot token from Discord Developer Portal..."
+                  placeholder={guild?.hasCustomBotToken ? "Token saved. Paste a new one to replace it." : "Enter bot token from Discord Developer Portal..."}
                   value={botTokenInput}
                   onChange={(e) => setBotTokenInput(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"

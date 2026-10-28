@@ -1,3 +1,4 @@
+import { escapeHtml } from "./sanitize";
 import { Resend } from "resend";
 import { logger } from "./logger";
 import { logEvent } from "./health";
@@ -192,7 +193,7 @@ export async function sendPasswordResetEmail(
 
   const contentHtml = `
     <h1>Password Reset Request</h1>
-    <p>Hi <strong>${username}</strong>,</p>
+    <p>Hi <strong>${escapeHtml(username)}</strong>,</p>
     <p>We received a request to reset your password on RoleFlow. Click the button below to choose a new secure password:</p>
     
     <div class="button-container">
@@ -262,36 +263,36 @@ export async function sendApplicationStatusEmail({
     headline = "Application Accepted!";
     statusBadge = `<span class="status-pill status-accepted">✓ Accepted</span>`;
     messageBody = `
-      <p>Congratulations <strong>${applicantName}</strong>! The staff team at <strong>${communityName}</strong> has officially <strong>accepted</strong> your application for <strong>${positionTitle}</strong>.</p>
+      <p>Congratulations <strong>${escapeHtml(applicantName)}</strong>! The staff team at <strong>${escapeHtml(communityName)}</strong> has officially <strong>accepted</strong> your application for <strong>${escapeHtml(positionTitle)}</strong>.</p>
       <p>Please check the candidate portal for onboarding details, instructions, or role synchronization.</p>
     `;
   } else if (status === "INTERVIEW") {
     headline = "You've Been Selected for an Interview!";
     statusBadge = `<span class="status-pill status-interview">✦ Interview Stage</span>`;
     messageBody = `
-      <p>Great news <strong>${applicantName}</strong>! Your application for <strong>${positionTitle}</strong> at <strong>${communityName}</strong> has passed the initial screening, and staff would like to interview you.</p>
+      <p>Great news <strong>${escapeHtml(applicantName)}</strong>! Your application for <strong>${escapeHtml(positionTitle)}</strong> at <strong>${escapeHtml(communityName)}</strong> has passed the initial screening, and staff would like to interview you.</p>
       <p>Please open the candidate thread to coordinate with the reviewers.</p>
     `;
   } else if (status === "REJECTED") {
     headline = "Application Status Update";
     statusBadge = `<span class="status-pill status-rejected">Application Not Accepted</span>`;
     messageBody = `
-      <p>Hello <strong>${applicantName}</strong>,</p>
-      <p>Thank you for taking the time to apply for <strong>${positionTitle}</strong> at <strong>${communityName}</strong>. After careful staff review, we will not be moving forward with your application at this time.</p>
+      <p>Hello <strong>${escapeHtml(applicantName)}</strong>,</p>
+      <p>Thank you for taking the time to apply for <strong>${escapeHtml(positionTitle)}</strong> at <strong>${escapeHtml(communityName)}</strong>. After careful staff review, we will not be moving forward with your application at this time.</p>
       <p>We encourage you to continue developing your skills and re-apply in the future once the community cooldown period expires.</p>
     `;
   } else {
     headline = "Application Under Review";
     statusBadge = `<span class="status-pill status-interview">Under Review</span>`;
     messageBody = `
-      <p>Hi <strong>${applicantName}</strong>, staff at <strong>${communityName}</strong> have started reviewing your application for <strong>${positionTitle}</strong>.</p>
+      <p>Hi <strong>${escapeHtml(applicantName)}</strong>, staff at <strong>${escapeHtml(communityName)}</strong> have started reviewing your application for <strong>${escapeHtml(positionTitle)}</strong>.</p>
     `;
   }
 
   const noteBlock = decisionNote ? `
     <div class="card">
       <p style="margin: 0 0 6px 0; font-size: 11px; font-weight: 700; color: #a78bfa; text-transform: uppercase;">Note from Review Team:</p>
-      <p style="margin: 0; font-size: 13px; color: #f1f5f9; font-style: italic;">"${decisionNote}"</p>
+      <p style="margin: 0; font-size: 13px; color: #f1f5f9; font-style: italic;">"${escapeHtml(decisionNote)}"</p>
     </div>
   ` : "";
 
@@ -302,8 +303,8 @@ export async function sendApplicationStatusEmail({
     <h1>${headline}</h1>
     <div class="card" style="border-left: 4px solid #8b5cf6;">
       <p style="margin: 0; font-size: 12px; color: #94a3b8;">
-        <strong>Position:</strong> ${positionTitle}<br>
-        <strong>Community:</strong> ${communityName}
+        <strong>Position:</strong> ${escapeHtml(positionTitle)}<br>
+        <strong>Community:</strong> ${escapeHtml(communityName)}
       </p>
     </div>
 
@@ -320,7 +321,7 @@ export async function sendApplicationStatusEmail({
       from: FROM_EMAIL,
       to: [toEmail],
       subject: `[${communityName}] Status Update: ${positionTitle} Application`,
-      html: renderEmailShell(`Status Update: ${positionTitle}`, contentHtml),
+      html: renderEmailShell(`Status Update: ${escapeHtml(positionTitle)}`, contentHtml),
     });
 
     if (error) {
@@ -354,8 +355,8 @@ export async function sendApplicationSubmissionReceipt({
 
   const contentHtml = `
     <h1>Application Received! </h1>
-    <p>Hi <strong>${applicantName}</strong>,</p>
-    <p>Your application for <strong>${positionTitle}</strong> has been successfully submitted to <strong>${communityName}</strong>.</p>
+    <p>Hi <strong>${escapeHtml(applicantName)}</strong>,</p>
+    <p>Your application for <strong>${escapeHtml(positionTitle)}</strong> has been successfully submitted to <strong>${escapeHtml(communityName)}</strong>.</p>
     
     <div class="card">
       <p style="margin: 0; font-size: 12px; color: #cbd5e1;">
@@ -373,7 +374,7 @@ export async function sendApplicationSubmissionReceipt({
       from: FROM_EMAIL,
       to: [toEmail],
       subject: `Application Received: ${positionTitle} at ${communityName}`,
-      html: renderEmailShell(`Application Received: ${positionTitle}`, contentHtml),
+      html: renderEmailShell(`Application Received: ${escapeHtml(positionTitle)}`, contentHtml),
     });
 
     if (error) return { success: false, error: error.message };
@@ -427,13 +428,13 @@ export async function sendModerationNoticeEmail({
     </div>
 
     <h1>${title}</h1>
-    <p>Hi <strong>${username}</strong>,</p>
+    <p>Hi <strong>${escapeHtml(username)}</strong>,</p>
     <p>This is an automated notice from the <strong>RoleFlow Trust & Safety Team</strong> regarding enforcement action taken on your account.</p>
 
     <div class="card" style="border-left: 4px solid ${badgeColor};">
       <p style="margin: 0 0 8px 0; font-size: 11px; font-weight: 700; color: #a78bfa; text-transform: uppercase;">Moderation Details:</p>
       <p style="margin: 0 0 6px 0; font-size: 13px; color: #f1f5f9;"><strong>Action:</strong> ${actionLabel}</p>
-      <p style="margin: 0 0 6px 0; font-size: 13px; color: #f1f5f9;"><strong>Reason:</strong> ${reason}</p>
+      <p style="margin: 0 0 6px 0; font-size: 13px; color: #f1f5f9;"><strong>Reason:</strong> ${escapeHtml(reason)}</p>
       <p style="margin: 0; font-size: 13px; color: #f1f5f9;"><strong>Duration:</strong> ${isPermanent ? "Permanent" : expiresAt}</p>
     </div>
 

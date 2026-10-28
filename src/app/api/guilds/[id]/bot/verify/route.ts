@@ -2,6 +2,7 @@ import { verifySessionValue } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
+import { isSiteAdminUser } from "@/lib/roles";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,12 @@ export async function POST(
     const userId = await verifySessionValue(cookieStore.get("roleflow_user_id")?.value);
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const guild = await prisma.guild.findUnique({ where: { id: params.id }, select: { ownerId: true } });
+    const me = await prisma.user.findUnique({ where: { id: userId }, select: { isSiteAdmin: true, siteRole: true, id: true } });
+    if (!guild || (guild.ownerId !== userId && !(me && isSiteAdminUser(me)))) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const { botToken } = await request.json();
@@ -57,6 +64,6 @@ export async function POST(
       },
     });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 });
   }
 }

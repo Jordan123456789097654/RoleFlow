@@ -3,6 +3,8 @@ import { signSessionValue } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { sha256 } from "@/lib/crypto";
+import { setSessionCookie } from "@/lib/session-cookie";
 
 export const dynamic = "force-dynamic";
 
@@ -15,16 +17,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing or invalid reset token." }, { status: 400 });
     }
 
-    if (!newPassword || newPassword.length < 8) {
+    if (!newPassword || typeof newPassword !== "string" || newPassword.length < 8 || Buffer.byteLength(newPassword) > 72) {
       return NextResponse.json(
-        { error: "Password must be at least 8 characters long." },
+        { error: "Password must be between 8 and 72 characters." },
         { status: 400 }
       );
     }
 
     // Verify token exists and hasn't expired or been used
     const resetRecord = await prisma.passwordResetToken.findUnique({
-      where: { token },
+      where: { token: sha256(token) },
       include: { user: true },
     });
 
@@ -64,16 +66,11 @@ export async function POST(request: Request) {
       message: "Password reset successful! You are now logged in.",
     });
 
-    response.cookies.set("roleflow_user_id", signSessionValue(resetRecord.userId, updatedUser.sessionVersion), {
-      path: "/",
-      httpOnly: true,
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 30, // 30 days
-    });
+    setSessionCookie(response, signSessionValue(resetRecord.userId, updatedUser.sessionVersion));
 
     return response;
   } catch (err: any) {
     console.error("Reset password error:", err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 });
   }
 }

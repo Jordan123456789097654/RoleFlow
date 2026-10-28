@@ -1,3 +1,4 @@
+import { isFounderId } from "@/lib/roles";
 import { verifySessionValue } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
@@ -48,8 +49,8 @@ export async function GET() {
       robloxUsername: user.robloxUsername,
       robloxAvatar: user.robloxAvatar,
       plan: user.plan || "FREE",
-      isSiteAdmin: user.isSiteAdmin || user.id === "1046538179399929957",
-      isSupportStaff: user.isSupportStaff || user.isSiteAdmin || user.id === "1046538179399929957",
+      isSiteAdmin: user.isSiteAdmin || isFounderId(user.id),
+      isSupportStaff: user.isSupportStaff || user.isSiteAdmin || isFounderId(user.id),
       applicationsCount: user._count.applications,
       ownedGuilds,
       createdAt: user.createdAt,
@@ -60,6 +61,6 @@ export async function GET() {
       },
     });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 });
   }
 }

@@ -1,3 +1,4 @@
+import { isFounderId } from "@/lib/roles";
 import { recordAudit } from "@/lib/audit";
 import { verifySessionValue } from "@/lib/session";
 import { NextResponse } from "next/server";
@@ -34,7 +35,7 @@ export async function DELETE(
     const currentUser = await prisma.user.findUnique({ where: { id: userId } });
     const isOwner = application.position.guild.ownerId === userId;
     const isApplicant = application.userId === userId;
-    const isSiteAdmin = currentUser?.isSiteAdmin || userId === "1046538179399929957";
+    const isSiteAdmin = currentUser?.isSiteAdmin || isFounderId(userId);
 
     let isStaff = false;
     if (!isOwner && !isApplicant && !isSiteAdmin) {
@@ -62,6 +63,6 @@ export async function DELETE(
     return NextResponse.json({ success: true, message: "Application deleted." });
   } catch (err: any) {
     console.error("Delete application error:", err);
-    return NextResponse.json({ error: err.message || "Failed to delete application" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to delete application" }, { status: 500 });
   }
 }

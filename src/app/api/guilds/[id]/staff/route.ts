@@ -1,3 +1,4 @@
+import { isFounderId } from "@/lib/roles";
 import { recordAudit } from "@/lib/audit";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
@@ -29,7 +30,7 @@ export async function GET(
       return NextResponse.json({ error: "Community not found" }, { status: 404 });
     }
 
-    const isOwner = guild.ownerId === user.id || user.isSiteAdmin || user.id === "1046538179399929957";
+    const isOwner = guild.ownerId === user.id || user.isSiteAdmin || isFounderId(user.id);
     const isStaff = guild.staffTeam.some((s) => s.userId === user.id);
 
     if (!isOwner && !isStaff) {
@@ -58,7 +59,7 @@ export async function POST(
       return NextResponse.json({ error: "Community not found" }, { status: 404 });
     }
 
-    const isOwner = guild.ownerId === user.id || user.isSiteAdmin || user.id === "1046538179399929957";
+    const isOwner = guild.ownerId === user.id || user.isSiteAdmin || isFounderId(user.id);
     if (!isOwner) {
       return NextResponse.json({ error: "Forbidden: Only community owners can appoint sub-staff." }, { status: 403 });
     }
@@ -116,7 +117,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Community not found" }, { status: 404 });
     }
 
-    const isOwner = guild.ownerId === user.id || user.isSiteAdmin || user.id === "1046538179399929957";
+    const isOwner = guild.ownerId === user.id || user.isSiteAdmin || isFounderId(user.id);
     if (!isOwner) {
       return NextResponse.json({ error: "Forbidden: Only community owners can remove sub-staff." }, { status: 403 });
     }

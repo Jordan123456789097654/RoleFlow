@@ -1,3 +1,4 @@
+import { decryptSecret } from "@/lib/crypto";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { authorizeGuild } from "@/lib/guild-access";
@@ -23,7 +24,7 @@ export async function POST(_request: Request, { params }: { params: { id: string
     );
   }
 
-  const result = await registerCommands(guild.customBotAppId, guild.customBotToken.trim());
+  const result = await registerCommands(guild.customBotAppId, decryptSecret(guild.customBotToken));
   if (!result.ok) {
     await recordAudit({ actorId: access.userId, action: "BOT_COMMANDS_FAILED", targetId: params.id, details: { status: result.status } });
     const hint = result.status === 401 || result.status === 403

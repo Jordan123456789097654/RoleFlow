@@ -1,26 +1,34 @@
 import { NextResponse } from "next/server";
+import { randomBytes } from "crypto";
+import { oauthRedirectUri } from "@/lib/session-cookie";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(request: Request) {
-  const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || "";
-  const isLocal = host.includes("localhost") || host.includes("127.0.0.1");
-  const clientId = process.env.DISCORD_CLIENT_ID || "1565049592788025344";
+const OAUTH_STATE_COOKIE = "rf_oauth_state";
 
-  // Production always uses apex domain https://roleflow.site to match Discord's registered redirect URI.
-  // We ignore accidental localhost DISCORD_REDIRECT_URI environment variables when on live domain.
-  let redirectUri = "https://roleflow.site/api/auth/callback";
-  if (isLocal) {
-    redirectUri = "http://localhost:3000/api/auth/callback";
-  } else if (process.env.DISCORD_REDIRECT_URI && !process.env.DISCORD_REDIRECT_URI.includes("localhost")) {
-    redirectUri = process.env.DISCORD_REDIRECT_URI;
+export async function GET() {
+  const clientId = process.env.DISCORD_CLIENT_ID;
+  if (!clientId) {
+    return NextResponse.json({ error: "Discord login is not configured." }, { status: 500 });
   }
 
-  // Official Discord OAuth2 Authorization Endpoint
-  const scopes = ["identify", "email", "guilds"].join("%20");
-  const discordAuthUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(
-    redirectUri
-  )}&response_type=code&scope=${scopes}`;
+  // Random state, bound to this browser by a short-lived cookie, checked in the callback (blocks login CSRF).
+  const state = randomBytes(24).toString("base64url");
+  const params = new URLSearchParams({
+    client_id: clientId,
+    redirect_uri: oauthRedirectUri(),
+    response_type: "code",
+    scope: "identify email guilds",
+    state,
+  });
 
-  return NextResponse.redirect(discordAuthUrl);
+  const res = NextResponse.redirect(`https://discord.com/api/oauth2/authorize?${params.toString()}`);
+  res.cookies.set(OAUTH_STATE_COOKIE, state, {
+    path: "/",
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 600,
+  });
+  return res;
 }

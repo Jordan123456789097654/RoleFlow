@@ -1,3 +1,4 @@
+import { isFounderId } from "@/lib/roles";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
@@ -30,7 +31,7 @@ export async function PATCH(
       include: { staffTeam: true },
     });
 
-    const isOwner = guild?.ownerId === user.id || user.isSiteAdmin || user.id === "1046538179399929957";
+    const isOwner = guild?.ownerId === user.id || user.isSiteAdmin || isFounderId(user.id);
     const isStaff = guild?.staffTeam.some((s) => s.userId === user.id);
 
     if (!isOwner && !isStaff) {

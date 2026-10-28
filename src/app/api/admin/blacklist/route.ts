@@ -1,3 +1,4 @@
+import { isFounderId } from "@/lib/roles";
 import { verifySessionValue } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
@@ -16,7 +17,7 @@ export async function GET() {
     }
 
     const currentUser = await prisma.user.findUnique({ where: { id: userId } });
-    const isFounder = currentUser?.isSiteAdmin || currentUser?.id === "1046538179399929957";
+    const isFounder = currentUser?.isSiteAdmin || isFounderId(currentUser?.id);
 
     if (!isFounder) {
       return NextResponse.json({ error: "Forbidden: Founder access required" }, { status: 403 });
@@ -42,7 +43,7 @@ export async function POST(request: Request) {
     }
 
     const currentUser = await prisma.user.findUnique({ where: { id: userId } });
-    const isFounder = currentUser?.isSiteAdmin || currentUser?.id === "1046538179399929957";
+    const isFounder = currentUser?.isSiteAdmin || isFounderId(currentUser?.id);
 
     if (!isFounder) {
       return NextResponse.json({ error: "Forbidden: Founder access required" }, { status: 403 });
@@ -100,7 +101,7 @@ export async function DELETE(request: Request) {
     }
 
     const currentUser = await prisma.user.findUnique({ where: { id: userId } });
-    const isFounder = currentUser?.isSiteAdmin || currentUser?.id === "1046538179399929957";
+    const isFounder = currentUser?.isSiteAdmin || isFounderId(currentUser?.id);
 
     if (!isFounder) {
       return NextResponse.json({ error: "Forbidden: Founder access required" }, { status: 403 });

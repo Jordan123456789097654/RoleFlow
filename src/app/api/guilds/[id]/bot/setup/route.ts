@@ -1,3 +1,6 @@
+import { decryptSecret, encryptSecret } from "@/lib/crypto";
+import { sanitizeGuild } from "@/lib/sanitize";
+import { isFounderId } from "@/lib/roles";
 import { isGuildPaid } from "@/lib/licensing";
 import { verifySessionValue } from "@/lib/session";
 import { NextResponse } from "next/server";
@@ -27,12 +30,12 @@ export async function POST(
 
     // Permission check
     const currentUser = await prisma.user.findUnique({ where: { id: userId } });
-    if (guild.ownerId !== userId && !currentUser?.isSiteAdmin && currentUser?.id !== "1046538179399929957") {
+    if (guild.ownerId !== userId && !currentUser?.isSiteAdmin && !isFounderId(currentUser?.id)) {
       return NextResponse.json({ error: "Forbidden: You do not own this community." }, { status: 403 });
     }
 
     const body = await request.json().catch(() => ({}));
-    const token = (body.botToken || guild.customBotToken || process.env.DISCORD_BOT_TOKEN || "").trim();
+    const token = (body.botToken || decryptSecret(guild.customBotToken) || process.env.DISCORD_BOT_TOKEN || "").trim();
 
     if (!token) {
       return NextResponse.json({ error: "No bot token provided" }, { status: 400 });
@@ -122,8 +125,8 @@ export async function POST(
     const updated = await prisma.guild.update({
       where: { id: params.id },
       data: {
-        useCustomBot: true,
-        customBotToken: token,
+        // Never copy the platform's own bot token into a community record.
+        ...(body.botToken ? { useCustomBot: true, customBotToken: encryptSecret(String(body.botToken).trim()) } : {}),
         logChannelId: logChannelId || guild.logChannelId,
         staffPingRoleId: staffRoleId || guild.staffPingRoleId,
       },
@@ -163,10 +166,10 @@ export async function POST(
       success: true,
       logChannelId,
       staffRoleId,
-      guild: updated,
+      guild: sanitizeGuild(updated),
     });
   } catch (err: any) {
     console.error("Bot setup error:", err);
-    return NextResponse.json({ error: err.message || "Failed to setup bot" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to setup bot" }, { status: 500 });
   }
 }

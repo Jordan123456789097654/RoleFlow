@@ -1,3 +1,5 @@
+import { clearSessionCookie } from "@/lib/session-cookie";
+import { isFounderId } from "@/lib/roles";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
@@ -6,7 +8,6 @@ import { recordAudit } from "@/lib/audit";
 
 export const dynamic = "force-dynamic";
 
-const FOUNDER_ID = "1046538179399929957";
 
 /**
  * Permanently deletes the signed-in user's account. Applications, reviews and reset tokens
@@ -23,7 +24,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Send {"confirm": "DELETE"} to confirm account deletion.' }, { status: 400 });
   }
 
-  if (userId === FOUNDER_ID) {
+  if (isFounderId(userId)) {
     return NextResponse.json({ error: "The Platform Founder account cannot be deleted." }, { status: 400 });
   }
 
@@ -40,10 +41,6 @@ export async function POST(request: Request) {
   await recordAudit({ actorId: userId, action: "USER_SELF_DELETE", targetId: userId });
 
   const response = NextResponse.json({ success: true, message: "Your account has been deleted." });
-  response.cookies.set(SESSION_COOKIE_NAME, "", {
-    path: "/",
-    maxAge: 0,
-    ...(process.env.NODE_ENV === "production" ? { domain: ".roleflow.site" } : {}),
-  });
+  clearSessionCookie(response);
   return response;
 }

@@ -5,6 +5,7 @@ import { BotDispatcher } from "@/lib/bot-dispatcher";
 import { dispatchCommunityWebhook } from "@/lib/webhook-dispatcher";
 import { sendApplicationSubmissionReceipt } from "@/lib/email";
 import { logger } from "@/lib/logger";
+import { discordSafe } from "@/lib/sanitize";
 
 export async function POST(request: Request) {
   try {
@@ -20,11 +21,15 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { positionId, robloxUsername, answers } = body;
 
-    if (!positionId || !answers) {
+    if (!positionId || typeof positionId !== "string" || !answers || typeof answers !== "object" || Array.isArray(answers)) {
       return NextResponse.json(
         { error: "Missing required position ID or answers." },
         { status: 400 }
       );
+    }
+
+    if (robloxUsername !== undefined && robloxUsername !== null && robloxUsername !== "" && !/^[A-Za-z0-9_]{3,20}$/.test(String(robloxUsername))) {
+      return NextResponse.json({ error: "That does not look like a valid Roblox username." }, { status: 400 });
     }
 
     // 1. Fetch position & guild details
@@ -67,7 +72,7 @@ export async function POST(request: Request) {
         OR: [
           { targetType: "DISCORD_ID", targetValue: user.id },
           ...(robloxUsername
-            ? [{ targetType: "ROBLOX_ID", targetValue: robloxUsername }]
+            ? [{ targetType: "ROBLOX_ID", targetValue: { equals: String(robloxUsername), mode: "insensitive" as const } }]
             : []),
         ],
       },
@@ -87,7 +92,7 @@ export async function POST(request: Request) {
         OR: [
           { targetType: "DISCORD_ID", targetValue: user.id },
           ...(robloxUsername
-            ? [{ targetType: "ROBLOX_ID", targetValue: robloxUsername }]
+            ? [{ targetType: "ROBLOX_ID", targetValue: { equals: String(robloxUsername), mode: "insensitive" as const } }]
             : []),
         ],
       },
@@ -156,6 +161,16 @@ export async function POST(request: Request) {
       } catch (e) {
         console.error("Roblox group verification error:", e);
       }
+    }
+
+    // 2c. Validate answers: only this position's questions, bounded size.
+    const validIds = new Set(position.questions.map((q) => q.id));
+    const entries = Object.entries(answers as Record<string, unknown>);
+    if (entries.length > 60 || entries.some(([id, v]) => !validIds.has(id) || typeof v !== "string" && typeof v !== "number" && typeof v !== "boolean")) {
+      return NextResponse.json({ error: "Your answers do not match this application form. Please reload and try again." }, { status: 400 });
+    }
+    if (entries.some(([, v]) => String(v).length > 4000)) {
+      return NextResponse.json({ error: "One of your answers is too long (4000 characters max)." }, { status: 400 });
     }
 
     // 3. Check for existing PENDING application
@@ -261,7 +276,7 @@ export async function POST(request: Request) {
       guildId: position.guildId,
       event: "SUBMISSION",
       title: `New Application: ${position.title}`,
-      description: `**Applicant:** ${user.username} (<@${user.id}>)\n**Roblox:** ${robloxUsername || user.robloxUsername || "Unlinked"}\n[Review on RoleFlow Dashboard](https://roleflow.site/dashboard/${position.guildId})`,
+      description: `**Applicant:** ${user.username} (<@${user.id}>)\n**Roblox:** ${discordSafe(robloxUsername || user.robloxUsername || "Unlinked", 40)}\n[Review on RoleFlow Dashboard](https://roleflow.site/dashboard/${position.guildId})`,
       fields: summaryAnswers.slice(0, 3).map((a) => ({
         name: a.label.slice(0, 250),
         value: a.value.slice(0, 500) || "No answer",

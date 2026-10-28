@@ -24,15 +24,25 @@ function validSignature(body: string, publicKeyHex: string | null, signature: st
   }
 }
 
-/** The official bot uses the platform key. A community bot uses the key its owner saved for that application. */
-async function publicKeyFor(applicationId: string | undefined): Promise<string | null> {
+type BotBinding = { publicKey: string | null; boundGuildId: string | null };
+
+/**
+ * The official bot uses the platform key and may act in any guild it is installed in.
+ * A community bot uses the key its owner saved, and is bound to THAT community only:
+ * without the binding, anyone who registers their own bot could sign requests claiming to be
+ * staff of any other community.
+ */
+async function bindingFor(applicationId: string | undefined): Promise<BotBinding | null> {
   if (!applicationId) return null;
-  if (applicationId === process.env.DISCORD_CLIENT_ID) return process.env.DISCORD_PUBLIC_KEY || null;
-  const guild = await prisma.guild.findFirst({
+  if (applicationId === process.env.DISCORD_CLIENT_ID) {
+    return { publicKey: process.env.DISCORD_PUBLIC_KEY || null, boundGuildId: null };
+  }
+  const guild = await prisma.guild.findUnique({
     where: { customBotAppId: applicationId },
-    select: { customBotPublicKey: true },
+    select: { id: true, customBotPublicKey: true, useCustomBot: true },
   });
-  return guild?.customBotPublicKey ?? null;
+  if (!guild || !guild.useCustomBot) return null;
+  return { publicKey: guild.customBotPublicKey ?? null, boundGuildId: guild.id };
 }
 
 const ephemeral = (content: string) => NextResponse.json({ type: 4, data: { content, flags: 64 } });
@@ -47,13 +57,22 @@ export async function POST(request: Request) {
     return new NextResponse("invalid body", { status: 400 });
   }
 
-  const key = await publicKeyFor(parsed.application_id);
-  if (!validSignature(raw, key, request.headers.get("x-signature-ed25519"), request.headers.get("x-signature-timestamp"))) {
+  const binding = await bindingFor(parsed.application_id);
+  const timestamp = request.headers.get("x-signature-timestamp");
+  const fresh = timestamp !== null && Math.abs(Date.now() / 1000 - Number(timestamp)) < 300; // reject replays
+  if (!fresh || !validSignature(raw, binding?.publicKey ?? null, request.headers.get("x-signature-ed25519"), timestamp)) {
     await logEvent("WARN", "interactions", `Rejected request with invalid signature (application ${parsed.application_id ?? "unknown"})`);
     return new NextResponse("invalid request signature", { status: 401 });
   }
 
   const i = parsed;
+  const boundGuildId = binding?.boundGuildId ?? null;
+
+  // A community bot may only ever act inside its own community.
+  if (i.type !== 1 && boundGuildId && i.guild_id !== boundGuildId) {
+    return ephemeral("This bot only works inside its own community server.");
+  }
+
   if (i.type === 1) {
     await logEvent("INFO", "interactions", "Heartbeat: Discord PING verified");
     return NextResponse.json({ type: 1 });
@@ -68,7 +87,7 @@ export async function POST(request: Request) {
     if (name === "status") {
       if (!discordUserId) return ephemeral("Could not identify you.");
       const apps = await prisma.application.findMany({
-        where: { userId: discordUserId },
+        where: { userId: discordUserId, ...(boundGuildId ? { position: { guildId: boundGuildId } } : {}) },
         include: { position: { select: { title: true } } },
         orderBy: { createdAt: "desc" },
         take: 10,
@@ -174,6 +193,10 @@ export async function POST(request: Request) {
       select: { position: { select: { guildId: true } } },
     });
     if (!app) return ephemeral("This application no longer exists.");
+    if (boundGuildId && app.position.guildId !== boundGuildId) return ephemeral("This application no longer exists.");
+
+    // The button must be clicked in the guild the application belongs to.
+    if (i.guild_id !== app.position.guildId) return ephemeral("Use this button in the community's own server.");
 
     if (!(await canDecideInGuild(app.position.guildId, discordUserId))) {
       return ephemeral("You don't have decision permission for this community on RoleFlow.");
