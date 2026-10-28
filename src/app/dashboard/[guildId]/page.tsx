@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
+  Upload,
   Tag,
   Users,
   Briefcase,
@@ -41,6 +42,21 @@ import {
 import { StatusBadge } from "@/components/StatusBadge";
 import { formatDate } from "@/lib/utils";
 import { FORM_TEMPLATES } from "@/lib/templates";
+const CSV_IMPORT_SAMPLE = `Username, RobloxUsername, Position, Status, Tags, Notes
+JordanDev, JordanRBLX, Scripter, UNDER_REVIEW, Former Staff, Great portfolio submission
+Alex, AlexBuilds, Modeler, PENDING, Trainee, Applied via Google Form`;
+
+const JSON_IMPORT_SAMPLE = `[
+  {
+    "username": "JordanDev",
+    "robloxUsername": "JordanRBLX",
+    "positionTitle": "Scripter",
+    "status": "UNDER_REVIEW",
+    "tags": "Former Staff",
+    "notes": "Great portfolio"
+  }
+]`;
+
 
 interface GuildData {
   id: string;
@@ -238,6 +254,13 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
   const [redeemingGuildLicense, setRedeemingGuildLicense] = useState(false);
   const [guildLicenseMsg, setGuildLicenseMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
+  // Application Import state
+  const [importModalOpen, setImportModalOpen] = useState(false);
+  const [importRawText, setImportRawText] = useState("");
+  const [importFormat, setImportFormat] = useState<"csv" | "json">("csv");
+  const [importingData, setImportingData] = useState(false);
+  const [importResultMsg, setImportResultMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
   useEffect(() => {
     fetchGuildData();
   }, [params.guildId]);
@@ -429,6 +452,80 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
       alert(e.message || "Bulk action failed");
     } finally {
       setBulkProcessing(false);
+    }
+  };
+
+  const handleImportSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!importRawText.trim()) return;
+    setImportingData(true);
+    setImportResultMsg(null);
+
+    try {
+      let applicationsToImport: any[] = [];
+
+      if (importFormat === "json") {
+        const parsed = JSON.parse(importRawText.trim());
+        applicationsToImport = Array.isArray(parsed) ? parsed : [parsed];
+      } else {
+        // Parse CSV
+        const lines = importRawText.trim().split(/\r?\n/).filter(Boolean);
+        if (lines.length === 0) throw new Error("CSV data is empty.");
+
+        // Check if line 0 is headers
+        const firstLine = lines[0].toLowerCase();
+        let startIndex = 0;
+        let headers = ["username", "robloxusername", "position", "status", "tags", "notes"];
+
+        if (firstLine.includes("username") || firstLine.includes("discord") || firstLine.includes("applicant")) {
+          headers = lines[0].split(",").map((h) => h.trim().replace(/^[\"\']|[\"\']$/g, "").toLowerCase());
+          startIndex = 1;
+        }
+
+        for (let i = startIndex; i < lines.length; i++) {
+          const values = lines[i].split(",").map((v) => v.trim().replace(/^[\"\']|[\"\']$/g, ""));
+          if (values.length === 0 || !values[0]) continue;
+
+          const appObj: Record<string, string> = {};
+          headers.forEach((h, idx) => {
+            if (values[idx] !== undefined) {
+              appObj[h] = values[idx];
+            }
+          });
+
+          applicationsToImport.push({
+            username: appObj.username || appObj.discord || appObj.applicant || values[0],
+            robloxUsername: appObj.robloxusername || appObj.roblox || values[1] || undefined,
+            positionTitle: appObj.position || appObj.role || values[2] || undefined,
+            status: appObj.status || values[3] || "PENDING",
+            tags: appObj.tags || values[4] || "Imported",
+            notes: appObj.notes || values[5] || undefined,
+          });
+        }
+      }
+
+      const res = await fetch(`/api/guilds/${params.guildId}/import`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ applications: applicationsToImport }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setImportResultMsg({ type: "success", text: data.message || `Imported ${data.importedCount} applications!` });
+        setImportRawText("");
+        fetchGuildData();
+        setTimeout(() => {
+          setImportModalOpen(false);
+          setImportResultMsg(null);
+        }, 1800);
+      } else {
+        setImportResultMsg({ type: "error", text: data.error || "Failed to import applications." });
+      }
+    } catch (err: any) {
+      setImportResultMsg({ type: "error", text: err.message || "Failed to parse import data." });
+    } finally {
+      setImportingData(false);
     }
   };
 
@@ -1122,6 +1219,17 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                 className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-medium text-slate-300 border border-white/10 transition-colors"
               >
                 {selectedAppIds.length === filteredApps.length && filteredApps.length > 0 ? "Deselect All" : "Select All"}
+              </button>
+
+              {/* Import CSV / JSON */}
+              <button
+                type="button"
+                onClick={() => setImportModalOpen(true)}
+                className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 text-xs font-medium flex items-center gap-1.5 transition-colors"
+                title="Import applications from CSV or JSON"
+              >
+                <Upload className="w-3 h-3 text-purple-400" />
+                <span>Import</span>
               </button>
 
               {/* Export CSV */}
@@ -2154,7 +2262,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
       {/* TAB 4: COMMUNITY SETTINGS, GATING & POLICIES */}
       {activeTab === "settings" && (
         <div className="max-w-3xl space-y-6">
-          {/* License & Subscription Tier Card */}
+          {/* License & Subscription Tier Card (Coming Soon) */}
           <div className="glass-panel rounded-2xl border border-purple-500/30 bg-purple-950/15 p-6 sm:p-8 space-y-4 shadow-xl">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
@@ -2164,71 +2272,24 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                 <div>
                   <div className="flex items-center gap-2">
                     <h3 className="text-sm font-bold text-white">Community Subscription Tier</h3>
-                    <span
-                      className={`px-2.5 py-0.5 rounded text-[10px] font-mono font-bold ${
-                        guild.plan === "LIFETIME"
-                          ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30"
-                          : guild.plan === "ENTERPRISE"
-                          ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                          : guild.plan === "PRO"
-                          ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
-                          : "bg-white/5 text-slate-400 border border-white/10"
-                      }`}
-                    >
-                      {guild.plan || "FREE"} TIER
+                    <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                      COMING SOON
                     </span>
                   </div>
                   <p className="text-xs text-slate-400 mt-0.5">
-                    {guild.licenseExpiresAt
-                      ? `Active subscription until ${new Date(guild.licenseExpiresAt).toLocaleDateString()}`
-                      : guild.plan && guild.plan !== "FREE"
-                      ? "Perpetual lifetime license active on this community"
-                      : "Upgrade with a RoleFlow License Key to unlock custom bots and unbranded portals."}
+                    License keys and paid subscription tiers are currently in development. Full functionality is unlocked for all communities during Open Beta!
                   </p>
                 </div>
               </div>
             </div>
 
-            <form onSubmit={handleRedeemGuildLicense} className="pt-2 space-y-2">
-              <label className="block text-xs font-semibold text-slate-300">
-                Redeem Community License Key
-              </label>
-              <div className="flex flex-col sm:flex-row gap-2.5">
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. RF-PRO-9A8B-7C6D-E5F4"
-                  value={guildLicenseInput}
-                  onChange={(e) => setGuildLicenseInput(e.target.value.toUpperCase())}
-                  className="flex-1 px-3.5 py-2 rounded-xl bg-black/50 border border-white/10 text-xs text-white placeholder-slate-500 font-mono tracking-wider focus:outline-none focus:border-purple-500"
-                />
-                <button
-                  type="submit"
-                  disabled={redeemingGuildLicense || !guildLicenseInput.trim()}
-                  className="px-5 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-md shadow-violet-600/30 flex items-center justify-center gap-1.5 shrink-0"
-                >
-                  <Key className="w-3.5 h-3.5" />
-                  <span>{redeemingGuildLicense ? "Activating..." : "Redeem License"}</span>
-                </button>
-              </div>
-
-              {guildLicenseMsg && (
-                <div
-                  className={`p-3 rounded-xl text-xs flex items-center gap-2 mt-2 ${
-                    guildLicenseMsg.type === "success"
-                      ? "bg-emerald-500/15 border border-emerald-500/30 text-emerald-300"
-                      : "bg-rose-500/15 border border-rose-500/30 text-rose-300"
-                  }`}
-                >
-                  {guildLicenseMsg.type === "success" ? (
-                    <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
-                  ) : (
-                    <AlertTriangle className="w-4 h-4 shrink-0 text-rose-400" />
-                  )}
-                  <span>{guildLicenseMsg.text}</span>
-                </div>
-              )}
-            </form>
+            <div className="pt-2 p-3.5 rounded-xl bg-black/40 border border-white/5 flex items-center justify-between text-xs text-slate-400">
+              <span className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-amber-400" />
+                RoleFlow Pro license keys will launch following the conclusion of the public beta.
+              </span>
+              <span className="font-semibold text-purple-400 text-[11px]">Beta Access Active</span>
+            </div>
           </div>
 
           {/* General Community Info */}
@@ -2686,6 +2747,129 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                 </button>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+          {/* Modal: Import Applications (CSV / JSON) */}
+      {importModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="glass-panel border border-white/10 rounded-2xl p-6 max-w-xl w-full space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <Upload className="w-4 h-4 text-purple-400" />
+                <h3 className="text-base font-bold text-white">Import Applications</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setImportModalOpen(false)}
+                className="text-slate-400 hover:text-white text-xs font-semibold"
+              >
+                ✕ Close
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Import past candidate submissions, offline records, or external forms into your RoleFlow dashboard using CSV or JSON.
+            </p>
+
+            <form onSubmit={handleImportSubmit} className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setImportFormat("csv")}
+                    className={`px-3 py-1 rounded-lg text-xs font-semibold border transition-colors ${
+                      importFormat === "csv"
+                        ? "bg-purple-600 text-white border-purple-500"
+                        : "bg-surface border-white/10 text-slate-400"
+                    }`}
+                  >
+                    CSV Format
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setImportFormat("json")}
+                    className={`px-3 py-1 rounded-lg text-xs font-semibold border transition-colors ${
+                      importFormat === "json"
+                        ? "bg-purple-600 text-white border-purple-500"
+                        : "bg-surface border-white/10 text-slate-400"
+                    }`}
+                  >
+                    JSON Format
+                  </button>
+                </div>
+
+                <label className="px-3 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-purple-300 font-semibold cursor-pointer">
+                  <span>Choose File</span>
+                  <input
+                    type="file"
+                    accept={importFormat === "csv" ? ".csv,.txt" : ".json"}
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const reader = new FileReader();
+                      reader.onload = (evt) => {
+                        const content = evt.target?.result as string;
+                        if (content) setImportRawText(content);
+                      };
+                      reader.readAsText(file);
+                    }}
+                  />
+                </label>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-medium text-slate-300 mb-1">
+                  {importFormat === "csv"
+                    ? "Paste CSV rows (e.g. Username, RobloxUsername, Position, Status, Tags, Notes):"
+                    : "Paste JSON array:"}
+                </label>
+                <textarea
+                  rows={7}
+                  required
+                  value={importRawText}
+                  onChange={(e) => setImportRawText(e.target.value)}
+                  placeholder={importFormat === "csv" ? CSV_IMPORT_SAMPLE : JSON_IMPORT_SAMPLE}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/10 text-xs text-white font-mono placeholder-slate-600 focus:outline-none focus:border-purple-500"
+                />
+              </div>
+
+              {importResultMsg && (
+                <div
+                  className={`p-3 rounded-xl text-xs flex items-center gap-2 ${
+                    importResultMsg.type === "success"
+                      ? "bg-emerald-500/15 border border-emerald-500/30 text-emerald-300"
+                      : "bg-rose-500/15 border border-rose-500/30 text-rose-300"
+                  }`}
+                >
+                  {importResultMsg.type === "success" ? (
+                    <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+                  ) : (
+                    <AlertTriangle className="w-4 h-4 shrink-0 text-rose-400" />
+                  )}
+                  <span>{importResultMsg.text}</span>
+                </div>
+              )}
+
+              <div className="flex items-center justify-end gap-2.5 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setImportModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={importingData || !importRawText.trim()}
+                  className="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-md shadow-purple-600/30 flex items-center gap-1.5"
+                >
+                  <Upload className="w-3.5 h-3.5" />
+                  <span>{importingData ? "Importing..." : "Start Import"}</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

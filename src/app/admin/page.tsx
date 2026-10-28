@@ -752,7 +752,7 @@ export default function SiteAdminPage() {
           }`}
         >
           <Key className="w-4 h-4" />
-          <span>License Keys ({licenses.length})</span>
+          <span>License Keys (Coming Soon)</span>
         </button>
         <button
           onClick={() => setActiveTab("changelog")}

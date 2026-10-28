@@ -101,13 +101,6 @@ export function CommunityCard({ guild }: CommunityCardProps) {
                 );
               })}
             </div>
-
-            {guild.memberCount ? (
-              <span className="text-[11px] text-slate-400 flex items-center gap-1">
-                <Users className="w-3 h-3" />
-                {guild.memberCount.toLocaleString()} members
-              </span>
-            ) : null}
           </div>
         </div>
 

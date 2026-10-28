@@ -119,13 +119,6 @@ export default async function CommunityPortalPage({ params }: CommunityPortalPro
                 </div>
 
                 <div className="flex items-center gap-3 text-xs text-slate-400 mt-1">
-                  {guild.memberCount ? (
-                    <span className="flex items-center gap-1">
-                      <Users className="w-3.5 h-3.5 text-slate-500" />
-                      {guild.memberCount.toLocaleString()} members
-                    </span>
-                  ) : null}
-                  <span>•</span>
                   <span className="text-purple-400 font-medium">
                     {guild.positions.length} open position{guild.positions.length === 1 ? "" : "s"}
                   </span>
