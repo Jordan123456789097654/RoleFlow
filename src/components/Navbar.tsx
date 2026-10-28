@@ -12,6 +12,7 @@ interface NavbarProps {
     username: string;
     avatar: string | null;
     isSiteAdmin?: boolean;
+    isSupportStaff?: boolean;
     hasCommunities?: boolean;
   } | null;
 }
@@ -77,6 +78,20 @@ export function Navbar({ user }: NavbarProps) {
                 )}
               >
                 Dashboard
+              </Link>
+            )}
+
+            {(user?.isSupportStaff || user?.isSiteAdmin) && (
+              <Link
+                href="/support/panel"
+                className={cn(
+                  "px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1",
+                  pathname.startsWith("/support/panel")
+                    ? "text-cyan-300 bg-cyan-500/10 border border-cyan-500/30"
+                    : "text-cyan-400 hover:text-cyan-200 hover:bg-cyan-500/10"
+                )}
+              >
+                <span>Support Panel</span>
               </Link>
             )}
 

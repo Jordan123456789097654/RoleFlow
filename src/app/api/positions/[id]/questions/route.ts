@@ -1,12 +1,22 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    const { label, description, type, options, required } = await request.json();
+    const {
+      label,
+      description,
+      type,
+      options,
+      required,
+      conditionalParentId,
+      conditionalValue,
+    } = await request.json();
 
     if (!label || !type) {
       return NextResponse.json({ error: "Label and question type are required" }, { status: 400 });
@@ -29,6 +39,8 @@ export async function POST(
         options: options ? (typeof options === "string" ? options : JSON.stringify(options)) : null,
         required: Boolean(required),
         order: newOrder,
+        conditionalParentId: conditionalParentId || null,
+        conditionalValue: conditionalValue || null,
       },
     });
 
@@ -36,5 +48,33 @@ export async function POST(
   } catch (err) {
     console.error("Create question error:", err);
     return NextResponse.json({ error: "Failed to add question" }, { status: 500 });
+  }
+}
+
+// Reorder questions in bulk
+export async function PATCH(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { questions } = await request.json();
+
+    if (!Array.isArray(questions)) {
+      return NextResponse.json({ error: "Questions array required" }, { status: 400 });
+    }
+
+    for (const q of questions) {
+      if (q.id && typeof q.order === "number") {
+        await prisma.question.update({
+          where: { id: q.id },
+          data: { order: q.order },
+        });
+      }
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("Reorder questions error:", err);
+    return NextResponse.json({ error: "Failed to reorder questions" }, { status: 500 });
   }
 }

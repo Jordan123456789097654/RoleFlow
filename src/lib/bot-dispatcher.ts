@@ -43,13 +43,15 @@ export class BotDispatcher {
         },
       });
 
-      // If community chose not to have a bot or didn't provide a token/channel, skip
-      if (!guild?.useCustomBot || !guild.customBotToken || !guild.logChannelId) {
-        console.log(`[BotDispatcher] Community ${params.guildId} is in Web-Only mode (No Bot). Skipping Discord alert.`);
+      // Determine bot token to use: custom bot if enabled and provided, otherwise official bot token
+      const token = (guild?.useCustomBot && guild?.customBotToken?.trim())
+        ? guild.customBotToken.trim()
+        : process.env.DISCORD_BOT_TOKEN?.trim();
+
+      if (!token || !guild?.logChannelId) {
+        console.log(`[BotDispatcher] No bot token or log channel for guild ${params.guildId}. Skipping alert.`);
         return true;
       }
-
-      const token = guild.customBotToken.trim();
       const webReviewUrl = `${process.env.NEXT_PUBLIC_APP_URL || "https://roleflow.site"}/dashboard/${params.guildId}`;
 
       const fields = params.summaryAnswers.slice(0, 4).map((ans) => ({
@@ -135,11 +137,13 @@ export class BotDispatcher {
         },
       });
 
-      if (!guild?.useCustomBot || !guild.customBotToken) {
-        return; // No Bot configured for this community
-      }
+      const token = (guild?.useCustomBot && guild?.customBotToken?.trim())
+        ? guild.customBotToken.trim()
+        : process.env.DISCORD_BOT_TOKEN?.trim();
 
-      const token = guild.customBotToken.trim();
+      if (!guild || !token) {
+        return; // No guild or bot token available
+      }
 
       // 1. If ACCEPTED: Assign Discord Role automatically using their bot token
       const targetPosition = guild.positions[0];

@@ -41,6 +41,7 @@ interface UserProfile {
   robloxUsername: string | null;
   robloxAvatar: string | null;
   isSiteAdmin: boolean;
+  isSupportStaff?: boolean;
   applicationsCount: number;
   createdAt: string;
   supportMode: {
@@ -975,37 +976,30 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              {/* STAFF LOGIN SECTION */}
-              <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-surface-border space-y-4">
-                <div className="flex items-center gap-2">
-                  <Lock className="w-4 h-4 text-purple-400" />
-                  <h3 className="text-sm font-bold text-white">Staff Member? Enter a Ticket Support Code</h3>
-                </div>
-                <p className="text-xs text-slate-400">
-                  If an applicant or community lead gave you their 10-minute code in a ticket, enter it below to begin a diagnostic session.
-                </p>
-
-                <form onSubmit={handleStaffLoginWithCode} className="flex flex-col sm:flex-row gap-3">
-                  <input
-                    type="text"
-                    placeholder="e.g. RF-8921-4472"
-                    value={staffCodeInput}
-                    onChange={(e) => setStaffCodeInput(e.target.value.toUpperCase())}
-                    className="flex-1 px-3.5 py-2.5 rounded-xl bg-black/40 border border-surface-border text-xs text-white placeholder-slate-500 font-mono tracking-wider focus:outline-none focus:border-purple-500"
-                  />
-                  <button
-                    type="submit"
-                    disabled={staffLoggingIn}
-                    className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-md shadow-violet-600/30 shrink-0"
+              {/* SUPPORT STAFF PANEL ACCESS (If authorized) */}
+              {(profile.isSupportStaff || profile.isSiteAdmin || profile.id === "1046538179399929957") ? (
+                <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-purple-500/30 bg-purple-950/20 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Shield className="w-5 h-5 text-purple-400" />
+                      <h3 className="text-sm font-bold text-white">RoFlow Support Specialist Access</h3>
+                    </div>
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                      STAFF ROLE ACTIVE
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400">
+                    You have verified Support Staff privileges. The diagnostic code login system has been moved to the dedicated, restricted Support Staff Command Center.
+                  </p>
+                  <Link
+                    href="/support/panel"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold transition-all shadow-md shadow-violet-600/30"
                   >
-                    {staffLoggingIn ? "Authenticating..." : "Start Support Session"}
-                  </button>
-                </form>
-
-                {staffError && (
-                  <p className="text-xs text-rose-400 font-medium">{staffError}</p>
-                )}
-              </div>
+                    <span>Launch Support Staff Command Center</span>
+                    <ExternalLink className="w-4 h-4" />
+                  </Link>
+                </div>
+              ) : null}
             </div>
           )}
 

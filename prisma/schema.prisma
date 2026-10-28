@@ -17,6 +17,7 @@ model User {
   robloxUsername       String?
   robloxAvatar         String?
   isSiteAdmin          Boolean       @default(false)
+  isSupportStaff       Boolean       @default(false) // Verified RoFlow Customer Support Staff
   supportCode          String?       // 10-minute temporary support login code
   supportCodeExpiresAt DateTime?     // Expiration timestamp
   applications         Application[]
@@ -53,7 +54,15 @@ model Guild {
   requireInGuild             Boolean          @default(true)
   minAccountAgeDays          Int              @default(0)
   enableRobloxAuth           Boolean          @default(false)
+  
+  // Feature 2: Roblox Group Verification
+  enableRobloxGroupCheck     Boolean          @default(false)
+  robloxGroupId              String?
+  robloxMinRank              Int              @default(1)
+  
+  // Feature 3: Multi-Reviewer Blind Voting
   enableBlindVoting          Boolean          @default(false)
+  votePassThreshold          Int              @default(2)
   enableInterviewAutoChannel Boolean          @default(true)
   
   positions                  Position[]
@@ -70,7 +79,7 @@ model Position {
   department   String?       // e.g. "Development", "Staff & Moderation", "Design"
   description  String
   isPublic     Boolean       @default(true)
-  acceptRoleId String?       // Discord role ID granted upon acceptance
+  acceptRoleId String?       // Discord role ID granted upon acceptance (#1)
   isOpen       Boolean       @default(true)
   questions    Question[]
   applications Application[]
@@ -78,16 +87,18 @@ model Position {
 }
 
 model Question {
-  id          String   @id @default(cuid())
-  positionId  String
-  position    Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
-  label       String
-  description String?
-  type        String   // TEXT, PARAGRAPH, SELECT, CHECKBOX, LINK, PORTFOLIO
-  options     String?  // JSON stringified array for SELECT choices
-  required    Boolean  @default(true)
-  order       Int      @default(0)
-  answers     Answer[]
+  id                  String   @id @default(cuid())
+  positionId          String
+  position            Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
+  label               String
+  description         String?
+  type                String   // TEXT, PARAGRAPH, SELECT, CHECKBOX, LINK, PORTFOLIO, FILE
+  options             String?  // JSON stringified array for SELECT choices
+  required            Boolean  @default(true)
+  order               Int      @default(0)
+  conditionalParentId String?  // ID of parent question this question depends on (#5)
+  conditionalValue    String?  // Value of parent question that triggers this question (#5)
+  answers             Answer[]
 }
 
 model Application {
@@ -121,7 +132,7 @@ model Review {
   reviewerId    String
   reviewer      User        @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
   comment       String
-  score         Int?        // 1-5 rating or vote
+  score         Int?        // 1-5 rating or vote (1: DENY, 5: APPROVE)
   createdAt     DateTime    @default(now())
 }
 

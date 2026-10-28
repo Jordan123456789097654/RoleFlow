@@ -5,9 +5,11 @@ export interface CurrentUser {
   id: string;
   username: string;
   avatar: string | null;
+  robloxId: string | null;
   robloxUsername: string | null;
   email: string | null;
   isSiteAdmin: boolean;
+  isSupportStaff: boolean;
   hasCommunities: boolean;
 }
 
@@ -45,9 +47,11 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     id: user.id,
     username: user.username,
     avatar: user.avatar,
+    robloxId: user.robloxId,
     robloxUsername: user.robloxUsername,
     email: user.email,
     isSiteAdmin,
+    isSupportStaff: user.isSupportStaff || isSiteAdmin,
     hasCommunities,
   };
 }

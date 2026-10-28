@@ -33,6 +33,8 @@ import {
   Send,
   RefreshCw,
   Settings,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
 import { StatusBadge } from "@/components/StatusBadge";
 import { formatDate } from "@/lib/utils";
@@ -55,7 +57,11 @@ interface GuildData {
   requireInGuild?: boolean;
   minAccountAgeDays?: number;
   enableRobloxAuth: boolean;
+  enableRobloxGroupCheck?: boolean;
+  robloxGroupId?: string | null;
+  robloxMinRank?: number;
   enableBlindVoting: boolean;
+  votePassThreshold?: number;
   positions: Array<{
     id: string;
     title: string;
@@ -71,6 +77,8 @@ interface GuildData {
       options?: string | null;
       required: boolean;
       order: number;
+      conditionalParentId?: string | null;
+      conditionalValue?: string | null;
     }>;
     _count: { applications: true };
   }>;
@@ -137,7 +145,11 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
   // Gating & Policy state
   const [cooldownInput, setCooldownInput] = useState(7);
   const [robloxAuthToggle, setRobloxAuthToggle] = useState(false);
+  const [robloxGroupCheckToggle, setRobloxGroupCheckToggle] = useState(false);
+  const [robloxGroupIdInput, setRobloxGroupIdInput] = useState("");
+  const [robloxMinRankInput, setRobloxMinRankInput] = useState(1);
   const [blindVotingToggle, setBlindVotingToggle] = useState(false);
+  const [votePassThresholdInput, setVotePassThresholdInput] = useState(2);
   const [newBlacklistVal, setNewBlacklistVal] = useState("");
   const [newBlacklistReason, setNewBlacklistReason] = useState("");
 
@@ -154,6 +166,8 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
   const [newQDesc, setNewQDesc] = useState("");
   const [newQOptions, setNewQOptions] = useState("");
   const [newQRequired, setNewQRequired] = useState(true);
+  const [newQCondParent, setNewQCondParent] = useState("");
+  const [newQCondVal, setNewQCondVal] = useState("");
 
   const [loading, setLoading] = useState(true);
   const [forbidden, setForbidden] = useState(false);
@@ -202,7 +216,11 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
         setEmbedColorInput(data.embedColor || "#8B5CF6");
         setCooldownInput(data.cooldownDays ?? 7);
         setRobloxAuthToggle(data.enableRobloxAuth || false);
+        setRobloxGroupCheckToggle(data.enableRobloxGroupCheck || false);
+        setRobloxGroupIdInput(data.robloxGroupId || "");
+        setRobloxMinRankInput(data.robloxMinRank || 1);
         setBlindVotingToggle(data.enableBlindVoting || false);
+        setVotePassThresholdInput(data.votePassThreshold || 2);
 
         if (data.positions?.length > 0 && !selectedPosId) {
           setSelectedPosId(data.positions[0].id);
@@ -331,7 +349,11 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           embedColor: embedColorInput,
           cooldownDays: Number(cooldownInput),
           enableRobloxAuth: robloxAuthToggle,
+          enableRobloxGroupCheck: robloxGroupCheckToggle,
+          robloxGroupId: robloxGroupIdInput,
+          robloxMinRank: Number(robloxMinRankInput),
           enableBlindVoting: blindVotingToggle,
+          votePassThreshold: Number(votePassThresholdInput),
         }),
       });
 
@@ -388,6 +410,8 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           type: newQType,
           options: newQOptions ? newQOptions.split(",").map((o) => o.trim()) : undefined,
           required: newQRequired,
+          conditionalParentId: newQCondParent || undefined,
+          conditionalValue: newQCondVal || undefined,
         }),
       });
       if (res.ok) {
@@ -395,9 +419,40 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
         setNewQLabel("");
         setNewQDesc("");
         setNewQOptions("");
+        setNewQCondParent("");
+        setNewQCondVal("");
         fetchGuildData();
       }
     } catch (e) {}
+  };
+
+  const handleMoveQuestion = async (qId: string, direction: "up" | "down") => {
+    if (!activePosition) return;
+    const sorted = [...activePosition.questions].sort((a, b) => a.order - b.order);
+    const idx = sorted.findIndex((q) => q.id === qId);
+    if (idx === -1) return;
+    if (direction === "up" && idx === 0) return;
+    if (direction === "down" && idx === sorted.length - 1) return;
+
+    const targetIdx = direction === "up" ? idx - 1 : idx + 1;
+    const currentQ = sorted[idx];
+    const targetQ = sorted[targetIdx];
+
+    try {
+      await fetch(`/api/positions/${activePosition.id}/questions`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          questions: [
+            { id: currentQ.id, order: targetQ.order },
+            { id: targetQ.id, order: currentQ.order },
+          ],
+        }),
+      });
+      fetchGuildData();
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const handleDeleteQuestion = async (qId: string) => {
@@ -911,6 +966,46 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                       )}
                     </div>
 
+                    {/* Quick Staff Voting Actions (Feature #3) */}
+                    <div className="p-3.5 rounded-xl bg-purple-950/20 border border-purple-500/20 space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-white">Cast Staff Vote:</span>
+                        <span className="text-[11px] font-mono font-bold text-purple-300">
+                          {selectedApp.reviews.filter((r: any) => (r.score ?? 0) >= 4).length} / {guild.votePassThreshold || 2} Approvals Needed
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            await fetch(`/api/applications/${selectedApp.id}/reviews`, {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ score: 5, comment: "👍 Voted to Approve candidate." }),
+                            });
+                            fetchGuildData();
+                          }}
+                          className="flex-1 py-2 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs font-bold transition-all text-center"
+                        >
+                          👍 Vote to Approve (+1)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            await fetch(`/api/applications/${selectedApp.id}/reviews`, {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ score: 1, comment: "👎 Voted to Deny candidate." }),
+                            });
+                            fetchGuildData();
+                          }}
+                          className="flex-1 py-2 rounded-lg bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 text-xs font-bold transition-all text-center"
+                        >
+                          👎 Vote to Deny (-1)
+                        </button>
+                      </div>
+                    </div>
+
                     {selectedApp.reviews.map((rev: any) => (
                       <div key={rev.id} className="p-3 rounded-xl bg-white/5 border border-white/5 text-xs space-y-1">
                         <div className="flex items-center justify-between">
@@ -1096,6 +1191,11 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                               {q.required && (
                                 <span className="text-[10px] text-rose-400 font-semibold">Required</span>
                               )}
+                              {q.conditionalParentId && (
+                                <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-purple-500/10 text-purple-300 border border-purple-500/20">
+                                  Conditional
+                                </span>
+                              )}
                             </div>
                             {q.description && (
                               <p className="text-[11px] text-slate-400 pl-4">{q.description}</p>
@@ -1105,13 +1205,33 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                             )}
                           </div>
 
-                          <button
-                            onClick={() => handleDeleteQuestion(q.id)}
-                            className="text-slate-500 hover:text-rose-400 p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                            title="Delete question"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button
+                              type="button"
+                              disabled={idx === 0}
+                              onClick={() => handleMoveQuestion(q.id, "up")}
+                              className="p-1 rounded hover:bg-white/10 text-slate-400 hover:text-white disabled:opacity-20"
+                              title="Move Question Up"
+                            >
+                              <ChevronUp className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              disabled={idx === (activePosition.questions?.length ?? 1) - 1}
+                              onClick={() => handleMoveQuestion(q.id, "down")}
+                              className="p-1 rounded hover:bg-white/10 text-slate-400 hover:text-white disabled:opacity-20"
+                              title="Move Question Down"
+                            >
+                              <ChevronDown className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteQuestion(q.id)}
+                              className="text-slate-500 hover:text-rose-400 p-1"
+                              title="Delete question"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
                       ))
                     )}
@@ -1224,7 +1344,8 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                     <option value="SELECT">Select Dropdown (Choice options)</option>
                     <option value="CHECKBOX">Checkbox (Agreement / Confirmation)</option>
                     <option value="LINK">URL Link</option>
-                    <option value="PORTFOLIO">Portfolio / Showcase Showcase</option>
+                    <option value="PORTFOLIO">Portfolio / Showcase Link</option>
+                    <option value="FILE">File / Screenshot Asset URL</option>
                   </select>
                 </div>
 
@@ -1250,6 +1371,43 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                     onChange={(e) => setNewQDesc(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl bg-surface border border-white/10 text-xs text-white"
                   />
+                </div>
+
+                {/* Conditional Question Settings */}
+                <div className="p-3 rounded-xl bg-surface/50 border border-white/5 space-y-2">
+                  <label className="text-xs font-semibold text-purple-300 block">
+                    Conditional Visibility (Optional)
+                  </label>
+                  <p className="text-[10px] text-slate-400">
+                    Only display this question if a previous question is answered with a specific value.
+                  </p>
+                  <div className="grid grid-cols-2 gap-2 pt-1">
+                    <div>
+                      <label className="text-[10px] text-slate-400 block mb-0.5">Parent Question</label>
+                      <select
+                        value={newQCondParent}
+                        onChange={(e) => setNewQCondParent(e.target.value)}
+                        className="w-full px-2 py-1.5 rounded-lg bg-surface border border-white/10 text-[11px] text-white"
+                      >
+                        <option value="">None (Always Show)</option>
+                        {activePosition?.questions.map((q, qIdx) => (
+                          <option key={q.id} value={q.id}>
+                            #{qIdx + 1} - {q.label.slice(0, 24)}...
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-slate-400 block mb-0.5">Trigger Answer</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Yes"
+                        value={newQCondVal}
+                        onChange={(e) => setNewQCondVal(e.target.value)}
+                        className="w-full px-2 py-1.5 rounded-lg bg-surface border border-white/10 text-[11px] text-white"
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <label className="flex items-center gap-2 cursor-pointer pt-1">
@@ -1641,6 +1799,76 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                 onChange={(e) => setBlindVotingToggle(e.target.checked)}
                 className="w-4 h-4 rounded text-purple-600 cursor-pointer"
               />
+            </div>
+
+            {/* Blind Voting Threshold */}
+            {blindVotingToggle && (
+              <div className="p-3.5 rounded-xl bg-purple-950/20 border border-purple-500/20 space-y-2">
+                <label className="block text-xs font-bold text-purple-300">
+                  Required Staff Approval Votes Threshold
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  max={20}
+                  value={votePassThresholdInput}
+                  onChange={(e) => setVotePassThresholdInput(Number(e.target.value))}
+                  className="w-32 px-3 py-1.5 rounded-lg bg-surface border border-white/10 text-xs text-white font-mono focus:border-purple-500"
+                />
+                <p className="text-[10px] text-slate-400">
+                  Number of positive staff approval votes needed to pass a candidate.
+                </p>
+              </div>
+            )}
+
+            {/* Roblox Group Verification Gating (Feature #2) */}
+            <div className="py-3 border-b border-white/5 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-bold text-white block">
+                    Enforce Official Roblox Group Membership & Rank
+                  </span>
+                  <p className="text-[10px] text-slate-400">
+                    Automatically verifies if the applicant is a member of your Roblox group with at least the required rank.
+                  </p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={robloxGroupCheckToggle}
+                  onChange={(e) => setRobloxGroupCheckToggle(e.target.checked)}
+                  className="w-4 h-4 rounded text-purple-600 cursor-pointer"
+                />
+              </div>
+
+              {robloxGroupCheckToggle && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-xl bg-black/40 border border-purple-500/20">
+                  <div>
+                    <label className="block text-[11px] font-medium text-slate-300 mb-1">
+                      Roblox Group ID
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 15928371"
+                      value={robloxGroupIdInput}
+                      onChange={(e) => setRobloxGroupIdInput(e.target.value)}
+                      className="w-full px-3 py-1.5 rounded-lg bg-surface border border-white/10 text-xs text-white font-mono focus:border-purple-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-medium text-slate-300 mb-1">
+                      Minimum Required Rank (1-255)
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      max={255}
+                      value={robloxMinRankInput}
+                      onChange={(e) => setRobloxMinRankInput(Number(e.target.value))}
+                      className="w-full px-3 py-1.5 rounded-lg bg-surface border border-white/10 text-xs text-white font-mono focus:border-purple-500"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">

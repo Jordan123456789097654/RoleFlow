@@ -41,6 +41,7 @@ export async function GET() {
       robloxUsername: user.robloxUsername,
       robloxAvatar: user.robloxAvatar,
       isSiteAdmin: user.isSiteAdmin || user.id === "1046538179399929957",
+      isSupportStaff: user.isSupportStaff || user.isSiteAdmin || user.id === "1046538179399929957",
       applicationsCount: user._count.applications,
       createdAt: user.createdAt,
       supportMode: {

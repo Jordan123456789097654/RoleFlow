@@ -61,6 +61,64 @@ export async function POST(request: Request) {
       );
     }
 
+    // 2b. Check Roblox Group Membership & Rank (Feature #2)
+    if (position.guild.enableRobloxGroupCheck && position.guild.robloxGroupId) {
+      const targetRobloxUser = robloxUsername || user.robloxUsername;
+      if (!targetRobloxUser) {
+        return NextResponse.json(
+          { error: "This community requires a linked Roblox account to apply. Please link your Roblox username." },
+          { status: 400 }
+        );
+      }
+
+      try {
+        let rUserId = user.robloxId;
+        if (!rUserId) {
+          const userRes = await fetch("https://users.roblox.com/v1/usernames/users", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ usernames: [targetRobloxUser], excludeBannedUsers: false }),
+          });
+          if (userRes.ok) {
+            const userData = await userRes.json();
+            if (userData.data && userData.data.length > 0) {
+              rUserId = String(userData.data[0].id);
+            }
+          }
+        }
+
+        if (!rUserId) {
+          return NextResponse.json(
+            { error: `Could not verify Roblox username "${targetRobloxUser}". Please ensure it exists on Roblox.` },
+            { status: 400 }
+          );
+        }
+
+        const groupRes = await fetch(`https://groups.roblox.com/v2/users/${rUserId}/groups/roles`);
+        if (groupRes.ok) {
+          const groupData = await groupRes.json();
+          const targetGroup = groupData.data?.find((g: any) => String(g.group.id) === String(position.guild.robloxGroupId));
+          
+          if (!targetGroup) {
+            return NextResponse.json(
+              { error: `You must join the community's official Roblox group (ID: ${position.guild.robloxGroupId}) before applying.` },
+              { status: 403 }
+            );
+          }
+
+          const requiredRank = position.guild.robloxMinRank || 1;
+          if (targetGroup.role.rank < requiredRank) {
+            return NextResponse.json(
+              { error: `You need rank ${requiredRank}+ in the Roblox group to apply (Your current rank is ${targetGroup.role.rank} - "${targetGroup.role.name}").` },
+              { status: 403 }
+            );
+          }
+        }
+      } catch (e) {
+        console.error("Roblox group verification error:", e);
+      }
+    }
+
     // 3. Check for existing PENDING application
     const existingPending = await prisma.application.findFirst({
       where: {

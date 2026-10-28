@@ -13,6 +13,8 @@ interface Question {
   options?: string | null;
   required: boolean;
   order: number;
+  conditionalParentId?: string | null;
+  conditionalValue?: string | null;
 }
 
 interface PositionData {
@@ -381,6 +383,14 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
 
           {/* Dynamic Questionnaire Questions */}
           {position?.questions.map((q, idx) => {
+            // Check conditional dependency (Feature #5)
+            if (q.conditionalParentId && q.conditionalValue) {
+              const parentVal = answers[q.conditionalParentId];
+              if (parentVal !== q.conditionalValue) {
+                return null; // Condition not met; hide question
+              }
+            }
+
             const val = answers[q.id] || "";
             let optionsList: string[] = [];
             if (q.options) {
@@ -392,11 +402,16 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
             }
 
             return (
-              <div key={q.id} className="space-y-1.5 pt-2">
+              <div key={q.id} className="space-y-1.5 pt-2 animate-fadeIn">
                 <label className="block text-xs font-semibold text-slate-200">
                   <span className="text-purple-400 mr-1.5 font-mono">{idx + 1}.</span>
                   {q.label}
                   {q.required && <span className="text-rose-400 ml-1">*</span>}
+                  {q.conditionalParentId && (
+                    <span className="ml-2 text-[10px] font-mono text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/20">
+                      Conditional
+                    </span>
+                  )}
                 </label>
 
                 {q.description && (
@@ -426,6 +441,30 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
                     onChange={(e) => handleAnswerChange(q.id, e.target.value)}
                     placeholder="Type your detailed response here..."
                     className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 resize-y"
+                  />
+                )}
+
+                {/* PORTFOLIO input */}
+                {q.type === "PORTFOLIO" && (
+                  <input
+                    type="url"
+                    required={q.required}
+                    value={val}
+                    onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                    placeholder="https://talent.roblox.com/... or https://github.com/..."
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 font-mono"
+                  />
+                )}
+
+                {/* FILE / Attachment input */}
+                {q.type === "FILE" && (
+                  <input
+                    type="url"
+                    required={q.required}
+                    value={val}
+                    onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                    placeholder="Paste image/asset link (e.g. https://imgur.com/... or Google Drive link)"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 font-mono"
                   />
                 )}
 
