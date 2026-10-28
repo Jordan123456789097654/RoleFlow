@@ -364,7 +364,12 @@ export function Navbar({ user }: NavbarProps) {
                     {/* Logout Button */}
                     <a
                       href="/api/auth/logout"
-                      className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-rose-400 hover:text-rose-200 hover:bg-rose-500/10 transition-colors font-medium"
+                     
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-rose-400 hover:text-rose-200 hover:bg-rose-500/10 transition-colors font-medium cursor-pointer"
+                      onClick={() => {
+                        document.cookie = "roleflow_user_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.roleflow.site;";
+                        document.cookie = "roleflow_user_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                      }}
                     >
                       <LogOut className="w-4 h-4" />
                       <span>Log Out</span>
@@ -477,6 +482,23 @@ export function Navbar({ user }: NavbarProps) {
                   <span>Admin Super-Console</span>
                 </Link>
               )}
+            </div>
+          )}
+
+          {user && (
+            <div className="pt-2 border-t border-white/10">
+              <a
+                href="/api/auth/logout"
+               
+                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium text-rose-400 hover:bg-rose-500/10 cursor-pointer"
+                onClick={() => {
+                  document.cookie = "roleflow_user_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.roleflow.site;";
+                  document.cookie = "roleflow_user_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                }}
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Log Out</span>
+              </a>
             </div>
           )}
         </div>

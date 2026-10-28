@@ -164,6 +164,9 @@ export default function SiteAdminPage() {
       if (res.ok) {
         const data = await res.json();
         setMaintenanceEnabled(data.enabled);
+        if (data.message) {
+          setMaintenanceMsgInput(data.message);
+        }
         setMaintenanceMsgInput(data.message || "");
       }
     } catch (e) {
@@ -694,54 +697,100 @@ export default function SiteAdminPage() {
 
       {/* Platform Maintenance Mode Toggle */}
       <div
-        className={`p-4 rounded-2xl border transition-all flex flex-col sm:flex-row items-center justify-between gap-4 ${
+        className={`p-5 rounded-2xl border transition-all flex flex-col gap-4 ${
           maintenanceEnabled
             ? "bg-amber-950/30 border-amber-500/40 shadow-lg shadow-amber-500/10"
             : "bg-black/30 border-white/10"
         }`}
       >
-        <div className="flex items-center gap-3">
-          <div
-            className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div
+              className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                maintenanceEnabled
+                  ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                  : "bg-white/5 text-slate-400"
+              }`}
+            >
+              <Wrench className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-white">Platform Maintenance Mode</span>
+                <span
+                  className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
+                    maintenanceEnabled
+                      ? "bg-amber-500/20 text-amber-300 border border-amber-500/30 animate-pulse"
+                      : "bg-white/5 text-slate-400"
+                  }`}
+                >
+                  {maintenanceEnabled ? "ACTIVE (PUBLIC ACCESS BLOCKED)" : "DISABLED (PUBLIC ACCESSIBLE)"}
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 mt-0.5">
+                When enabled, only verified Support Staff and Founders can navigate the site. All other visitors see the maintenance screen.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleToggleMaintenance}
+            disabled={updatingMaintenance}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md shrink-0 flex items-center gap-1.5 ${
               maintenanceEnabled
-                ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                : "bg-white/5 text-slate-400"
+                ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30"
+                : "bg-amber-600 hover:bg-amber-500 text-white shadow-amber-600/30"
             }`}
           >
-            <Wrench className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-white">Platform Maintenance Mode</span>
-              <span
-                className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
-                  maintenanceEnabled
-                    ? "bg-amber-500/20 text-amber-300 border border-amber-500/30 animate-pulse"
-                    : "bg-white/5 text-slate-400"
-                }`}
-              >
-                {maintenanceEnabled ? "ACTIVE (PUBLIC ACCESS BLOCKED)" : "DISABLED (PUBLIC ACCESSIBLE)"}
-              </span>
-            </div>
-            <p className="text-xs text-slate-400 mt-0.5">
-              When enabled, only verified Support Staff and Founders can navigate the site. All other visitors see the maintenance screen.
-            </p>
-          </div>
+            <Wrench className="w-3.5 h-3.5" />
+            <span>{updatingMaintenance ? "Updating..." : maintenanceEnabled ? "Deactivate Maintenance" : "Activate Maintenance Mode"}</span>
+          </button>
         </div>
 
-        <button
-          type="button"
-          onClick={handleToggleMaintenance}
-          disabled={updatingMaintenance}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md shrink-0 flex items-center gap-1.5 ${
-            maintenanceEnabled
-              ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30"
-              : "bg-amber-600 hover:bg-amber-500 text-white shadow-amber-600/30"
-          }`}
-        >
-          <Wrench className="w-3.5 h-3.5" />
-          <span>{updatingMaintenance ? "Updating..." : maintenanceEnabled ? "Deactivate Maintenance" : "Activate Maintenance Mode"}</span>
-        </button>
+        {/* Custom Maintenance Reason / Notice Input */}
+        <div className="pt-3 border-t border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+          <div className="flex-1">
+            <label className="block text-[11px] font-semibold text-slate-300 mb-1">
+              Public Maintenance Reason & Status Message:
+            </label>
+            <input
+              type="text"
+              value={maintenanceMsgInput}
+              onChange={(e) => setMaintenanceMsgInput(e.target.value)}
+              placeholder="e.g., Upgrading database clusters and Discord gateway infrastructure. Expected downtime: ~20 mins."
+              className="w-full px-3.5 py-2 rounded-xl bg-black/50 border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition-colors"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={async () => {
+              setUpdatingMaintenance(true);
+              try {
+                const res = await fetch("/api/admin/maintenance", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    enabled: maintenanceEnabled,
+                    message: maintenanceMsgInput,
+                  }),
+                });
+                if (res.ok) {
+                  setMessage("Maintenance reason updated successfully!");
+                  setTimeout(() => setMessage(null), 3000);
+                }
+              } catch (e) {
+                console.error(e);
+              } finally {
+                setUpdatingMaintenance(false);
+              }
+            }}
+            disabled={updatingMaintenance}
+            className="self-end px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold border border-white/10 transition-all shrink-0"
+          >
+            Save Reason
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}

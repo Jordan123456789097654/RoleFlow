@@ -150,14 +150,58 @@ export default function TermsOfServicePage() {
           <section className="space-y-3">
             <h2 className="text-base font-bold text-white flex items-center gap-2">
               <span className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 text-[11px] font-mono flex items-center justify-center text-purple-400">7</span>
-              <span>Limitation of Liability & Warranty Disclaimer</span>
+              <span>License Keys, Community Subscriptions & Refund Terms</span>
             </h2>
             <p>
-              The Service is provided &quot;AS IS&quot; and &quot;AS AVAILABLE&quot; without warranties of any kind. To the maximum extent permitted by applicable law, RoleFlow and its operators disclaim all liability for indirect, incidental, or consequential damages arising from service downtime, data loss, or disputes between communities and applicants.
+              RoleFlow offers promotional, tiered, and permanent license keys for community workspaces. License keys are tied to the redeemed community server and may not be resold, transferred, or exploited via automated key farming. Unless explicitly required by mandatory consumer protection law, all digital license redemptions are non-refundable once activated.
             </p>
           </section>
 
-          {/* Section 8: Contact */}
+          {/* Section 8 */}
+          <section className="space-y-3">
+            <h2 className="text-base font-bold text-white flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 text-[11px] font-mono flex items-center justify-center text-purple-400">8</span>
+              <span>Service Availability, Uptime & Scheduled Maintenance</span>
+            </h2>
+            <p>
+              While RoleFlow strives for 99.9% uptime, we reserve the right to temporarily pause public access for emergency patches, infrastructure migrations, and scheduled maintenance. Administrators and verified support staff may retain access during maintenance windows to conduct quality assurance. RoleFlow is not financially liable for any temporary service interruptions or communication delays resulting from scheduled maintenance.
+            </p>
+          </section>
+
+          {/* Section 9 */}
+          <section className="space-y-3">
+            <h2 className="text-base font-bold text-white flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 text-[11px] font-mono flex items-center justify-center text-purple-400">9</span>
+              <span>Intellectual Property & Custom Position Content</span>
+            </h2>
+            <p>
+              Community managers retain ownership of the original text, examination questions, and criteria written within their job listings. By publishing openings on RoleFlow, community owners grant RoleFlow a worldwide, royalty-free license to host, display, and cache such content to facilitate applicant evaluation and public listing directory discovery.
+            </p>
+          </section>
+
+          {/* Section 10 */}
+          <section className="space-y-3">
+            <h2 className="text-base font-bold text-white flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 text-[11px] font-mono flex items-center justify-center text-purple-400">10</span>
+              <span>Limitation of Liability & Warranty Disclaimer</span>
+            </h2>
+            <p>
+              The Service is provided &quot;AS IS&quot; and &quot;AS AVAILABLE&quot; without warranties of any kind, whether express, statutory, or implied. To the maximum extent permitted by applicable law, RoleFlow, its founders, and its contributors disclaim all liability for indirect, punitive, incidental, or consequential damages arising from service downtime, data loss, recruitment decisions made by independent guilds, or actions taken by third-party platforms including Discord and Roblox.
+            </p>
+          </section>
+
+          {/* Section 11 */}
+          <section className="space-y-3">
+            <h2 className="text-base font-bold text-white flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 text-[11px] font-mono flex items-center justify-center text-purple-400">11</span>
+              <span>Governing Law & Dispute Resolution</span>
+            </h2>
+            <p>
+              These Terms and any non-contractual obligations arising out of or in connection with them shall be governed by and construed in accordance with applicable governing law. Any disputes or claims shall first be submitted to informal resolution by contacting our designated support team at <code className="text-purple-300">support@roleflow.site</code> before initiating any formal tribunal proceedings.
+            </p>
+          </section>
+
+          {/* Section 12: Contact */}
           <section className="p-5 rounded-2xl bg-black/40 border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
               <span className="text-xs font-bold text-white block">Legal Inquiries & Official Support</span>

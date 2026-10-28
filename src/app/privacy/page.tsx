@@ -154,6 +154,28 @@ export default function PrivacyPolicyPage() {
             </p>
           </section>
 
+          {/* Section 6: Data Retention & Automated Purging */}
+          <section className="space-y-3">
+            <h2 className="text-base font-bold text-white flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 text-[11px] font-mono flex items-center justify-center text-purple-400">6</span>
+              <span>Data Retention Periods & Archival</span>
+            </h2>
+            <p>
+              Candidate application logs and responses are retained for the active lifecycle of the target community server or until archived by authorized community staff. Password recovery tokens expire after 1 hour and are immediately purged from database storage upon use. Temporary support diagnostic codes expire in 15 minutes and cannot be reused.
+            </p>
+          </section>
+
+          {/* Section 7: Children's Online Privacy Protection (COPPA) */}
+          <section className="space-y-3">
+            <h2 className="text-base font-bold text-white flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 text-[11px] font-mono flex items-center justify-center text-purple-400">7</span>
+              <span>Children&apos;s Online Privacy (COPPA Compliance)</span>
+            </h2>
+            <p>
+              RoleFlow does not knowingly collect, solicit, or maintain personally identifiable information from children under the age of 13. Users must meet the minimum digital consent age mandated by Discord Inc. and applicable local regulations (13+ in the United States, 13–16 in the European Union). Accounts identified as underage will be terminated with all associated application submissions deleted.
+            </p>
+          </section>
+
           {/* Contact Section */}
           <section className="p-5 rounded-2xl bg-black/40 border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
