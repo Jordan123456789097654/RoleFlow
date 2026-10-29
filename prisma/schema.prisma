@@ -13,6 +13,12 @@ model User {
   discriminator        String?
   avatar               String?
   email                String?       // Discord verified email or registered email
+  companyEmail             String?    // Verified company email (site admins)
+  pendingCompanyEmail      String?
+  companyEmailVerifiedAt   DateTime?
+  companyEmailCodeHash     String?
+  companyEmailCodeExpiresAt DateTime?
+  companyEmailAttempts     Int        @default(0)
   passwordHash         String?       // Hashed password for email/password authentication
   emailNotifications   Boolean       @default(true) // User preference for receiving status emails
   robloxId             String?       // Linked Roblox User ID
@@ -122,6 +128,7 @@ model Guild {
   // Feature 2: Roblox Group Verification
   enableRobloxGroupCheck     Boolean          @default(false)
   robloxGroupId              String?
+  staffMonitoredRanks        Int[]             @default([]) // Roblox rank IDs counted as staff for roster, quotas, and reports (empty = all)
   staffGameSecretHash       String?          // SHA-256 of the Roblox game secret (shown once, never stored raw)
   staffGameSecretRotatedAt   DateTime?
   staffReportSentFor         String?          // Week start (ISO) of the last inactivity report emailed to the owner

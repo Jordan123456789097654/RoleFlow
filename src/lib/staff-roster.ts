@@ -54,7 +54,7 @@ export type RosterMember = {
 };
 
 export async function buildRoster(guildId: string, now = new Date()) {
-  const guild = await prisma.guild.findUnique({ where: { id: guildId }, select: { robloxGroupId: true } });
+  const guild = await prisma.guild.findUnique({ where: { id: guildId }, select: { robloxGroupId: true, staffMonitoredRanks: true } });
   const window = currentWeekWindow(now);
 
   const [rules, staff, shifts] = await Promise.all([
@@ -76,7 +76,11 @@ export async function buildRoster(guildId: string, now = new Date()) {
     minutesByRobloxId.set(s.robloxUserId, (minutesByRobloxId.get(s.robloxUserId) ?? 0) + shiftMinutesInWindow(s, window, now));
   }
 
-  const members: RosterMember[] = staff.map((s) => {
+  const monitored = new Set(guild?.staffMonitoredRanks ?? []);
+  const visibleStaff = monitored.size
+    ? staff.filter((s) => s.robloxRankId != null && (s.robloxRankId === 0 || monitored.has(s.robloxRankId)))
+    : staff;
+  const members: RosterMember[] = visibleStaff.map((s) => {
     const rule = s.robloxRankId != null ? ruleByRank.get(s.robloxRankId) : undefined;
     const minutes = s.robloxUserId ? minutesByRobloxId.get(s.robloxUserId) ?? 0 : 0;
     const percent = rule ? quotaPercent(minutes, rule.weeklyMinutes) : null;
@@ -95,6 +99,7 @@ export async function buildRoster(guildId: string, now = new Date()) {
 
   return {
     linked: Boolean(guild?.robloxGroupId),
+    monitoredRanks: guild?.staffMonitoredRanks ?? [],
     robloxGroupId: guild?.robloxGroupId ?? null,
     week: { start: window.start.toISOString(), end: window.end.toISOString() },
     rules: rules.map((r) => ({ robloxRankId: r.robloxRankId, rankName: r.rankName, weeklyMinutes: r.weeklyMinutes })),

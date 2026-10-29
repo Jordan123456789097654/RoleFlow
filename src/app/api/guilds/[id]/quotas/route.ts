@@ -31,8 +31,8 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     const rankId = Number(r?.robloxRankId);
     const weeklyMinutes = Number(r?.weeklyMinutes);
     const rankName = String(r?.rankName ?? "").trim().slice(0, 80);
-    if (!Number.isInteger(rankId) || rankId < 1 || rankId > 255)
-      return NextResponse.json({ error: "robloxRankId must be 1-255" }, { status: 400 });
+    if (!Number.isInteger(rankId) || rankId < 0 || rankId > 255)
+      return NextResponse.json({ error: "robloxRankId must be 0-255" }, { status: 400 });
     if (!Number.isInteger(weeklyMinutes) || weeklyMinutes < 0 || weeklyMinutes > 10_080)
       return NextResponse.json({ error: "weeklyMinutes must be 0-10080" }, { status: 400 });
     if (seen.has(rankId)) return NextResponse.json({ error: `Duplicate rank ${rankId}` }, { status: 400 });

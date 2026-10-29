@@ -1,9 +1,13 @@
+import { RobloxLinkGate } from "@/components/RobloxLinkGate";
+import { AdminEmailGate } from "@/components/AdminEmailGate";
+import { requiresCompanyEmail } from "@/lib/company-email-policy";
 import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import { Fraunces, Instrument_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { isFeatureEnabled } from "@/lib/feature-flags";
 import { ChangelogBroadcastModal } from "@/components/ChangelogBroadcastModal";
 import { BetaBanner } from "@/components/BetaBanner";
 import { ModerationPunishmentBanner } from "@/components/ModerationPunishmentBanner";
@@ -90,6 +94,8 @@ export default async function RootLayout({
   const host = requestHost();
   const brand = await domainBrand(host);
   const onOwnDomain = !isPlatformHost(host);
+  const adminEmailRequired = Boolean(user && requiresCompanyEmail(user) && !user.companyEmailVerified);
+  const robloxLinkRequired = Boolean(user) && !user?.robloxId && (await isFeatureEnabled("roblox_linking"));
 
   return (
     <html lang="en" className={`light ${sans.variable} ${display.variable} ${mono.variable}`} suppressHydrationWarning>
@@ -105,7 +111,7 @@ export default async function RootLayout({
           <MaintenanceGuard isStaffOrAdmin={Boolean(user?.isSupportStaff || user?.isSiteAdmin)}>
             <ModerationPunishmentBanner isBanned={user?.isBanned} />
             {brand && <DomainHeader brand={brand} user={user ? { username: user.username } : null} />}
-            <main id="main" className="flex-1">{children}</main>
+            <main id="main" className="flex-1"><RobloxLinkGate required={robloxLinkRequired}><AdminEmailGate required={adminEmailRequired}>{children}</AdminEmailGate></RobloxLinkGate></main>
             <DomainFooter site={readSiteConfig(brand?.siteConfig)} />
           </MaintenanceGuard>
         </body>
@@ -118,7 +124,7 @@ export default async function RootLayout({
             <BetaBanner />
             <ChangelogBroadcastModal />
             <Navbar user={user} />
-            <main id="main" className="flex-1">{children}</main>
+            <main id="main" className="flex-1"><RobloxLinkGate required={robloxLinkRequired}><AdminEmailGate required={adminEmailRequired}>{children}</AdminEmailGate></RobloxLinkGate></main>
             <Footer />
           </MaintenanceGuard>
         </body>

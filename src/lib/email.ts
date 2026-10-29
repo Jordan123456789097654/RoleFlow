@@ -18,168 +18,69 @@ interface EmailResult {
 }
 
 /**
- * Base email layout wrapper with RoleFlow Obsidian Dark branding
+ * Shared email layout. Matches RoleFlow's light theme: warm paper background, ink text,
+ * and the accent color used for buttons and links.
  */
 function renderEmailShell(title: string, contentHtml: string): string {
-  return `
-<!DOCTYPE html>
+  return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light">
   <title>${title}</title>
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: #0b0b12;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      color: #e2e8f0;
-    }
-    .wrapper {
-      width: 100%;
-      table-layout: fixed;
-      background-color: #0b0b12;
-      padding: 40px 10px;
-    }
-    .main {
-      background-color: #12111c;
-      margin: 0 auto;
-      max-width: 560px;
-      border-radius: 16px;
-      border: 1px solid rgba(139, 92, 246, 0.2);
-      overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    }
-    .header {
-      padding: 30px 40px;
-      background: linear-gradient(180deg, rgba(139, 92, 246, 0.12) 0%, rgba(139, 92, 246, 0) 100%);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      text-align: center;
-    }
-    .logo-badge {
-      display: inline-block;
-      padding: 8px 16px;
-      background-color: #7c3aed;
-      color: #ffffff;
-      font-weight: 800;
-      font-size: 14px;
-      letter-spacing: 1px;
-      border-radius: 10px;
-      text-transform: uppercase;
-      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
-    }
-    .content {
-      padding: 36px 40px;
-      line-height: 1.6;
-    }
-    h1 {
-      font-size: 20px;
-      font-weight: 800;
-      color: #ffffff;
-      margin-top: 0;
-      margin-bottom: 16px;
-    }
-    p {
-      color: #cbd5e1;
-      font-size: 14px;
-      line-height: 1.6;
-      margin-bottom: 20px;
-    }
-    .button-container {
-      text-align: center;
-      margin: 30px 0;
-    }
-    .btn {
-      display: inline-block;
-      background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
-      color: #ffffff !important;
-      text-decoration: none;
-      padding: 14px 28px;
-      border-radius: 12px;
-      font-size: 14px;
-      font-weight: 700;
-      box-shadow: 0 6px 20px rgba(139, 92, 246, 0.35);
-    }
-    .card {
-      background-color: #1a1827;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
-      padding: 16px 20px;
-      margin: 20px 0;
-    }
-    .footer {
-      padding: 24px 40px;
-      text-align: center;
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
-      background-color: #0d0c15;
-    }
-    .footer p {
-      font-size: 11px;
-      color: #64748b;
-      margin: 4px 0;
-    }
-    .status-pill {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-weight: 700;
-      font-size: 11px;
-      text-transform: uppercase;
-    }
-    .status-accepted {
-      background: rgba(16, 185, 129, 0.15);
-      color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.3);
-    }
-    .status-interview {
-      background: rgba(139, 92, 246, 0.15);
-      color: #a78bfa;
-      border: 1px solid rgba(139, 92, 246, 0.3);
-    }
-    .status-rejected {
-      background: rgba(244, 63, 94, 0.15);
-      color: #fb7185;
-      border: 1px solid rgba(244, 63, 94, 0.3);
-    }
+    body { margin: 0; padding: 0; background: #f4f1ea; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #161512; }
+    h1 { font-size: 20px; font-weight: 700; color: #161512; margin: 0 0 12px; letter-spacing: -0.2px; }
+    p { color: #3d3a33; font-size: 14px; line-height: 1.6; margin: 0 0 16px; }
+    a { color: #e5532d; }
+    .button-container { text-align: center; margin: 28px 0 8px; }
+    .btn { display: inline-block; background: #e5532d; color: #ffffff !important; text-decoration: none; padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 600; }
+    .card { background: #efebe1; border: 1px solid #d9d3c5; border-radius: 12px; padding: 14px 18px; margin: 18px 0; }
+    .status-pill { display: inline-block; padding: 4px 10px; border-radius: 999px; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; }
+    .status-accepted { background: #dcf2e4; color: #1f7a45; }
+    .status-interview { background: #f8e1d9; color: #a8421f; }
+    .status-rejected { background: #f9dede; color: #a12a2a; }
+    .footer p { font-size: 12px; color: #958f80; margin: 4px 0; }
+    .footer a { color: #6b665a; }
   </style>
 </head>
 <body>
-  <div class="wrapper">
-    <table class="main" width="100%" cellpadding="0" cellspacing="0">
-      <tr>
-        <td class="header">
-          <table align="center" border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
-            <tr>
-              <td style="vertical-align: middle; padding-right: 12px;">
-                <img src="https://roleflow.site/logo.png" alt="RoleFlow Logo" width="38" height="38" style="display: block; border-radius: 10px; border: 1px solid rgba(139, 92, 246, 0.4); box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);" />
-              </td>
-              <td style="vertical-align: middle;">
-                <span style="font-size: 20px; font-weight: 900; letter-spacing: 0.5px; color: #ffffff; text-transform: uppercase; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                  Role<span style="color: #a78bfa;">Flow</span>
-                </span>
-              </td>
-            </tr>
-          </table>
-        </td>
-      </tr>
-      <tr>
-        <td class="content">
-          ${contentHtml}
-        </td>
-      </tr>
-      <tr>
-        <td class="footer">
-          <p>© 2026 RoleFlow • The Modern Community ATS & Applicant Workflow</p>
-          <p>Official Support: <a href="mailto:support@roleflow.site" style="color: #8b5cf6; text-decoration: none;">support@roleflow.site</a></p>
-          <p>You received this because an application or account action occurred on <a href="${APP_URL}" style="color: #94a3b8; text-decoration: none;">roleflow.site</a></p>
-        </td>
-      </tr>
-    </table>
-  </div>
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;">${title}</div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: #f4f1ea;">
+    <tr>
+      <td align="center" style="padding: 36px 12px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width: 560px; background: #fbfaf6; border: 1px solid #d9d3c5; border-radius: 14px;">
+          <tr>
+            <td style="padding: 24px 36px 18px; border-bottom: 1px solid #efebe1;">
+              <table role="presentation" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="vertical-align: middle; padding-right: 10px;">
+                    <img src="https://roleflow.site/logo.png" alt="" width="28" height="28" style="display: block; border-radius: 7px;" />
+                  </td>
+                  <td style="vertical-align: middle; font-size: 16px; font-weight: 700; color: #161512; letter-spacing: -0.2px;">RoleFlow</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 32px 36px;">
+              ${contentHtml}
+            </td>
+          </tr>
+          <tr>
+            <td class="footer" style="padding: 20px 36px; border-top: 1px solid #efebe1; background: #f4f1ea; border-radius: 0 0 14px 14px;">
+              <p>RoleFlow · Applications and staff management for communities</p>
+              <p>Questions? <a href="mailto:support@roleflow.site">support@roleflow.site</a></p>
+              <p>You're receiving this because of activity on your RoleFlow account. <a href="${APP_URL}/privacy">Privacy</a> · <a href="${APP_URL}/terms">Terms</a></p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
-</html>
-  `;
+</html>`;
 }
 
 /**
@@ -201,14 +102,14 @@ export async function sendPasswordResetEmail(
       <a href="${resetUrl}" class="btn">Reset My Password</a>
     </div>
 
-    <p style="font-size: 12px; color: #94a3b8;">
+    <p style="font-size: 12px; color: #6b665a;">
       This link is valid for <strong>1 hour</strong>. If you did not request a password reset, you can safely ignore this email — your account remains completely secure.
     </p>
 
     <div class="card">
-      <p style="margin: 0; font-size: 11px; color: #64748b; font-family: monospace;">
+      <p style="margin: 0; font-size: 11px; color: #958f80; font-family: monospace;">
         Link not working? Paste this into your browser:<br>
-        <span style="color: #a78bfa; word-break: break-all;">${resetUrl}</span>
+        <span style="color: #e5532d; word-break: break-all;">${resetUrl}</span>
       </p>
     </div>
   `;
@@ -292,8 +193,8 @@ export async function sendApplicationStatusEmail({
 
   const noteBlock = decisionNote ? `
     <div class="card">
-      <p style="margin: 0 0 6px 0; font-size: 11px; font-weight: 700; color: #a78bfa; text-transform: uppercase;">Note from Review Team:</p>
-      <p style="margin: 0; font-size: 13px; color: #f1f5f9; font-style: italic;">"${escapeHtml(decisionNote)}"</p>
+      <p style="margin: 0 0 6px 0; font-size: 11px; font-weight: 700; color: #e5532d; text-transform: uppercase;">Note from Review Team:</p>
+      <p style="margin: 0; font-size: 13px; color: #161512; font-style: italic;">"${escapeHtml(decisionNote)}"</p>
     </div>
   ` : "";
 
@@ -302,8 +203,8 @@ export async function sendApplicationStatusEmail({
       ${statusBadge}
     </div>
     <h1>${headline}</h1>
-    <div class="card" style="border-left: 4px solid #8b5cf6;">
-      <p style="margin: 0; font-size: 12px; color: #94a3b8;">
+    <div class="card" style="border-left: 4px solid #e5532d;">
+      <p style="margin: 0; font-size: 12px; color: #6b665a;">
         <strong>Position:</strong> ${escapeHtml(positionTitle)}<br>
         <strong>Community:</strong> ${escapeHtml(communityName)}
       </p>
@@ -360,7 +261,7 @@ export async function sendApplicationSubmissionReceipt({
     <p>Your application for <strong>${escapeHtml(positionTitle)}</strong> has been successfully submitted to <strong>${escapeHtml(communityName)}</strong>.</p>
     
     <div class="card">
-      <p style="margin: 0; font-size: 12px; color: #cbd5e1;">
+      <p style="margin: 0; font-size: 12px; color: #3d3a33;">
         The community's recruitment team has been notified. You will receive an automated email notification as soon as your application is reviewed or a decision is made.
       </p>
     </div>
@@ -403,12 +304,12 @@ export async function sendModerationNoticeEmail({
 }): Promise<EmailResult> {
   const isPermanent = !expiresAt;
 
-  let badgeColor = "#ef4444";
+  let badgeColor = "#b42318";
   let title = "Account Moderation Notice";
   let actionLabel = "Account Suspended";
 
   if (actionType === "WARNING") {
-    badgeColor = "#f59e0b";
+    badgeColor = "#b45309";
     title = "Official Policy Warning";
     actionLabel = "Warning Issued";
   } else if (actionType === "BLACKLIST") {
@@ -423,7 +324,7 @@ export async function sendModerationNoticeEmail({
 
   const contentHtml = `
     <div style="margin-bottom: 20px;">
-      <span style="display: inline-block; padding: 4px 12px; border-radius: 6px; font-weight: 800; font-size: 11px; text-transform: uppercase; background: rgba(239, 68, 68, 0.15); color: ${badgeColor}; border: 1px solid rgba(239, 68, 68, 0.3);">
+      <span style="display: inline-block; padding: 4px 12px; border-radius: 6px; font-weight: 800; font-size: 11px; text-transform: uppercase; background: #f9dede; color: ${badgeColor}; border: 1px solid #e9b4b4;">
         ${actionLabel}
       </span>
     </div>
@@ -433,24 +334,24 @@ export async function sendModerationNoticeEmail({
     <p>This is an automated notice from the <strong>RoleFlow Trust & Safety Team</strong> regarding enforcement action taken on your account.</p>
 
     <div class="card" style="border-left: 4px solid ${badgeColor};">
-      <p style="margin: 0 0 8px 0; font-size: 11px; font-weight: 700; color: #a78bfa; text-transform: uppercase;">Moderation Details:</p>
-      <p style="margin: 0 0 6px 0; font-size: 13px; color: #f1f5f9;"><strong>Action:</strong> ${actionLabel}</p>
-      <p style="margin: 0 0 6px 0; font-size: 13px; color: #f1f5f9;"><strong>Reason:</strong> ${escapeHtml(reason)}</p>
-      <p style="margin: 0; font-size: 13px; color: #f1f5f9;"><strong>Duration:</strong> ${isPermanent ? "Permanent" : expiresAt}</p>
+      <p style="margin: 0 0 8px 0; font-size: 11px; font-weight: 700; color: #e5532d; text-transform: uppercase;">Moderation Details:</p>
+      <p style="margin: 0 0 6px 0; font-size: 13px; color: #161512;"><strong>Action:</strong> ${actionLabel}</p>
+      <p style="margin: 0 0 6px 0; font-size: 13px; color: #161512;"><strong>Reason:</strong> ${escapeHtml(reason)}</p>
+      <p style="margin: 0; font-size: 13px; color: #161512;"><strong>Duration:</strong> ${isPermanent ? "Permanent" : expiresAt}</p>
     </div>
 
-    <p style="font-size: 13px; color: #cbd5e1; line-height: 1.6;">
-      While this restriction is active, your ability to submit candidate applications, manage communities, or access candidate pools may be suspended in accordance with our <a href="${APP_URL}/acceptable-use" style="color: #a78bfa; text-decoration: underline;">Acceptable Use Policy</a>.
+    <p style="font-size: 13px; color: #3d3a33; line-height: 1.6;">
+      While this restriction is active, your ability to submit candidate applications, manage communities, or access candidate pools may be suspended in accordance with our <a href="${APP_URL}/acceptable-use" style="color: #e5532d; text-decoration: underline;">Acceptable Use Policy</a>.
     </p>
 
-    <div class="card" style="background: rgba(255, 255, 255, 0.03);">
-      <p style="margin: 0; font-size: 12px; color: #94a3b8;">
-        If you believe this penalty was issued in error or wish to submit an appeal, please open a ticket in our official community support server or email <a href="mailto:support@roleflow.site" style="color: #a78bfa;">support@roleflow.site</a> with your account ID.
+    <div class="card" style="background: #efebe1;">
+      <p style="margin: 0; font-size: 12px; color: #6b665a;">
+        If you believe this penalty was issued in error or wish to submit an appeal, please open a ticket in our official community support server or email <a href="mailto:support@roleflow.site" style="color: #e5532d;">support@roleflow.site</a> with your account ID.
       </p>
     </div>
 
     <div class="button-container">
-      <a href="https://discord.gg/tKPbCXbmr9" class="btn" style="background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);">Submit Moderation Appeal</a>
+      <a href="https://discord.gg/tKPbCXbmr9" class="btn" style="background: #e5532d;">Submit Moderation Appeal</a>
     </div>
   `;
 

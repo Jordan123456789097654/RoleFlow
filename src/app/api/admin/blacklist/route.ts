@@ -1,4 +1,5 @@
 import { isFounderId } from "@/lib/roles";
+import { syncBanFlag } from "@/lib/bans";
 import { verifySessionValue } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
@@ -116,10 +117,7 @@ export async function DELETE(request: Request) {
 
     const entry = await prisma.globalBlacklist.findUnique({ where: { id } });
     if (entry && entry.targetType === "DISCORD_ID") {
-      await prisma.user.updateMany({
-        where: { id: entry.targetValue },
-        data: { isBanned: false },
-      });
+      await syncBanFlag(entry.targetValue);
     }
 
     await prisma.globalBlacklist.delete({

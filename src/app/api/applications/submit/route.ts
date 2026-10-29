@@ -1,3 +1,4 @@
+import { findActiveBan } from "@/lib/bans";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
@@ -68,7 +69,8 @@ export async function POST(request: Request) {
     }
 
     // Check Global Blacklist / Platform Ban
-    if (user.isBanned) {
+    const platformBan = await findActiveBan({ discordId: user.id, robloxUsername: user.robloxUsername, robloxId: user.robloxId });
+    if (platformBan) {
       return NextResponse.json(
         { error: "Your account is suspended from the RoleFlow platform." },
         { status: 403 }

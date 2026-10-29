@@ -21,16 +21,7 @@ export async function POST(request: Request) {
     const { robloxUsername } = await request.json();
 
     if (!robloxUsername || !robloxUsername.trim()) {
-      // Clear Roblox link
-      const updated = await prisma.user.update({
-        where: { id: userId },
-        data: {
-          robloxUsername: null,
-          robloxId: null,
-          robloxAvatar: null,
-        },
-      });
-      return NextResponse.json({ success: true, user: updated });
+      return NextResponse.json({ error: "A Roblox account is required." }, { status: 400 });
     }
 
     const cleanName = robloxUsername.trim();
@@ -67,6 +58,25 @@ export async function POST(request: Request) {
         }
       }
     } catch (e) {}
+
+    if (rbxId || cleanName) {
+      const blocked = await prisma.globalBlacklist.findFirst({
+        where: {
+          targetType: "ROBLOX_ID",
+          OR: [
+            { targetValue: { equals: cleanName, mode: "insensitive" } },
+            ...(rbxId ? [{ targetValue: rbxId }] : []),
+          ],
+        },
+      });
+      if (blocked) {
+        return NextResponse.json({ error: "This Roblox account cannot be linked to RoleFlow." }, { status: 403 });
+      }
+    }
+
+    if (!rbxId) {
+      return NextResponse.json({ error: "No Roblox account found with that username." }, { status: 400 });
+    }
 
     const updated = await prisma.user.update({
       where: { id: userId },

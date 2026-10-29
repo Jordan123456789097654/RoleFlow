@@ -1,3 +1,4 @@
+import { findActiveBan } from "@/lib/bans";
 import { notifyNewDevice } from "@/lib/second-factor";
 import { validCustomReturn } from "@/lib/custom-domain";
 import { signBridgeToken } from "@/lib/custom-domain-auth";
@@ -73,25 +74,9 @@ export async function GET(request: Request) {
     const adminIds = (process.env.SITE_ADMIN_DISCORD_IDS || "").split(",").map((s) => s.trim());
     const isSiteAdmin = adminIds.includes(discordUser.id);
 
-    // Check if user is globally banned or blacklisted
-    const globalBan = await prisma.globalBlacklist.findFirst({
-      where: { targetType: "DISCORD_ID", targetValue: discordUser.id },
-    });
-
-    if (globalBan) {
-      return NextResponse.redirect(new URL("/?error=account_suspended", request.url));
-    }
-
-    const activePunishment = await prisma.punishment.findFirst({
-      where: {
-        targetType: "USER",
-        targetId: discordUser.id,
-        liftedAt: null,
-        action: { in: ["BAN", "SUSPENSION"] },
-        OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
-      },
-    });
-    if (activePunishment) {
+    // Global blacklist and active bans or suspensions block sign-in.
+    const ban = await findActiveBan({ discordId: discordUser.id });
+    if (ban) {
       return NextResponse.redirect(new URL("/?error=account_suspended", request.url));
     }
 

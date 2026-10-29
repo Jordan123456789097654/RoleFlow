@@ -8,6 +8,7 @@ import { getRobloxGroupRoles } from "@/lib/roblox";
 import { GameSecretPanel } from "@/components/dashboard/GameSecretPanel";
 import { QuotaEditor } from "@/components/dashboard/QuotaEditor";
 import { StaffLinkEditor } from "@/components/dashboard/StaffLinkEditor";
+import { AddManualStaffForm } from "@/components/dashboard/AddManualStaffForm";
 
 export const revalidate = 0;
 
@@ -34,6 +35,7 @@ export default async function StaffRosterPage({ params }: { params: { guildId: s
       id: true,
       name: true,
       robloxGroupId: true,
+      staffMonitoredRanks: true,
       staffGameSecretHash: true,
       staffGameSecretRotatedAt: true,
     },
@@ -41,7 +43,10 @@ export default async function StaffRosterPage({ params }: { params: { guildId: s
   if (!guild) notFound();
 
   const roster = await buildRoster(params.guildId);
-  const roles = canManage && guild.robloxGroupId ? await getRobloxGroupRoles(guild.robloxGroupId) : [];
+  const allRoles = canManage && guild.robloxGroupId ? await getRobloxGroupRoles(guild.robloxGroupId) : [];
+  const roles = guild.staffMonitoredRanks.length
+    ? allRoles.filter((r) => guild.staffMonitoredRanks.includes(r.rank))
+    : allRoles;
 
   return (
     <div className="max-w-4xl pb-16">
@@ -66,11 +71,11 @@ export default async function StaffRosterPage({ params }: { params: { guildId: s
         />
       )}
 
-      {!roster.linked && (
+      {!roster.linked && roster.members.length === 0 && (
         <p className="mt-8 text-[14px] text-muted">Link a Roblox group in Settings to start tracking staff quotas.</p>
       )}
 
-      {roster.linked && (
+      {(roster.linked || roster.members.length > 0) && (
         <div className="mt-8 overflow-x-auto">
           <table className="w-full text-left text-[14px]">
             <thead className="text-[12px] uppercase tracking-wide text-muted">
@@ -112,8 +117,13 @@ export default async function StaffRosterPage({ params }: { params: { guildId: s
         </div>
       )}
 
-      {canManage && roster.linked && (
+      {canManage && (
         <>
+          <section className="mt-12">
+            <h2 className="text-[16px] font-semibold text-ink">Add staff by hand</h2>
+            <p className="mt-1 mb-4 text-[13px] text-muted">For communities without a Roblox group. A Roblox account is required for every staff member.</p>
+            <AddManualStaffForm guildId={guild.id} roles={roles} />
+          </section>
           <QuotaEditor guildId={guild.id} initialRules={roster.rules} roles={roles} />
           <StaffLinkEditor guildId={guild.id} members={roster.members} roles={roles} />
         </>

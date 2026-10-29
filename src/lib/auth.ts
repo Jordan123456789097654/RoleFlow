@@ -15,6 +15,7 @@ export interface CurrentUser {
   isSupportStaff: boolean;
   siteRole: string; // FOUNDER, ADMIN, MODERATOR, SUPPORT, STAFF, USER
   isBanned: boolean;
+  companyEmailVerified: boolean;
   hasCommunities: boolean;
 }
 
@@ -66,6 +67,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     isSupportStaff,
     siteRole,
     isBanned: Boolean(user.isBanned),
+    companyEmailVerified: Boolean(user.companyEmailVerifiedAt),
     hasCommunities,
   };
 }

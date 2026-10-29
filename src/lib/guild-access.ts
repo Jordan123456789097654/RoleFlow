@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { isFeatureEnabled } from "./feature-flags";
 import { cookies } from "next/headers";
 import { prisma } from "./prisma";
 import { verifySessionValue, SESSION_COOKIE_NAME } from "./session";
@@ -26,9 +27,12 @@ export async function authorizeGuild(guildId: string, level: GuildLevel): Promis
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { id: true, isSiteAdmin: true, siteRole: true },
+    select: { id: true, isSiteAdmin: true, siteRole: true, robloxId: true },
   });
   if (!user) return deny(401, "Unauthorized");
+  if (!user.robloxId && (await isFeatureEnabled("roblox_linking"))) {
+    return deny(403, "Link your Roblox account to continue.");
+  }
   if (isSiteAdminUser(user)) return { ok: true, userId, guildId };
 
   const guild = await prisma.guild.findUnique({ where: { id: guildId }, select: { ownerId: true } });

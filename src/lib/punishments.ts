@@ -3,6 +3,7 @@ import { recordAudit } from "./audit";
 import { sendModerationNoticeEmail, sendSecurityNoticeEmail } from "./email";
 import { signSessionValue } from "./session";
 import { platformOrigin } from "./platform-origin";
+import { syncBanFlag } from "./bans";
 
 const APP_URL = platformOrigin();
 
@@ -28,6 +29,8 @@ export async function punishUser(a: {
   if (a.action !== "WARNING") {
     await prisma.user.update({ where: { id: user.id }, data: { sessionVersion: { increment: 1 } } });
   }
+
+  if (a.action === "BAN") await syncBanFlag(user.id);
 
   await recordAudit({
     actorId: a.issuedById,
@@ -62,6 +65,7 @@ export async function liftUserPunishments(userId: string, liftedById: string) {
     where: { targetType: "USER", targetId: userId, liftedAt: null, action: { in: ["BAN", "SUSPENSION"] } },
     data: { liftedAt: new Date() },
   });
+  await syncBanFlag(userId);
   await recordAudit({ actorId: liftedById, action: "USER_PUNISH_LIFT", targetId: userId, details: { lifted: result.count } });
   return result.count;
 }

@@ -142,3 +142,10 @@ After pulling: `npx prisma db push && npx prisma generate`.
 - Broadcast text is shown as plain text (RichText off) in the game.
 
 After pulling: `npx prisma db push && npx prisma generate`.
+
+## Staff: required Roblox link, manual staff, monitored-role popup
+
+- Every staff member must have a Roblox account linked. The link endpoint checks that the Roblox user exists.
+- `POST /api/guilds/[id]/staff/manual` adds staff by hand, for communities without a Roblox group. Roblox ID is required; Discord ID is optional.
+- Rank 0 means manual staff (no Roblox group). Quotas can be set for it.
+- The monitored-roles popup also opens when settings are saved with a new group ID.

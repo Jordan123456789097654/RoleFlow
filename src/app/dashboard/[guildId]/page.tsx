@@ -257,6 +257,11 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
   const [robloxAuthToggle, setRobloxAuthToggle] = useState(false);
   const [robloxGroupCheckToggle, setRobloxGroupCheckToggle] = useState(false);
   const [robloxGroupIdInput, setRobloxGroupIdInput] = useState("");
+  const [rolesModalGroup, setRolesModalGroup] = useState<string | null>(null);
+  const [groupIdOnFocus, setGroupIdOnFocus] = useState("");
+  const [savedGroupId, setSavedGroupId] = useState("");
+  const [monitoredRanksInput, setMonitoredRanksInput] = useState<number[]>([]);
+  const [monitoredTouched, setMonitoredTouched] = useState(false);
   const [robloxMinRankInput, setRobloxMinRankInput] = useState(1);
   const [robloxMinAccountAgeDaysInput, setRobloxMinAccountAgeDaysInput] = useState(0);
   const [robloxAcceptRankIdInput, setRobloxAcceptRankIdInput] = useState<string>("");
@@ -405,6 +410,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
         setRobloxAuthToggle(data.enableRobloxAuth || false);
         setRobloxGroupCheckToggle(data.enableRobloxGroupCheck || false);
         setRobloxGroupIdInput(data.robloxGroupId || "");
+        setSavedGroupId(data.robloxGroupId || "");
         setRobloxMinRankInput(data.robloxMinRank || 1);
         setRobloxMinAccountAgeDaysInput(data.robloxMinAccountAgeDays || 0);
         setRobloxAcceptRankIdInput(data.robloxAcceptRankId !== null && data.robloxAcceptRankId !== undefined ? String(data.robloxAcceptRankId) : "");
@@ -877,6 +883,12 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
   };
 
   const handleSaveSettings = async () => {
+    // A new group ID needs its roles chosen before saving, however the ID was entered.
+    const newGroupId = robloxGroupIdInput.trim();
+    if (robloxGroupCheckToggle && /^\d{1,20}$/.test(newGroupId) && newGroupId !== savedGroupId && !monitoredTouched) {
+      setRolesModalGroup(newGroupId);
+      return;
+    }
     setSavingSettings(true);
     try {
       const res = await fetch(`/api/guilds/${params.guildId}/settings`, {
@@ -901,6 +913,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           enableRobloxAuth: robloxAuthToggle,
           enableRobloxGroupCheck: robloxGroupCheckToggle,
           robloxGroupId: robloxGroupIdInput,
+          ...(monitoredTouched ? { staffMonitoredRanks: monitoredRanksInput } : {}),
           robloxMinRank: Number(robloxMinRankInput),
           robloxMinAccountAgeDays: Number(robloxMinAccountAgeDaysInput) || 0,
           robloxAcceptRankId: robloxAcceptRankIdInput !== "" ? Number(robloxAcceptRankIdInput) : null,
@@ -3146,6 +3159,18 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                 />
               </div>
 
+              {rolesModalGroup && (
+                <MonitoredRolesModal
+                  guildId={params.guildId}
+                  groupId={rolesModalGroup}
+                  initialSelected={monitoredRanksInput}
+                  onSave={(ranks) => {
+                    setMonitoredRanksInput(ranks);
+                    setMonitoredTouched(true);
+                  }}
+                  onClose={() => setRolesModalGroup(null)}
+                />
+              )}
               {robloxGroupCheckToggle && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-xl bg-sunk border border-purple-500/20">
                   <div>
@@ -3156,7 +3181,18 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                       type="text"
                       placeholder="e.g. 15928371"
                       value={robloxGroupIdInput}
-                      onChange={(e) => setRobloxGroupIdInput(e.target.value)}
+                      onChange={(e) => {
+                        setRobloxGroupIdInput(e.target.value);
+                        setMonitoredTouched(false);
+                      }}
+                      onFocus={(e) => setGroupIdOnFocus(e.target.value.trim())}
+                      onBlur={(e) => {
+                        const v = e.target.value.trim();
+                        if (/^\d{1,20}$/.test(v) && v !== groupIdOnFocus) setRolesModalGroup(v);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+                      }}
                       className="w-full px-3 py-1.5 rounded-lg bg-surface border border-line text-xs text-ink font-mono focus:border-accent"
                     />
                   </div>

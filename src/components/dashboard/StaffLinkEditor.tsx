@@ -62,7 +62,7 @@ function StaffLinkRow({ guildId, member, roles }: { guildId: string; member: Mem
         <input
           value={robloxUserId}
           onChange={(e) => setRobloxUserId(e.target.value)}
-          placeholder="Roblox user ID"
+          placeholder="Roblox user ID (required)"
           inputMode="numeric"
           className="w-44 rounded-lg border border-line bg-transparent px-3 py-2 text-[14px] text-ink"
         />
@@ -71,7 +71,7 @@ function StaffLinkRow({ guildId, member, roles }: { guildId: string; member: Mem
           onChange={(e) => setRank(e.target.value)}
           className="rounded-lg border border-line bg-transparent px-3 py-2 text-[14px] text-ink"
         >
-          <option value="">No rank</option>
+          <option value="0">Manual staff (no Roblox group)</option>
           {roles
             .filter((r) => r.rank > 0)
             .map((r) => (
@@ -82,7 +82,7 @@ function StaffLinkRow({ guildId, member, roles }: { guildId: string; member: Mem
         </select>
         <button
           onClick={save}
-          disabled={busy}
+          disabled={busy || !robloxUserId.trim()}
           className="rounded-lg bg-accent px-3 py-2 text-[13px] font-medium text-white hover:bg-accent-hover disabled:opacity-50"
         >
           {busy ? "Saving…" : "Save"}

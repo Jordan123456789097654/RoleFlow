@@ -47,7 +47,7 @@ export function QuotaEditor({ guildId, initialRules, roles }: { guildId: string;
     setMessage(res.ok ? { ok: true, text: "Quotas saved." } : { ok: false, text: data.error || "Could not save." });
   }
 
-  const selectable = roles.filter((r) => r.rank > 0);
+  const selectable = [{ rank: 0, name: "Manual staff (no Roblox group)" }, ...roles.filter((r) => r.rank > 0)];
 
   return (
     <div className="mt-10">
