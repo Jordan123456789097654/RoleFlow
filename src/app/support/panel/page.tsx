@@ -17,6 +17,7 @@ import {
   KeyRound,
   Eye,
   RefreshCw,
+  Mail,
 } from "lucide-react";
 
 interface ActiveSessionUser {
@@ -37,6 +38,8 @@ export default function SupportStaffPanelPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [maintenanceEnabled, setMaintenanceEnabled] = useState(false);
   const [togglingMaintenance, setTogglingMaintenance] = useState(false);
+  const [resettingId, setResettingId] = useState<string | null>(null);
+  const [resetResults, setResetResults] = useState<Record<string, { ok: boolean; text: string }>>({});
 
   useEffect(() => {
     fetchActiveSessions();
@@ -99,6 +102,27 @@ export default function SupportStaffPanelPage() {
       setRefreshing(false);
     }
   }
+
+  const handleSendReset = async (session: ActiveSessionUser) => {
+    if (!confirm(`Email a password reset link to ${session.username}? The link goes to the address on their account and expires in 1 hour.`)) return;
+    setResettingId(session.id);
+    try {
+      const res = await fetch("/api/support/password-reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: session.id }),
+      });
+      const data = await res.json().catch(() => ({}));
+      setResetResults((prev) => ({
+        ...prev,
+        [session.id]: res.ok ? { ok: true, text: data.message || "Reset link sent." } : { ok: false, text: data.error || "Could not send reset." },
+      }));
+    } catch {
+      setResetResults((prev) => ({ ...prev, [session.id]: { ok: false, text: "Network error." } }));
+    } finally {
+      setResettingId(null);
+    }
+  };
 
   const handleStartSession = async (codeToUse: string) => {
     if (!codeToUse.trim()) return;
@@ -310,13 +334,31 @@ export default function SupportStaffPanelPage() {
                   </div>
                 </div>
 
-                <button
-                  onClick={() => handleStartSession(session.supportCode)}
-                  className="px-3.5 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold transition-all shadow-md shrink-0 flex items-center gap-1.5"
-                >
-                  <span>Diagnose</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
+                <div className="flex shrink-0 flex-col items-end gap-2">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleSendReset(session)}
+                      disabled={resettingId === session.id}
+                      className="btn-ghost btn-sm"
+                      title="Email the member a password reset link"
+                    >
+                      <Mail className="w-3.5 h-3.5" />
+                      <span>{resettingId === session.id ? "Sending..." : "Send reset link"}</span>
+                    </button>
+                    <button
+                      onClick={() => handleStartSession(session.supportCode)}
+                      className="px-3.5 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold transition-all shadow-md flex items-center gap-1.5"
+                    >
+                      <span>Diagnose</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                  {resetResults[session.id] && (
+                    <span className={resetResults[session.id].ok ? "text-[11px] text-moss" : "text-[11px] text-danger"}>
+                      {resetResults[session.id].text}
+                    </span>
+                  )}
+                </div>
               </div>
             ))}
           </div>
