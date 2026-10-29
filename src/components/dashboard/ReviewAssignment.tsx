@@ -4,7 +4,7 @@ import { useState } from "react";
 
 type Staff = { userId: string; username: string };
 
-const field = "w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-xs text-white outline-none focus:border-purple-500";
+const field = "w-full rounded-lg border border-line bg-sunk px-3 py-2 text-xs text-ink outline-none focus:border-accent";
 
 export function AssignmentPanel({
   applicationId,
@@ -37,10 +37,10 @@ export function AssignmentPanel({
   const overdue = due && new Date(due) < new Date(new Date().toDateString());
 
   return (
-    <div className="p-4 rounded-xl bg-surface border border-white/5 space-y-3">
+    <div className="p-4 rounded-xl bg-surface border border-line space-y-3">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-white">Review assignment</span>
-        {overdue && <span className="text-[10px] font-semibold text-rose-400">Overdue</span>}
+        <span className="text-xs font-semibold text-ink">Review assignment</span>
+        {overdue && <span className="text-[10px] font-semibold text-danger">Overdue</span>}
       </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <select value={reviewer} onChange={(e) => setReviewer(e.target.value)} className={field}>
@@ -49,7 +49,7 @@ export function AssignmentPanel({
         </select>
         <input type="date" value={due} onChange={(e) => setDue(e.target.value)} className={field} />
       </div>
-      <label className="flex items-center gap-2 text-xs text-slate-300">
+      <label className="flex items-center gap-2 text-xs text-ink-2">
         <input type="checkbox" checked={second} onChange={(e) => setSecond(e.target.checked)} />
         Needs a second opinion
       </label>
@@ -57,7 +57,7 @@ export function AssignmentPanel({
         <button onClick={save} disabled={saving} className="rounded-lg bg-purple-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-purple-500 disabled:opacity-50">
           {saving ? "Saving..." : "Save assignment"}
         </button>
-        {message && <span className="text-xs text-slate-400">{message}</span>}
+        {message && <span className="text-xs text-muted">{message}</span>}
       </div>
     </div>
   );
@@ -91,17 +91,17 @@ export function BulkAssignControl({ applicationIds, staff }: { applicationIds: s
 
   return (
     <div className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-purple-500/30 bg-purple-500/5 p-3">
-      <span className="text-xs font-semibold text-white">{applicationIds.length} selected</span>
+      <span className="text-xs font-semibold text-ink">{applicationIds.length} selected</span>
       <select value={reviewer} onChange={(e) => setReviewer(e.target.value)} className={`${field} w-auto`}>
         <option value="">Unassign</option>
         {staff.map((s) => <option key={s.userId} value={s.userId}>{s.username}</option>)}
       </select>
       <input type="date" value={due} onChange={(e) => setDue(e.target.value)} className={`${field} w-auto`} />
-      <label className="flex items-center gap-1.5 text-xs text-slate-300">
+      <label className="flex items-center gap-1.5 text-xs text-ink-2">
         <input type="checkbox" checked={second} onChange={(e) => setSecond(e.target.checked)} /> Second opinion
       </label>
       <button onClick={apply} className="rounded-lg bg-purple-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-purple-500">Apply to selected</button>
-      {message && <span className="text-xs text-slate-300">{message}</span>}
+      {message && <span className="text-xs text-ink-2">{message}</span>}
     </div>
   );
 }

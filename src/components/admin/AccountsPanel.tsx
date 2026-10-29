@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 
-const card = "rounded-2xl border border-white/10 bg-white/[0.02] p-5";
-const input = "w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none focus:border-purple-500";
+const card = "rounded-2xl border border-line bg-surface p-5";
+const input = "w-full rounded-lg border border-line bg-sunk px-3 py-2 text-sm text-ink outline-none focus:border-accent";
 
 export default function AccountsPanel() {
   const [query, setQuery] = useState("");
@@ -32,17 +32,17 @@ export default function AccountsPanel() {
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       <section className={`${card} space-y-3 lg:col-span-1`}>
-        <h3 className="text-sm font-bold text-white">Find an account</h3>
+        <h3 className="text-sm font-bold text-ink">Find an account</h3>
         <div className="flex gap-2">
           <input value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.key === "Enter" && search()} placeholder="Name, Discord ID, or Roblox name" className={input} />
           <button onClick={search} className="shrink-0 rounded-lg bg-purple-600 px-3 text-xs font-semibold text-white hover:bg-purple-500">Search</button>
         </div>
-        <ul className="max-h-96 divide-y divide-white/5 overflow-y-auto">
+        <ul className="max-h-96 divide-y divide-line overflow-y-auto">
           {results.map((u) => (
             <li key={u.id}>
-              <button onClick={() => open(u.id)} className="flex w-full items-center justify-between py-2 text-left text-xs text-slate-200 hover:text-white">
+              <button onClick={() => open(u.id)} className="flex w-full items-center justify-between py-2 text-left text-xs text-ink-2 hover:text-ink">
                 <span className="truncate">{u.username}</span>
-                <span className="font-mono text-[10px] text-slate-500">{u.id}</span>
+                <span className="font-mono text-[10px] text-faint">{u.id}</span>
               </button>
             </li>
           ))}
@@ -51,17 +51,17 @@ export default function AccountsPanel() {
 
       <section className={`${card} space-y-5 lg:col-span-2`}>
         {!account ? (
-          <p className="text-xs text-slate-500">Select an account to see its communities, applications, devices, punishments, and audit history.</p>
+          <p className="text-xs text-faint">Select an account to see its communities, applications, devices, punishments, and audit history.</p>
         ) : (
           <>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <div className="text-base font-bold text-white">{account.user.username}</div>
-                <div className="font-mono text-[11px] text-slate-500">{account.user.id} · {account.user.email || "no email"} · {account.user.siteRole || "USER"}</div>
+                <div className="text-base font-bold text-ink">{account.user.username}</div>
+                <div className="font-mono text-[11px] text-faint">{account.user.id} · {account.user.email || "no email"} · {account.user.siteRole || "USER"}</div>
               </div>
               <button onClick={revoke} className="rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-rose-500">End all sessions</button>
             </div>
-            {message && <p className="text-xs text-emerald-300">{message}</p>}
+            {message && <p className="text-xs text-moss">{message}</p>}
 
             <Block title={`Communities owned (${account.guilds.length})`}>
               {account.guilds.map((g: any) => <Row key={g.id} left={g.name} right={g.isPaused ? "PAUSED" : new Date(g.createdAt).toLocaleDateString()} />)}
@@ -88,8 +88,8 @@ export default function AccountsPanel() {
 function Block({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-400">{title}</h4>
-      <ul className="divide-y divide-white/5">{children}</ul>
+      <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-muted">{title}</h4>
+      <ul className="divide-y divide-line">{children}</ul>
     </div>
   );
 }
@@ -97,8 +97,8 @@ function Block({ title, children }: { title: string; children: React.ReactNode }
 function Row({ left, right }: { left: string; right: string }) {
   return (
     <li className="flex items-center justify-between gap-3 py-1.5 text-xs">
-      <span className="truncate text-slate-200">{left}</span>
-      <span className="shrink-0 text-slate-500">{right}</span>
+      <span className="truncate text-ink-2">{left}</span>
+      <span className="shrink-0 text-faint">{right}</span>
     </li>
   );
 }

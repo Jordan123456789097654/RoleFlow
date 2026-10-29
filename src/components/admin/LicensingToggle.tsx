@@ -30,11 +30,11 @@ export default function LicensingToggle() {
   };
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 space-y-3">
+    <div className="rounded-2xl border border-line bg-surface/[0.02] p-5 space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h3 className="text-sm font-bold text-white">Licensing system</h3>
-          <p className="mt-1 text-xs text-slate-400">
+          <h3 className="text-sm font-bold text-ink">Licensing system</h3>
+          <p className="mt-1 text-xs text-muted">
             {enabled === null ? "Loading..." : enabled
               ? "ON: free limits apply (1 community per account, 3 open positions per community, no custom bot or webhook logs). License keys unlock paid tiers."
               : "OFF (beta): every community and account has paid features for free."}
@@ -48,7 +48,7 @@ export default function LicensingToggle() {
           {enabled ? "Turn licensing off (beta)" : "Turn licensing on"}
         </button>
       </div>
-      {message && <p className="text-xs text-emerald-300">{message}</p>}
+      {message && <p className="text-xs text-moss">{message}</p>}
     </div>
   );
 }

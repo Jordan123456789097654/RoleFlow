@@ -50,51 +50,51 @@ export default function OverviewPanel({ guildId, onOpenApplications }: { guildId
     })();
   }, [guildId]);
 
-  if (loading) return <p className="text-sm text-slate-500">Loading overview...</p>;
-  if (error) return <p className="text-sm text-rose-400">{error}</p>;
+  if (loading) return <p className="text-sm text-faint">Loading overview...</p>;
+  if (error) return <p className="text-sm text-danger">{error}</p>;
 
   const waiting = apps
     .filter((a) => WAITING.includes(a.status))
     .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
     .slice(0, 8);
   const openPositions = positions.filter((p) => p.isOpen);
-  const card = "rounded-2xl border border-white/10 bg-white/[0.02] p-5";
+  const card = "rounded-2xl border border-line bg-surface p-5";
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 divide-y divide-white/10 rounded-2xl border border-white/10 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+      <div className="grid grid-cols-1 divide-y divide-white/10 rounded-2xl border border-line sm:grid-cols-3 sm:divide-x sm:divide-y-0">
         <div className="p-5">
-          <div className="text-xs text-slate-400">Waiting for review</div>
-          <div className="mt-1 text-2xl font-bold text-white">{waiting.length}</div>
+          <div className="text-xs text-muted">Waiting for review</div>
+          <div className="mt-1 text-2xl font-bold text-ink">{waiting.length}</div>
         </div>
         <div className="p-5">
-          <div className="text-xs text-slate-400">New since your last visit</div>
-          <div className="mt-1 text-2xl font-bold text-white">{newSince ?? 0}</div>
-          <div className="text-[11px] text-slate-500">{lastVisit ? `Last visit ${new Date(lastVisit).toLocaleString()}` : "First visit"}</div>
+          <div className="text-xs text-muted">New since your last visit</div>
+          <div className="mt-1 text-2xl font-bold text-ink">{newSince ?? 0}</div>
+          <div className="text-[11px] text-faint">{lastVisit ? `Last visit ${new Date(lastVisit).toLocaleString()}` : "First visit"}</div>
         </div>
         <div className="p-5">
-          <div className="text-xs text-slate-400">Open positions</div>
-          <div className="mt-1 text-2xl font-bold text-white">{openPositions.length}</div>
+          <div className="text-xs text-muted">Open positions</div>
+          <div className="mt-1 text-2xl font-bold text-ink">{openPositions.length}</div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <section className={card}>
           <div className="mb-3 flex items-center justify-between">
-            <h3 className="text-sm font-bold text-white">Waiting longest</h3>
-            <button onClick={onOpenApplications} className="text-xs text-purple-400 hover:text-purple-300">View all</button>
+            <h3 className="text-sm font-bold text-ink">Waiting longest</h3>
+            <button onClick={onOpenApplications} className="text-xs text-accent hover:text-accent">View all</button>
           </div>
           {waiting.length === 0 ? (
-            <p className="text-xs text-slate-500">No applications are waiting for review.</p>
+            <p className="text-xs text-faint">No applications are waiting for review.</p>
           ) : (
-            <ul className="divide-y divide-white/5">
+            <ul className="divide-y divide-line">
               {waiting.map((a) => (
                 <li key={a.id} className="flex items-center justify-between gap-3 py-2.5">
                   <div className="min-w-0">
-                    <div className="truncate text-xs font-semibold text-white">{a.user.username}</div>
-                    <div className="truncate text-[11px] text-slate-500">{a.position.title}</div>
+                    <div className="truncate text-xs font-semibold text-ink">{a.user.username}</div>
+                    <div className="truncate text-[11px] text-faint">{a.position.title}</div>
                   </div>
-                  <span className={`shrink-0 text-[11px] font-semibold ${daysSince(a.createdAt) >= 7 ? "text-rose-400" : "text-slate-400"}`}>
+                  <span className={`shrink-0 text-[11px] font-semibold ${daysSince(a.createdAt) >= 7 ? "text-danger" : "text-muted"}`}>
                     {daysSince(a.createdAt)}d
                   </span>
                 </li>
@@ -104,15 +104,15 @@ export default function OverviewPanel({ guildId, onOpenApplications }: { guildId
         </section>
 
         <section className={card}>
-          <h3 className="mb-3 text-sm font-bold text-white">Open positions</h3>
+          <h3 className="mb-3 text-sm font-bold text-ink">Open positions</h3>
           {openPositions.length === 0 ? (
-            <p className="text-xs text-slate-500">No open positions. Create one in the Form Builder.</p>
+            <p className="text-xs text-faint">No open positions. Create one in the Form Builder.</p>
           ) : (
-            <ul className="divide-y divide-white/5">
+            <ul className="divide-y divide-line">
               {openPositions.map((p) => (
                 <li key={p.id} className="flex items-center justify-between gap-3 py-2.5">
-                  <span className="truncate text-xs font-semibold text-white">{p.title}</span>
-                  <span className="shrink-0 rounded-md bg-white/5 px-2 py-0.5 text-[11px] text-slate-300">
+                  <span className="truncate text-xs font-semibold text-ink">{p.title}</span>
+                  <span className="shrink-0 rounded-md bg-sunk px-2 py-0.5 text-[11px] text-ink-2">
                     {p._count?.applications ?? 0} applications
                   </span>
                 </li>

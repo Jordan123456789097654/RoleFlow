@@ -129,7 +129,7 @@ export default function SupportStaffPanelPage() {
     return (
       <div className="max-w-4xl mx-auto px-4 py-28 text-center">
         <div className="w-8 h-8 rounded-full border-2 border-purple-500 border-t-transparent animate-spin mx-auto mb-4" />
-        <p className="text-xs text-slate-400 font-mono">Authenticating RoleFlow Support Specialist Credentials...</p>
+        <p className="text-xs text-muted font-mono">Authenticating RoleFlow Support Specialist Credentials...</p>
       </div>
     );
   }
@@ -137,17 +137,17 @@ export default function SupportStaffPanelPage() {
   if (unauthorized) {
     return (
       <div className="max-w-md mx-auto px-4 py-24 text-center">
-        <div className="w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mx-auto mb-4 text-rose-400">
+        <div className="w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mx-auto mb-4 text-danger">
           <Shield className="w-7 h-7" />
         </div>
-        <h2 className="text-xl font-bold text-white mb-2">Support Staff Access Required</h2>
-        <p className="text-xs text-slate-400 mb-6 leading-relaxed">
+        <h2 className="text-xl font-bold text-ink mb-2">Support Staff Access Required</h2>
+        <p className="text-xs text-muted mb-6 leading-relaxed">
           This panel is restricted exclusively to verified RoleFlow Support Specialists and platform administrators. If you are a support team member, please ask the Founder to grant you the Support Staff role in the Admin Console.
         </p>
         <div className="flex items-center justify-center gap-3">
           <Link
             href="/dashboard"
-            className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold text-white transition-all border border-white/5"
+            className="px-4 py-2 rounded-xl bg-sunk hover:bg-sunk text-xs font-semibold text-ink transition-all border border-line"
           >
             Back to Dashboard
           </Link>
@@ -168,19 +168,19 @@ export default function SupportStaffPanelPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-surface-border">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-line">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-purple-500/20 text-accent border border-purple-500/30">
               INTERNAL STAFF ONLY
             </span>
-            <span className="text-xs text-slate-500 font-mono">• SLA Priority Desk</span>
+            <span className="text-xs text-faint font-mono">• SLA Priority Desk</span>
           </div>
-          <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2.5">
-            <LifeBuoy className="w-6 h-6 text-purple-400" />
+          <h1 className="text-2xl font-black text-ink tracking-tight flex items-center gap-2.5">
+            <LifeBuoy className="w-6 h-6 text-accent" />
             <span>Support Staff Command Center</span>
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-muted mt-1">
             Perform 10-minute diagnostic sessions, inspect member account issues, and resolve ticket escalations.
           </p>
         </div>
@@ -192,8 +192,8 @@ export default function SupportStaffPanelPage() {
             disabled={togglingMaintenance}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
               maintenanceEnabled
-                ? "bg-rose-500/20 text-rose-300 border-rose-500/40 animate-pulse"
-                : "bg-surface border-white/10 text-slate-400 hover:text-white hover:border-white/20"
+                ? "bg-rose-500/20 text-danger border-rose-500/40 animate-pulse"
+                : "bg-surface border-line text-muted hover:text-ink hover:border-line-strong"
             }`}
             title="Toggle Platform-Wide Maintenance Mode"
           >
@@ -203,7 +203,7 @@ export default function SupportStaffPanelPage() {
 
           <Link
             href="/feedback"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 text-xs font-semibold text-purple-300 transition-all border border-purple-500/30"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 text-xs font-semibold text-accent transition-all border border-purple-500/30"
           >
             <span>Bug & Feedback Desk</span>
           </Link>
@@ -211,21 +211,21 @@ export default function SupportStaffPanelPage() {
           <button
             onClick={fetchActiveSessions}
             disabled={refreshing}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold text-slate-300 transition-all border border-white/10"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-sunk hover:bg-sunk text-xs font-semibold text-ink-2 transition-all border border-line"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin text-purple-400" : ""}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin text-accent" : ""}`} />
             <span>Refresh</span>
           </button>
         </div>
       </div>
 
       {/* SECTION 1: CODE INPUT BOX */}
-      <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-purple-500/30 bg-purple-950/10 space-y-4">
+      <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-purple-500/30 bg-accent-soft space-y-4">
         <div className="flex items-center gap-2">
-          <KeyRound className="w-5 h-5 text-purple-400" />
-          <h3 className="text-base font-bold text-white">Start Diagnostic Session via 10-Minute Code</h3>
+          <KeyRound className="w-5 h-5 text-accent" />
+          <h3 className="text-base font-bold text-ink">Start Diagnostic Session via 10-Minute Code</h3>
         </div>
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-muted">
           Paste the temporary single-use code provided by the community lead or member in your Discord ticket.
         </p>
 
@@ -242,7 +242,7 @@ export default function SupportStaffPanelPage() {
               placeholder="e.g. RF-8921-4472"
               value={codeQuery}
               onChange={(e) => setCodeQuery(e.target.value.toUpperCase())}
-              className="w-full px-4 py-3 rounded-xl bg-black/60 border border-surface-border text-sm text-white placeholder-slate-500 font-mono tracking-wider focus:outline-none focus:border-purple-500"
+              className="w-full px-4 py-3 rounded-xl bg-black/60 border border-line text-sm text-ink placeholder-faint font-mono tracking-wider focus:outline-none focus:border-accent"
             />
           </div>
           <button
@@ -255,7 +255,7 @@ export default function SupportStaffPanelPage() {
         </form>
 
         {loginError && (
-          <p className="text-xs text-rose-400 font-medium flex items-center gap-1.5 pt-1">
+          <p className="text-xs text-danger font-medium flex items-center gap-1.5 pt-1">
             <AlertTriangle className="w-4 h-4 shrink-0" />
             <span>{loginError}</span>
           </p>
@@ -263,27 +263,27 @@ export default function SupportStaffPanelPage() {
       </div>
 
       {/* SECTION 2: LIVE ACTIVE TICKETS / CODES WAITING FOR SUPPORT */}
-      <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-surface-border space-y-6">
+      <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-line space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Clock className="w-4 h-4 text-amber-400" />
+            <h3 className="text-base font-bold text-ink flex items-center gap-2">
+              <Clock className="w-4 h-4 text-gold" />
               <span>Active User Support Codes Awaiting Assistance</span>
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-muted mt-0.5">
               Members who recently clicked &ldquo;Generate 10-Minute Support Code&rdquo; from their settings page.
             </p>
           </div>
-          <span className="px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-white/5 border border-white/10 text-slate-300">
+          <span className="px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-sunk border border-line text-ink-2">
             {activeSessions.length} Active
           </span>
         </div>
 
         {activeSessions.length === 0 ? (
-          <div className="p-8 text-center rounded-2xl bg-black/20 border border-white/5 space-y-2">
-            <CheckCircle2 className="w-8 h-8 text-emerald-400 mx-auto" />
-            <h4 className="text-xs font-bold text-white">No Pending Support Codes</h4>
-            <p className="text-[11px] text-slate-400 max-w-sm mx-auto">
+          <div className="p-8 text-center rounded-2xl bg-sunk border border-line space-y-2">
+            <CheckCircle2 className="w-8 h-8 text-moss mx-auto" />
+            <h4 className="text-xs font-bold text-ink">No Pending Support Codes</h4>
+            <p className="text-[11px] text-muted max-w-sm mx-auto">
               No users currently have an active 10-minute diagnostic token. When a member generates a code in a ticket, it will appear here in real-time.
             </p>
           </div>
@@ -292,18 +292,18 @@ export default function SupportStaffPanelPage() {
             {activeSessions.map((session) => (
               <div
                 key={session.id}
-                className="p-5 rounded-2xl bg-black/40 border border-surface-border hover:border-purple-500/40 transition-all flex items-center justify-between gap-4"
+                className="p-5 rounded-2xl bg-sunk border border-line hover:border-purple-500/40 transition-all flex items-center justify-between gap-4"
               >
                 <div className="flex items-center gap-3">
                   <img
                     src={session.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"}
                     alt={session.username}
-                    className="w-12 h-12 rounded-xl object-cover border border-surface-border"
+                    className="w-12 h-12 rounded-xl object-cover border border-line"
                   />
                   <div>
-                    <h4 className="text-sm font-bold text-white">{session.username}</h4>
-                    <p className="text-[11px] font-mono text-purple-300 font-bold">{session.supportCode}</p>
-                    <p className="text-[10px] text-amber-400 font-medium flex items-center gap-1 mt-0.5">
+                    <h4 className="text-sm font-bold text-ink">{session.username}</h4>
+                    <p className="text-[11px] font-mono text-accent font-bold">{session.supportCode}</p>
+                    <p className="text-[10px] text-gold font-medium flex items-center gap-1 mt-0.5">
                       <Clock className="w-3 h-3" />
                       <span>Expires in ~{session.expiresInMinutes}m</span>
                     </p>
@@ -324,21 +324,21 @@ export default function SupportStaffPanelPage() {
       </div>
 
       {/* SECTION 3: STAFF SUPPORT GUIDELINES */}
-      <div className="p-5 rounded-2xl bg-black/40 border border-white/5 space-y-3">
-        <h4 className="text-xs font-bold text-slate-300 uppercase font-mono tracking-wider">
+      <div className="p-5 rounded-2xl bg-sunk border border-line space-y-3">
+        <h4 className="text-xs font-bold text-ink-2 uppercase font-mono tracking-wider">
           Staff Operational Protocols
         </h4>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-400">
-          <div className="p-3 rounded-xl bg-white/5 border border-white/5">
-            <span className="font-bold text-white block mb-1">1. Respect Member Privacy</span>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-muted">
+          <div className="p-3 rounded-xl bg-sunk border border-line">
+            <span className="font-bold text-ink block mb-1">1. Respect Member Privacy</span>
             Never alter positions or form settings without explicit ticket instructions from the community owner.
           </div>
-          <div className="p-3 rounded-xl bg-white/5 border border-white/5">
-            <span className="font-bold text-white block mb-1">2. 10-Minute Timeframe</span>
+          <div className="p-3 rounded-xl bg-sunk border border-line">
+            <span className="font-bold text-ink block mb-1">2. 10-Minute Timeframe</span>
             Sessions expire automatically after 10 minutes. Advise members to generate a new code if more time is required.
           </div>
-          <div className="p-3 rounded-xl bg-white/5 border border-white/5">
-            <span className="font-bold text-white block mb-1">3. Security Zero-Tolerance</span>
+          <div className="p-3 rounded-xl bg-sunk border border-line">
+            <span className="font-bold text-ink block mb-1">3. Security Zero-Tolerance</span>
             Staff members will never ask for user passwords or OAuth tokens under any circumstances.
           </div>
         </div>

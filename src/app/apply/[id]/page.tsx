@@ -252,7 +252,7 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-24 text-center">
         <div className="w-8 h-8 rounded-full border-2 border-purple-500 border-t-transparent animate-spin mx-auto mb-4" />
-        <p className="text-xs text-slate-400">Loading application form...</p>
+        <p className="text-xs text-muted">Loading application form...</p>
       </div>
     );
   }
@@ -260,9 +260,9 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
   if (errorMsg && !position) {
     return (
       <div className="max-w-md mx-auto px-4 py-24 text-center">
-        <AlertCircle className="w-10 h-10 text-rose-400 mx-auto mb-3" />
-        <h2 className="text-lg font-bold text-white mb-2">Unable to Open Form</h2>
-        <p className="text-xs text-slate-400 mb-6">{errorMsg}</p>
+        <AlertCircle className="w-10 h-10 text-danger mx-auto mb-3" />
+        <h2 className="text-lg font-bold text-ink mb-2">Unable to Open Form</h2>
+        <p className="text-xs text-muted mb-6">{errorMsg}</p>
         <Link
           href="/browse"
           className="px-4 py-2 rounded-xl bg-purple-600 text-white text-xs font-semibold"
@@ -276,12 +276,12 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
   if (success) {
     return (
       <div className="max-w-lg mx-auto px-4 py-20 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mx-auto mb-6 shadow-xl shadow-emerald-500/10">
+        <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-moss mx-auto mb-6 shadow-xl shadow-emerald-500/10">
           <CheckCircle2 className="w-8 h-8" />
         </div>
-        <h1 className="text-2xl font-bold text-white mb-2">Application Submitted!</h1>
-        <p className="text-sm text-slate-300 leading-relaxed mb-8">
-          Your application for <strong className="text-purple-300">{position?.title}</strong> has been received by the staff of <strong className="text-white">{position?.guild.name}</strong>.
+        <h1 className="text-2xl font-bold text-ink mb-2">Application Submitted!</h1>
+        <p className="text-sm text-ink-2 leading-relaxed mb-8">
+          Your application for <strong className="text-accent">{position?.title}</strong> has been received by the staff of <strong className="text-ink">{position?.guild.name}</strong>.
           <br /><br />
           Staff have been alerted in Discord. You can track your application status anytime in your applicant dashboard.
         </p>
@@ -295,7 +295,7 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
           </Link>
           <Link
             href="/"
-            className="px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-medium border border-white/10 transition-colors"
+            className="px-5 py-2.5 rounded-xl bg-sunk hover:bg-sunk text-ink-2 text-xs font-medium border border-line transition-colors"
           >
             Back to Home
           </Link>
@@ -307,12 +307,12 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
   if (position && !position.isOpen) {
     return (
       <div className="max-w-md mx-auto px-4 py-24 text-center">
-        <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-4 text-amber-400">
+        <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-4 text-gold">
           <AlertCircle className="w-6 h-6" />
         </div>
-        <h2 className="text-xl font-bold text-white mb-2">Applications Closed</h2>
-        <p className="text-xs text-slate-400 mb-6 leading-relaxed">
-          The opening <strong className="text-white">{position.title}</strong> at {position.guild.name} is currently closed and not accepting new candidate submissions.
+        <h2 className="text-xl font-bold text-ink mb-2">Applications Closed</h2>
+        <p className="text-xs text-muted mb-6 leading-relaxed">
+          The opening <strong className="text-ink">{position.title}</strong> at {position.guild.name} is currently closed and not accepting new candidate submissions.
         </p>
         <Link
           href={`/c/${position.guild.id}`}
@@ -349,12 +349,12 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
         }
         if (videoId) {
           return (
-            <div className="mt-2.5 p-3 rounded-xl bg-purple-950/20 border border-purple-500/20 flex flex-col gap-2">
-              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-rose-400">
+            <div className="mt-2.5 p-3 rounded-xl bg-accent-soft border border-purple-500/20 flex flex-col gap-2">
+              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-danger">
                 <Play className="w-3.5 h-3.5 fill-rose-400" />
                 <span>YouTube Video Attachment</span>
               </div>
-              <div className="relative aspect-video w-full max-w-md rounded-lg overflow-hidden border border-white/10 shadow-md">
+              <div className="relative aspect-video w-full max-w-md rounded-lg overflow-hidden border border-line shadow-md">
                 <iframe
                   src={`https://www.youtube-nocookie.com/embed/${videoId}`}
                   title="YouTube video player"
@@ -373,16 +373,16 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
         const parts = parsedUrl.pathname.split("/").filter(Boolean);
         const repoOrUser = parts.join("/");
         return (
-          <div className="mt-2 p-2.5 rounded-xl bg-surface border border-white/10 flex items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-2 text-slate-300">
-              <Github className="w-4 h-4 text-white" />
-              <span className="font-mono text-[11px] text-white font-medium">github.com/{repoOrUser}</span>
+          <div className="mt-2 p-2.5 rounded-xl bg-surface border border-line flex items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2 text-ink-2">
+              <Github className="w-4 h-4 text-ink" />
+              <span className="font-mono text-[11px] text-ink font-medium">github.com/{repoOrUser}</span>
             </div>
             <a
               href={trimmed}
               target="_blank"
               rel="noreferrer"
-              className="text-[10px] text-purple-400 hover:text-purple-300 flex items-center gap-1"
+              className="text-[10px] text-accent hover:text-accent flex items-center gap-1"
             >
               Open Repo <ExternalLink className="w-3 h-3" />
             </a>
@@ -394,10 +394,10 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
       if (host.includes("roblox.com")) {
         const isDevForum = host.includes("devforum.roblox.com");
         return (
-          <div className="mt-2 p-2.5 rounded-xl bg-surface border border-white/10 flex items-center justify-between gap-3 text-xs">
+          <div className="mt-2 p-2.5 rounded-xl bg-surface border border-line flex items-center justify-between gap-3 text-xs">
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded bg-purple-600 flex items-center justify-center text-[9px] font-black text-white">R</div>
-              <span className="text-[11px] text-slate-200 truncate max-w-xs font-mono">
+              <span className="text-[11px] text-ink-2 truncate max-w-xs font-mono">
                 {isDevForum ? "DevForum Portfolio / Dev Thread" : "Roblox Experience / Profile / Asset"}
               </span>
             </div>
@@ -405,7 +405,7 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
               href={trimmed}
               target="_blank"
               rel="noreferrer"
-              className="text-[10px] text-purple-400 hover:text-purple-300 flex items-center gap-1"
+              className="text-[10px] text-accent hover:text-accent flex items-center gap-1"
             >
               Verify Link <ExternalLink className="w-3 h-3" />
             </a>
@@ -425,20 +425,20 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
       {position?.timeLimitMinutes && timeLeftSeconds !== null && (
         <div className={`sticky top-4 z-40 mb-6 p-4 rounded-2xl backdrop-blur-xl border flex items-center justify-between shadow-2xl transition-all ${
           timeExpired
-            ? "bg-rose-950/80 border-rose-500/50 text-rose-300"
+            ? "bg-rose-950/80 border-rose-500/50 text-danger"
             : timeLeftSeconds < 120
-            ? "bg-amber-950/80 border-amber-500/50 text-amber-300 animate-pulse"
-            : "bg-surface/90 border-purple-500/30 text-purple-200"
+            ? "bg-amber-950/80 border-amber-500/50 text-gold animate-pulse"
+            : "bg-surface/90 border-purple-500/30 text-purple-700 dark:text-purple-200"
         }`}>
           <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-xl ${timeExpired ? "bg-rose-500/20 text-rose-400" : "bg-purple-500/20 text-purple-400"}`}>
+            <div className={`p-2 rounded-xl ${timeExpired ? "bg-rose-500/20 text-danger" : "bg-purple-500/20 text-accent"}`}>
               <Clock className="w-5 h-5" />
             </div>
             <div>
               <span className="text-xs font-bold block">
                 {timeExpired ? "Assessment Time Expired" : "Assessment Countdown Timer"}
               </span>
-              <span className="text-[11px] text-slate-400">
+              <span className="text-[11px] text-muted">
                 {timeExpired
                   ? "Your allowed time for this assessment has ended. Inputs are frozen."
                   : `This position requires completion within ${position.timeLimitMinutes} minutes.`}
@@ -446,9 +446,9 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
             </div>
           </div>
           <div className="text-right">
-            <span className="text-[10px] text-slate-400 block uppercase tracking-wider font-mono">Time Remaining</span>
+            <span className="text-[10px] text-muted block uppercase tracking-wider font-mono">Time Remaining</span>
             <span className={`text-lg font-black font-mono tracking-tight ${
-              timeExpired ? "text-rose-400" : timeLeftSeconds < 120 ? "text-amber-400" : "text-white"
+              timeExpired ? "text-danger" : timeLeftSeconds < 120 ? "text-gold" : "text-ink"
             }`}>
               {formatTimeRemaining(timeLeftSeconds)}
             </span>
@@ -460,39 +460,39 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
       <div className="flex items-center justify-between mb-8">
         <Link
           href={`/c/${position?.guild.id}`}
-          className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs text-muted hover:text-ink transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           Back to {position?.guild.name}
         </Link>
 
         {lastSaved && (
-          <div className="flex items-center gap-1.5 text-[11px] text-slate-400 bg-white/5 px-2.5 py-1 rounded-full border border-white/5">
-            <Save className="w-3 h-3 text-purple-400" />
+          <div className="flex items-center gap-1.5 text-[11px] text-muted bg-sunk px-2.5 py-1 rounded-full border border-line">
+            <Save className="w-3 h-3 text-accent" />
             <span>{lastSaved}</span>
           </div>
         )}
       </div>
 
       {/* Form Container */}
-      <div className="glass-panel rounded-3xl border border-white/10 p-6 sm:p-10 shadow-2xl">
+      <div className="glass-panel rounded-3xl border border-line p-6 sm:p-10 shadow-2xl">
         {/* Form Header */}
-        <div className="border-b border-white/10 pb-6 mb-8">
+        <div className="border-b border-line pb-6 mb-8">
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-xs font-semibold text-purple-400 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-accent uppercase tracking-wider">
               {position?.guild.name} • {position?.department || "Recruitment"}
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white mb-3">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-ink mb-3">
             Application for {position?.title}
           </h1>
-          <p className="text-xs text-slate-400 leading-relaxed whitespace-pre-line">
+          <p className="text-xs text-muted leading-relaxed whitespace-pre-line">
             {position?.description}
           </p>
         </div>
 
         {errorMsg && (
-          <div className="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
+          <div className="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-danger text-xs flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{errorMsg}</span>
           </div>
@@ -501,28 +501,28 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Applicant Discord Authentication */}
           {currentUser ? (
-            <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between">
+            <div className="p-3.5 rounded-2xl bg-sunk border border-line flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-300 font-bold text-xs">
+                <div className="w-8 h-8 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-accent font-bold text-xs">
                   {currentUser.username?.[0]?.toUpperCase() || "U"}
                 </div>
                 <div>
-                  <span className="text-xs font-semibold text-white block">{currentUser.username}</span>
-                  <span className="text-[10px] text-slate-400">Authenticated Discord Applicant</span>
+                  <span className="text-xs font-semibold text-ink block">{currentUser.username}</span>
+                  <span className="text-[10px] text-muted">Authenticated Discord Applicant</span>
                 </div>
               </div>
-              <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+              <span className="text-[10px] font-mono text-moss bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
                 Connected
               </span>
             </div>
           ) : (
-            <div className="p-5 rounded-2xl bg-purple-950/20 border border-purple-500/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="p-5 rounded-2xl bg-accent-soft border border-purple-500/30 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div>
-                <h4 className="text-xs font-bold text-white flex items-center gap-1.5 mb-1">
-                  <Shield className="w-4 h-4 text-purple-400" />
+                <h4 className="text-xs font-bold text-ink flex items-center gap-1.5 mb-1">
+                  <Shield className="w-4 h-4 text-accent" />
                   Discord Login Required
                 </h4>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-[11px] text-muted">
                   Please connect with Discord so the community staff can verify your identity and notify you of review updates.
                 </p>
               </div>
@@ -537,10 +537,10 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
 
           {/* Optional Roblox Account Verification */}
           {position?.guild.enableRobloxAuth && (
-            <div className="p-4 rounded-2xl bg-purple-950/20 border border-purple-500/20 space-y-3">
-              <label className="block text-xs font-bold text-white flex items-center justify-between">
-                <span>Roblox Identity Verification <span className="text-rose-400">*</span></span>
-                <span className="text-[10px] text-purple-400 font-normal">Required by community</span>
+            <div className="p-4 rounded-2xl bg-accent-soft border border-purple-500/20 space-y-3">
+              <label className="block text-xs font-bold text-ink flex items-center justify-between">
+                <span>Roblox Identity Verification <span className="text-danger">*</span></span>
+                <span className="text-[10px] text-accent font-normal">Required by community</span>
               </label>
               
               <div className="relative">
@@ -550,10 +550,10 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
                   value={robloxUsername}
                   onChange={(e) => handleRobloxChange(e.target.value)}
                   placeholder="Enter your exact Roblox username (e.g. Builderman)"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 pr-24"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-line text-xs text-ink placeholder-faint focus:outline-none focus:border-accent pr-24"
                 />
                 {robloxLoading && (
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-purple-400 flex items-center gap-1 font-mono">
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-accent flex items-center gap-1 font-mono">
                     <span className="w-2.5 h-2.5 rounded-full border border-purple-400 border-t-transparent animate-spin" />
                     Checking...
                   </span>
@@ -567,15 +567,15 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
                     <img
                       src={robloxProfile.avatarUrl}
                       alt={robloxProfile.name}
-                      className="w-12 h-12 rounded-xl bg-black/40 border border-white/10 object-cover"
+                      className="w-12 h-12 rounded-xl bg-sunk border border-line object-cover"
                     />
                     <div>
                       <div className="flex items-center gap-1.5">
-                        <span className="text-xs font-bold text-white">{robloxProfile.displayName}</span>
-                        <span className="text-[10px] text-slate-400 font-mono">(@{robloxProfile.name})</span>
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                        <span className="text-xs font-bold text-ink">{robloxProfile.displayName}</span>
+                        <span className="text-[10px] text-muted font-mono">(@{robloxProfile.name})</span>
+                        <CheckCircle2 className="w-3.5 h-3.5 text-moss" />
                       </div>
-                      <span className="text-[10px] text-slate-400 block font-mono">ID: {robloxProfile.id}</span>
+                      <span className="text-[10px] text-muted block font-mono">ID: {robloxProfile.id}</span>
                     </div>
                   </div>
 
@@ -584,7 +584,7 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
                       href={robloxProfile.profileUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-[10px] text-slate-300 border border-white/10 transition-colors"
+                      className="px-2.5 py-1 rounded-lg bg-sunk hover:bg-sunk text-[10px] text-ink-2 border border-line transition-colors"
                     >
                       Roblox Profile ↗
                     </a>
@@ -592,7 +592,7 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
                       href={robloxProfile.devForumUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="px-2.5 py-1 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-[10px] text-purple-300 border border-purple-500/20 transition-colors"
+                      className="px-2.5 py-1 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-[10px] text-accent border border-purple-500/20 transition-colors"
                     >
                       DevForum ↗
                     </a>
@@ -601,10 +601,10 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
               )}
 
               {robloxError && !robloxLoading && (
-                <p className="text-[11px] text-rose-400 font-medium">{robloxError}</p>
+                <p className="text-[11px] text-danger font-medium">{robloxError}</p>
               )}
 
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-muted">
                 Staff will verify your avatar, experience, and Roblox profile alongside your application.
               </p>
             </div>
@@ -635,19 +635,19 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
 
             return (
               <div key={q.id} className="space-y-1.5 pt-2 animate-fadeIn">
-                <label className="block text-xs font-semibold text-slate-200">
-                  <span className="text-purple-400 mr-1.5 font-mono">{idx + 1}.</span>
+                <label className="block text-xs font-semibold text-ink-2">
+                  <span className="text-accent mr-1.5 font-mono">{idx + 1}.</span>
                   {q.label}
-                  {q.required && <span className="text-rose-400 ml-1">*</span>}
+                  {q.required && <span className="text-danger ml-1">*</span>}
                   {(q.dependsOnQuestionId || q.conditionalParentId) && (
-                    <span className="ml-2 text-[10px] font-mono text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/20">
+                    <span className="ml-2 text-[10px] font-mono text-accent bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/20">
                       Conditional
                     </span>
                   )}
                 </label>
 
                 {q.description && (
-                  <p className="text-[11px] text-slate-400 mb-1 leading-relaxed">
+                  <p className="text-[11px] text-muted mb-1 leading-relaxed">
                     {q.description}
                   </p>
                 )}
@@ -662,7 +662,7 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
                       value={val}
                       onChange={(e) => handleAnswerChange(q.id, e.target.value)}
                       placeholder="Your answer..."
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 disabled:opacity-50"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-line text-xs text-ink placeholder-faint focus:outline-none focus:border-accent disabled:opacity-50"
                     />
                     {renderRichMediaPreview(val)}
                   </>
@@ -677,7 +677,7 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
                     value={val}
                     onChange={(e) => handleAnswerChange(q.id, e.target.value)}
                     placeholder="Type your detailed response here..."
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 resize-y disabled:opacity-50"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-line text-xs text-ink placeholder-faint focus:outline-none focus:border-accent resize-y disabled:opacity-50"
                   />
                 )}
 
@@ -691,7 +691,7 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
                       value={val}
                       onChange={(e) => handleAnswerChange(q.id, e.target.value)}
                       placeholder="https://talent.roblox.com/... or https://github.com/..."
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 font-mono disabled:opacity-50"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-line text-xs text-ink placeholder-faint focus:outline-none focus:border-accent font-mono disabled:opacity-50"
                     />
                     {renderRichMediaPreview(val)}
                   </>
@@ -707,7 +707,7 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
                       value={val}
                       onChange={(e) => handleAnswerChange(q.id, e.target.value)}
                       placeholder="Paste image/asset link (e.g. https://imgur.com/... or Google Drive link)"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 font-mono disabled:opacity-50"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-line text-xs text-ink placeholder-faint focus:outline-none focus:border-accent font-mono disabled:opacity-50"
                     />
                     {renderRichMediaPreview(val)}
                   </>
@@ -720,11 +720,11 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
                     required={q.required}
                     value={val}
                     onChange={(e) => handleAnswerChange(q.id, e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500 disabled:opacity-50"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-line text-xs text-ink focus:outline-none focus:border-accent disabled:opacity-50"
                   >
                     <option value="">Select an option...</option>
                     {optionsList.map((opt) => (
-                      <option key={opt} value={opt} className="bg-surface text-white">
+                      <option key={opt} value={opt} className="bg-surface text-ink">
                         {opt}
                       </option>
                     ))}
@@ -740,9 +740,9 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
                       required={q.required}
                       checked={val === "true"}
                       onChange={(e) => handleAnswerChange(q.id, e.target.checked ? "true" : "")}
-                      className="w-4 h-4 rounded bg-surface border-white/20 text-purple-600 focus:ring-purple-500 disabled:opacity-50"
+                      className="w-4 h-4 rounded bg-surface border-line-strong text-purple-600 focus:ring-purple-500 disabled:opacity-50"
                     />
-                    <span className="text-xs text-slate-300">I confirm and agree</span>
+                    <span className="text-xs text-ink-2">I confirm and agree</span>
                   </label>
                 )}
 
@@ -756,7 +756,7 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
                       value={val}
                       onChange={(e) => handleAnswerChange(q.id, e.target.value)}
                       placeholder="https://..."
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 disabled:opacity-50"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-line text-xs text-ink placeholder-faint focus:outline-none focus:border-accent disabled:opacity-50"
                     />
                     {renderRichMediaPreview(val)}
                   </>
@@ -766,10 +766,10 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
           })}
 
           {/* Submission Action */}
-          <div className="pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-[11px] text-slate-500">
+          <div className="pt-6 border-t border-line flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-[11px] text-faint">
               By submitting, you agree to the community&apos;s rules and RoleFlow{" "}
-              <Link href="/terms" className="text-purple-400 hover:underline">
+              <Link href="/terms" className="text-accent hover:underline">
                 Terms
               </Link>.
             </p>

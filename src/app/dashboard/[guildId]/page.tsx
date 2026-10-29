@@ -1219,7 +1219,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
     return (
       <div className="max-w-7xl mx-auto px-4 py-24 text-center">
         <div className="w-8 h-8 rounded-full border-2 border-purple-500 border-t-transparent animate-spin mx-auto mb-4" />
-        <p className="text-xs text-slate-400">Loading community dashboard...</p>
+        <p className="text-xs text-muted">Loading community dashboard...</p>
       </div>
     );
   }
@@ -1227,11 +1227,11 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
   if (forbidden) {
     return (
       <div className="max-w-md mx-auto px-4 py-24 text-center">
-        <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mx-auto mb-4 text-rose-400">
+        <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mx-auto mb-4 text-danger">
           <Shield className="w-6 h-6" />
         </div>
-        <h2 className="text-xl font-bold text-white mb-2">Access Denied</h2>
-        <p className="text-xs text-slate-400 mb-6 leading-relaxed">
+        <h2 className="text-xl font-bold text-ink mb-2">Access Denied</h2>
+        <p className="text-xs text-muted mb-6 leading-relaxed">
           You do not own or manage this community. Applicant data, review notes, and bot settings are private to authorized community staff.
         </p>
         <div className="flex items-center justify-center gap-3">
@@ -1243,7 +1243,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           </Link>
           <Link
             href="/"
-            className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-slate-300 transition-colors"
+            className="px-4 py-2 rounded-xl bg-sunk hover:bg-sunk text-xs text-ink-2 transition-colors"
           >
             Home
           </Link>
@@ -1255,12 +1255,12 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
   if (!guild) {
     return (
       <div className="max-w-md mx-auto px-4 py-24 text-center">
-        <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mx-auto mb-4 text-purple-400">
+        <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mx-auto mb-4 text-accent">
           <Server className="w-6 h-6" />
         </div>
-        <h2 className="text-xl font-bold text-white mb-2">Community Not Initialized</h2>
-        <p className="text-xs text-slate-400 mb-6 leading-relaxed">
-          Discord Server ID <span className="font-mono text-purple-300 font-semibold">{params.guildId}</span> is not registered on RoleFlow yet.
+        <h2 className="text-xl font-bold text-ink mb-2">Community Not Initialized</h2>
+        <p className="text-xs text-muted mb-6 leading-relaxed">
+          Discord Server ID <span className="font-mono text-accent font-semibold">{params.guildId}</span> is not registered on RoleFlow yet.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <button
@@ -1273,7 +1273,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           </button>
           <Link
             href="/dashboard"
-            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-slate-300 transition-colors text-center"
+            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-sunk hover:bg-sunk text-xs text-ink-2 transition-colors text-center"
           >
             All Communities
           </Link>
@@ -1293,9 +1293,9 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Community Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-line mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-surface-card border border-white/10 overflow-hidden shrink-0">
+          <div className="w-12 h-12 rounded-xl bg-surface-card border border-line overflow-hidden shrink-0">
             {guild.icon ? (
               <img src={guild.icon} alt={guild.name} className="w-full h-full object-cover" />
             ) : (
@@ -1306,12 +1306,12 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold text-white">{guild.name}</h1>
-              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+              <h1 className="text-xl font-bold text-ink">{guild.name}</h1>
+              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-accent border border-purple-500/30">
                 Staff Dashboard
               </span>
             </div>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-muted">
               {guild.applications.length} total applications • {guild.positions.length} openings
             </p>
           </div>
@@ -1319,7 +1319,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
 
         {/* Action success alert */}
         {actionSuccess && (
-          <div className="px-3.5 py-1.5 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-1.5 animate-fadeIn">
+          <div className="px-3.5 py-1.5 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-moss text-xs flex items-center gap-1.5 animate-fadeIn">
             <CheckCircle className="w-3.5 h-3.5" />
             <span>{actionSuccess}</span>
           </div>
@@ -1330,7 +1330,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           <a
             href={`/api/guilds/${guild.id}/export`}
             download
-            className="px-3 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 text-xs font-semibold border border-emerald-500/30 flex items-center gap-1.5 transition-colors"
+            className="px-3 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-moss text-xs font-semibold border border-emerald-500/30 flex items-center gap-1.5 transition-colors"
             title="Export all applications to CSV"
           >
             <Download className="w-3.5 h-3.5" />
@@ -1339,7 +1339,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
 
           <Link
             href={`/c/${guild.id}`}
-            className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-medium border border-white/10 flex items-center gap-1"
+            className="px-3 py-1.5 rounded-lg bg-sunk hover:bg-sunk text-ink-2 text-xs font-medium border border-line flex items-center gap-1"
           >
             <span>Public Page</span>
             <ExternalLink className="w-3 h-3" />
@@ -1348,13 +1348,13 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-white/5 pb-3 mb-6 overflow-x-auto">
+      <div className="flex items-center gap-2 border-b border-line pb-3 mb-6 overflow-x-auto">
         <button
           onClick={() => setActiveTab("overview")}
           className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 shrink-0 transition-colors ${
             activeTab === "overview"
               ? "bg-purple-600 text-white shadow-md shadow-purple-600/30"
-              : "text-slate-400 hover:text-white hover:bg-white/5"
+              : "text-muted hover:text-ink hover:bg-sunk"
           }`}
         >
           <span>Overview</span>
@@ -1364,7 +1364,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors ${
             activeTab === "applications"
               ? "bg-purple-600 text-white shadow-md shadow-purple-600/30"
-              : "text-slate-400 hover:text-white hover:bg-white/5"
+              : "text-muted hover:text-ink hover:bg-sunk"
           }`}
         >
           <FileText className="w-3.5 h-3.5" />
@@ -1376,7 +1376,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors ${
             activeTab === "builder"
               ? "bg-purple-600 text-white shadow-md shadow-purple-600/30"
-              : "text-slate-400 hover:text-white hover:bg-white/5"
+              : "text-muted hover:text-ink hover:bg-sunk"
           }`}
         >
           <Sliders className="w-3.5 h-3.5" />
@@ -1388,7 +1388,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors ${
             activeTab === "bot"
               ? "bg-purple-600 text-white shadow-md shadow-purple-600/30"
-              : "text-slate-400 hover:text-white hover:bg-white/5"
+              : "text-muted hover:text-ink hover:bg-sunk"
           }`}
         >
           <Bot className="w-3.5 h-3.5" />
@@ -1400,7 +1400,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors ${
             activeTab === "staff"
               ? "bg-purple-600 text-white shadow-md shadow-purple-600/30"
-              : "text-slate-400 hover:text-white hover:bg-white/5"
+              : "text-muted hover:text-ink hover:bg-sunk"
           }`}
         >
           <Users className="w-3.5 h-3.5" />
@@ -1412,7 +1412,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors ${
             activeTab === "settings"
               ? "bg-purple-600 text-white shadow-md shadow-purple-600/30"
-              : "text-slate-400 hover:text-white hover:bg-white/5"
+              : "text-muted hover:text-ink hover:bg-sunk"
           }`}
         >
           <Settings className="w-3.5 h-3.5" />
@@ -1424,7 +1424,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
       {activeTab === "applications" && (
         <div className="space-y-6">
           {/* Status & Tag Filter Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 pb-2 border-b border-white/5">
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-2 border-b border-line">
             <div className="flex items-center gap-2 overflow-x-auto">
               {["ALL", "PENDING", "UNDER_REVIEW", "INTERVIEW", "ACCEPTED", "REJECTED"].map((st) => (
                 <button
@@ -1432,8 +1432,8 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                   onClick={() => setStatusFilter(st)}
                   className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors whitespace-nowrap ${
                     statusFilter === st
-                      ? "bg-white text-black border-white"
-                      : "bg-surface border-white/5 text-slate-400 hover:text-white"
+                      ? "bg-surface text-black border-white"
+                      : "bg-surface border-line text-muted hover:text-ink"
                   }`}
                 >
                   {st}
@@ -1443,19 +1443,19 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
 
             <div className="flex items-center gap-2">
               {/* Tag Filter */}
-              <div className="flex items-center gap-1.5 bg-surface px-2.5 py-1 rounded-lg border border-white/10 text-xs">
-                <span className="text-slate-400 text-[11px]">Tag:</span>
+              <div className="flex items-center gap-1.5 bg-surface px-2.5 py-1 rounded-lg border border-line text-xs">
+                <span className="text-muted text-[11px]">Tag:</span>
                 <select
                   value={tagFilter}
                   onChange={(e) => setTagFilter(e.target.value)}
-                  className="bg-transparent text-white text-xs font-medium focus:outline-none cursor-pointer"
+                  className="bg-transparent text-ink text-xs font-medium focus:outline-none cursor-pointer"
                 >
-                  <option value="ALL" className="bg-slate-900 text-white">All Tags</option>
-                  <option value="🔥 High Priority" className="bg-slate-900 text-amber-300">🔥 High Priority</option>
-                  <option value="👀 Under Review" className="bg-slate-900 text-cyan-300">👀 Under Review</option>
-                  <option value="⭐ Former Staff" className="bg-slate-900 text-purple-300">⭐ Former Staff</option>
-                  <option value="🎨 Portfolio Check" className="bg-slate-900 text-emerald-300">🎨 Portfolio Check</option>
-                  <option value="🌱 Trainee" className="bg-slate-900 text-blue-300">🌱 Trainee</option>
+                  <option value="ALL" className="bg-surface text-ink">All Tags</option>
+                  <option value="🔥 High Priority" className="bg-surface text-gold">🔥 High Priority</option>
+                  <option value="👀 Under Review" className="bg-surface text-cyan-700 dark:text-cyan-300">👀 Under Review</option>
+                  <option value="⭐ Former Staff" className="bg-surface text-accent">⭐ Former Staff</option>
+                  <option value="🎨 Portfolio Check" className="bg-surface text-moss">🎨 Portfolio Check</option>
+                  <option value="🌱 Trainee" className="bg-surface text-blue-700 dark:text-blue-300">🌱 Trainee</option>
                 </select>
               </div>
 
@@ -1469,7 +1469,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                     setSelectedAppIds(filteredApps.map((a: any) => a.id));
                   }
                 }}
-                className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-medium text-slate-300 border border-white/10 transition-colors"
+                className="px-2.5 py-1 rounded-lg bg-sunk hover:bg-sunk text-xs font-medium text-ink-2 border border-line transition-colors"
               >
                 {selectedAppIds.length === filteredApps.length && filteredApps.length > 0 ? "Deselect All" : "Select All"}
               </button>
@@ -1478,10 +1478,10 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
               <button
                 type="button"
                 onClick={() => setImportModalOpen(true)}
-                className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 text-xs font-medium flex items-center gap-1.5 transition-colors"
+                className="px-2.5 py-1 rounded-lg bg-sunk hover:bg-sunk text-ink-2 border border-line text-xs font-medium flex items-center gap-1.5 transition-colors"
                 title="Import applications from CSV or JSON"
               >
-                <Upload className="w-3 h-3 text-purple-400" />
+                <Upload className="w-3 h-3 text-accent" />
                 <span>Import</span>
               </button>
 
@@ -1489,7 +1489,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
               <button
                 type="button"
                 onClick={handleExportSelectedCsv}
-                className="px-2.5 py-1 rounded-lg bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 text-xs font-medium flex items-center gap-1.5 transition-colors"
+                className="px-2.5 py-1 rounded-lg bg-purple-600/20 hover:bg-purple-600/30 text-accent border border-purple-500/30 text-xs font-medium flex items-center gap-1.5 transition-colors"
                 title="Export applications to CSV"
               >
                 <Download className="w-3 h-3" />
@@ -1502,8 +1502,8 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
             {/* Left Column: Applicant Cards List */}
             <div className={`lg:col-span-5 space-y-3 lg:max-h-[750px] lg:overflow-y-auto pr-1 ${selectedApp ? "hidden lg:block" : "block"}`}>
               {filteredApps.length === 0 ? (
-                <div className="p-8 text-center glass-panel rounded-2xl border border-white/5">
-                  <p className="text-xs text-slate-400">No applications match this filter.</p>
+                <div className="p-8 text-center glass-panel rounded-2xl border border-line">
+                  <p className="text-xs text-muted">No applications match this filter.</p>
                 </div>
               ) : (
                 filteredApps.map((app) => {
@@ -1514,8 +1514,8 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                       onClick={() => setSelectedApp(app)}
                       className={`p-4 rounded-xl cursor-pointer transition-all border relative ${
                         isSelected
-                          ? "bg-purple-950/30 border-purple-500/60 shadow-lg shadow-purple-500/10"
-                          : "glass-panel border-white/5 hover:border-white/20"
+                          ? "bg-accent-soft border-purple-500/60 shadow-lg shadow-purple-500/10"
+                          : "glass-panel border-line hover:border-line-strong"
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2 mb-2">
@@ -1530,24 +1530,24 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                               );
                             }}
                             onClick={(e) => e.stopPropagation()}
-                            className="mt-1 w-4 h-4 rounded text-purple-600 bg-surface border-white/20 focus:ring-purple-500 cursor-pointer"
+                            className="mt-1 w-4 h-4 rounded text-purple-600 bg-surface border-line-strong focus:ring-purple-500 cursor-pointer"
                           />
                           <img
                             src={app.user.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"}
                             alt={app.user.username}
-                            className="w-8 h-8 rounded-full border border-white/10 shrink-0"
+                            className="w-8 h-8 rounded-full border border-line shrink-0"
                           />
                           <div>
-                            <span className="text-xs font-bold text-white block">
+                            <span className="text-xs font-bold text-ink block">
                               {app.user.username}
                             </span>
-                            <span className="text-[10px] text-purple-300">
+                            <span className="text-[10px] text-accent">
                               {app.position.title}
                             </span>
                             {app.tags && (
                               <div className="flex flex-wrap gap-1 mt-1">
                                 {app.tags.split(",").map((t: string) => t.trim()).filter(Boolean).map((t: string) => (
-                                  <span key={t} className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                                  <span key={t} className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-purple-500/20 text-accent border border-purple-500/30">
                                     {t}
                                   </span>
                                 ))}
@@ -1563,7 +1563,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                               e.stopPropagation();
                               handleDeleteApplication(app.id);
                             }}
-                            className="p-1 rounded-md hover:bg-rose-500/20 text-slate-500 hover:text-rose-400 transition-colors"
+                            className="p-1 rounded-md hover:bg-rose-500/20 text-faint hover:text-danger transition-colors"
                             title="Delete this application"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -1572,15 +1572,15 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                       </div>
 
                       {app.user.robloxUsername && (
-                        <div className="text-[11px] text-slate-400 flex items-center gap-1 mb-2">
+                        <div className="text-[11px] text-muted flex items-center gap-1 mb-2">
                           <span>Roblox:</span>
-                          <span className="text-slate-200 font-mono font-medium">
+                          <span className="text-ink-2 font-mono font-medium">
                             {app.user.robloxUsername}
                           </span>
                         </div>
                       )}
 
-                      <div className="flex items-center justify-between text-[10px] text-slate-500 pt-2 border-t border-white/5">
+                      <div className="flex items-center justify-between text-[10px] text-faint pt-2 border-t border-line">
                         <span>{formatDate(app.createdAt)}</span>
                         <span>{app.reviews.length} staff review{app.reviews.length === 1 ? "" : "s"}</span>
                       </div>
@@ -1596,51 +1596,51 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                 <button
                   type="button"
                   onClick={() => { setSelectedApp(null); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-                  className="lg:hidden mb-3 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-semibold text-slate-200"
+                  className="lg:hidden mb-3 px-3 py-2 rounded-lg bg-sunk hover:bg-sunk text-xs font-semibold text-ink-2"
                 >
                   ← Back to applications
                 </button>
               )}
               {selectedApp ? (
-                <div className="glass-panel rounded-2xl border border-white/10 p-6 space-y-6">
+                <div className="glass-panel rounded-2xl border border-line p-6 space-y-6">
                   {/* Header Detail */}
-                  <div className="flex items-start justify-between pb-4 border-b border-white/10">
+                  <div className="flex items-start justify-between pb-4 border-b border-line">
                     <div className="flex items-center gap-3">
                       <img
                         src={selectedApp.user.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"}
                         alt={selectedApp.user.username}
-                        className="w-12 h-12 rounded-xl border border-white/10"
+                        className="w-12 h-12 rounded-xl border border-line"
                       />
                       <div>
                         <div className="flex items-center gap-2">
-                          <h2 className="text-lg font-bold text-white">
+                          <h2 className="text-lg font-bold text-ink">
                             {selectedApp.user.username}
                           </h2>
                           <StatusBadge status={selectedApp.status} size="sm" />
                         </div>
-                        <p className="text-xs text-slate-400">
-                          Applying for <strong className="text-purple-300">{selectedApp.position.title}</strong>
+                        <p className="text-xs text-muted">
+                          Applying for <strong className="text-accent">{selectedApp.position.title}</strong>
                         </p>
                       </div>
                     </div>
                   </div>
 
                   {/* Status Decision Buttons */}
-                  <div className="p-4 rounded-xl bg-surface border border-white/5 space-y-3">
-                    <span className="text-xs font-bold text-white block">
+                  <div className="p-4 rounded-xl bg-surface border border-line space-y-3">
+                    <span className="text-xs font-bold text-ink block">
                       Change Application Status:
                     </span>
                     <div className="flex flex-wrap items-center gap-2">
                       <button
                         onClick={() => handleStatusChange(selectedApp.id, "UNDER_REVIEW")}
-                        className="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-semibold border border-amber-500/30 transition-colors"
+                        className="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-gold text-xs font-semibold border border-amber-500/30 transition-colors"
                       >
                         Under Review
                       </button>
 
                       <button
                         onClick={() => handleStatusChange(selectedApp.id, "INTERVIEW")}
-                        className="px-3 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 text-xs font-semibold border border-cyan-500/30 transition-colors"
+                        className="px-3 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-700 dark:text-cyan-300 text-xs font-semibold border border-cyan-500/30 transition-colors"
                       >
                         Schedule Interview (Creates Ticket)
                       </button>
@@ -1654,14 +1654,14 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
 
                       <button
                         onClick={() => handleStatusChange(selectedApp.id, "REJECTED")}
-                        className="px-3.5 py-1.5 rounded-lg bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 text-xs font-bold border border-rose-600/30 transition-colors"
+                        className="px-3.5 py-1.5 rounded-lg bg-rose-600/20 hover:bg-rose-600/30 text-danger text-xs font-bold border border-rose-600/30 transition-colors"
                       >
                         Reject
                       </button>
 
                       <button
                         onClick={() => handleDeleteApplication(selectedApp.id)}
-                        className="px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold border border-red-500/20 transition-colors flex items-center gap-1.5 ml-auto"
+                        className="px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-danger text-xs font-semibold border border-red-500/20 transition-colors flex items-center gap-1.5 ml-auto"
                         title="Permanently delete this application"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -1676,7 +1676,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                         placeholder="Optional feedback / decision note (included in applicant's notification)..."
                         value={decisionNote}
                         onChange={(e) => setDecisionNote(e.target.value)}
-                        className="w-full px-3 py-2 rounded-lg bg-background border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                        className="w-full px-3 py-2 rounded-lg bg-background border border-line text-xs text-ink placeholder-faint focus:outline-none focus:border-accent"
                       />
                     </div>
                   </div>
@@ -1695,10 +1695,10 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                     }}
                   />
                   {/* Applicant Tags & Department Badging */}
-                  <div className="p-4 rounded-xl bg-surface border border-white/5 space-y-2.5">
+                  <div className="p-4 rounded-xl bg-surface border border-line space-y-2.5">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                        <Tag className="w-3.5 h-3.5 text-purple-400" />
+                      <span className="text-xs font-bold text-ink flex items-center gap-1.5">
+                        <Tag className="w-3.5 h-3.5 text-accent" />
                         Applicant Tags & Badges:
                       </span>
                     </div>
@@ -1713,8 +1713,8 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                             onClick={() => handleToggleAppTag(selectedApp.id, t)}
                             className={`px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all ${
                               hasTag
-                                ? "bg-purple-600/30 text-purple-200 border-purple-500/50 shadow-sm shadow-purple-500/20"
-                                : "bg-white/5 text-slate-400 border-white/5 hover:text-white hover:bg-white/10"
+                                ? "bg-purple-600/30 text-purple-700 dark:text-purple-200 border-purple-500/50 shadow-sm shadow-purple-500/20"
+                                : "bg-sunk text-muted border-line hover:text-ink hover:bg-sunk"
                             }`}
                           >
                             {t} {hasTag ? "✓" : "+"}
@@ -1725,18 +1725,18 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                   </div>
 
                   {/* In-App Applicant Messaging & Clarification Threads */}
-                  <div className="p-4 rounded-xl bg-surface border border-white/5 space-y-3">
+                  <div className="p-4 rounded-xl bg-surface border border-line space-y-3">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-xs font-bold uppercase tracking-wider text-purple-400 flex items-center gap-1.5">
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-1.5">
                         <MessageSquare className="w-3.5 h-3.5" />
                         Clarification Thread with Applicant
                       </h3>
-                      <span className="text-[10px] text-slate-400">In-App Chat</span>
+                      <span className="text-[10px] text-muted">In-App Chat</span>
                     </div>
 
                     <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
                       {chatMessages.length === 0 ? (
-                        <p className="text-xs text-slate-500 italic py-2">
+                        <p className="text-xs text-faint italic py-2">
                           No clarification questions asked yet. Send a message below to ask this applicant questions directly.
                         </p>
                       ) : (
@@ -1745,15 +1745,15 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                             key={m.id}
                             className={`p-3 rounded-xl text-xs space-y-1 ${
                               m.senderRole === "STAFF"
-                                ? "bg-purple-950/30 border border-purple-500/20 text-purple-200 ml-4"
-                                : "bg-white/5 border border-white/5 text-slate-200 mr-4"
+                                ? "bg-accent-soft border border-purple-500/20 text-purple-700 dark:text-purple-200 ml-4"
+                                : "bg-sunk border border-line text-ink-2 mr-4"
                             }`}
                           >
                             <div className="flex items-center justify-between">
-                              <span className="font-bold text-[11px] text-white">
+                              <span className="font-bold text-[11px] text-ink">
                                 {m.senderName} ({m.senderRole === "STAFF" ? "Staff" : "Applicant"})
                               </span>
-                              <span className="text-[10px] text-slate-500">{formatDate(m.createdAt)}</span>
+                              <span className="text-[10px] text-faint">{formatDate(m.createdAt)}</span>
                             </div>
                             <p className="whitespace-pre-wrap">{m.content}</p>
                           </div>
@@ -1774,7 +1774,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                             handleSendMessage(selectedApp.id);
                           }
                         }}
-                        className="flex-1 px-3 py-2 rounded-xl bg-background border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                        className="flex-1 px-3 py-2 rounded-xl bg-background border border-line text-xs text-ink placeholder-faint focus:outline-none focus:border-accent"
                       />
                       <button
                         type="button"
@@ -1790,16 +1790,16 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
 
                   {/* Questionnaire Answers */}
                   <div className="space-y-4">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-purple-400">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-accent">
                       Application Answers
                     </h3>
 
                     {selectedApp.answers.map((ans: any, i: number) => (
-                      <div key={i} className="p-3.5 rounded-xl bg-surface/70 border border-white/5 space-y-1">
-                        <span className="text-xs font-semibold text-slate-300 block">
+                      <div key={i} className="p-3.5 rounded-xl bg-surface/70 border border-line space-y-1">
+                        <span className="text-xs font-semibold text-ink-2 block">
                           {ans.question.label}
                         </span>
-                        <p className="text-xs text-slate-100 whitespace-pre-wrap leading-relaxed">
+                        <p className="text-xs text-ink-2 whitespace-pre-wrap leading-relaxed">
                           {ans.value}
                         </p>
                       </div>
@@ -1807,23 +1807,23 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                   </div>
 
                   {/* Internal Staff Discussion & Blind Voting */}
-                  <div className="pt-4 border-t border-white/10 space-y-3">
+                  <div className="pt-4 border-t border-line space-y-3">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300">
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-ink-2">
                         Staff Reviews & Blind Voting
                       </h3>
                       {guild.enableBlindVoting && (
-                        <span className="text-[10px] text-purple-400 font-mono">
+                        <span className="text-[10px] text-accent font-mono">
                           Blind Mode Enabled
                         </span>
                       )}
                     </div>
 
                     {/* Quick Staff Voting Actions (Feature #3) */}
-                    <div className="p-3.5 rounded-xl bg-purple-950/20 border border-purple-500/20 space-y-2.5">
+                    <div className="p-3.5 rounded-xl bg-accent-soft border border-purple-500/20 space-y-2.5">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-white">Cast Staff Vote:</span>
-                        <span className="text-[11px] font-mono font-bold text-purple-300">
+                        <span className="text-xs font-bold text-ink">Cast Staff Vote:</span>
+                        <span className="text-[11px] font-mono font-bold text-accent">
                           {selectedApp.reviews.filter((r: any) => (r.score ?? 0) >= 4).length} / {guild.votePassThreshold || 2} Approvals Needed
                         </span>
                       </div>
@@ -1838,7 +1838,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                             });
                             fetchGuildData();
                           }}
-                          className="flex-1 py-2 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs font-bold transition-all text-center"
+                          className="flex-1 py-2 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-moss border border-emerald-500/30 text-xs font-bold transition-all text-center"
                         >
                           Vote to Approve (+1)
                         </button>
@@ -1852,7 +1852,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                             });
                             fetchGuildData();
                           }}
-                          className="flex-1 py-2 rounded-lg bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 text-xs font-bold transition-all text-center"
+                          className="flex-1 py-2 rounded-lg bg-rose-600/20 hover:bg-rose-600/30 text-danger border border-rose-500/30 text-xs font-bold transition-all text-center"
                         >
                           Vote to Deny (-1)
                         </button>
@@ -1860,12 +1860,12 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                     </div>
 
                     {selectedApp.reviews.map((rev: any) => (
-                      <div key={rev.id} className="p-3 rounded-xl bg-white/5 border border-white/5 text-xs space-y-1">
+                      <div key={rev.id} className="p-3 rounded-xl bg-sunk border border-line text-xs space-y-1">
                         <div className="flex items-center justify-between">
-                          <span className="font-semibold text-white">{rev.reviewer.username}</span>
+                          <span className="font-semibold text-ink">{rev.reviewer.username}</span>
                           <div className="flex items-center gap-2">
                             {rev.score && (
-                              <span className="flex items-center gap-1 text-amber-400">
+                              <span className="flex items-center gap-1 text-gold">
                                 <Star className="w-3 h-3 fill-amber-400" />
                                 {rev.score}/5
                               </span>
@@ -1873,14 +1873,14 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                             <button
                               type="button"
                               onClick={() => handleDeleteReview(selectedApp.id, rev.id)}
-                              className="p-1 rounded hover:bg-rose-500/20 text-slate-500 hover:text-rose-400 transition-colors"
+                              className="p-1 rounded hover:bg-rose-500/20 text-faint hover:text-danger transition-colors"
                               title="Delete review note"
                             >
                               <Trash2 className="w-3 h-3" />
                             </button>
                           </div>
                         </div>
-                        <p className="text-slate-300">{rev.comment}</p>
+                        <p className="text-ink-2">{rev.comment}</p>
                       </div>
                     ))}
 
@@ -1891,18 +1891,18 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                         placeholder="Add internal staff note..."
                         value={reviewComment}
                         onChange={(e) => setReviewComment(e.target.value)}
-                        className="w-full px-3 py-2 rounded-lg bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                        className="w-full px-3 py-2 rounded-lg bg-surface border border-line text-xs text-ink placeholder-faint focus:outline-none focus:border-accent"
                       />
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-1.5">
-                          <span className="text-[11px] text-slate-400">Rating:</span>
+                          <span className="text-[11px] text-muted">Rating:</span>
                           {[1, 2, 3, 4, 5].map((num) => (
                             <button
                               key={num}
                               type="button"
                               onClick={() => setReviewScore(num)}
                               className={`p-1 rounded ${
-                                reviewScore >= num ? "text-amber-400" : "text-slate-600"
+                                reviewScore >= num ? "text-gold" : "text-faint"
                               }`}
                             >
                               <Star className="w-3.5 h-3.5 fill-current" />
@@ -1922,8 +1922,8 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                   </div>
                 </div>
               ) : (
-                <div className="glass-panel rounded-2xl border border-white/10 p-12 text-center">
-                  <p className="text-xs text-slate-400">Select an application from the list to review.</p>
+                <div className="glass-panel rounded-2xl border border-line p-12 text-center">
+                  <p className="text-xs text-muted">Select an application from the list to review.</p>
                 </div>
               )}
             </div>
@@ -1931,15 +1931,15 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
 
           {/* Floating Bulk Action Bar */}
           {selectedAppIds.length > 0 && (
-            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-900/95 backdrop-blur-xl border border-purple-500/40 shadow-2xl rounded-2xl px-6 py-3.5 flex items-center gap-3.5 animate-in fade-in slide-in-from-bottom-4">
+            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-surface/95 backdrop-blur-xl border border-purple-500/40 shadow-2xl rounded-2xl px-6 py-3.5 flex items-center gap-3.5 animate-in fade-in slide-in-from-bottom-4">
               <div className="flex items-center gap-2">
                 <span className="w-6 h-6 rounded-full bg-purple-600 text-white text-xs font-bold flex items-center justify-center">
                   {selectedAppIds.length}
                 </span>
-                <span className="text-xs font-semibold text-white">selected</span>
+                <span className="text-xs font-semibold text-ink">selected</span>
               </div>
 
-              <div className="h-4 w-px bg-white/20" />
+              <div className="h-4 w-px bg-sunk" />
 
               <button
                 type="button"
@@ -1967,7 +1967,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                     handleBulkAction("DELETE");
                   }
                 }}
-                className="px-3.5 py-1.5 rounded-lg bg-red-600/20 hover:bg-red-600/40 text-red-300 border border-red-500/30 text-xs font-bold transition-all shadow-md flex items-center gap-1.5"
+                className="px-3.5 py-1.5 rounded-lg bg-red-600/20 hover:bg-red-600/40 text-danger border border-red-500/30 text-xs font-bold transition-all shadow-md flex items-center gap-1.5"
                 title="Permanently delete selected applications"
               >
                 <Trash2 className="w-3.5 h-3.5" />
@@ -1977,7 +1977,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
               <button
                 type="button"
                 onClick={handleExportSelectedCsv}
-                className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-medium transition-all flex items-center gap-1.5"
+                className="px-3 py-1.5 rounded-lg bg-sunk hover:bg-sunk text-ink text-xs font-medium transition-all flex items-center gap-1.5"
               >
                 <Download className="w-3 h-3" />
                 <span>Export CSV</span>
@@ -1986,7 +1986,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
               <button
                 type="button"
                 onClick={() => setSelectedAppIds([])}
-                className="text-xs text-slate-400 hover:text-white transition-colors ml-2"
+                className="text-xs text-muted hover:text-ink transition-colors ml-2"
               >
                 Clear
               </button>
@@ -2011,14 +2011,14 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
 
           {activeTab === "staff" && (
             <div className="space-y-6">
-              <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
-                <h3 className="mb-1 text-lg font-bold text-white">Appoint Team Member</h3>
-                <p className="mb-4 text-sm text-slate-400">Add staff by their Discord user ID. Only the community owner can manage the team.</p>
+              <div className="rounded-2xl border border-line bg-surface/[0.02] p-6">
+                <h3 className="mb-1 text-lg font-bold text-ink">Appoint Team Member</h3>
+                <p className="mb-4 text-sm text-muted">Add staff by their Discord user ID. Only the community owner can manage the team.</p>
                 <form onSubmit={handleAddStaff} className="grid gap-3 md:grid-cols-2">
-                  <input value={newStaffUserId} onChange={(e) => setNewStaffUserId(e.target.value)} placeholder="Discord User ID (17-20 digits)" required className="rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none focus:border-purple-500" />
-                  <input value={newStaffUsername} onChange={(e) => setNewStaffUsername(e.target.value)} placeholder="Display name (optional)" className="rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none focus:border-purple-500" />
-                  <input value={newStaffTitle} onChange={(e) => setNewStaffTitle(e.target.value)} placeholder="Role title, e.g. Lead Recruiter" className="rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none focus:border-purple-500" />
-                  <select value={newStaffPerms} onChange={(e) => setNewStaffPerms(e.target.value)} className="rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none focus:border-purple-500">
+                  <input value={newStaffUserId} onChange={(e) => setNewStaffUserId(e.target.value)} placeholder="Discord User ID (17-20 digits)" required className="rounded-lg border border-line bg-sunk px-3 py-2 text-sm text-ink outline-none focus:border-accent" />
+                  <input value={newStaffUsername} onChange={(e) => setNewStaffUsername(e.target.value)} placeholder="Display name (optional)" className="rounded-lg border border-line bg-sunk px-3 py-2 text-sm text-ink outline-none focus:border-accent" />
+                  <input value={newStaffTitle} onChange={(e) => setNewStaffTitle(e.target.value)} placeholder="Role title, e.g. Lead Recruiter" className="rounded-lg border border-line bg-sunk px-3 py-2 text-sm text-ink outline-none focus:border-accent" />
+                  <select value={newStaffPerms} onChange={(e) => setNewStaffPerms(e.target.value)} className="rounded-lg border border-line bg-sunk px-3 py-2 text-sm text-ink outline-none focus:border-accent">
                     <option value="view_only">View only</option>
                     <option value="vote_only">Vote only</option>
                     <option value="full_decision">Full decision (accept / reject)</option>
@@ -2029,19 +2029,19 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                   </button>
                 </form>
               </div>
-              <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
-                <h3 className="mb-3 text-lg font-bold text-white">Current team ({staffList.length})</h3>
+              <div className="rounded-2xl border border-line bg-surface/[0.02] p-6">
+                <h3 className="mb-3 text-lg font-bold text-ink">Current team ({staffList.length})</h3>
                 {staffList.length === 0 ? (
-                  <p className="text-sm text-slate-500">No staff yet.</p>
+                  <p className="text-sm text-faint">No staff yet.</p>
                 ) : (
                   <ul>
                     {staffList.map((s: any) => (
-                      <li key={s.userId} className="flex items-center justify-between border-b border-white/5 py-3">
+                      <li key={s.userId} className="flex items-center justify-between border-b border-line py-3">
                         <div>
-                          <div className="font-medium text-white">{s.username || s.userId}</div>
-                          <div className="text-xs text-slate-400">{s.roleTitle} · {s.permissions}</div>
+                          <div className="font-medium text-ink">{s.username || s.userId}</div>
+                          <div className="text-xs text-muted">{s.roleTitle} · {s.permissions}</div>
                         </div>
-                        <button onClick={() => handleDeleteStaff(s.userId)} className="text-xs text-rose-400 hover:text-rose-300">Remove</button>
+                        <button onClick={() => handleDeleteStaff(s.userId)} className="text-xs text-danger hover:text-danger">Remove</button>
                       </li>
                     ))}
                   </ul>
@@ -2054,8 +2054,8 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h2 className="text-lg font-bold text-white">Visual Form Builder & Openings</h2>
-              <p className="text-xs text-slate-400">
+              <h2 className="text-lg font-bold text-ink">Visual Form Builder & Openings</h2>
+              <p className="text-xs text-muted">
                 Design custom application questionnaires, questions types, and required fields.
               </p>
             </div>
@@ -2063,10 +2063,10 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
               <button
                 type="button"
                 onClick={() => setImportPosModal(true)}
-                className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                className="px-3.5 py-2 rounded-xl bg-sunk hover:bg-sunk text-ink-2 border border-line text-xs font-semibold flex items-center gap-1.5 transition-colors"
                 title="Import entire form or opening from JSON"
               >
-                <Upload className="w-3.5 h-3.5 text-purple-400" />
+                <Upload className="w-3.5 h-3.5 text-accent" />
                 <span>Import Opening (JSON)</span>
               </button>
 
@@ -2083,7 +2083,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Position Picker */}
             <div className="lg:col-span-4 space-y-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-muted block mb-2">
                 Openings ({guild.positions.length})
               </span>
               {guild.positions.map((p) => (
@@ -2092,21 +2092,21 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                   onClick={() => setSelectedPosId(p.id)}
                   className={`p-3.5 rounded-xl cursor-pointer transition-all border ${
                     activePosition?.id === p.id
-                      ? "bg-purple-950/30 border-purple-500/60 shadow-md shadow-purple-500/10"
-                      : "glass-panel border-white/5 hover:border-white/20"
+                      ? "bg-accent-soft border-purple-500/60 shadow-md shadow-purple-500/10"
+                      : "glass-panel border-line hover:border-line-strong"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-bold text-white truncate">{p.title}</span>
+                    <span className="text-xs font-bold text-ink truncate">{p.title}</span>
                     <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
-                      p.isOpen ? "bg-emerald-500/20 text-emerald-300" : "bg-rose-500/20 text-rose-300"
+                      p.isOpen ? "bg-emerald-500/20 text-moss" : "bg-rose-500/20 text-danger"
                     }`}>
                       {p.isOpen ? "OPEN" : "CLOSED"}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between text-[11px] text-slate-400">
+                  <div className="flex items-center justify-between text-[11px] text-muted">
                     <span>{p.department}</span>
-                    <span className="text-[10px] text-purple-300 font-mono">
+                    <span className="text-[10px] text-accent font-mono">
                       {p.questions?.length || 0} questions
                     </span>
                   </div>
@@ -2117,18 +2117,18 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
             {/* Questions List & Editor */}
             <div className="lg:col-span-8">
               {activePosition ? (
-                <div className="glass-panel rounded-2xl border border-white/10 p-6 space-y-6">
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-4 border-b border-white/10">
+                <div className="glass-panel rounded-2xl border border-line p-6 space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-4 border-b border-line">
                     <div>
                       <div className="flex items-center gap-2">
-                        <h3 className="text-base font-bold text-white">{activePosition.title}</h3>
+                        <h3 className="text-base font-bold text-ink">{activePosition.title}</h3>
                         <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                          activePosition.isOpen ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" : "bg-rose-500/20 text-rose-300 border border-rose-500/30"
+                          activePosition.isOpen ? "bg-emerald-500/20 text-moss border border-emerald-500/30" : "bg-rose-500/20 text-danger border border-rose-500/30"
                         }`}>
                           {activePosition.isOpen ? "ACCEPTING APPLICATIONS" : "APPLICATIONS CLOSED"}
                         </span>
                       </div>
-                      <p className="text-xs text-slate-400 mt-1 max-w-xl leading-relaxed">
+                      <p className="text-xs text-muted mt-1 max-w-xl leading-relaxed">
                         {activePosition.description}
                       </p>
                     </div>
@@ -2136,10 +2136,10 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                     <div className="flex items-center gap-2 shrink-0">
                       <button
                         onClick={() => openEditPositionModal(activePosition)}
-                        className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white text-xs font-semibold flex items-center gap-1.5 border border-white/10 transition-colors shadow-sm"
+                        className="px-3 py-1.5 rounded-lg bg-sunk hover:bg-sunk text-ink text-xs font-semibold flex items-center gap-1.5 border border-line transition-colors shadow-sm"
                         title="Edit application name, department, description, and settings"
                       >
-                        <Pencil className="w-3.5 h-3.5 text-purple-400" />
+                        <Pencil className="w-3.5 h-3.5 text-accent" />
                         <span>Edit Opening</span>
                       </button>
 
@@ -2147,8 +2147,8 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                         onClick={() => handleTogglePositionOpen(activePosition.id, activePosition.isOpen)}
                         className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                           activePosition.isOpen
-                            ? "bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30"
-                            : "bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30"
+                            ? "bg-amber-500/20 hover:bg-amber-500/30 text-gold border border-amber-500/30"
+                            : "bg-emerald-500/20 hover:bg-emerald-500/30 text-moss border border-emerald-500/30"
                         }`}
                       >
                         {activePosition.isOpen ? "Close Opening" : "Re-open Opening"}
@@ -2164,7 +2164,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
 
                       <button
                         onClick={() => handleDeletePosition(activePosition.id)}
-                        className="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-white border border-red-500/20 transition-colors"
+                        className="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-danger hover:text-ink border border-red-500/20 transition-colors"
                         title="Delete this opening"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -2174,36 +2174,36 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
 
                   <div className="space-y-3">
                     {activePosition.questions?.length === 0 ? (
-                      <div className="p-8 text-center bg-surface/50 rounded-xl border border-white/5">
-                        <p className="text-xs text-slate-400">No questions added yet. Click &apos;Add Question&apos; above!</p>
+                      <div className="p-8 text-center bg-surface/50 rounded-xl border border-line">
+                        <p className="text-xs text-muted">No questions added yet. Click &apos;Add Question&apos; above!</p>
                       </div>
                     ) : (
                       activePosition.questions.map((q, idx) => (
                         <div
                           key={q.id}
-                          className="p-3.5 rounded-xl bg-surface border border-white/5 flex items-start justify-between gap-3 group hover:border-white/10 transition-colors"
+                          className="p-3.5 rounded-xl bg-surface border border-line flex items-start justify-between gap-3 group hover:border-line transition-colors"
                         >
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
-                              <span className="text-xs font-mono text-purple-400">{idx + 1}.</span>
-                              <span className="text-xs font-bold text-white">{q.label}</span>
-                              <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-white/5 text-slate-300 border border-white/5">
+                              <span className="text-xs font-mono text-accent">{idx + 1}.</span>
+                              <span className="text-xs font-bold text-ink">{q.label}</span>
+                              <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-sunk text-ink-2 border border-line">
                                 {q.type}
                               </span>
                               {q.required && (
-                                <span className="text-[10px] text-rose-400 font-semibold">Required</span>
+                                <span className="text-[10px] text-danger font-semibold">Required</span>
                               )}
                               {q.conditionalParentId && (
-                                <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-purple-500/10 text-purple-300 border border-purple-500/20">
+                                <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-purple-500/10 text-accent border border-purple-500/20">
                                   Conditional
                                 </span>
                               )}
                             </div>
                             {q.description && (
-                              <p className="text-[11px] text-slate-400 pl-4">{q.description}</p>
+                              <p className="text-[11px] text-muted pl-4">{q.description}</p>
                             )}
                             {q.options && (
-                              <p className="text-[10px] text-purple-300 pl-4 font-mono">Options: {q.options}</p>
+                              <p className="text-[10px] text-accent pl-4 font-mono">Options: {q.options}</p>
                             )}
                           </div>
 
@@ -2212,7 +2212,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                               type="button"
                               disabled={idx === 0}
                               onClick={() => handleMoveQuestion(q.id, "up")}
-                              className="p-1 rounded hover:bg-white/10 text-slate-400 hover:text-white disabled:opacity-20"
+                              className="p-1 rounded hover:bg-sunk text-muted hover:text-ink disabled:opacity-20"
                               title="Move Question Up"
                             >
                               <ChevronUp className="w-3.5 h-3.5" />
@@ -2221,14 +2221,14 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                               type="button"
                               disabled={idx === (activePosition.questions?.length ?? 1) - 1}
                               onClick={() => handleMoveQuestion(q.id, "down")}
-                              className="p-1 rounded hover:bg-white/10 text-slate-400 hover:text-white disabled:opacity-20"
+                              className="p-1 rounded hover:bg-sunk text-muted hover:text-ink disabled:opacity-20"
                               title="Move Question Down"
                             >
                               <ChevronDown className="w-3.5 h-3.5" />
                             </button>
                             <button
                               onClick={() => handleDeleteQuestion(q.id)}
-                              className="text-slate-500 hover:text-rose-400 p-1"
+                              className="text-faint hover:text-danger p-1"
                               title="Delete question"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -2248,26 +2248,26 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
             <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
               <form
                 onSubmit={handleCreatePosition}
-                className="glass-panel border border-white/10 rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl"
+                className="glass-panel border border-line rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl"
               >
-                <h3 className="text-base font-bold text-white">Create New Opening</h3>
+                <h3 className="text-base font-bold text-ink">Create New Opening</h3>
                 <div className="space-y-1.5">
-                  <label className="text-xs text-slate-300 font-medium block">Position Title</label>
+                  <label className="text-xs text-ink-2 font-medium block">Position Title</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. Lead 3D Modeler"
                     value={newPosTitle}
                     onChange={(e) => setNewPosTitle(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-surface border border-white/10 text-xs text-white"
+                    className="w-full px-3 py-2 rounded-xl bg-surface border border-line text-xs text-ink"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs text-slate-300 font-medium block">Department</label>
+                  <label className="text-xs text-ink-2 font-medium block">Department</label>
                   <select
                     value={newPosDept}
                     onChange={(e) => setNewPosDept(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-surface border border-white/10 text-xs text-white"
+                    className="w-full px-3 py-2 rounded-xl bg-surface border border-line text-xs text-ink"
                   >
                     <option value="Development">Development</option>
                     <option value="Staff & Moderation">Staff & Moderation</option>
@@ -2276,31 +2276,31 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs text-slate-300 font-medium block">Description & Requirements</label>
+                  <label className="text-xs text-ink-2 font-medium block">Description & Requirements</label>
                   <textarea
                     rows={3}
                     required
                     placeholder="Describe the role..."
                     value={newPosDesc}
                     onChange={(e) => setNewPosDesc(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-surface border border-white/10 text-xs text-white"
+                    className="w-full px-3 py-2 rounded-xl bg-surface border border-line text-xs text-ink"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs text-slate-300 font-medium block">Discord Auto-Grant Role ID (Optional)</label>
+                  <label className="text-xs text-ink-2 font-medium block">Discord Auto-Grant Role ID (Optional)</label>
                   <input
                     type="text"
                     placeholder="e.g. 119876543210987654"
                     value={newPosRole}
                     onChange={(e) => setNewPosRole(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-surface border border-white/10 text-xs text-white"
+                    className="w-full px-3 py-2 rounded-xl bg-surface border border-line text-xs text-ink"
                   />
                 </div>
                 <div className="flex items-center justify-end gap-2 pt-2">
                   <button
                     type="button"
                     onClick={() => setNewPosModal(false)}
-                    className="px-3 py-1.5 rounded-lg text-xs text-slate-400 hover:text-white"
+                    className="px-3 py-1.5 rounded-lg text-xs text-muted hover:text-ink"
                   >
                     Cancel
                   </button>
@@ -2320,26 +2320,26 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
             <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
               <form
                 onSubmit={handleAddQuestion}
-                className="glass-panel border border-white/10 rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl"
+                className="glass-panel border border-line rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl"
               >
-                <h3 className="text-base font-bold text-white">Add Question to Form</h3>
+                <h3 className="text-base font-bold text-ink">Add Question to Form</h3>
                 <div className="space-y-1.5">
-                  <label className="text-xs text-slate-300 font-medium block">Question Label / Prompt</label>
+                  <label className="text-xs text-ink-2 font-medium block">Question Label / Prompt</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. Link your DevForum portfolio"
                     value={newQLabel}
                     onChange={(e) => setNewQLabel(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-surface border border-white/10 text-xs text-white"
+                    className="w-full px-3 py-2 rounded-xl bg-surface border border-line text-xs text-ink"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs text-slate-300 font-medium block">Input Type</label>
+                  <label className="text-xs text-ink-2 font-medium block">Input Type</label>
                   <select
                     value={newQType}
                     onChange={(e) => setNewQType(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-surface border border-white/10 text-xs text-white"
+                    className="w-full px-3 py-2 rounded-xl bg-surface border border-line text-xs text-ink"
                   >
                     <option value="TEXT">Short Text (Single line)</option>
                     <option value="PARAGRAPH">Paragraph (Multi-line detailed answer)</option>
@@ -2353,43 +2353,43 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
 
                 {newQType === "SELECT" && (
                   <div className="space-y-1.5">
-                    <label className="text-xs text-slate-300 font-medium block">Options (Comma-separated)</label>
+                    <label className="text-xs text-ink-2 font-medium block">Options (Comma-separated)</label>
                     <input
                       type="text"
                       placeholder="Option 1, Option 2, Option 3"
                       value={newQOptions}
                       onChange={(e) => setNewQOptions(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-surface border border-white/10 text-xs text-white"
+                      className="w-full px-3 py-2 rounded-xl bg-surface border border-line text-xs text-ink"
                     />
                   </div>
                 )}
 
                 <div className="space-y-1.5">
-                  <label className="text-xs text-slate-300 font-medium block">Helper Description (Optional)</label>
+                  <label className="text-xs text-ink-2 font-medium block">Helper Description (Optional)</label>
                   <input
                     type="text"
                     placeholder="Clarification or tips for the applicant..."
                     value={newQDesc}
                     onChange={(e) => setNewQDesc(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-surface border border-white/10 text-xs text-white"
+                    className="w-full px-3 py-2 rounded-xl bg-surface border border-line text-xs text-ink"
                   />
                 </div>
 
                 {/* Conditional Question Settings */}
-                <div className="p-3 rounded-xl bg-surface/50 border border-white/5 space-y-2">
-                  <label className="text-xs font-semibold text-purple-300 block">
+                <div className="p-3 rounded-xl bg-surface/50 border border-line space-y-2">
+                  <label className="text-xs font-semibold text-accent block">
                     Conditional Visibility (Optional)
                   </label>
-                  <p className="text-[10px] text-slate-400">
+                  <p className="text-[10px] text-muted">
                     Only display this question if a previous question is answered with a specific value.
                   </p>
                   <div className="grid grid-cols-2 gap-2 pt-1">
                     <div>
-                      <label className="text-[10px] text-slate-400 block mb-0.5">Parent Question</label>
+                      <label className="text-[10px] text-muted block mb-0.5">Parent Question</label>
                       <select
                         value={newQCondParent}
                         onChange={(e) => setNewQCondParent(e.target.value)}
-                        className="w-full px-2 py-1.5 rounded-lg bg-surface border border-white/10 text-[11px] text-white"
+                        className="w-full px-2 py-1.5 rounded-lg bg-surface border border-line text-[11px] text-ink"
                       >
                         <option value="">None (Always Show)</option>
                         {activePosition?.questions.map((q, qIdx) => (
@@ -2400,13 +2400,13 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                       </select>
                     </div>
                     <div>
-                      <label className="text-[10px] text-slate-400 block mb-0.5">Trigger Answer</label>
+                      <label className="text-[10px] text-muted block mb-0.5">Trigger Answer</label>
                       <input
                         type="text"
                         placeholder="e.g. Yes"
                         value={newQCondVal}
                         onChange={(e) => setNewQCondVal(e.target.value)}
-                        className="w-full px-2 py-1.5 rounded-lg bg-surface border border-white/10 text-[11px] text-white"
+                        className="w-full px-2 py-1.5 rounded-lg bg-surface border border-line text-[11px] text-ink"
                       />
                     </div>
                   </div>
@@ -2419,14 +2419,14 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                     onChange={(e) => setNewQRequired(e.target.checked)}
                     className="w-4 h-4 rounded text-purple-600"
                   />
-                  <span className="text-xs text-slate-300">Required question</span>
+                  <span className="text-xs text-ink-2">Required question</span>
                 </label>
 
                 <div className="flex items-center justify-end gap-2 pt-2">
                   <button
                     type="button"
                     onClick={() => setNewQModal(false)}
-                    className="px-3 py-1.5 rounded-lg text-xs text-slate-400 hover:text-white"
+                    className="px-3 py-1.5 rounded-lg text-xs text-muted hover:text-ink"
                   >
                     Cancel
                   </button>
@@ -2447,43 +2447,43 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
       {activeTab === "bot" && (
         <div className="max-w-3xl space-y-6 animate-fadeIn">
           {/* Active Bot System Notice */}
-          <div className="glass-panel rounded-2xl border border-purple-500/30 bg-purple-950/20 p-6 sm:p-8 space-y-4 shadow-xl">
+          <div className="glass-panel rounded-2xl border border-purple-500/30 bg-accent-soft p-6 sm:p-8 space-y-4 shadow-xl">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-start sm:items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400 shrink-0">
+                <div className="w-12 h-12 rounded-2xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-accent shrink-0">
                   <Bot className="w-6 h-6" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-base font-bold text-white">Discord Bot Dispatcher & Automation</h3>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    <h3 className="text-base font-bold text-ink">Discord Bot Dispatcher & Automation</h3>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-moss border border-emerald-500/30">
                       LIVE & OPERATIONAL
                     </span>
                   </div>
-                  <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+                  <p className="text-xs text-ink-2 mt-1 leading-relaxed">
                     Custom Discord bot token hosting, 1-click server channel creators, slash commands, and automated embeds are fully active.
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="p-4 rounded-xl bg-black/40 border border-white/5 space-y-2">
-              <div className="flex items-center gap-2 text-xs font-semibold text-emerald-400">
+            <div className="p-4 rounded-xl bg-sunk border border-line space-y-2">
+              <div className="flex items-center gap-2 text-xs font-semibold text-moss">
                 <CheckCircle2 className="w-4 h-4" />
                 <span>Discord Integration is 100% Optional for Communities</span>
               </div>
-              <p className="text-[11px] text-slate-400 leading-relaxed">
+              <p className="text-[11px] text-muted leading-relaxed">
                 You can run your applications in pure Web-Only mode, or plug in your bot token below to dispatch real-time embeds, slash commands, and automatic role assignments.
               </p>
             </div>
           </div>
 
-          <div className="glass-panel rounded-2xl border border-white/10 p-6 sm:p-8 space-y-6">
+          <div className="glass-panel rounded-2xl border border-line p-6 sm:p-8 space-y-6">
           <div>
-            <h2 className="text-base font-bold text-white mb-1">
+            <h2 className="text-base font-bold text-ink mb-1">
               Discord Bot & Integration Mode
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-muted">
               Choose how your community wants to handle applications — pure web portal or automated via your own bot token.
             </p>
           </div>
@@ -2494,15 +2494,15 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
               onClick={() => setUseCustomBotState(false)}
               className={`p-4 rounded-xl cursor-pointer border transition-all ${
                 !useCustomBotState
-                  ? "bg-purple-950/30 border-purple-500 shadow-md shadow-purple-500/10"
-                  : "bg-surface/50 border-white/5 hover:border-white/20"
+                  ? "bg-accent-soft border-purple-500 shadow-md shadow-purple-500/10"
+                  : "bg-surface/50 border-line hover:border-line-strong"
               }`}
             >
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold text-white">Web-Only Mode</span>
-                {!useCustomBotState && <CheckCircle className="w-4 h-4 text-purple-400" />}
+                <span className="text-xs font-bold text-ink">Web-Only Mode</span>
+                {!useCustomBotState && <CheckCircle className="w-4 h-4 text-accent" />}
               </div>
-              <p className="text-[11px] text-slate-400 leading-relaxed">
+              <p className="text-[11px] text-muted leading-relaxed">
                 No Discord bot needed! Staff review, interview, and manage applicants entirely through the RoleFlow web dashboard.
               </p>
             </div>
@@ -2511,15 +2511,15 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
               onClick={() => setUseCustomBotState(true)}
               className={`p-4 rounded-xl cursor-pointer border transition-all ${
                 useCustomBotState
-                  ? "bg-purple-950/30 border-purple-500 shadow-md shadow-purple-500/10"
-                  : "bg-surface/50 border-white/5 hover:border-white/20"
+                  ? "bg-accent-soft border-purple-500 shadow-md shadow-purple-500/10"
+                  : "bg-surface/50 border-line hover:border-line-strong"
               }`}
             >
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold text-white">Hosted Bot Automation</span>
-                {useCustomBotState && <CheckCircle className="w-4 h-4 text-purple-400" />}
+                <span className="text-xs font-bold text-ink">Hosted Bot Automation</span>
+                {useCustomBotState && <CheckCircle className="w-4 h-4 text-accent" />}
               </div>
-              <p className="text-[11px] text-slate-400 leading-relaxed">
+              <p className="text-[11px] text-muted leading-relaxed">
                 We host and dispatch your bot for you! Automatic staff channel embeds, role grants on accept, and applicant DMs.
               </p>
             </div>
@@ -2528,17 +2528,17 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           {/* Token input & settings (if hosted bot enabled) */}
           {useCustomBotState && (
             <div className="space-y-4 pt-2">
-              <div className="space-y-1.5 p-4 rounded-xl bg-purple-950/20 border border-purple-500/20">
+              <div className="space-y-1.5 p-4 rounded-xl bg-accent-soft border border-purple-500/20">
                 <div className="flex items-center justify-between">
-                  <label className="block text-xs font-bold text-white flex items-center gap-1.5">
-                    <Key className="w-3.5 h-3.5 text-purple-400" />
+                  <label className="block text-xs font-bold text-ink flex items-center gap-1.5">
+                    <Key className="w-3.5 h-3.5 text-accent" />
                     Your Discord Bot Token
                   </label>
                   <button
                     type="button"
                     onClick={handleVerifyBot}
                     disabled={verifyingBot}
-                    className="text-[11px] text-purple-300 hover:text-white flex items-center gap-1 px-2.5 py-1 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 transition-colors"
+                    className="text-[11px] text-accent hover:text-ink flex items-center gap-1 px-2.5 py-1 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 transition-colors"
                   >
                     <RefreshCw className={`w-3 h-3 ${verifyingBot ? "animate-spin" : ""}`} />
                     <span>{verifyingBot ? "Verifying..." : "Verify Token"}</span>
@@ -2549,30 +2549,30 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                   placeholder={guild?.hasCustomBotToken ? "Token saved. Paste a new one to replace it." : "Enter bot token from Discord Developer Portal..."}
                   value={botTokenInput}
                   onChange={(e) => setBotTokenInput(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-line text-xs text-ink placeholder-faint focus:outline-none focus:border-accent"
                 />
                 {botVerifiedInfo ? (
-                  <div className="flex items-center gap-2 mt-2 p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs">
+                  <div className="flex items-center gap-2 mt-2 p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-moss text-xs">
                     <CheckCircle2 className="w-4 h-4" />
                     <span>
                       Bot Online: <strong>{botVerifiedInfo.username}#{botVerifiedInfo.discriminator}</strong>
                     </span>
                   </div>
                 ) : (
-                  <p className="text-[10px] text-slate-400">
+                  <p className="text-[10px] text-muted">
                     RoleFlow securely stores your token to dispatch embeds and grant roles on your server&apos;s behalf.
                   </p>
                 )}
               </div>
 
               {/* 1-Click Server Setup Box */}
-              <div className="p-4 rounded-xl bg-surface/60 border border-surface-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="p-4 rounded-xl bg-surface/60 border border-line flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div>
-                  <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                  <h4 className="text-xs font-bold text-ink flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-accent" />
                     1-Click Discord Server Auto-Setup
                   </h4>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
+                  <p className="text-[11px] text-muted mt-0.5">
                     Creates <strong>#applications-log</strong> and <strong>@Staff Reviewer</strong> role on your Discord server automatically.
                   </p>
                 </div>
@@ -2591,8 +2591,8 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                 <div
                   className={`p-3 rounded-xl border text-xs flex items-center gap-2 ${
                     botFeedbackMsg.error
-                      ? "bg-rose-500/10 border-rose-500/30 text-rose-300"
-                      : "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
+                      ? "bg-rose-500/10 border-rose-500/30 text-danger"
+                      : "bg-emerald-500/10 border-emerald-500/30 text-moss"
                   }`}
                 >
                   {botFeedbackMsg.error ? (
@@ -2607,7 +2607,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
               {/* Staff Log Channel ID */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <label className="block text-xs font-bold text-white">
+                  <label className="block text-xs font-bold text-ink">
                     Staff Alert Channel ID (#applications-log)
                   </label>
                   {logChannelInput && (
@@ -2615,7 +2615,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                       type="button"
                       onClick={handleSendTestEmbed}
                       disabled={testingEmbed}
-                      className="text-[11px] text-violet-300 hover:text-white flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-violet-500/20 hover:bg-violet-500/30 transition-colors"
+                      className="text-[11px] text-accent hover:text-ink flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-violet-500/20 hover:bg-violet-500/30 transition-colors"
                     >
                       <Send className="w-3 h-3" />
                       <span>{testingEmbed ? "Sending..." : "Send Test Embed"}</span>
@@ -2627,14 +2627,14 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                   placeholder="e.g. 1565068094857154571"
                   value={logChannelInput}
                   onChange={(e) => setLogChannelInput(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-line text-xs text-ink placeholder-faint focus:outline-none focus:border-accent"
                 />
               </div>
 
               {/* Staff Ping Role */}
               <div className="space-y-1.5">
-                <label className="block text-xs font-bold text-white flex items-center gap-1.5">
-                  <Bell className="w-3.5 h-3.5 text-purple-400" />
+                <label className="block text-xs font-bold text-ink flex items-center gap-1.5">
+                  <Bell className="w-3.5 h-3.5 text-accent" />
                   Staff Ping Role ID (Optional)
                 </label>
                 <input
@@ -2642,14 +2642,14 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                   placeholder="e.g. 1046538179399929957 (Pings this role on new applications)"
                   value={staffPingRoleInput}
                   onChange={(e) => setStaffPingRoleInput(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-line text-xs text-ink placeholder-faint focus:outline-none focus:border-accent"
                 />
               </div>
 
               {/* Custom Embed Color */}
               <div className="space-y-1.5">
-                <label className="block text-xs font-bold text-white flex items-center gap-1.5">
-                  <Palette className="w-3.5 h-3.5 text-purple-400" />
+                <label className="block text-xs font-bold text-ink flex items-center gap-1.5">
+                  <Palette className="w-3.5 h-3.5 text-accent" />
                   Discord Embed Hex Color
                 </label>
                 <div className="flex items-center gap-3">
@@ -2657,14 +2657,14 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                     type="color"
                     value={embedColorInput}
                     onChange={(e) => setEmbedColorInput(e.target.value)}
-                    className="w-10 h-10 rounded-xl bg-transparent border border-white/10 cursor-pointer"
+                    className="w-10 h-10 rounded-xl bg-transparent border border-line cursor-pointer"
                   />
                   <input
                     type="text"
                     value={embedColorInput}
                     onChange={(e) => setEmbedColorInput(e.target.value)}
                     placeholder="#8B5CF6"
-                    className="w-32 px-3 py-2 rounded-xl bg-surface border border-white/10 text-xs text-white font-mono focus:outline-none focus:border-purple-500"
+                    className="w-32 px-3 py-2 rounded-xl bg-surface border border-line text-xs text-ink font-mono focus:outline-none focus:border-accent"
                   />
                 </div>
               </div>
@@ -2695,60 +2695,60 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           <div className="glass-panel rounded-2xl border border-purple-500/30 bg-purple-950/15 p-6 sm:p-8 space-y-4 shadow-xl">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400">
+                <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-accent">
                   <Key className="w-5 h-5" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-bold text-white">Community Subscription Tier</h3>
-                    <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                    <h3 className="text-sm font-bold text-ink">Community Subscription Tier</h3>
+                    <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/20 text-gold border border-amber-500/30">
                       COMING SOON
                     </span>
                   </div>
-                  <p className="text-xs text-slate-400 mt-0.5">
+                  <p className="text-xs text-muted mt-0.5">
                     License keys and paid subscription tiers are currently in development. Full functionality is unlocked for all communities during Open Beta!
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="pt-2 p-3.5 rounded-xl bg-black/40 border border-white/5 flex items-center justify-between text-xs text-slate-400">
+            <div className="pt-2 p-3.5 rounded-xl bg-sunk border border-line flex items-center justify-between text-xs text-muted">
               <span className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-amber-400" />
+                <Clock className="w-4 h-4 text-gold" />
                 RoleFlow Pro license keys will launch following the conclusion of the public beta.
               </span>
-              <span className="font-semibold text-purple-400 text-[11px]">Beta Access Active</span>
+              <span className="font-semibold text-accent text-[11px]">Beta Access Active</span>
             </div>
           </div>
 
           {/* General Community Info */}
-          <div className="glass-panel rounded-2xl border border-white/10 p-6 sm:p-8 space-y-5">
+          <div className="glass-panel rounded-2xl border border-line p-6 sm:p-8 space-y-5">
             <div>
-              <h2 className="text-base font-bold text-white mb-1">Community Profile & Branding</h2>
-              <p className="text-xs text-slate-400">
+              <h2 className="text-base font-bold text-ink mb-1">Community Profile & Branding</h2>
+              <p className="text-xs text-muted">
                 Configure your public applicant portal, vanity URL, and branding.
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-ink-2 mb-1">
                   Community Name
                 </label>
                 <input
                   type="text"
                   value={communityNameInput}
                   onChange={(e) => setCommunityNameInput(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-line text-xs text-ink focus:outline-none focus:border-accent"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-ink-2 mb-1">
                   Custom Vanity URL
                 </label>
                 <div className="flex items-center">
-                  <span className="px-3 py-2.5 bg-black/40 border border-r-0 border-white/10 rounded-l-xl text-[11px] text-slate-500 font-mono">
+                  <span className="px-3 py-2.5 bg-sunk border border-r-0 border-line rounded-l-xl text-[11px] text-faint font-mono">
                     roleflow.site/c/
                   </span>
                   <input
@@ -2756,14 +2756,14 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                     value={vanitySlugInput}
                     onChange={(e) => setVanitySlugInput(e.target.value)}
                     placeholder="my-server"
-                    className="w-full px-3 py-2.5 rounded-r-xl bg-surface border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500 font-mono"
+                    className="w-full px-3 py-2.5 rounded-r-xl bg-surface border border-line text-xs text-ink focus:outline-none focus:border-accent font-mono"
                   />
                 </div>
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">
+              <label className="block text-xs font-medium text-ink-2 mb-1">
                 Community Description
               </label>
               <textarea
@@ -2771,12 +2771,12 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                 value={descriptionInput}
                 onChange={(e) => setDescriptionInput(e.target.value)}
                 placeholder="Describe your studio or gaming community..."
-                className="w-full px-3.5 py-2 rounded-xl bg-surface border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500 resize-none"
+                className="w-full px-3.5 py-2 rounded-xl bg-surface border border-line text-xs text-ink focus:outline-none focus:border-accent resize-none"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">
+              <label className="block text-xs font-medium text-ink-2 mb-1">
                 Tags (Comma-separated)
               </label>
               <input
@@ -2784,13 +2784,13 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                 value={tagsInput}
                 onChange={(e) => setTagsInput(e.target.value)}
                 placeholder="Roblox, Studio, Moderation, Development"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-line text-xs text-ink focus:outline-none focus:border-accent"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-ink-2 mb-1">
                   Server Icon Image URL
                 </label>
                 <input
@@ -2798,12 +2798,12 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                   value={iconInput}
                   onChange={(e) => setIconInput(e.target.value)}
                   placeholder="https://..."
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-line text-xs text-ink focus:outline-none focus:border-accent"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-ink-2 mb-1">
                   Banner Image URL
                 </label>
                 <input
@@ -2811,24 +2811,24 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                   value={bannerInput}
                   onChange={(e) => setBannerInput(e.target.value)}
                   placeholder="https://..."
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-line text-xs text-ink focus:outline-none focus:border-accent"
                 />
               </div>
             </div>
           </div>
 
           {/* Discord Webhooks for Audit Logs */}
-          <div className="glass-panel rounded-2xl border border-white/10 p-6 sm:p-8 space-y-4">
-            <h2 className="text-base font-bold text-white mb-1 flex items-center gap-2">
-              <Bell className="w-4 h-4 text-purple-400" />
+          <div className="glass-panel rounded-2xl border border-line p-6 sm:p-8 space-y-4">
+            <h2 className="text-base font-bold text-ink mb-1 flex items-center gap-2">
+              <Bell className="w-4 h-4 text-accent" />
               Discord Audit Log Webhook
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-muted">
               Receive instant Discord webhook embeds whenever an application is submitted, accepted, or rejected.
             </p>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">
+              <label className="block text-xs font-medium text-ink-2 mb-1">
                 Discord Webhook URL
               </label>
               <input
@@ -2836,53 +2836,53 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                 value={webhookUrlInput}
                 onChange={(e) => setWebhookUrlInput(e.target.value)}
                 placeholder="https://discord.com/api/webhooks/..."
-                className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white font-mono focus:outline-none focus:border-purple-500"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-line text-xs text-ink font-mono focus:outline-none focus:border-accent"
               />
             </div>
           </div>
 
           {/* Custom Community Portal Themes & Accents */}
-          <div className="glass-panel rounded-2xl border border-white/10 p-6 sm:p-8 space-y-4">
-            <h2 className="text-base font-bold text-white mb-1 flex items-center gap-2">
-              <Palette className="w-4 h-4 text-purple-400" />
+          <div className="glass-panel rounded-2xl border border-line p-6 sm:p-8 space-y-4">
+            <h2 className="text-base font-bold text-ink mb-1 flex items-center gap-2">
+              <Palette className="w-4 h-4 text-accent" />
               Public Portal Theme & Accents
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-muted">
               Customize your community&apos;s public portal appearance (/c/[slug]).
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-ink-2 mb-1">
                   Theme Preset
                 </label>
                 <select
                   value={portalThemeInput}
                   onChange={(e) => setPortalThemeInput(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500 cursor-pointer"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-line text-xs text-ink focus:outline-none focus:border-accent cursor-pointer"
                 >
-                  <option value="obsidian" className="bg-slate-900">Obsidian Dark (Default)</option>
-                  <option value="cyberpunk" className="bg-slate-900">Cyberpunk Neon</option>
-                  <option value="emerald" className="bg-slate-900">Emerald Forest</option>
-                  <option value="royal" className="bg-slate-900">Royal Purple</option>
-                  <option value="crimson" className="bg-slate-900">Crimson Glow</option>
+                  <option value="obsidian" className="bg-surface">Obsidian Dark (Default)</option>
+                  <option value="cyberpunk" className="bg-surface">Cyberpunk Neon</option>
+                  <option value="emerald" className="bg-surface">Emerald Forest</option>
+                  <option value="royal" className="bg-surface">Royal Purple</option>
+                  <option value="crimson" className="bg-surface">Crimson Glow</option>
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Community Page Layout</label>
+                <label className="block text-xs font-medium text-ink-2 mb-1">Community Page Layout</label>
                 <select
                   value={portalLayoutInput}
                   onChange={(e) => setPortalLayoutInput(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500 cursor-pointer"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-line text-xs text-ink focus:outline-none focus:border-accent cursor-pointer"
                 >
-                  <option value="banner" className="bg-slate-900">Banner-led (default)</option>
-                  <option value="minimal" className="bg-slate-900">Minimal (no banner)</option>
-                  <option value="cards" className="bg-slate-900">Card-led (openings in a grid)</option>
+                  <option value="banner" className="bg-surface">Banner-led (default)</option>
+                  <option value="minimal" className="bg-surface">Minimal (no banner)</option>
+                  <option value="cards" className="bg-surface">Card-led (openings in a grid)</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-ink-2 mb-1">
                   Accent Hex Color
                 </label>
                 <div className="flex items-center gap-2">
@@ -2890,25 +2890,25 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                     type="color"
                     value={portalAccentColorInput}
                     onChange={(e) => setPortalAccentColorInput(e.target.value)}
-                    className="w-9 h-9 rounded-lg border border-white/10 bg-transparent cursor-pointer shrink-0"
+                    className="w-9 h-9 rounded-lg border border-line bg-transparent cursor-pointer shrink-0"
                   />
                   <input
                     type="text"
                     value={portalAccentColorInput}
                     onChange={(e) => setPortalAccentColorInput(e.target.value)}
                     placeholder="#8B5CF6"
-                    className="flex-1 px-3 py-2 rounded-xl bg-surface border border-white/10 text-xs text-white font-mono focus:outline-none focus:border-purple-500"
+                    className="flex-1 px-3 py-2 rounded-xl bg-surface border border-line text-xs text-ink font-mono focus:outline-none focus:border-accent"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center justify-between py-2 border-t border-white/5">
+            <div className="flex items-center justify-between py-2 border-t border-line">
               <div>
-                <span className="text-xs font-bold text-white block">
+                <span className="text-xs font-bold text-ink block">
                   Discord Server Widget Embed
                 </span>
-                <p className="text-[10px] text-slate-400">
+                <p className="text-[10px] text-muted">
                   Embed live Discord member counts and voice channels directly on your public community portal.
                 </p>
               </div>
@@ -2922,15 +2922,15 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           </div>
 
           {/* Application Rules & Gating Policies */}
-          <div className="glass-panel rounded-2xl border border-white/10 p-6 sm:p-8 space-y-4">
-            <h2 className="text-base font-bold text-white mb-1">Access Rules & Security Gating</h2>
+          <div className="glass-panel rounded-2xl border border-line p-6 sm:p-8 space-y-4">
+            <h2 className="text-base font-bold text-ink mb-1">Access Rules & Security Gating</h2>
 
-            <div className="flex items-center justify-between py-2 border-b border-white/5">
+            <div className="flex items-center justify-between py-2 border-b border-line">
               <div>
-                <span className="text-xs font-bold text-white block">
+                <span className="text-xs font-bold text-ink block">
                   Require Membership in Discord Server
                 </span>
-                <p className="text-[10px] text-slate-400">
+                <p className="text-[10px] text-muted">
                   Applicants must be joined to your Discord server before they are allowed to submit.
                 </p>
               </div>
@@ -2942,12 +2942,12 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
               />
             </div>
 
-            <div className="flex items-center justify-between py-2 border-b border-white/5">
+            <div className="flex items-center justify-between py-2 border-b border-line">
               <div>
-                <span className="text-xs font-bold text-white block">
+                <span className="text-xs font-bold text-ink block">
                   Enforce Roblox Account Verification
                 </span>
-                <p className="text-[10px] text-slate-400">
+                <p className="text-[10px] text-muted">
                   Requires applicants to specify their Roblox username for avatar and studio portfolio checks.
                 </p>
               </div>
@@ -2959,12 +2959,12 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
               />
             </div>
 
-            <div className="flex items-center justify-between py-2 border-b border-white/5">
+            <div className="flex items-center justify-between py-2 border-b border-line">
               <div>
-                <span className="text-xs font-bold text-white block">
+                <span className="text-xs font-bold text-ink block">
                   Staff Blind Voting Mode
                 </span>
-                <p className="text-[10px] text-slate-400">
+                <p className="text-[10px] text-muted">
                   Hides other reviewers&apos; ratings until you submit your own review to prevent bias.
                 </p>
               </div>
@@ -2978,8 +2978,8 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
 
             {/* Blind Voting Threshold */}
             {blindVotingToggle && (
-              <div className="p-3.5 rounded-xl bg-purple-950/20 border border-purple-500/20 space-y-2">
-                <label className="block text-xs font-bold text-purple-300">
+              <div className="p-3.5 rounded-xl bg-accent-soft border border-purple-500/20 space-y-2">
+                <label className="block text-xs font-bold text-accent">
                   Required Staff Approval Votes Threshold
                 </label>
                 <input
@@ -2988,22 +2988,22 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                   max={20}
                   value={votePassThresholdInput}
                   onChange={(e) => setVotePassThresholdInput(Number(e.target.value))}
-                  className="w-32 px-3 py-1.5 rounded-lg bg-surface border border-white/10 text-xs text-white font-mono focus:border-purple-500"
+                  className="w-32 px-3 py-1.5 rounded-lg bg-surface border border-line text-xs text-ink font-mono focus:border-accent"
                 />
-                <p className="text-[10px] text-slate-400">
+                <p className="text-[10px] text-muted">
                   Number of positive staff approval votes needed to pass a candidate.
                 </p>
               </div>
             )}
 
             {/* Roblox Group Verification Gating (Feature #2) */}
-            <div className="py-3 border-b border-white/5 space-y-3">
+            <div className="py-3 border-b border-line space-y-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-xs font-bold text-white block">
+                  <span className="text-xs font-bold text-ink block">
                     Enforce Official Roblox Group Membership & Rank
                   </span>
-                  <p className="text-[10px] text-slate-400">
+                  <p className="text-[10px] text-muted">
                     Automatically verifies if the applicant is a member of your Roblox group with at least the required rank.
                   </p>
                 </div>
@@ -3016,9 +3016,9 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
               </div>
 
               {robloxGroupCheckToggle && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-xl bg-black/40 border border-purple-500/20">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-xl bg-sunk border border-purple-500/20">
                   <div>
-                    <label className="block text-[11px] font-medium text-slate-300 mb-1">
+                    <label className="block text-[11px] font-medium text-ink-2 mb-1">
                       Roblox Group ID
                     </label>
                     <input
@@ -3026,11 +3026,11 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                       placeholder="e.g. 15928371"
                       value={robloxGroupIdInput}
                       onChange={(e) => setRobloxGroupIdInput(e.target.value)}
-                      className="w-full px-3 py-1.5 rounded-lg bg-surface border border-white/10 text-xs text-white font-mono focus:border-purple-500"
+                      className="w-full px-3 py-1.5 rounded-lg bg-surface border border-line text-xs text-ink font-mono focus:border-accent"
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-medium text-slate-300 mb-1">
+                    <label className="block text-[11px] font-medium text-ink-2 mb-1">
                       Minimum Required Rank (1-255)
                     </label>
                     <input
@@ -3039,11 +3039,11 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                       max={255}
                       value={robloxMinRankInput}
                       onChange={(e) => setRobloxMinRankInput(Number(e.target.value))}
-                      className="w-full px-3 py-1.5 rounded-lg bg-surface border border-white/10 text-xs text-white font-mono focus:border-purple-500"
+                      className="w-full px-3 py-1.5 rounded-lg bg-surface border border-line text-xs text-ink font-mono focus:border-accent"
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-medium text-slate-300 mb-1">
+                    <label className="block text-[11px] font-medium text-ink-2 mb-1">
                       Minimum Account Age (Days)
                     </label>
                     <input
@@ -3052,11 +3052,11 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                       value={robloxMinAccountAgeDaysInput}
                       onChange={(e) => setRobloxMinAccountAgeDaysInput(Math.max(0, Number(e.target.value)))}
                       placeholder="0 (disabled)"
-                      className="w-full px-3 py-1.5 rounded-lg bg-surface border border-white/10 text-xs text-white font-mono focus:border-purple-500"
+                      className="w-full px-3 py-1.5 rounded-lg bg-surface border border-line text-xs text-ink font-mono focus:border-accent"
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-medium text-slate-300 mb-1">
+                    <label className="block text-[11px] font-medium text-ink-2 mb-1">
                       Required Roblox Badge ID
                     </label>
                     <input
@@ -3064,11 +3064,11 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                       placeholder="e.g. 2124849123"
                       value={robloxRequiredBadgeIdInput}
                       onChange={(e) => setRobloxRequiredBadgeIdInput(e.target.value)}
-                      className="w-full px-3 py-1.5 rounded-lg bg-surface border border-white/10 text-xs text-white font-mono focus:border-purple-500"
+                      className="w-full px-3 py-1.5 rounded-lg bg-surface border border-line text-xs text-ink font-mono focus:border-accent"
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-medium text-slate-300 mb-1">
+                    <label className="block text-[11px] font-medium text-ink-2 mb-1">
                       Auto-Accept Target Rank (1-255)
                     </label>
                     <input
@@ -3078,19 +3078,19 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                       value={robloxAcceptRankIdInput}
                       onChange={(e) => setRobloxAcceptRankIdInput(e.target.value)}
                       placeholder="Group Rank upon acceptance"
-                      className="w-full px-3 py-1.5 rounded-lg bg-surface border border-white/10 text-xs text-white font-mono focus:border-purple-500"
+                      className="w-full px-3 py-1.5 rounded-lg bg-surface border border-line text-xs text-ink font-mono focus:border-accent"
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-medium text-slate-300 mb-1">
-                      Roblox Open Cloud API Key {hasRobloxCloudApiKey && <span className="text-emerald-400 font-bold">(Saved)</span>}
+                    <label className="block text-[11px] font-medium text-ink-2 mb-1">
+                      Roblox Open Cloud API Key {hasRobloxCloudApiKey && <span className="text-moss font-bold">(Saved)</span>}
                     </label>
                     <input
                       type="password"
                       placeholder={hasRobloxCloudApiKey ? "•••••••••••••••• (Leave blank to keep current key)" : "Paste Open Cloud API Key"}
                       value={robloxCloudApiKeyInput}
                       onChange={(e) => setRobloxCloudApiKeyInput(e.target.value)}
-                      className="w-full px-3 py-1.5 rounded-lg bg-surface border border-white/10 text-xs text-white font-mono focus:border-purple-500"
+                      className="w-full px-3 py-1.5 rounded-lg bg-surface border border-line text-xs text-ink font-mono focus:border-accent"
                     />
                   </div>
                 </div>
@@ -3099,7 +3099,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
               <div className="space-y-1.5">
-                <label className="block text-xs font-bold text-white">
+                <label className="block text-xs font-bold text-ink">
                   Re-Application Cooldown (Days)
                 </label>
                 <input
@@ -3108,15 +3108,15 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                   max={90}
                   value={cooldownInput}
                   onChange={(e) => setCooldownInput(Number(e.target.value))}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-line text-xs text-ink focus:outline-none focus:border-accent"
                 />
-                <p className="text-[10px] text-slate-400">
+                <p className="text-[10px] text-muted">
                   Rejected applicants must wait this many days before re-applying. Set to 0 to disable.
                 </p>
               </div>
 
               <div className="space-y-1.5">
-                <label className="block text-xs font-bold text-white">
+                <label className="block text-xs font-bold text-ink">
                   Minimum Discord Account Age (Days)
                 </label>
                 <input
@@ -3125,9 +3125,9 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                   max={365}
                   value={minAccountAgeInput}
                   onChange={(e) => setMinAccountAgeInput(Number(e.target.value))}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white focus:outline-none focus:border-purple-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-line text-xs text-ink focus:outline-none focus:border-accent"
                 />
-                <p className="text-[10px] text-slate-400">
+                <p className="text-[10px] text-muted">
                   Prevents freshly created alt accounts from submitting spam applications.
                 </p>
               </div>
@@ -3146,9 +3146,9 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           </div>
 
           {/* Blacklist Management */}
-          <div className="glass-panel rounded-2xl border border-white/10 p-6 space-y-4">
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
-              <UserX className="w-4 h-4 text-rose-400" />
+          <div className="glass-panel rounded-2xl border border-line p-6 space-y-4">
+            <h2 className="text-base font-bold text-ink flex items-center gap-2">
+              <UserX className="w-4 h-4 text-danger" />
               Community Anti-Troll Blacklist
             </h2>
 
@@ -3158,14 +3158,14 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                 placeholder="Discord ID or Roblox username..."
                 value={newBlacklistVal}
                 onChange={(e) => setNewBlacklistVal(e.target.value)}
-                className="flex-1 px-3 py-2 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                className="flex-1 px-3 py-2 rounded-xl bg-surface border border-line text-xs text-ink placeholder-faint focus:outline-none focus:border-accent"
               />
               <input
                 type="text"
                 placeholder="Reason tag..."
                 value={newBlacklistReason}
                 onChange={(e) => setNewBlacklistReason(e.target.value)}
-                className="sm:w-48 px-3 py-2 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                className="sm:w-48 px-3 py-2 rounded-xl bg-surface border border-line text-xs text-ink placeholder-faint focus:outline-none focus:border-accent"
               />
               <button
                 type="button"
@@ -3178,15 +3178,15 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
 
             <div className="space-y-2 pt-2">
               {guild.blacklists.length === 0 ? (
-                <p className="text-xs text-slate-500">No users currently blacklisted.</p>
+                <p className="text-xs text-faint">No users currently blacklisted.</p>
               ) : (
                 guild.blacklists.map((b) => (
                   <div
                     key={b.id}
-                    className="flex items-center justify-between p-2.5 rounded-lg bg-surface border border-white/5 text-xs"
+                    className="flex items-center justify-between p-2.5 rounded-lg bg-surface border border-line text-xs"
                   >
-                    <span className="font-mono text-rose-300">{b.targetValue}</span>
-                    <span className="text-slate-400">{b.reason || "No reason given"}</span>
+                    <span className="font-mono text-danger">{b.targetValue}</span>
+                    <span className="text-muted">{b.reason || "No reason given"}</span>
                   </div>
                 ))
               )}
@@ -3198,22 +3198,22 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
       {/* Modal: Import Applications (CSV / JSON) */}
       {importModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="glass-panel border border-white/10 rounded-2xl p-6 max-w-xl w-full space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+          <div className="glass-panel border border-line rounded-2xl p-6 max-w-xl w-full space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-line">
               <div className="flex items-center gap-2">
-                <Upload className="w-4 h-4 text-purple-400" />
-                <h3 className="text-base font-bold text-white">Import Applications</h3>
+                <Upload className="w-4 h-4 text-accent" />
+                <h3 className="text-base font-bold text-ink">Import Applications</h3>
               </div>
               <button
                 type="button"
                 onClick={() => setImportModalOpen(false)}
-                className="text-slate-400 hover:text-white text-xs font-semibold"
+                className="text-muted hover:text-ink text-xs font-semibold"
               >
                 ✕ Close
               </button>
             </div>
 
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <p className="text-xs text-muted leading-relaxed">
               Import past candidate submissions, offline records, or external forms into your RoleFlow dashboard using CSV or JSON.
             </p>
 
@@ -3226,7 +3226,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                     className={`px-3 py-1 rounded-lg text-xs font-semibold border transition-colors ${
                       importFormat === "csv"
                         ? "bg-purple-600 text-white border-purple-500"
-                        : "bg-surface border-white/10 text-slate-400"
+                        : "bg-surface border-line text-muted"
                     }`}
                   >
                     CSV Format
@@ -3237,14 +3237,14 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                     className={`px-3 py-1 rounded-lg text-xs font-semibold border transition-colors ${
                       importFormat === "json"
                         ? "bg-purple-600 text-white border-purple-500"
-                        : "bg-surface border-white/10 text-slate-400"
+                        : "bg-surface border-line text-muted"
                     }`}
                   >
                     JSON Format
                   </button>
                 </div>
 
-                <label className="px-3 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-purple-300 font-semibold cursor-pointer">
+                <label className="px-3 py-1 rounded-lg bg-sunk hover:bg-sunk border border-line text-xs text-accent font-semibold cursor-pointer">
                   <span>Choose File</span>
                   <input
                     type="file"
@@ -3265,7 +3265,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium text-slate-300 mb-1">
+                <label className="block text-[11px] font-medium text-ink-2 mb-1">
                   {importFormat === "csv"
                     ? "Paste CSV rows (e.g. Username, RobloxUsername, Position, Status, Tags, Notes):"
                     : "Paste JSON array:"}
@@ -3276,7 +3276,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                   value={importRawText}
                   onChange={(e) => setImportRawText(e.target.value)}
                   placeholder={importFormat === "csv" ? CSV_IMPORT_SAMPLE : JSON_IMPORT_SAMPLE}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/10 text-xs text-white font-mono placeholder-slate-600 focus:outline-none focus:border-purple-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-line text-xs text-ink font-mono placeholder-faint focus:outline-none focus:border-accent"
                 />
               </div>
 
@@ -3284,14 +3284,14 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                 <div
                   className={`p-3 rounded-xl text-xs flex items-center gap-2 ${
                     importResultMsg.type === "success"
-                      ? "bg-emerald-500/15 border border-emerald-500/30 text-emerald-300"
-                      : "bg-rose-500/15 border border-rose-500/30 text-rose-300"
+                      ? "bg-emerald-500/15 border border-emerald-500/30 text-moss"
+                      : "bg-rose-500/15 border border-rose-500/30 text-danger"
                   }`}
                 >
                   {importResultMsg.type === "success" ? (
-                    <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+                    <CheckCircle2 className="w-4 h-4 shrink-0 text-moss" />
                   ) : (
-                    <AlertTriangle className="w-4 h-4 shrink-0 text-rose-400" />
+                    <AlertTriangle className="w-4 h-4 shrink-0 text-danger" />
                   )}
                   <span>{importResultMsg.text}</span>
                 </div>
@@ -3301,7 +3301,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                 <button
                   type="button"
                   onClick={() => setImportModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white"
+                  className="px-4 py-2 rounded-xl text-xs font-medium text-muted hover:text-ink"
                 >
                   Cancel
                 </button>
@@ -3321,22 +3321,22 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
       {/* Modal: Import Questions in Bulk */}
       {importQModal && activePosition && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="glass-panel border border-white/10 rounded-2xl p-6 max-w-xl w-full space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+          <div className="glass-panel border border-line rounded-2xl p-6 max-w-xl w-full space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-line">
               <div className="flex items-center gap-2">
-                <Upload className="w-4 h-4 text-purple-400" />
-                <h3 className="text-base font-bold text-white">Import Questions into {activePosition.title}</h3>
+                <Upload className="w-4 h-4 text-accent" />
+                <h3 className="text-base font-bold text-ink">Import Questions into {activePosition.title}</h3>
               </div>
               <button
                 type="button"
                 onClick={() => setImportQModal(false)}
-                className="text-slate-400 hover:text-white text-xs font-semibold"
+                className="text-muted hover:text-ink text-xs font-semibold"
               >
                 ✕ Close
               </button>
             </div>
 
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <p className="text-xs text-muted leading-relaxed">
               Quickly paste questions from Google Forms, Discord, or notes. Questions will be automatically appended to this opening!
             </p>
 
@@ -3349,7 +3349,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                     className={`px-3 py-1 rounded-lg text-xs font-semibold border transition-colors ${
                       importQFormat === "lines"
                         ? "bg-purple-600 text-white border-purple-500"
-                        : "bg-surface border-white/10 text-slate-400"
+                        : "bg-surface border-line text-muted"
                     }`}
                   >
                     1 Question Per Line
@@ -3360,7 +3360,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                     className={`px-3 py-1 rounded-lg text-xs font-semibold border transition-colors ${
                       importQFormat === "json"
                         ? "bg-purple-600 text-white border-purple-500"
-                        : "bg-surface border-white/10 text-slate-400"
+                        : "bg-surface border-line text-muted"
                     }`}
                   >
                     JSON
@@ -3371,14 +3371,14 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                     className={`px-3 py-1 rounded-lg text-xs font-semibold border transition-colors ${
                       importQFormat === "csv"
                         ? "bg-purple-600 text-white border-purple-500"
-                        : "bg-surface border-white/10 text-slate-400"
+                        : "bg-surface border-line text-muted"
                     }`}
                   >
                     CSV
                   </button>
                 </div>
 
-                <label className="px-3 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-purple-300 font-semibold cursor-pointer">
+                <label className="px-3 py-1 rounded-lg bg-sunk hover:bg-sunk border border-line text-xs text-accent font-semibold cursor-pointer">
                   <span>Load File</span>
                   <input
                     type="file"
@@ -3399,7 +3399,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium text-slate-300 mb-1">
+                <label className="block text-[11px] font-medium text-ink-2 mb-1">
                   {importQFormat === "lines"
                     ? "Paste your list of questions (one per line):"
                     : importQFormat === "json"
@@ -3418,7 +3418,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                       ? '[\n  {\n    "label": "Roblox Profile URL",\n    "type": "TEXT",\n    "required": true\n  },\n  {\n    "label": "Why do you want to join?",\n    "type": "PARAGRAPH",\n    "required": true\n  }\n]'
                       : "Roblox Profile, TEXT, true\nWhy do you want to join?, PARAGRAPH, true\nYears of Experience, NUMBER, false"
                   }
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/10 text-xs text-white font-mono placeholder-slate-600 focus:outline-none focus:border-purple-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-line text-xs text-ink font-mono placeholder-faint focus:outline-none focus:border-accent"
                 />
               </div>
 
@@ -3426,14 +3426,14 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                 <div
                   className={`p-3 rounded-xl text-xs flex items-center gap-2 ${
                     importQMsg.type === "success"
-                      ? "bg-emerald-500/15 border border-emerald-500/30 text-emerald-300"
-                      : "bg-rose-500/15 border border-rose-500/30 text-rose-300"
+                      ? "bg-emerald-500/15 border border-emerald-500/30 text-moss"
+                      : "bg-rose-500/15 border border-rose-500/30 text-danger"
                   }`}
                 >
                   {importQMsg.type === "success" ? (
-                    <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+                    <CheckCircle2 className="w-4 h-4 shrink-0 text-moss" />
                   ) : (
-                    <AlertTriangle className="w-4 h-4 shrink-0 text-rose-400" />
+                    <AlertTriangle className="w-4 h-4 shrink-0 text-danger" />
                   )}
                   <span>{importQMsg.text}</span>
                 </div>
@@ -3443,7 +3443,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                 <button
                   type="button"
                   onClick={() => setImportQModal(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white"
+                  className="px-4 py-2 rounded-xl text-xs font-medium text-muted hover:text-ink"
                 >
                   Cancel
                 </button>
@@ -3464,29 +3464,29 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
       {/* Modal: Import Entire Opening & Form */}
       {importPosModal && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="glass-panel border border-white/10 rounded-2xl p-6 max-w-xl w-full space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+          <div className="glass-panel border border-line rounded-2xl p-6 max-w-xl w-full space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-line">
               <div className="flex items-center gap-2">
-                <Upload className="w-4 h-4 text-purple-400" />
-                <h3 className="text-base font-bold text-white">Import Entire Opening & Questions</h3>
+                <Upload className="w-4 h-4 text-accent" />
+                <h3 className="text-base font-bold text-ink">Import Entire Opening & Questions</h3>
               </div>
               <button
                 type="button"
                 onClick={() => setImportPosModal(false)}
-                className="text-slate-400 hover:text-white text-xs font-semibold"
+                className="text-muted hover:text-ink text-xs font-semibold"
               >
                 ✕ Close
               </button>
             </div>
 
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <p className="text-xs text-muted leading-relaxed">
               Import a full application opening along with all questionnaire questions from a saved RoleFlow template or JSON file.
             </p>
 
             <form onSubmit={handleImportOpeningSubmit} className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] text-slate-400">JSON Template Format:</span>
-                <label className="px-3 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-purple-300 font-semibold cursor-pointer">
+                <span className="text-[11px] text-muted">JSON Template Format:</span>
+                <label className="px-3 py-1 rounded-lg bg-sunk hover:bg-sunk border border-line text-xs text-accent font-semibold cursor-pointer">
                   <span>Load JSON File</span>
                   <input
                     type="file"
@@ -3513,7 +3513,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                   value={importPosRawText}
                   onChange={(e) => setImportPosRawText(e.target.value)}
                   placeholder={`{\n  "title": "Lead Scripter",\n  "department": "Development",\n  "description": "We are seeking an experienced Luau gameplay programmer.",\n  "questions": [\n    { "label": "Roblox Profile Link", "type": "TEXT", "required": true },\n    { "label": "Describe your Luau framework experience", "type": "PARAGRAPH", "required": true }\n  ]\n}`}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/10 text-xs text-white font-mono placeholder-slate-600 focus:outline-none focus:border-purple-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-line text-xs text-ink font-mono placeholder-faint focus:outline-none focus:border-accent"
                 />
               </div>
 
@@ -3521,14 +3521,14 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                 <div
                   className={`p-3 rounded-xl text-xs flex items-center gap-2 ${
                     importPosMsg.type === "success"
-                      ? "bg-emerald-500/15 border border-emerald-500/30 text-emerald-300"
-                      : "bg-rose-500/15 border border-rose-500/30 text-rose-300"
+                      ? "bg-emerald-500/15 border border-emerald-500/30 text-moss"
+                      : "bg-rose-500/15 border border-rose-500/30 text-danger"
                   }`}
                 >
                   {importPosMsg.type === "success" ? (
-                    <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+                    <CheckCircle2 className="w-4 h-4 shrink-0 text-moss" />
                   ) : (
-                    <AlertTriangle className="w-4 h-4 shrink-0 text-rose-400" />
+                    <AlertTriangle className="w-4 h-4 shrink-0 text-danger" />
                   )}
                   <span>{importPosMsg.text}</span>
                 </div>
@@ -3538,7 +3538,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                 <button
                   type="button"
                   onClick={() => setImportPosModal(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white"
+                  className="px-4 py-2 rounded-xl text-xs font-medium text-muted hover:text-ink"
                 >
                   Cancel
                 </button>
@@ -3559,20 +3559,20 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
       {/* Edit Opening / Position Modal */}
       {editPosModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-          <div className="w-full max-w-lg bg-surface border border-surface-border rounded-2xl shadow-2xl overflow-hidden p-6 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between pb-4 border-b border-surface-border mb-4">
+          <div className="w-full max-w-lg bg-surface border border-line rounded-2xl shadow-2xl overflow-hidden p-6 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-4 border-b border-line mb-4">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+                <div className="w-8 h-8 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-accent">
                   <Pencil className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white">Edit Application Opening</h3>
-                  <p className="text-[11px] text-slate-400">Modify application title, department, and requirements</p>
+                  <h3 className="text-base font-bold text-ink">Edit Application Opening</h3>
+                  <p className="text-[11px] text-muted">Modify application title, department, and requirements</p>
                 </div>
               </div>
               <button
                 onClick={() => setEditPosModal(false)}
-                className="text-slate-400 hover:text-white text-xs p-1"
+                className="text-muted hover:text-ink text-xs p-1"
               >
                 ✕
               </button>
@@ -3580,7 +3580,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
 
             <form onSubmit={handleSavePositionEdit} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-ink-2 mb-1">
                   Application Name / Title *
                 </label>
                 <input
@@ -3589,13 +3589,13 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                   placeholder="e.g. Lead Developer, Community Moderator"
                   value={editPosTitle}
                   onChange={(e) => setEditPosTitle(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/40 border border-surface-border text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-sunk border border-line text-xs text-ink placeholder-faint focus:outline-none focus:border-accent"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">
+                  <label className="block text-xs font-medium text-ink-2 mb-1">
                     Department
                   </label>
                   <input
@@ -3603,12 +3603,12 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                     placeholder="e.g. Moderation, Development"
                     value={editPosDept}
                     onChange={(e) => setEditPosDept(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-black/40 border border-surface-border text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-sunk border border-line text-xs text-ink placeholder-faint focus:outline-none focus:border-accent"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">
+                  <label className="block text-xs font-medium text-ink-2 mb-1">
                     Acceptance Discord Role ID
                   </label>
                   <input
@@ -3616,13 +3616,13 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                     placeholder="Role ID (Optional)"
                     value={editPosRole}
                     onChange={(e) => setEditPosRole(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-black/40 border border-surface-border text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-sunk border border-line text-xs text-ink placeholder-faint focus:outline-none focus:border-accent"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-ink-2 mb-1">
                   Job Description & Candidate Criteria
                 </label>
                 <textarea
@@ -3630,19 +3630,19 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                   placeholder="Outline responsibilities, required qualifications, and expectations..."
                   value={editPosDesc}
                   onChange={(e) => setEditPosDesc(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/40 border border-surface-border text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 resize-y"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-sunk border border-line text-xs text-ink placeholder-faint focus:outline-none focus:border-accent resize-y"
                 />
               </div>
 
-              <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 space-y-2">
+              <div className="p-3.5 rounded-xl bg-sunk border border-line space-y-2">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={editPosIsOpen}
                     onChange={(e) => setEditPosIsOpen(e.target.checked)}
-                    className="w-4 h-4 rounded bg-surface border-white/20 text-purple-600 focus:ring-purple-500"
+                    className="w-4 h-4 rounded bg-surface border-line-strong text-purple-600 focus:ring-purple-500"
                   />
-                  <span className="text-xs text-slate-200 font-medium">Accepting New Applications (Open)</span>
+                  <span className="text-xs text-ink-2 font-medium">Accepting New Applications (Open)</span>
                 </label>
 
                 <label className="flex items-center gap-2 cursor-pointer">
@@ -3650,17 +3650,17 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                     type="checkbox"
                     checked={editPosIsPublic}
                     onChange={(e) => setEditPosIsPublic(e.target.checked)}
-                    className="w-4 h-4 rounded bg-surface border-white/20 text-purple-600 focus:ring-purple-500"
+                    className="w-4 h-4 rounded bg-surface border-line-strong text-purple-600 focus:ring-purple-500"
                   />
-                  <span className="text-xs text-slate-200 font-medium">Display Publicly on Community Portal</span>
+                  <span className="text-xs text-ink-2 font-medium">Display Publicly on Community Portal</span>
                 </label>
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-surface-border">
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-line">
                 <button
                   type="button"
                   onClick={() => setEditPosModal(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-colors"
+                  className="px-4 py-2 rounded-xl text-xs font-medium text-muted hover:text-ink hover:bg-sunk transition-colors"
                 >
                   Cancel
                 </button>

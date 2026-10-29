@@ -264,7 +264,7 @@ export default function SettingsPage() {
     return (
       <div className="max-w-6xl mx-auto px-4 py-28 text-center">
         <div className="w-9 h-9 rounded-full border-2 border-purple-500 border-t-transparent animate-spin mx-auto mb-4" />
-        <p className="text-xs text-slate-400 font-mono tracking-wide">Loading RoleFlow Settings Suite...</p>
+        <p className="text-xs text-muted font-mono tracking-wide">Loading RoleFlow Settings Suite...</p>
       </div>
     );
   }
@@ -272,11 +272,11 @@ export default function SettingsPage() {
   if (!profile) {
     return (
       <div className="max-w-md mx-auto px-4 py-28 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mx-auto mb-4 text-purple-400">
+        <div className="w-16 h-16 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mx-auto mb-4 text-accent">
           <Lock className="w-8 h-8" />
         </div>
-        <h2 className="text-xl font-bold text-white mb-2">Authentication Required</h2>
-        <p className="text-xs text-slate-400 mb-6">
+        <h2 className="text-xl font-bold text-ink mb-2">Authentication Required</h2>
+        <p className="text-xs text-muted mb-6">
           Sign in via Discord OAuth2 to configure your profile, linked Roblox studio accounts, and platform controls.
         </p>
         <a
@@ -293,17 +293,17 @@ export default function SettingsPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Top Breadcrumb / Title */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/5">
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-line">
         <div>
-          <div className="flex items-center gap-2 text-xs text-purple-400 font-mono uppercase tracking-wider mb-1">
+          <div className="flex items-center gap-2 text-xs text-accent font-mono uppercase tracking-wider mb-1">
             <span>Settings</span>
             <span>/</span>
-            <span className="text-white capitalize">{activeTab.replace("-", " ")}</span>
+            <span className="text-ink capitalize">{activeTab.replace("-", " ")}</span>
           </div>
-          <h1 className="text-2xl font-black text-white tracking-tight">Account & Platform Suite</h1>
+          <h1 className="text-2xl font-black text-ink tracking-tight">Account & Platform Suite</h1>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs font-mono text-slate-300">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-sunk border border-line text-xs font-mono text-ink-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <span>ID: {profile.id}</span>
           </div>
@@ -314,7 +314,7 @@ export default function SettingsPage() {
               document.cookie = "roleflow_user_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.roleflow.site;";
               document.cookie = "roleflow_user_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/20 text-xs font-medium transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-danger border border-rose-500/20 text-xs font-medium transition-all cursor-pointer"
           >
             <LogOut className="w-3.5 h-3.5" />
             <span>Log Out</span>
@@ -328,7 +328,7 @@ export default function SettingsPage() {
         <aside className="lg:col-span-3 space-y-6">
           {/* Section: ACCOUNT */}
           <div>
-            <p className="px-3 text-[10px] font-mono tracking-wider text-slate-500 uppercase font-semibold mb-2">
+            <p className="px-3 text-[10px] font-mono tracking-wider text-faint uppercase font-semibold mb-2">
               Account
             </p>
             <div className="space-y-1">
@@ -337,7 +337,7 @@ export default function SettingsPage() {
                 className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                   activeTab === "profile"
                     ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
-                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                    : "text-muted hover:text-ink hover:bg-sunk"
                 }`}
               >
                 <User className="w-4 h-4" />
@@ -348,7 +348,7 @@ export default function SettingsPage() {
                 className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                   activeTab === "security"
                     ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
-                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                    : "text-muted hover:text-ink hover:bg-sunk"
                 }`}
               >
                 <Shield className="w-4 h-4" />
@@ -359,7 +359,7 @@ export default function SettingsPage() {
                 className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                   activeTab === "status"
                     ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
-                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                    : "text-muted hover:text-ink hover:bg-sunk"
                 }`}
               >
                 <Activity className="w-4 h-4" />
@@ -370,7 +370,7 @@ export default function SettingsPage() {
                 className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                   activeTab === "connected-apps"
                     ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
-                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                    : "text-muted hover:text-ink hover:bg-sunk"
                 }`}
               >
                 <LayoutGrid className="w-4 h-4" />
@@ -381,7 +381,7 @@ export default function SettingsPage() {
                 className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                   activeTab === "linked-accounts"
                     ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
-                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                    : "text-muted hover:text-ink hover:bg-sunk"
                 }`}
               >
                 <Link2 className="w-4 h-4" />
@@ -392,7 +392,7 @@ export default function SettingsPage() {
 
           {/* Section: PLATFORM / MATTER */}
           <div>
-            <p className="px-3 text-[10px] font-mono tracking-wider text-slate-500 uppercase font-semibold mb-2">
+            <p className="px-3 text-[10px] font-mono tracking-wider text-faint uppercase font-semibold mb-2">
               Platform & Features
             </p>
             <div className="space-y-1">
@@ -401,7 +401,7 @@ export default function SettingsPage() {
                 className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                   activeTab === "activation-keys"
                     ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
-                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                    : "text-muted hover:text-ink hover:bg-sunk"
                 }`}
               >
                 <Key className="w-4 h-4" />
@@ -412,7 +412,7 @@ export default function SettingsPage() {
                 className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                   activeTab === "ai-controls"
                     ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
-                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                    : "text-muted hover:text-ink hover:bg-sunk"
                 }`}
               >
                 <Sparkles className="w-4 h-4" />
@@ -423,7 +423,7 @@ export default function SettingsPage() {
 
           {/* Section: OTHER */}
           <div>
-            <p className="px-3 text-[10px] font-mono tracking-wider text-slate-500 uppercase font-semibold mb-2">
+            <p className="px-3 text-[10px] font-mono tracking-wider text-faint uppercase font-semibold mb-2">
               Other & Support
             </p>
             <div className="space-y-1">
@@ -432,7 +432,7 @@ export default function SettingsPage() {
                 className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                   activeTab === "support"
                     ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
-                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                    : "text-muted hover:text-ink hover:bg-sunk"
                 }`}
               >
                 <LifeBuoy className="w-4 h-4" />
@@ -446,7 +446,7 @@ export default function SettingsPage() {
                 className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                   activeTab === "developer"
                     ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
-                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                    : "text-muted hover:text-ink hover:bg-sunk"
                 }`}
               >
                 <Code2 className="w-4 h-4" />
@@ -457,7 +457,7 @@ export default function SettingsPage() {
                 className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                   activeTab === "danger-zone"
                     ? "bg-rose-600 text-white shadow-lg shadow-rose-600/30"
-                    : "text-rose-400 hover:text-rose-300 hover:bg-rose-500/10"
+                    : "text-danger hover:text-danger hover:bg-rose-500/10"
                 }`}
               >
                 <AlertTriangle className="w-4 h-4" />
@@ -472,16 +472,16 @@ export default function SettingsPage() {
           {/* TAB 1: PROFILE */}
           {activeTab === "profile" && (
             <div className="space-y-6">
-              <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-surface-border space-y-6">
+              <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-line space-y-6">
                 <div>
-                  <h3 className="text-lg font-bold text-white">Public Profile</h3>
-                  <p className="text-xs text-slate-400 mt-1">
+                  <h3 className="text-lg font-bold text-ink">Public Profile</h3>
+                  <p className="text-xs text-muted mt-1">
                     Your identity across all RoleFlow communities and staff application portals.
                   </p>
                 </div>
 
                 {/* Identity Card */}
-                <div className="p-6 rounded-2xl bg-black/40 border border-white/5 flex flex-col sm:flex-row items-center sm:items-start gap-6">
+                <div className="p-6 rounded-2xl bg-sunk border border-line flex flex-col sm:flex-row items-center sm:items-start gap-6">
                   <div className="relative group">
                     <img
                       src={profile.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"}
@@ -495,25 +495,25 @@ export default function SettingsPage() {
 
                   <div className="flex-1 text-center sm:text-left space-y-2">
                     <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                      <h4 className="text-xl font-black text-white">{profile.username}</h4>
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-purple-500/20 text-purple-300 border border-purple-500/30 self-center sm:self-auto">
+                      <h4 className="text-xl font-black text-ink">{profile.username}</h4>
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-purple-500/20 text-accent border border-purple-500/30 self-center sm:self-auto">
                         Discord OAuth2
                       </span>
                     </div>
 
-                    <p className="text-xs text-slate-400 font-mono">User ID: {profile.id}</p>
+                    <p className="text-xs text-muted font-mono">User ID: {profile.id}</p>
                     {profile.email && (
-                      <p className="text-xs text-slate-300 flex items-center justify-center sm:justify-start gap-1.5">
-                        <span className="text-slate-500">Email:</span>
+                      <p className="text-xs text-ink-2 flex items-center justify-center sm:justify-start gap-1.5">
+                        <span className="text-faint">Email:</span>
                         <span>{profile.email}</span>
                       </p>
                     )}
 
                     <div className="pt-2 flex flex-wrap items-center justify-center sm:justify-start gap-2">
-                      <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[11px] font-medium text-slate-300">
+                      <span className="px-2.5 py-1 rounded-lg bg-sunk border border-line text-[11px] font-medium text-ink-2">
                         Applications: {profile.applicationsCount}
                       </span>
-                      <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-[11px] font-medium text-emerald-300">
+                      <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-[11px] font-medium text-moss">
                         RoleFlow Early Supporter
                       </span>
                     </div>
@@ -521,10 +521,10 @@ export default function SettingsPage() {
                 </div>
 
                 {/* Refresh Profile Action */}
-                <div className="p-4 rounded-xl bg-purple-950/20 border border-purple-500/20 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="p-4 rounded-xl bg-accent-soft border border-purple-500/20 flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div>
-                    <h5 className="text-xs font-bold text-white">Relink / Update Discord Profile</h5>
-                    <p className="text-xs text-slate-400 mt-0.5">
+                    <h5 className="text-xs font-bold text-ink">Relink / Update Discord Profile</h5>
+                    <p className="text-xs text-muted mt-0.5">
                       Changed your avatar or username on Discord? Re-authenticate to update instantly.
                     </p>
                   </div>
@@ -543,47 +543,47 @@ export default function SettingsPage() {
           {/* TAB 2: SECURITY */}
           {activeTab === "security" && (
             <div className="space-y-6">
-              <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-surface-border space-y-6">
+              <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-line space-y-6">
                 <div>
-                  <h3 className="text-lg font-bold text-white">Security & Active Sessions</h3>
-                  <p className="text-xs text-slate-400 mt-1">
+                  <h3 className="text-lg font-bold text-ink">Security & Active Sessions</h3>
+                  <p className="text-xs text-muted mt-1">
                     Manage session validity, cryptographic tokens, and authentication integrity.
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="p-4 rounded-xl bg-black/40 border border-white/5 space-y-1">
-                    <p className="text-[10px] text-slate-400 uppercase font-mono">Security Status</p>
-                    <p className="text-base font-bold text-emerald-400 flex items-center gap-1.5">
+                  <div className="p-4 rounded-xl bg-sunk border border-line space-y-1">
+                    <p className="text-[10px] text-muted uppercase font-mono">Security Status</p>
+                    <p className="text-base font-bold text-moss flex items-center gap-1.5">
                       <CheckCircle2 className="w-4 h-4" />
                       <span>100% Protected</span>
                     </p>
                   </div>
-                  <div className="p-4 rounded-xl bg-black/40 border border-white/5 space-y-1">
-                    <p className="text-[10px] text-slate-400 uppercase font-mono">Authentication</p>
-                    <p className="text-base font-bold text-white">Discord OAuth2 + JWT</p>
+                  <div className="p-4 rounded-xl bg-sunk border border-line space-y-1">
+                    <p className="text-[10px] text-muted uppercase font-mono">Authentication</p>
+                    <p className="text-base font-bold text-ink">Discord OAuth2 + JWT</p>
                   </div>
-                  <div className="p-4 rounded-xl bg-black/40 border border-white/5 space-y-1">
-                    <p className="text-[10px] text-slate-400 uppercase font-mono">2-Factor Auth</p>
-                    <p className="text-base font-bold text-purple-400">Enforced via Discord</p>
+                  <div className="p-4 rounded-xl bg-sunk border border-line space-y-1">
+                    <p className="text-[10px] text-muted uppercase font-mono">2-Factor Auth</p>
+                    <p className="text-base font-bold text-accent">Enforced via Discord</p>
                   </div>
                 </div>
 
-                <div className="p-5 rounded-2xl bg-black/40 border border-white/5 space-y-4">
+                <div className="p-5 rounded-2xl bg-sunk border border-line space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="text-xs font-bold text-white">Current Web Session</h4>
-                      <p className="text-xs text-slate-400 mt-0.5">
+                      <h4 className="text-xs font-bold text-ink">Current Web Session</h4>
+                      <p className="text-xs text-muted mt-0.5">
                         Authenticated via HTTP-only encrypted session cookie.
                       </p>
                     </div>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/10 text-moss border border-emerald-500/20">
                       Active Now
                     </span>
                   </div>
 
-                  <div className="pt-3 border-t border-white/5 flex items-center justify-between">
-                    <span className="text-xs text-slate-400 font-mono">Strict Origin & SameSite=Lax</span>
+                  <div className="pt-3 border-t border-line flex items-center justify-between">
+                    <span className="text-xs text-muted font-mono">Strict Origin & SameSite=Lax</span>
                     <a
                       href="/api/auth/logout"
                      
@@ -591,7 +591,7 @@ export default function SettingsPage() {
                         document.cookie = "roleflow_user_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.roleflow.site;";
                         document.cookie = "roleflow_user_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
                       }}
-                      className="px-3.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-medium border border-white/10 transition-all cursor-pointer"
+                      className="px-3.5 py-1.5 rounded-lg bg-sunk hover:bg-sunk text-ink-2 text-xs font-medium border border-line transition-all cursor-pointer"
                     >
                       Sign Out
                     </a>
@@ -604,35 +604,35 @@ export default function SettingsPage() {
           {/* TAB 3: ACCOUNT STATUS */}
           {activeTab === "status" && (
             <div className="space-y-6">
-              <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-surface-border space-y-6">
+              <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-line space-y-6">
                 <div>
-                  <h3 className="text-lg font-bold text-white">Account Status & Standing</h3>
-                  <p className="text-xs text-slate-400 mt-1">
+                  <h3 className="text-lg font-bold text-ink">Account Status & Standing</h3>
+                  <p className="text-xs text-muted mt-1">
                     Live overview of your platform reputation, limits, and community memberships.
                   </p>
                 </div>
 
-                <div className="p-6 rounded-2xl bg-black/40 border border-white/5 space-y-4">
-                  <div className="flex items-center justify-between pb-3 border-b border-white/5">
-                    <span className="text-xs text-slate-400">Account Standing</span>
-                    <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <div className="p-6 rounded-2xl bg-sunk border border-line space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-line">
+                    <span className="text-xs text-muted">Account Standing</span>
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-moss border border-emerald-500/20">
                       Good Standing (No Infractions)
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between pb-3 border-b border-white/5">
-                    <span className="text-xs text-slate-400">Submission Quota</span>
-                    <span className="text-xs font-bold text-white">Unlimited Applications</span>
+                  <div className="flex items-center justify-between pb-3 border-b border-line">
+                    <span className="text-xs text-muted">Submission Quota</span>
+                    <span className="text-xs font-bold text-ink">Unlimited Applications</span>
                   </div>
 
-                  <div className="flex items-center justify-between pb-3 border-b border-white/5">
-                    <span className="text-xs text-slate-400">Community Host Status</span>
-                    <span className="text-xs font-bold text-purple-400">Verified Organization Lead</span>
+                  <div className="flex items-center justify-between pb-3 border-b border-line">
+                    <span className="text-xs text-muted">Community Host Status</span>
+                    <span className="text-xs font-bold text-accent">Verified Organization Lead</span>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-slate-400">Registered Since</span>
-                    <span className="text-xs font-mono text-slate-300">
+                    <span className="text-xs text-muted">Registered Since</span>
+                    <span className="text-xs font-mono text-ink-2">
                       {new Date(profile.createdAt).toLocaleDateString("en-US", {
                         year: "numeric",
                         month: "long",
@@ -648,16 +648,16 @@ export default function SettingsPage() {
           {/* TAB 4: CONNECTED APPS */}
           {activeTab === "connected-apps" && (
             <div className="space-y-6">
-              <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-surface-border space-y-6">
+              <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-line space-y-6">
                 <div>
-                  <h3 className="text-lg font-bold text-white">Connected Applications & Integrations</h3>
-                  <p className="text-xs text-slate-400 mt-1">
+                  <h3 className="text-lg font-bold text-ink">Connected Applications & Integrations</h3>
+                  <p className="text-xs text-muted mt-1">
                     Services and OAuth2 tokens authorized to communicate with your RoleFlow profile.
                   </p>
                 </div>
 
                 {/* Discord App */}
-                <div className="p-5 rounded-2xl bg-black/40 border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="p-5 rounded-2xl bg-sunk border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-[#5865F2]/20 border border-[#5865F2]/30 flex items-center justify-center text-[#5865F2]">
                       <svg className="w-6 h-6 fill-current" viewBox="0 0 127.14 96.36">
@@ -665,31 +665,31 @@ export default function SettingsPage() {
                       </svg>
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-white">Discord Application Services</h4>
-                      <p className="text-xs text-slate-400 mt-0.5">
-                        Scopes: <code className="text-purple-300">identify</code>, <code className="text-purple-300">email</code>, <code className="text-purple-300">guilds</code>
+                      <h4 className="text-sm font-bold text-ink">Discord Application Services</h4>
+                      <p className="text-xs text-muted mt-0.5">
+                        Scopes: <code className="text-accent">identify</code>, <code className="text-accent">email</code>, <code className="text-accent">guilds</code>
                       </p>
                     </div>
                   </div>
-                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 self-start sm:self-auto">
+                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-moss border border-emerald-500/20 self-start sm:self-auto">
                     Authorized
                   </span>
                 </div>
 
                 {/* RoleFlow Bot */}
-                <div className="p-5 rounded-2xl bg-black/40 border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="p-5 rounded-2xl bg-sunk border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400">
+                    <div className="w-12 h-12 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-accent">
                       <Layers className="w-6 h-6" />
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-white">RoleFlow Bot Engine (ID: 1565049592788025344)</h4>
-                      <p className="text-xs text-slate-400 mt-0.5">
+                      <h4 className="text-sm font-bold text-ink">RoleFlow Bot Engine (ID: 1565049592788025344)</h4>
+                      <p className="text-xs text-muted mt-0.5">
                         Automated role granting, application notifications, and server syncing.
                       </p>
                     </div>
                   </div>
-                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/10 text-purple-300 border border-purple-500/20 self-start sm:self-auto">
+                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/10 text-accent border border-purple-500/20 self-start sm:self-auto">
                     Online & Linked
                   </span>
                 </div>
@@ -700,23 +700,23 @@ export default function SettingsPage() {
           {/* TAB 5: LINKED ACCOUNTS */}
           {activeTab === "linked-accounts" && (
             <div className="space-y-6">
-              <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-surface-border space-y-6">
+              <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-line space-y-6">
                 <div>
-                  <h3 className="text-lg font-bold text-white">Linked Accounts & Gaming Identities</h3>
-                  <p className="text-xs text-slate-400 mt-1">
+                  <h3 className="text-lg font-bold text-ink">Linked Accounts & Gaming Identities</h3>
+                  <p className="text-xs text-muted mt-1">
                     Connect your Roblox creator username so server admins can verify your in-game identity and rank.
                   </p>
                 </div>
 
                 <form onSubmit={handleSaveRoblox} className="space-y-5">
                   {robloxSuccess && (
-                    <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2">
+                    <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-moss text-xs flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 shrink-0" />
                       <span>{robloxSuccess}</span>
                     </div>
                   )}
 
-                  <div className="p-6 rounded-2xl bg-black/40 border border-white/5 flex flex-col sm:flex-row items-center gap-6">
+                  <div className="p-6 rounded-2xl bg-sunk border border-line flex flex-col sm:flex-row items-center gap-6">
                     {profile.robloxAvatar ? (
                       <img
                         src={profile.robloxAvatar}
@@ -724,7 +724,7 @@ export default function SettingsPage() {
                         className="w-24 h-24 rounded-2xl object-cover border-2 border-emerald-500/40 bg-black shadow-xl"
                       />
                     ) : (
-                      <div className="w-24 h-24 rounded-2xl bg-surface border border-surface-border flex flex-col items-center justify-center text-slate-500 text-xs">
+                      <div className="w-24 h-24 rounded-2xl bg-surface border border-line flex flex-col items-center justify-center text-faint text-xs">
                         <User className="w-8 h-8 mb-1" />
                         <span>No Roblox</span>
                       </div>
@@ -732,7 +732,7 @@ export default function SettingsPage() {
 
                     <div className="flex-1 w-full space-y-3">
                       <div>
-                        <label className="block text-xs font-medium text-slate-300 mb-1">
+                        <label className="block text-xs font-medium text-ink-2 mb-1">
                           Roblox Creator Username
                         </label>
                         <input
@@ -740,10 +740,10 @@ export default function SettingsPage() {
                           placeholder="e.g. Builderman"
                           value={robloxInput}
                           onChange={(e) => setRobloxInput(e.target.value)}
-                          className="w-full px-4 py-2.5 rounded-xl bg-black/50 border border-surface-border text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                          className="w-full px-4 py-2.5 rounded-xl bg-sunk border border-line text-xs text-ink placeholder-faint focus:outline-none focus:border-accent"
                         />
                       </div>
-                      <p className="text-[11px] text-slate-400">
+                      <p className="text-[11px] text-muted">
                         We automatically fetch your Roblox user ID and 3D thumbnail avatar to showcase on community rosters.
                       </p>
                     </div>
@@ -764,32 +764,32 @@ export default function SettingsPage() {
           {/* TAB 6: ACTIVATION KEYS (COMING SOON) */}
           {activeTab === "activation-keys" && (
             <div className="space-y-6">
-              <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-surface-border space-y-6">
+              <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-line space-y-6">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+                  <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-accent">
                     <Key className="w-5 h-5" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="text-lg font-bold text-white">Activation Keys & Licenses</h3>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                      <h3 className="text-lg font-bold text-ink">Activation Keys & Licenses</h3>
+                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/20 text-gold border border-amber-500/30">
                         COMING SOON
                       </span>
                     </div>
-                    <p className="text-xs text-slate-400 mt-1">
+                    <p className="text-xs text-muted mt-1">
                       License key redemption and premium upgrades are currently disabled during the Open Beta.
                     </p>
                   </div>
                 </div>
 
-                <div className="p-6 rounded-2xl bg-black/40 border border-white/5 space-y-3">
-                  <div className="flex items-center gap-3 text-amber-400">
+                <div className="p-6 rounded-2xl bg-sunk border border-line space-y-3">
+                  <div className="flex items-center gap-3 text-gold">
                     <Clock className="w-5 h-5 shrink-0" />
                     <div>
-                      <h4 className="text-xs font-bold text-white uppercase font-mono tracking-wider">
+                      <h4 className="text-xs font-bold text-ink uppercase font-mono tracking-wider">
                         Open Beta Free Tier Privilege
                       </h4>
-                      <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">
+                      <p className="text-xs text-muted mt-0.5 leading-relaxed">
                         All community recruitment features, custom applications, and dashboard tools are 100% unlocked for everyone during the beta. Paid license redemption will launch after the beta period.
                       </p>
                     </div>
@@ -802,61 +802,61 @@ export default function SettingsPage() {
           {/* TAB 7: AI CONTROLS */}
           {activeTab === "ai-controls" && (
             <div className="space-y-6">
-              <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-surface-border space-y-6">
+              <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-line space-y-6">
                 <div>
-                  <h3 className="text-lg font-bold text-white">AI Screening & Automation Controls</h3>
-                  <p className="text-xs text-slate-400 mt-1">
+                  <h3 className="text-lg font-bold text-ink">AI Screening & Automation Controls</h3>
+                  <p className="text-xs text-muted mt-1">
                     Fine-tune AI-assisted application grading, spam filtration, and automated resume extraction.
                   </p>
                 </div>
 
                 <div className="space-y-4">
-                  <div className="p-4 rounded-xl bg-black/40 border border-white/5 flex items-center justify-between">
+                  <div className="p-4 rounded-xl bg-sunk border border-line flex items-center justify-between">
                     <div>
-                      <h4 className="text-xs font-bold text-white">AI Automated Low-Effort Screening</h4>
-                      <p className="text-[11px] text-slate-400 mt-0.5">
+                      <h4 className="text-xs font-bold text-ink">AI Automated Low-Effort Screening</h4>
+                      <p className="text-[11px] text-muted mt-0.5">
                         Detect 1-word answers and robotic spam before notifications ping your moderators.
                       </p>
                     </div>
                     <button
                       onClick={() => setAiScreening(!aiScreening)}
                       className={`w-11 h-6 rounded-full transition-colors relative ${
-                        aiScreening ? "bg-purple-600" : "bg-slate-800"
+                        aiScreening ? "bg-purple-600" : "bg-sunk"
                       }`}
                     >
                       <div
-                        className={`w-4 h-4 rounded-full bg-white transition-transform transform absolute top-1 ${
+                        className={`w-4 h-4 rounded-full bg-surface transition-transform transform absolute top-1 ${
                           aiScreening ? "translate-x-6" : "translate-x-1"
                         }`}
                       />
                     </button>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-black/40 border border-white/5 flex items-center justify-between">
+                  <div className="p-4 rounded-xl bg-sunk border border-line flex items-center justify-between">
                     <div>
-                      <h4 className="text-xs font-bold text-white">Automated AI Resume & Applicant Summaries</h4>
-                      <p className="text-[11px] text-slate-400 mt-0.5">
+                      <h4 className="text-xs font-bold text-ink">Automated AI Resume & Applicant Summaries</h4>
+                      <p className="text-[11px] text-muted mt-0.5">
                         Generate quick 3-bullet summaries of lengthy applicant responses in review queues.
                       </p>
                     </div>
                     <button
                       onClick={() => setAiSummaries(!aiSummaries)}
                       className={`w-11 h-6 rounded-full transition-colors relative ${
-                        aiSummaries ? "bg-purple-600" : "bg-slate-800"
+                        aiSummaries ? "bg-purple-600" : "bg-sunk"
                       }`}
                     >
                       <div
-                        className={`w-4 h-4 rounded-full bg-white transition-transform transform absolute top-1 ${
+                        className={`w-4 h-4 rounded-full bg-surface transition-transform transform absolute top-1 ${
                           aiSummaries ? "translate-x-6" : "translate-x-1"
                         }`}
                       />
                     </button>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-black/40 border border-white/5 space-y-2">
+                  <div className="p-4 rounded-xl bg-sunk border border-line space-y-2">
                     <div className="flex items-center justify-between">
-                      <h4 className="text-xs font-bold text-white">Minimum Response Word Count</h4>
-                      <span className="text-xs font-mono font-bold text-purple-300">{minWordCount} words</span>
+                      <h4 className="text-xs font-bold text-ink">Minimum Response Word Count</h4>
+                      <span className="text-xs font-mono font-bold text-accent">{minWordCount} words</span>
                     </div>
                     <input
                       type="range"
@@ -871,7 +871,7 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="flex items-center justify-between pt-2">
-                  <span className="text-xs text-slate-400">Settings update across all active forms.</span>
+                  <span className="text-xs text-muted">Settings update across all active forms.</span>
                   <button
                     onClick={() => {
                       setAiSaved(true);
@@ -890,25 +890,25 @@ export default function SettingsPage() {
           {activeTab === "support" && (
             <div className="space-y-6">
               {/* SECTION: 10-MINUTE SUPPORT MODE */}
-              <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-purple-500/30 bg-purple-950/10 space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-surface-border">
+              <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-purple-500/30 bg-accent-soft space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-line">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400">
+                    <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-accent">
                       <LifeBuoy className="w-5 h-5" />
                     </div>
                     <div>
-                      <h3 className="text-base font-bold text-white">10-Minute Support Mode</h3>
-                      <p className="text-xs text-slate-400">
+                      <h3 className="text-base font-bold text-ink">10-Minute Support Mode</h3>
+                      <p className="text-xs text-muted">
                         Grant temporary diagnostic access to RoleFlow staff to troubleshoot your account or community.
                       </p>
                     </div>
                   </div>
                   {supportCode ? (
-                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 animate-pulse self-start sm:self-auto">
+                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-gold border border-amber-500/30 animate-pulse self-start sm:self-auto">
                       Active Code
                     </span>
                   ) : (
-                    <span className="px-3 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-400 self-start sm:self-auto">
+                    <span className="px-3 py-1 rounded-full text-xs font-medium bg-sunk text-muted self-start sm:self-auto">
                       Inactive
                     </span>
                   )}
@@ -918,52 +918,52 @@ export default function SettingsPage() {
                   <div className="p-5 rounded-2xl bg-black/60 border border-purple-500/40 space-y-4">
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                       <div>
-                        <p className="text-xs font-medium text-slate-400 mb-1">
+                        <p className="text-xs font-medium text-muted mb-1">
                           Share this temporary code with RoleFlow staff in your ticket:
                         </p>
                         <div className="flex items-center gap-3">
-                          <span className="text-2xl sm:text-3xl font-black font-mono tracking-wider text-purple-300">
+                          <span className="text-2xl sm:text-3xl font-black font-mono tracking-wider text-accent">
                             {supportCode}
                           </span>
                           <button
                             onClick={copySupportCode}
-                            className="p-2 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 transition-colors"
+                            className="p-2 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 text-accent transition-colors"
                             title="Copy Code"
                           >
-                            {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                            {copied ? <Check className="w-4 h-4 text-moss" /> : <Copy className="w-4 h-4" />}
                           </button>
                         </div>
                       </div>
 
                       <div className="text-right sm:text-right">
-                        <span className="text-xs text-amber-400 font-medium flex items-center gap-1.5 justify-end">
+                        <span className="text-xs text-gold font-medium flex items-center gap-1.5 justify-end">
                           <Clock className="w-4 h-4" />
                           <span>Expires in 10 minutes</span>
                         </span>
-                        <p className="text-[11px] text-slate-500 mt-0.5">
+                        <p className="text-[11px] text-faint mt-0.5">
                           Staff can only inspect during this window.
                         </p>
                       </div>
                     </div>
 
-                    <div className="pt-2 flex items-center justify-between border-t border-white/5">
-                      <p className="text-[11px] text-slate-400">
+                    <div className="pt-2 flex items-center justify-between border-t border-line">
+                      <p className="text-[11px] text-muted">
                         Staff will never ask for your password. Only share this 1-time code in tickets.
                       </p>
                       <button
                         onClick={handleRevokeSupportCode}
                         disabled={revokingCode}
-                        className="px-3.5 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-white border border-rose-500/30 text-xs font-medium transition-all"
+                        className="px-3.5 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500 text-rose-700 dark:text-rose-300 hover:text-white border border-rose-500/30 text-xs font-medium transition-all"
                       >
                         {revokingCode ? "Revoking..." : "Revoke Code Immediately"}
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-2xl bg-black/30 border border-white/5">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-2xl bg-sunk border border-line">
                     <div className="space-y-1">
-                      <h4 className="text-xs font-bold text-white">Opening a Support Ticket?</h4>
-                      <p className="text-xs text-slate-400 max-w-lg leading-relaxed">
+                      <h4 className="text-xs font-bold text-ink">Opening a Support Ticket?</h4>
+                      <p className="text-xs text-muted max-w-lg leading-relaxed">
                         If you encounter a bug or need our team to inspect your form configurations, generate a 10-minute temporary code to share in our official support server.
                       </p>
                     </div>
@@ -980,10 +980,10 @@ export default function SettingsPage() {
                 {/* Official Support Server Link Card */}
                 <div className="flex items-center justify-between p-4 rounded-xl bg-purple-500/10 border border-purple-500/20">
                   <div className="flex items-center gap-3">
-                    <LifeBuoy className="w-5 h-5 text-purple-400" />
+                    <LifeBuoy className="w-5 h-5 text-accent" />
                     <div>
-                      <p className="text-xs font-bold text-white">RoleFlow Community & Support Discord</p>
-                      <p className="text-[11px] text-slate-400">Server ID: 1565063649679122684</p>
+                      <p className="text-xs font-bold text-ink">RoleFlow Community & Support Discord</p>
+                      <p className="text-[11px] text-muted">Server ID: 1565063649679122684</p>
                     </div>
                   </div>
                   <a
@@ -1000,17 +1000,17 @@ export default function SettingsPage() {
 
               {/* SUPPORT STAFF PANEL ACCESS (If authorized) */}
               {(profile.isSupportStaff || profile.isSiteAdmin || profile.id === "1046538179399929957") ? (
-                <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-purple-500/30 bg-purple-950/20 space-y-4">
+                <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-purple-500/30 bg-accent-soft space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Shield className="w-5 h-5 text-purple-400" />
-                      <h3 className="text-sm font-bold text-white">RoleFlow Support Specialist Access</h3>
+                      <Shield className="w-5 h-5 text-accent" />
+                      <h3 className="text-sm font-bold text-ink">RoleFlow Support Specialist Access</h3>
                     </div>
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-purple-500/20 text-accent border border-purple-500/30">
                       STAFF ROLE ACTIVE
                     </span>
                   </div>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-muted">
                     You have verified Support Staff privileges. The diagnostic code login system has been moved to the dedicated, restricted Support Staff Command Center.
                   </p>
                   <Link
@@ -1028,21 +1028,21 @@ export default function SettingsPage() {
           {/* TAB 9: DEVELOPER */}
           {activeTab === "developer" && (
             <div className="space-y-6">
-              <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-surface-border space-y-6">
+              <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-line space-y-6">
                 <div>
-                  <h3 className="text-lg font-bold text-white">Developer & API Access</h3>
-                  <p className="text-xs text-slate-400 mt-1">
+                  <h3 className="text-lg font-bold text-ink">Developer & API Access</h3>
+                  <p className="text-xs text-muted mt-1">
                     Manage secret keys to integrate RoleFlow with custom webhooks, Discord bots, and in-game Roblox scripts.
                   </p>
                 </div>
 
                 {/* API Key Box */}
-                <div className="p-5 rounded-2xl bg-black/40 border border-white/5 space-y-3">
+                <div className="p-5 rounded-2xl bg-sunk border border-line space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-white">Live Secret API Key</span>
+                    <span className="text-xs font-semibold text-ink">Live Secret API Key</span>
                     <button
                       onClick={() => setShowApiKey(!showApiKey)}
-                      className="text-xs text-slate-400 hover:text-white flex items-center gap-1"
+                      className="text-xs text-muted hover:text-ink flex items-center gap-1"
                     >
                       {showApiKey ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                       <span>{showApiKey ? "Hide" : "Show"}</span>
@@ -1054,34 +1054,34 @@ export default function SettingsPage() {
                       type={showApiKey ? "text" : "password"}
                       readOnly
                       value={`rf_live_${profile.id}_89f3a912e73c880`}
-                      className="flex-1 px-3.5 py-2 rounded-xl bg-black/60 border border-surface-border text-xs text-purple-300 font-mono"
+                      className="flex-1 px-3.5 py-2 rounded-xl bg-black/60 border border-line text-xs text-accent font-mono"
                     />
                     <button
                       onClick={copyApiKey}
-                      className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs font-semibold flex items-center gap-1.5 border border-white/10 transition-all"
+                      className="px-3.5 py-2 rounded-xl bg-sunk hover:bg-sunk text-ink text-xs font-semibold flex items-center gap-1.5 border border-line transition-all"
                     >
-                      {copiedApiKey ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                      {copiedApiKey ? <Check className="w-3.5 h-3.5 text-moss" /> : <Copy className="w-3.5 h-3.5" />}
                       <span>{copiedApiKey ? "Copied" : "Copy"}</span>
                     </button>
                   </div>
-                  <p className="text-[11px] text-slate-500">
-                    Use this key in your HTTP Authorization header: <code className="text-purple-300">Bearer rf_live_...</code>
+                  <p className="text-[11px] text-faint">
+                    Use this key in your HTTP Authorization header: <code className="text-accent">Bearer rf_live_...</code>
                   </p>
                 </div>
 
                 {/* Webhook Endpoint */}
-                <div className="p-5 rounded-2xl bg-black/40 border border-white/5 space-y-3">
-                  <h4 className="text-xs font-semibold text-white">Application Event Webhook</h4>
-                  <p className="text-[11px] text-slate-400">
+                <div className="p-5 rounded-2xl bg-sunk border border-line space-y-3">
+                  <h4 className="text-xs font-semibold text-ink">Application Event Webhook</h4>
+                  <p className="text-[11px] text-muted">
                     Receive automated JSON POST payloads whenever an applicant submits, accepts, or withdraws a form.
                   </p>
                   <input
                     type="url"
                     placeholder="https://your-domain.com/api/webhooks/roleflow"
-                    className="w-full px-4 py-2.5 rounded-xl bg-black/50 border border-surface-border text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 font-mono"
+                    className="w-full px-4 py-2.5 rounded-xl bg-sunk border border-line text-xs text-ink placeholder-faint focus:outline-none focus:border-accent font-mono"
                   />
                   <div className="flex justify-end">
-                    <button className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs font-semibold border border-white/10 transition-all">
+                    <button className="px-4 py-2 rounded-xl bg-sunk hover:bg-sunk text-ink text-xs font-semibold border border-line transition-all">
                       Save Webhook URL
                     </button>
                   </div>
@@ -1095,17 +1095,17 @@ export default function SettingsPage() {
             <div className="space-y-6">
               <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-rose-500/30 bg-rose-950/10 space-y-6">
                 <div>
-                  <h3 className="text-lg font-bold text-rose-400">Danger Zone</h3>
-                  <p className="text-xs text-slate-400 mt-1">
+                  <h3 className="text-lg font-bold text-danger">Danger Zone</h3>
+                  <p className="text-xs text-muted mt-1">
                     Irreversible actions regarding your account, drafts, and linked services.
                   </p>
                 </div>
 
-                <div className="p-5 rounded-2xl bg-black/50 border border-rose-500/20 space-y-4">
+                <div className="p-5 rounded-2xl bg-sunk border border-rose-500/20 space-y-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
-                      <h4 className="text-xs font-bold text-white">Clear Cached Application Drafts</h4>
-                      <p className="text-[11px] text-slate-400 mt-0.5">
+                      <h4 className="text-xs font-bold text-ink">Clear Cached Application Drafts</h4>
+                      <p className="text-[11px] text-muted mt-0.5">
                         Deletes any unsaved responses or cached answers in your current browser session.
                       </p>
                     </div>
@@ -1114,16 +1114,16 @@ export default function SettingsPage() {
                         localStorage.clear();
                         alert("Application drafts cleared.");
                       }}
-                      className="px-4 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-white border border-rose-500/30 text-xs font-semibold transition-all shrink-0"
+                      className="px-4 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500 text-rose-700 dark:text-rose-300 hover:text-white border border-rose-500/30 text-xs font-semibold transition-all shrink-0"
                     >
                       Clear Drafts
                     </button>
                   </div>
 
-                  <div className="pt-4 border-t border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="pt-4 border-t border-line flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
-                      <h4 className="text-xs font-bold text-white">Unlink Roblox Profile</h4>
-                      <p className="text-[11px] text-slate-400 mt-0.5">
+                      <h4 className="text-xs font-bold text-ink">Unlink Roblox Profile</h4>
+                      <p className="text-[11px] text-muted mt-0.5">
                         Removes your Roblox username and avatar preview from community records.
                       </p>
                     </div>
@@ -1136,7 +1136,7 @@ export default function SettingsPage() {
                         });
                         fetchProfile();
                       }}
-                      className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-semibold border border-white/10 transition-all shrink-0"
+                      className="px-4 py-2 rounded-xl bg-sunk hover:bg-sunk text-ink-2 text-xs font-semibold border border-line transition-all shrink-0"
                     >
                       Unlink Roblox
                     </button>
@@ -1144,9 +1144,9 @@ export default function SettingsPage() {
 
                   <div className="pt-4 border-t border-rose-500/20 space-y-3">
                     <div>
-                      <h4 className="text-xs font-bold text-rose-300">Delete Account & Purge Records</h4>
-                      <p className="text-[11px] text-slate-400 mt-0.5">
-                        Type <code className="text-rose-400 font-mono">DELETE</code> below to confirm permanent account purge.
+                      <h4 className="text-xs font-bold text-danger">Delete Account & Purge Records</h4>
+                      <p className="text-[11px] text-muted mt-0.5">
+                        Type <code className="text-danger font-mono">DELETE</code> below to confirm permanent account purge.
                       </p>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-3">
@@ -1155,7 +1155,7 @@ export default function SettingsPage() {
                         placeholder="Type DELETE to confirm"
                         value={dangerConfirm}
                         onChange={(e) => setDangerConfirm(e.target.value)}
-                        className="px-3.5 py-2 rounded-xl bg-black/60 border border-rose-500/30 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-rose-500 font-mono"
+                        className="px-3.5 py-2 rounded-xl bg-black/60 border border-rose-500/30 text-xs text-ink placeholder-faint focus:outline-none focus:border-rose-500 font-mono"
                       />
                       <button
                         disabled={dangerConfirm !== "DELETE"}

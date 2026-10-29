@@ -12,31 +12,31 @@ export function StatusBadge({ status, className, size = "md" }: StatusBadgeProps
   const configs = {
     PENDING: {
       label: "Pending Review",
-      color: "bg-slate-500/10 text-slate-300 border-slate-500/30",
+      color: "bg-sunk text-ink-2 border-line",
       icon: Clock,
       dotColor: "bg-slate-400",
     },
     UNDER_REVIEW: {
       label: "Under Review",
-      color: "bg-amber-500/10 text-amber-300 border-amber-500/30",
+      color: "bg-amber-500/10 text-gold border-amber-500/30",
       icon: Eye,
       dotColor: "bg-amber-400 animate-pulse",
     },
     INTERVIEW: {
       label: "Interview Scheduled",
-      color: "bg-cyan-500/10 text-cyan-300 border-cyan-500/30",
+      color: "bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 border-cyan-500/30",
       icon: MessageSquare,
       dotColor: "bg-cyan-400 animate-pulse",
     },
     ACCEPTED: {
       label: "Accepted",
-      color: "bg-emerald-500/10 text-emerald-300 border-emerald-500/30",
+      color: "bg-emerald-500/10 text-moss border-emerald-500/30",
       icon: CheckCircle,
       dotColor: "bg-emerald-400",
     },
     REJECTED: {
       label: "Rejected",
-      color: "bg-rose-500/10 text-rose-300 border-rose-500/30",
+      color: "bg-rose-500/10 text-danger border-rose-500/30",
       icon: XCircle,
       dotColor: "bg-rose-400",
     },

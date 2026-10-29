@@ -54,9 +54,9 @@ const FEATURES = [
     preview: (
       <div className="mt-4 rounded-lg border border-line bg-surface/70 p-3 text-xs">
         <div className="flex items-center gap-2 mb-2">
-          <div className="h-4 w-4 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-[9px]">B</div>
+          <div className="h-4 w-4 rounded-full bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 flex items-center justify-center font-bold text-[9px]">B</div>
           <span className="font-semibold text-ink text-[11px]">RoleFlow App Bot</span>
-          <span className="rounded bg-indigo-500/20 text-indigo-400 px-1 py-0.2 text-[9px]">BOT</span>
+          <span className="rounded bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 px-1 py-0.2 text-[9px]">BOT</span>
         </div>
         <div className="border-l-2 border-indigo-500 pl-2 text-ink-2 text-[11px]">
           🎉 Congratulations! Your staff application has been accepted.

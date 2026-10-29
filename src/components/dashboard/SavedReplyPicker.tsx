@@ -67,7 +67,7 @@ export default function SavedReplyPicker({
       <select
         value={selected}
         onChange={(e) => pick(e.target.value)}
-        className="max-w-[11rem] rounded-lg border border-white/10 bg-surface px-2 py-1.5 text-[11px] text-white focus:outline-none focus:border-purple-500"
+        className="max-w-[11rem] rounded-lg border border-line bg-surface px-2 py-1.5 text-[11px] text-ink focus:outline-none focus:border-accent"
       >
         <option value="">Saved replies</option>
         {visible.map((r) => (
@@ -79,16 +79,16 @@ export default function SavedReplyPicker({
         onClick={save}
         disabled={saving || !currentText.trim()}
         title="Save the current text as a reply"
-        className="rounded-lg bg-white/5 px-2 py-1.5 text-[11px] text-slate-300 hover:bg-white/10 disabled:opacity-40"
+        className="rounded-lg bg-sunk px-2 py-1.5 text-[11px] text-ink-2 hover:bg-sunk disabled:opacity-40"
       >
         Save
       </button>
       {selected && (
-        <button type="button" onClick={remove} className="rounded-lg px-2 py-1.5 text-[11px] text-rose-400 hover:bg-white/5">
+        <button type="button" onClick={remove} className="rounded-lg px-2 py-1.5 text-[11px] text-danger hover:bg-sunk">
           Delete
         </button>
       )}
-      {error && <span className="text-[10px] text-rose-400">{error}</span>}
+      {error && <span className="text-[10px] text-danger">{error}</span>}
     </div>
   );
 }

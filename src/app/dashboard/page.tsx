@@ -116,7 +116,7 @@ export default function DashboardHubPage() {
     return (
       <div className="max-w-7xl mx-auto px-4 py-24 text-center">
         <div className="w-8 h-8 rounded-full border-2 border-purple-500 border-t-transparent animate-spin mx-auto mb-4" />
-        <p className="text-xs text-slate-400">Loading your server dashboards...</p>
+        <p className="text-xs text-muted">Loading your server dashboards...</p>
       </div>
     );
   }
@@ -124,11 +124,11 @@ export default function DashboardHubPage() {
   if (!user) {
     return (
       <div className="max-w-md mx-auto px-4 py-24 text-center">
-        <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mx-auto mb-4 text-purple-400">
+        <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mx-auto mb-4 text-accent">
           <Server className="w-6 h-6" />
         </div>
-        <h2 className="text-xl font-bold text-white mb-2">Login Required</h2>
-        <p className="text-sm text-slate-400 mb-6">
+        <h2 className="text-xl font-bold text-ink mb-2">Login Required</h2>
+        <p className="text-sm text-muted mb-6">
           Connect with Discord to manage your community, review applicants, and configure bot automations.
         </p>
         <a
@@ -153,7 +153,7 @@ export default function DashboardHubPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       {/* Top Header */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-8 border-b border-surface-border">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-8 border-b border-line">
         <div className="flex items-center gap-4">
           <img
             src={user.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"}
@@ -162,16 +162,16 @@ export default function DashboardHubPage() {
           />
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-extrabold text-white tracking-tight">
+              <h1 className="text-2xl font-extrabold text-ink tracking-tight">
                 Welcome, {user.username}
               </h1>
               {user.isSiteAdmin && (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider bg-purple-500/20 text-accent border border-purple-500/30">
                   SITE ADMIN
                 </span>
               )}
             </div>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs text-muted mt-1">
               Select a Discord community to review applicants, edit questions, or customize server automations.
             </p>
           </div>
@@ -188,32 +188,32 @@ export default function DashboardHubPage() {
 
       {/* Metrics Row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 my-8">
-        <div className="p-5 rounded-2xl bg-surface/60 border border-surface-border/80 flex items-center justify-between">
+        <div className="p-5 rounded-2xl bg-surface/60 border border-line/80 flex items-center justify-between">
           <div>
-            <p className="text-xs text-slate-400 font-medium">Connected Communities</p>
-            <p className="text-2xl font-black text-white mt-1">{guilds.length}</p>
+            <p className="text-xs text-muted font-medium">Connected Communities</p>
+            <p className="text-2xl font-black text-ink mt-1">{guilds.length}</p>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+          <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-accent">
             <Server className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="p-5 rounded-2xl bg-surface/60 border border-surface-border/80 flex items-center justify-between">
+        <div className="p-5 rounded-2xl bg-surface/60 border border-line/80 flex items-center justify-between">
           <div>
-            <p className="text-xs text-slate-400 font-medium">Active Openings</p>
-            <p className="text-2xl font-black text-white mt-1">{totalPositions}</p>
+            <p className="text-xs text-muted font-medium">Active Openings</p>
+            <p className="text-2xl font-black text-ink mt-1">{totalPositions}</p>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+          <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-700 dark:text-blue-400">
             <Briefcase className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="p-5 rounded-2xl bg-surface/60 border border-surface-border/80 flex items-center justify-between">
+        <div className="p-5 rounded-2xl bg-surface/60 border border-line/80 flex items-center justify-between">
           <div>
-            <p className="text-xs text-slate-400 font-medium">Total Applications Received</p>
-            <p className="text-2xl font-black text-white mt-1">{totalApplications}</p>
+            <p className="text-xs text-muted font-medium">Total Applications Received</p>
+            <p className="text-2xl font-black text-ink mt-1">{totalApplications}</p>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-moss">
             <FileCheck className="w-5 h-5" />
           </div>
         </div>
@@ -222,19 +222,19 @@ export default function DashboardHubPage() {
       {/* Guilds List */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-bold text-white uppercase tracking-wider">
+          <h2 className="text-sm font-bold text-ink uppercase tracking-wider">
             Your Communities ({guilds.length})
           </h2>
           {guilds.length === 0 && (
-            <p className="text-xs text-slate-400">No servers connected yet.</p>
+            <p className="text-xs text-muted">No servers connected yet.</p>
           )}
         </div>
 
         {guilds.length === 0 ? (
-          <div className="p-12 text-center rounded-2xl bg-surface/30 border border-dashed border-surface-border">
-            <Server className="w-10 h-10 text-slate-600 mx-auto mb-3" />
-            <h3 className="text-sm font-semibold text-white mb-1">No Discord Servers Connected</h3>
-            <p className="text-xs text-slate-400 max-w-sm mx-auto mb-4">
+          <div className="p-12 text-center rounded-2xl bg-surface/30 border border-dashed border-line">
+            <Server className="w-10 h-10 text-faint mx-auto mb-3" />
+            <h3 className="text-sm font-semibold text-ink mb-1">No Discord Servers Connected</h3>
+            <p className="text-xs text-muted max-w-sm mx-auto mb-4">
               Connect your Discord community to unlock the visual form builder, applicant Kanban, and automated role granting.
             </p>
             <button
@@ -260,7 +260,7 @@ export default function DashboardHubPage() {
               return (
                 <div
                   key={g.id}
-                  className="rounded-2xl bg-surface/80 border border-surface-border/80 hover:border-purple-500/40 p-5 transition-all shadow-xl group flex flex-col justify-between"
+                  className="rounded-2xl bg-surface/80 border border-line/80 hover:border-purple-500/40 p-5 transition-all shadow-xl group flex flex-col justify-between"
                 >
                   <div>
                     {/* Header */}
@@ -269,11 +269,11 @@ export default function DashboardHubPage() {
                         <img
                           src={g.icon || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&auto=format&fit=crop&q=80"}
                           alt={g.name}
-                          className="w-12 h-12 rounded-xl object-cover border border-white/10"
+                          className="w-12 h-12 rounded-xl object-cover border border-line"
                         />
                         <div>
                           <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className="text-base font-bold text-white group-hover:text-purple-300 transition-colors">
+                            <h3 className="text-base font-bold text-ink group-hover:text-accent transition-colors">
                               {g.name}
                             </h3>
                             {g.isVerified && (
@@ -285,16 +285,16 @@ export default function DashboardHubPage() {
                                   .map((badge) => (
                                     <span
                                       key={badge}
-                                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[10px] font-bold"
+                                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/20 text-accent border border-purple-500/30 text-[10px] font-bold"
                                     >
-                                      <BadgeCheck className="w-3 h-3 text-purple-400 fill-purple-400/20" />
+                                      <BadgeCheck className="w-3 h-3 text-accent fill-purple-400/20" />
                                       {badge.replace("_", " ")}
                                     </span>
                                   ))}
                               </div>
                             )}
                           </div>
-                          <p className="text-[11px] text-slate-400 font-mono mt-0.5">
+                          <p className="text-[11px] text-muted font-mono mt-0.5">
                             ID: {g.id}
                           </p>
                         </div>
@@ -306,14 +306,14 @@ export default function DashboardHubPage() {
                             href={`/c/${g.vanitySlug}`}
                             target="_blank"
                             title="View Public Apply Portal"
-                            className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+                            className="p-2 rounded-lg bg-sunk hover:bg-sunk text-muted hover:text-ink transition-colors"
                           >
                             <ExternalLink className="w-4 h-4" />
                           </Link>
                         )}
                         <Link
                           href={`/dashboard/${g.id}`}
-                          className="px-3 py-1.5 rounded-lg bg-violet-600/20 hover:bg-violet-600 text-violet-300 hover:text-white border border-violet-500/30 text-xs font-semibold transition-all flex items-center gap-1.5"
+                          className="px-3 py-1.5 rounded-lg bg-violet-600/20 hover:bg-violet-600 text-violet-700 dark:text-violet-300 hover:text-white border border-violet-500/30 text-xs font-semibold transition-all flex items-center gap-1.5"
                         >
                           <span>Manage</span>
                           <ChevronRight className="w-3.5 h-3.5" />
@@ -322,17 +322,17 @@ export default function DashboardHubPage() {
                     </div>
 
                     {/* Stats pills */}
-                    <div className="flex items-center gap-4 text-xs text-slate-400 py-3 border-y border-surface-border/60">
+                    <div className="flex items-center gap-4 text-xs text-muted py-3 border-y border-line/60">
                       <div>
-                        <span className="font-bold text-white">{g._count?.positions || 0}</span> Openings
+                        <span className="font-bold text-ink">{g._count?.positions || 0}</span> Openings
                       </div>
-                      <span className="w-1 h-1 rounded-full bg-slate-600" />
+                      <span className="w-1 h-1 rounded-full bg-line-strong" />
                       <div>
-                        <span className="font-bold text-white">{appCount}</span> Applications
+                        <span className="font-bold text-ink">{appCount}</span> Applications
                       </div>
-                      <span className="w-1 h-1 rounded-full bg-slate-600" />
+                      <span className="w-1 h-1 rounded-full bg-line-strong" />
                       <div className="flex items-center gap-1">
-                        <Bot className="w-3.5 h-3.5 text-purple-400" />
+                        <Bot className="w-3.5 h-3.5 text-accent" />
                         <span>{g.useCustomBot ? "Custom Bot" : "Web Mode"}</span>
                       </div>
                     </div>
@@ -342,19 +342,19 @@ export default function DashboardHubPage() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-4 pt-1">
                     <Link
                       href={`/dashboard/${g.id}?tab=builder`}
-                      className="px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-[11px] font-medium text-slate-300 hover:text-white text-center transition-colors border border-white/5"
+                      className="px-2.5 py-1.5 rounded-lg bg-sunk hover:bg-sunk text-[11px] font-medium text-ink-2 hover:text-ink text-center transition-colors border border-line"
                     >
                       Form Builder
                     </Link>
                     <Link
                       href={`/dashboard/${g.id}?tab=applications`}
-                      className="px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-[11px] font-medium text-slate-300 hover:text-white text-center transition-colors border border-white/5"
+                      className="px-2.5 py-1.5 rounded-lg bg-sunk hover:bg-sunk text-[11px] font-medium text-ink-2 hover:text-ink text-center transition-colors border border-line"
                     >
                       Kanban Review
                     </Link>
                     <Link
                       href={`/dashboard/${g.id}?tab=bot`}
-                      className="px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-[11px] font-medium text-slate-300 hover:text-white text-center transition-colors border border-white/5"
+                      className="px-2.5 py-1.5 rounded-lg bg-sunk hover:bg-sunk text-[11px] font-medium text-ink-2 hover:text-ink text-center transition-colors border border-line"
                     >
                       Bot Settings
                     </Link>
@@ -369,17 +369,17 @@ export default function DashboardHubPage() {
       {/* Connect Server Modal */}
       {showConnectModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-          <div className="w-full max-w-md bg-surface border border-surface-border rounded-2xl shadow-2xl overflow-hidden p-6">
-            <div className="flex items-center justify-between pb-4 border-b border-surface-border">
+          <div className="w-full max-w-md bg-surface border border-line rounded-2xl shadow-2xl overflow-hidden p-6">
+            <div className="flex items-center justify-between pb-4 border-b border-line">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+                <div className="w-8 h-8 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-accent">
                   <Server className="w-4 h-4" />
                 </div>
-                <h3 className="text-base font-bold text-white">Create or Connect Community</h3>
+                <h3 className="text-base font-bold text-ink">Create or Connect Community</h3>
               </div>
               <button
                 onClick={() => setShowConnectModal(false)}
-                className="text-slate-400 hover:text-white text-xs"
+                className="text-muted hover:text-ink text-xs"
               >
                 ✕
               </button>
@@ -387,13 +387,13 @@ export default function DashboardHubPage() {
 
             <form onSubmit={handleCreateCommunity} className="mt-4 space-y-4">
               {connectError && (
-                <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-300">
+                <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-danger">
                   {connectError}
                 </div>
               )}
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-ink-2 mb-1">
                   Community Name *
                 </label>
                 <input
@@ -402,33 +402,33 @@ export default function DashboardHubPage() {
                   placeholder="e.g. RoleFlow Studios, Apex Community"
                   value={serverName}
                   onChange={(e) => setServerName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/40 border border-surface-border text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-sunk border border-line text-xs text-ink placeholder-faint focus:outline-none focus:border-accent"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1 flex items-center justify-between">
+                <label className="block text-xs font-medium text-ink-2 mb-1 flex items-center justify-between">
                   <span>Discord Server ID</span>
-                  <span className="text-[10px] text-slate-500 font-normal">Optional</span>
+                  <span className="text-[10px] text-faint font-normal">Optional</span>
                 </label>
                 <input
                   type="text"
                   placeholder="e.g. 1565063649679122684 (leave blank if no Discord)"
                   value={serverId}
                   onChange={(e) => setServerId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/40 border border-surface-border text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-sunk border border-line text-xs text-ink placeholder-faint focus:outline-none focus:border-accent"
                 />
-                <p className="text-[10px] text-slate-500 mt-1">
+                <p className="text-[10px] text-faint mt-1">
                   Optional. If provided, enables Discord role sync and audit logs. Leave blank to manage via web only.
                 </p>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-ink-2 mb-1">
                   Vanity Slug (Optional)
                 </label>
                 <div className="flex items-center">
-                  <span className="px-3 py-2.5 bg-black/20 border border-r-0 border-surface-border rounded-l-xl text-[11px] text-slate-500">
+                  <span className="px-3 py-2.5 bg-sunk border border-r-0 border-line rounded-l-xl text-[11px] text-faint">
                     roleflow.site/c/
                   </span>
                   <input
@@ -436,13 +436,13 @@ export default function DashboardHubPage() {
                     placeholder="my-community"
                     value={vanitySlug}
                     onChange={(e) => setVanitySlug(e.target.value)}
-                    className="w-full px-3 py-2.5 rounded-r-xl bg-black/40 border border-surface-border text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                    className="w-full px-3 py-2.5 rounded-r-xl bg-sunk border border-line text-xs text-ink placeholder-faint focus:outline-none focus:border-accent"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-ink-2 mb-1">
                   Short Description
                 </label>
                 <textarea
@@ -450,7 +450,7 @@ export default function DashboardHubPage() {
                   placeholder="Describe your community or what positions you are hiring for..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-surface-border text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 resize-none"
+                  className="w-full px-3.5 py-2 rounded-xl bg-sunk border border-line text-xs text-ink placeholder-faint focus:outline-none focus:border-accent resize-none"
                 />
               </div>
 
@@ -458,7 +458,7 @@ export default function DashboardHubPage() {
                 <button
                   type="button"
                   onClick={() => setShowConnectModal(false)}
-                  className="px-4 py-2 rounded-xl text-xs text-slate-400 hover:text-white transition-colors"
+                  className="px-4 py-2 rounded-xl text-xs text-muted hover:text-ink transition-colors"
                 >
                   Cancel
                 </button>

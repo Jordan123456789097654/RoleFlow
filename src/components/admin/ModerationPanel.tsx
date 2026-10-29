@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 
-const card = "rounded-2xl border border-white/10 bg-white/[0.02] p-5";
-const input = "w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none focus:border-purple-500";
+const card = "rounded-2xl border border-line bg-surface p-5";
+const input = "w-full rounded-lg border border-line bg-sunk px-3 py-2 text-sm text-ink outline-none focus:border-accent";
 const btn = "rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-40";
 
 export default function ModerationPanel() {
@@ -13,7 +13,7 @@ export default function ModerationPanel() {
   return (
     <div className="space-y-6">
       {notice && (
-        <div className={`rounded-xl border p-3 text-sm ${notice.ok ? "border-emerald-500/30 text-emerald-300" : "border-rose-500/30 text-rose-300"}`}>
+        <div className={`rounded-xl border p-3 text-sm ${notice.ok ? "border-emerald-500/30 text-moss" : "border-rose-500/30 text-danger"}`}>
           {notice.text}
         </div>
       )}
@@ -52,8 +52,8 @@ function PunishForm({ onDone }: { onDone: (ok: boolean, text: string) => void })
 
   return (
     <section className={card}>
-      <h3 className="mb-1 text-sm font-bold text-white">Punish a user or community</h3>
-      <p className="mb-4 text-xs text-slate-400">Bans and suspensions end active sessions and email the user an appeal link. Pausing hides a community from the public directory.</p>
+      <h3 className="mb-1 text-sm font-bold text-ink">Punish a user or community</h3>
+      <p className="mb-4 text-xs text-muted">Bans and suspensions end active sessions and email the user an appeal link. Pausing hides a community from the public directory.</p>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
         <select value={targetType} onChange={(e) => { setTargetType(e.target.value as any); setAction(e.target.value === "USER" ? "WARNING" : "PAUSE"); }} className={input}>
           <option value="USER">User (Discord ID)</option>
@@ -70,7 +70,7 @@ function PunishForm({ onDone }: { onDone: (ok: boolean, text: string) => void })
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
         <button disabled={busy || !targetId || !reason.trim()} onClick={() => submit(false)} className={`${btn} bg-rose-600 hover:bg-rose-500 text-white`}>Issue {action.toLowerCase()}</button>
-        <button disabled={busy || !targetId} onClick={() => submit(true)} className={`${btn} bg-white/5 hover:bg-white/10 text-slate-200`}>Lift active punishment</button>
+        <button disabled={busy || !targetId} onClick={() => submit(true)} className={`${btn} bg-sunk hover:bg-sunk text-ink-2`}>Lift active punishment</button>
       </div>
     </section>
   );
@@ -106,22 +106,22 @@ function BulkCommunities({ onDone }: { onDone: (ok: boolean, text: string) => vo
 
   return (
     <section className={card}>
-      <h3 className="mb-3 text-sm font-bold text-white">Bulk community actions</h3>
+      <h3 className="mb-3 text-sm font-bold text-ink">Bulk community actions</h3>
       <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Filter communities" className={`${input} mb-3`} />
-      <div className="max-h-72 overflow-y-auto divide-y divide-white/5 rounded-lg border border-white/5">
+      <div className="max-h-72 overflow-y-auto divide-y divide-line rounded-lg border border-line">
         {shown.map((g) => (
-          <label key={g.id} className="flex items-center gap-3 px-3 py-2 text-xs text-slate-200">
+          <label key={g.id} className="flex items-center gap-3 px-3 py-2 text-xs text-ink-2">
             <input type="checkbox" checked={selected.includes(g.id)} onChange={() => toggle(g.id)} />
             <span className="flex-1 truncate">{g.name}</span>
-            {g.isPaused && <span className="rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] text-amber-300">PAUSED</span>}
+            {g.isPaused && <span className="rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] text-gold">PAUSED</span>}
           </label>
         ))}
       </div>
       <input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Reason (for blacklist)" className={`${input} mt-3`} />
       <div className="mt-3 flex flex-wrap gap-2">
-        <span className="self-center text-xs text-slate-400">{selected.length} selected</span>
+        <span className="self-center text-xs text-muted">{selected.length} selected</span>
         <button disabled={!selected.length} onClick={() => run("PAUSE")} className={`${btn} bg-amber-600 hover:bg-amber-500 text-white`}>Pause</button>
-        <button disabled={!selected.length} onClick={() => run("UNPAUSE")} className={`${btn} bg-white/5 hover:bg-white/10 text-slate-200`}>Unpause</button>
+        <button disabled={!selected.length} onClick={() => run("UNPAUSE")} className={`${btn} bg-sunk hover:bg-sunk text-ink-2`}>Unpause</button>
         <button disabled={!selected.length} onClick={() => run("BLACKLIST")} className={`${btn} bg-rose-600 hover:bg-rose-500 text-white`}>Blacklist</button>
       </div>
     </section>
@@ -148,27 +148,27 @@ function ReportsQueue({ onDone }: { onDone: (ok: boolean, text: string) => void 
 
   return (
     <section className={card}>
-      <h3 className="mb-1 text-sm font-bold text-white">Content reports</h3>
-      <p className="mb-3 text-xs text-slate-400">Sorted by how many different people reported each target.</p>
+      <h3 className="mb-1 text-sm font-bold text-ink">Content reports</h3>
+      <p className="mb-3 text-xs text-muted">Sorted by how many different people reported each target.</p>
       {rows.length === 0 ? (
-        <p className="text-xs text-slate-500">No open reports.</p>
+        <p className="text-xs text-faint">No open reports.</p>
       ) : (
         <ul className="space-y-3">
           {rows.map((r) => (
-            <li key={`${r.targetType}:${r.targetId}`} className="rounded-lg border border-white/5 p-3">
+            <li key={`${r.targetType}:${r.targetId}`} className="rounded-lg border border-line p-3">
               <div className="flex items-center justify-between gap-2">
                 <div className="min-w-0">
-                  <div className="truncate text-xs font-semibold text-white">{r.targetName}</div>
-                  <div className="text-[11px] text-slate-500">{r.targetType} · {r.targetId}</div>
+                  <div className="truncate text-xs font-semibold text-ink">{r.targetName}</div>
+                  <div className="text-[11px] text-faint">{r.targetType} · {r.targetId}</div>
                 </div>
-                <span className="shrink-0 rounded-md bg-rose-500/20 px-2 py-0.5 text-xs font-bold text-rose-300">{r.distinctReporters} reporter{r.distinctReporters === 1 ? "" : "s"}</span>
+                <span className="shrink-0 rounded-md bg-rose-500/20 px-2 py-0.5 text-xs font-bold text-danger">{r.distinctReporters} reporter{r.distinctReporters === 1 ? "" : "s"}</span>
               </div>
-              <ul className="mt-2 list-disc pl-4 text-[11px] text-slate-400">
+              <ul className="mt-2 list-disc pl-4 text-[11px] text-muted">
                 {r.reasons.map((x: string, i: number) => <li key={i}>{x}</li>)}
               </ul>
               <div className="mt-2 flex gap-2">
                 <button onClick={() => close(r.targetType, r.targetId, "ACTION")} className={`${btn} bg-rose-600 hover:bg-rose-500 text-white`}>Mark actioned</button>
-                <button onClick={() => close(r.targetType, r.targetId, "DISMISS")} className={`${btn} bg-white/5 hover:bg-white/10 text-slate-200`}>Dismiss</button>
+                <button onClick={() => close(r.targetType, r.targetId, "DISMISS")} className={`${btn} bg-sunk hover:bg-sunk text-ink-2`}>Dismiss</button>
               </div>
             </li>
           ))}
@@ -200,22 +200,22 @@ function AppealsQueue({ onDone }: { onDone: (ok: boolean, text: string) => void 
 
   return (
     <section className={card}>
-      <h3 className="mb-3 text-sm font-bold text-white">Appeals ({rows.length})</h3>
+      <h3 className="mb-3 text-sm font-bold text-ink">Appeals ({rows.length})</h3>
       {rows.length === 0 ? (
-        <p className="text-xs text-slate-500">No pending appeals.</p>
+        <p className="text-xs text-faint">No pending appeals.</p>
       ) : (
         <ul className="space-y-4">
           {rows.map((a) => (
-            <li key={a.id} className="rounded-lg border border-white/5 p-4">
-              <div className="text-xs text-slate-400">
-                <span className="font-semibold text-white">{a.targetName}</span> · {a.targetType} · {a.action} · appealed {new Date(a.appealedAt).toLocaleString()}
+            <li key={a.id} className="rounded-lg border border-line p-4">
+              <div className="text-xs text-muted">
+                <span className="font-semibold text-ink">{a.targetName}</span> · {a.targetType} · {a.action} · appealed {new Date(a.appealedAt).toLocaleString()}
               </div>
-              <div className="mt-2 text-xs text-slate-300"><span className="text-slate-500">Original reason:</span> {a.reason}</div>
-              <div className="mt-2 rounded-lg bg-black/30 p-3 text-xs text-slate-200 whitespace-pre-wrap">{a.appealText}</div>
+              <div className="mt-2 text-xs text-ink-2"><span className="text-faint">Original reason:</span> {a.reason}</div>
+              <div className="mt-2 rounded-lg bg-sunk p-3 text-xs text-ink-2 whitespace-pre-wrap">{a.appealText}</div>
               <div className="mt-3 flex flex-col gap-2 sm:flex-row">
                 <input value={notes[a.id] || ""} onChange={(e) => setNotes({ ...notes, [a.id]: e.target.value })} placeholder="Note to the user (optional)" className={input} />
                 <button onClick={() => decide(a.id, "APPROVE")} className={`${btn} bg-emerald-600 hover:bg-emerald-500 text-white shrink-0`}>Approve</button>
-                <button onClick={() => decide(a.id, "DENY")} className={`${btn} bg-white/5 hover:bg-white/10 text-slate-200 shrink-0`}>Deny</button>
+                <button onClick={() => decide(a.id, "DENY")} className={`${btn} bg-sunk hover:bg-sunk text-ink-2 shrink-0`}>Deny</button>
               </div>
             </li>
           ))}

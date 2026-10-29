@@ -55,7 +55,7 @@ export function ThemeToggle() {
       title={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
     >
       {theme === "dark" ? (
-        <Sun className="w-4 h-4 text-amber-400" />
+        <Sun className="w-4 h-4 text-gold" />
       ) : (
         <Moon className="w-4 h-4 text-violet-600" />
       )}

@@ -34,17 +34,17 @@ export default function FlagsPanel() {
   return (
     <div className="space-y-6">
     <LicensingToggle />
-    <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 space-y-4">
+    <section className="rounded-2xl border border-line bg-surface/[0.02] p-5 space-y-4">
       <div>
-        <h3 className="text-sm font-bold text-white">Feature flags</h3>
-        <p className="text-xs text-slate-400">Turn features on or off without a deploy.</p>
+        <h3 className="text-sm font-bold text-ink">Feature flags</h3>
+        <p className="text-xs text-muted">Turn features on or off without a deploy.</p>
       </div>
-      {message && <p className="text-xs text-emerald-300">{message}</p>}
-      <ul className="divide-y divide-white/5">
+      {message && <p className="text-xs text-moss">{message}</p>}
+      <ul className="divide-y divide-line">
         {Object.keys(LABELS).map((key) => (
           <li key={key} className="flex items-center justify-between py-3">
-            <span className="text-sm text-slate-200">{LABELS[key]}</span>
-            <button onClick={() => toggle(key)} className={`rounded-full px-3 py-1 text-xs font-semibold ${flags[key] ? "bg-emerald-600 text-white" : "bg-white/10 text-slate-300"}`}>
+            <span className="text-sm text-ink-2">{LABELS[key]}</span>
+            <button onClick={() => toggle(key)} className={`rounded-full px-3 py-1 text-xs font-semibold ${flags[key] ? "bg-emerald-600 text-white" : "bg-sunk text-ink-2"}`}>
               {flags[key] ? "On" : "Off"}
             </button>
           </li>
