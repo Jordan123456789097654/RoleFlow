@@ -6,6 +6,7 @@ import { authorizeGuild } from "@/lib/guild-access";
 import { getLiveServers, getRecentBroadcasts } from "@/lib/live-ops";
 import { LiveOpsForm } from "@/components/dashboard/LiveOpsForm";
 
+import { ArrowLeft } from "lucide-react";
 export const revalidate = 0;
 
 function uptime(since: Date, now: Date) {
@@ -27,8 +28,11 @@ export default async function LivePage({ params }: { params: { guildId: string }
   const broadcasts = canManage ? await getRecentBroadcasts(guild.id) : [];
 
   return (
-    <div className="max-w-4xl pb-16">
-      <p className="eyebrow mb-2">{guild.name}</p>
+    <div className="mx-auto max-w-4xl px-4 pb-16 pt-10 sm:px-6">
+      <Link href={`/dashboard/${guild.id}/staff`} className="inline-flex items-center gap-1.5 text-[13px] text-muted hover:text-ink">
+        <ArrowLeft className="h-3.5 w-3.5" /> Back to staff roster
+      </Link>
+      <p className="eyebrow mb-2 mt-6">{guild.name}</p>
       <h1 className="display-md">Live servers</h1>
       <p className="mt-2 text-[14px] text-muted">
         Servers that reported in the last 3 minutes. Refresh the page to update.

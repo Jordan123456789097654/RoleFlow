@@ -10,6 +10,7 @@ import { QuotaEditor } from "@/components/dashboard/QuotaEditor";
 import { StaffLinkEditor } from "@/components/dashboard/StaffLinkEditor";
 import { AddManualStaffForm } from "@/components/dashboard/AddManualStaffForm";
 
+import { ArrowLeft } from "lucide-react";
 export const revalidate = 0;
 
 const TONE_CLASS: Record<string, string> = {
@@ -49,8 +50,11 @@ export default async function StaffRosterPage({ params }: { params: { guildId: s
     : allRoles;
 
   return (
-    <div className="max-w-4xl pb-16">
-      <p className="eyebrow mb-2">{guild.name}</p>
+    <div className="mx-auto max-w-4xl px-4 pb-16 pt-10 sm:px-6">
+      <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-[13px] text-muted hover:text-ink">
+        <ArrowLeft className="h-3.5 w-3.5" /> Back to dashboard
+      </Link>
+      <p className="eyebrow mb-2 mt-6">{guild.name}</p>
       <h1 className="display-md">Staff roster</h1>
       <p className="mt-2 text-[14px] text-muted">
         Weekly quota progress for each staff member, based on their Roblox rank. Weeks run Monday to Sunday in UTC.

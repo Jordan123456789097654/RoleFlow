@@ -7,6 +7,7 @@ import { strikeRecommendation, strikeWindowStart } from "@/lib/compliance";
 import { AnnouncementForm, InfractionForm, ManualLogRequestForm, ManualLogDecision } from "@/components/dashboard/ComplianceForms";
 import { AnnouncementGate } from "@/components/dashboard/AnnouncementGate";
 
+import { ArrowLeft } from "lucide-react";
 export const revalidate = 0;
 
 export default async function CompliancePage({ params }: { params: { guildId: string } }) {
@@ -62,9 +63,12 @@ export default async function CompliancePage({ params }: { params: { guildId: st
   const nameOf = (id: string) => members.find((m) => m.userId === id)?.username ?? "Unknown staff";
 
   return (
-    <div className="max-w-4xl pb-16">
+    <div className="mx-auto max-w-4xl px-4 pb-16 pt-10 sm:px-6">
+      <Link href={`/dashboard/${guild.id}/staff`} className="inline-flex items-center gap-1.5 text-[13px] text-muted hover:text-ink">
+        <ArrowLeft className="h-3.5 w-3.5" /> Back to staff roster
+      </Link>
       <AnnouncementGate guildId={guild.id} />
-      <p className="eyebrow mb-2">{guild.name}</p>
+      <p className="eyebrow mb-2 mt-6">{guild.name}</p>
       <h1 className="display-md">Compliance</h1>
       <p className="mt-2 text-[14px] text-muted">Announcements, manual time requests, and conduct records.</p>
 
