@@ -122,6 +122,16 @@ model Guild {
   // Feature 2: Roblox Group Verification
   enableRobloxGroupCheck     Boolean          @default(false)
   robloxGroupId              String?
+  staffGameSecretHash       String?          // SHA-256 of the Roblox game secret (shown once, never stored raw)
+  staffGameSecretRotatedAt   DateTime?
+  staffReportSentFor         String?          // Week start (ISO) of the last inactivity report emailed to the owner
+  quotaRules                 QuotaRule[]
+  shifts                     Shift[]
+  announcements              Announcement[]
+  staffInfractions          StaffInfraction[]
+  manualLogRequests          ManualLogRequest[]
+  gameServers                GameServer[]
+  broadcasts                 Broadcast[]
   robloxMinRank              Int              @default(1)
   robloxMinAccountAgeDays    Int              @default(0)
   robloxCloudApiKey          String?          // Encrypted Roblox Open Cloud API key
@@ -234,6 +244,8 @@ model GuildStaff {
   userId      String   // Discord Snowflake ID of staff member
   username    String?
   roleTitle   String   @default("Reviewer") // e.g. "Lead Recruiter", "Staff Reviewer", "Senior Admin"
+  robloxUserId String?  // Roblox user ID, linked for staff tracking
+  robloxRankId Int?     // Cached Roblox group rank ID
   permissions String   @default("vote_only") // view_only, vote_only, full_decision, position_editor
   createdAt   DateTime @default(now())
 
@@ -491,4 +503,128 @@ model BotOutbox {
 
   @@index([status, nextAttemptAt])
   @@index([guildId])
+}
+
+model QuotaRule {
+  id            String   @id @default(cuid())
+  guildId       String
+  guild         Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  robloxRankId  Int
+  rankName      String
+  weeklyMinutes Int
+  createdAt     DateTime @default(now())
+
+  @@unique([guildId, robloxRankId])
+}
+
+model Shift {
+  id              String    @id @default(cuid())
+  guildId         String
+  guild           Guild     @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  robloxUserId    String
+  serverJobId     String?
+  placeId         String?
+  shiftType       String    @default("STANDARD") // STANDARD, TRAINING, EVENT, PATROL, MANUAL
+  startedAt       DateTime  @default(now())
+  lastHeartbeatAt DateTime  @default(now())
+  endedAt         DateTime?
+  status          String    @default("ACTIVE") // ACTIVE, ENDED, TIMED_OUT
+
+  @@index([guildId, robloxUserId, startedAt])
+}
+
+model Announcement {
+  id          String            @id @default(cuid())
+  guildId     String
+  guild       Guild             @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  title       String
+  body        String
+  hardGate    Boolean           @default(false) // blocks the staff dashboard until acknowledged
+  readSeconds Int               @default(0)     // minimum time before the acknowledge button enables
+  createdById String
+  createdAt   DateTime          @default(now())
+  acks        AnnouncementAck[]
+
+  @@index([guildId, createdAt])
+}
+
+model AnnouncementAck {
+  id             String       @id @default(cuid())
+  announcementId String
+  announcement   Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+  userId         String       // Discord ID of the staff member
+  acknowledgedAt DateTime     @default(now())
+
+  @@unique([announcementId, userId])
+}
+
+model StaffInfraction {
+  id           String   @id @default(cuid())
+  guildId      String
+  guild        Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  staffUserId  String
+  category     String   // POWER_ABUSE, HINT_EXPLOITATION, ACTIVITY_FABRICATION, OTHER
+  note         String
+  points       Int
+  evidenceUrls String[] @default([])
+  createdById  String
+  createdAt    DateTime @default(now())
+
+  @@index([guildId, staffUserId, createdAt])
+}
+
+model ManualLogRequest {
+  id           String    @id @default(cuid())
+  guildId      String
+  guild        Guild     @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  staffUserId  String
+  robloxUserId String
+  shiftType    String    @default("MANUAL")
+  description  String
+  workedAt     DateTime  // when the work happened (start of the block)
+  minutes      Int
+  status       String    @default("PENDING") // PENDING, APPROVED, DENIED
+  reviewedById String?
+  reviewedAt   DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@index([guildId, status])
+}
+
+model GameServer {
+  id             String   @id @default(cuid())
+  guildId        String
+  guild          Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  serverJobId    String
+  placeId        String?
+  playerCount    Int      @default(0)
+  maxPlayers     Int      @default(0)
+  averagePingMs  Int?
+  startedAt      DateTime @default(now())
+  lastSeenAt     DateTime @default(now())
+
+  @@unique([guildId, serverJobId])
+  @@index([guildId, lastSeenAt])
+}
+
+model Broadcast {
+  id          String             @id @default(cuid())
+  guildId     String
+  guild       Guild              @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  message     String
+  createdById String
+  createdAt   DateTime           @default(now())
+  receipts    BroadcastReceipt[]
+
+  @@index([guildId, createdAt])
+}
+
+model BroadcastReceipt {
+  id          String    @id @default(cuid())
+  broadcastId String
+  broadcast   Broadcast @relation(fields: [broadcastId], references: [id], onDelete: Cascade)
+  serverJobId String
+  receivedAt  DateTime  @default(now())
+
+  @@unique([broadcastId, serverJobId])
 }

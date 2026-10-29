@@ -90,3 +90,55 @@ To connect the bot to live Discord:
 npx prisma db push && npx prisma generate
 npm run discord:register   # publishes the new /lookup command
 ```
+
+## Staff module: Phase 1 (roster and quotas)
+
+- New tables: `QuotaRule` (weekly minutes per Roblox rank) and `Shift` (game-session records, populated in Phase 2).
+- New `GuildStaff` fields: `robloxUserId`, `robloxRankId`.
+- API: `GET /api/guilds/[id]/roster`, `GET|PUT /api/guilds/[id]/quotas`, `PUT /api/guilds/[id]/staff/[userId]/roblox`.
+- Page: `/dashboard/[guildId]/staff`.
+
+After pulling: `npx prisma db push && npx prisma generate`.
+
+## Staff module: Phase 2 (game ingestion)
+
+- `POST /api/guilds/[id]/game/event`: join, heartbeat, and leave events from a Roblox server. Requires `Authorization: Bearer <game secret>` and a `sentAt` timestamp within 2 minutes. Only Roblox accounts linked to a staff member are recorded.
+- `GET|POST /api/guilds/[id]/game/secret`: check whether a secret exists, or generate one (shown once; generating a new one invalidates the old).
+- Shifts that stop sending heartbeats for 3 minutes are closed at their last heartbeat and marked `TIMED_OUT`.
+- `roblox/RoleFlowStaffTracker.luau`: game-side script. Paste it into a ModuleScript in ServerScriptService and fill in CONFIG.
+
+After pulling: `npx prisma db push && npx prisma generate`.
+
+## Staff module: Phase 3 (quotas, linking, reports)
+
+- Quota editor and Roblox linking on `/dashboard/[guildId]/staff` (owners and site admins only).
+- `GET /api/guilds/[id]/staff/[userId]/history?weeks=8`: weekly minutes for one staff member.
+- Cron: `GET /api/cron/staff-shifts` (run every 5 minutes) closes shifts with missed heartbeats.
+- Cron: `GET /api/cron/staff-report` (run daily; sends only on Mondays UTC) emails each owner last week's under-quota and unlinked staff. Each community gets one report per week.
+
+Both cron routes need `Authorization: Bearer $CRON_SECRET`.
+
+After pulling: `npx prisma db push && npx prisma generate`.
+
+## Staff module: Phase 4 (announcements, manual time, conduct)
+
+- `/dashboard/[guildId]/compliance`: post announcements, request and review manual time, log infractions.
+- Hard-gate announcements block the staff roster page until acknowledged. The gate component can be added to other dashboard pages.
+- Acknowledgments store the user ID and time only. IP addresses are not recorded.
+- Strikes: 90-day rolling window. 3 points recommends a warning, 6 points recommends a demotion review. Nothing is applied automatically.
+- Approving a manual log creates a closed shift at the requested time.
+- Evidence must be https links. Files are not uploaded to RoleFlow yet.
+
+Schema fix: `Guild` now has back-relations for `QuotaRule`, `Shift`, and the new models. Without them Prisma fails validation.
+
+After pulling: `npx prisma db push && npx prisma generate`.
+
+## Staff module: Phase 5 (live servers and broadcasts)
+
+- `/dashboard/[guildId]/live`: live servers (reported in the last 3 minutes) with player counts, ping, uptime, and staff on each server. Owners can send a notice.
+- Game servers report status every 30 seconds to `POST /api/guilds/[id]/game/server`.
+- Broadcasts: owners only (`POST /api/guilds/[id]/broadcasts`). Requires `confirm: true`, 200 characters of plain text, a 10-minute cooldown, and at least one live server. Each send is recorded in the audit log.
+- Game servers poll `GET /api/guilds/[id]/game/broadcasts` and confirm receipt at `POST .../receipt`. The live page shows how many servers received each notice.
+- Broadcast text is shown as plain text (RichText off) in the game.
+
+After pulling: `npx prisma db push && npx prisma generate`.
