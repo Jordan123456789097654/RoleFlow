@@ -645,7 +645,7 @@ export default function SiteAdminPage() {
           </a>
           <Link
             href="/"
-            className="px-4 py-2 rounded-xl bg-sunk hover:bg-sunk text-xs text-ink-2 transition-colors"
+            className="px-4 py-2 rounded-xl bg-surface hover:bg-sunk text-xs text-ink-2 transition-colors"
           >
             Home
           </Link>
@@ -795,7 +795,7 @@ export default function SiteAdminPage() {
               }
             }}
             disabled={updatingMaintenance}
-            className="self-end px-4 py-2 rounded-xl bg-sunk hover:bg-sunk text-ink text-xs font-bold border border-line transition-all shrink-0"
+            className="self-end px-4 py-2 rounded-xl bg-surface hover:bg-sunk text-ink text-xs font-bold border border-line transition-all shrink-0"
           >
             Save Reason
           </button>
@@ -1280,7 +1280,7 @@ export default function SiteAdminPage() {
               <button
                 type="button"
                 onClick={handleRandomizeKey}
-                className="px-3.5 py-1.5 rounded-xl bg-sunk hover:bg-sunk text-ink-2 hover:text-ink border border-line text-xs font-semibold transition-all flex items-center gap-1.5"
+                className="px-3.5 py-1.5 rounded-xl bg-surface hover:bg-sunk text-ink-2 hover:text-ink border border-line text-xs font-semibold transition-all flex items-center gap-1.5"
               >
                 <Sparkles className="w-3.5 h-3.5 text-gold" />
                 <span>Auto-Format Random Key</span>
@@ -1919,7 +1919,7 @@ export default function SiteAdminPage() {
                                 handleUpdateFeedbackStatus(item.id, item.status, note);
                               }
                             }}
-                            className="px-2.5 py-1 rounded-lg bg-sunk hover:bg-sunk text-ink-2 text-xs font-semibold transition-all border border-line"
+                            className="px-2.5 py-1 rounded-lg bg-surface hover:bg-sunk text-ink-2 text-xs font-semibold transition-all border border-line"
                           >
                             Add Note
                           </button>

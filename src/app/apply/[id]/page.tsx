@@ -295,7 +295,7 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
           </Link>
           <Link
             href="/"
-            className="px-5 py-2.5 rounded-xl bg-sunk hover:bg-sunk text-ink-2 text-xs font-medium border border-line transition-colors"
+            className="px-5 py-2.5 rounded-xl bg-surface hover:bg-sunk text-ink-2 text-xs font-medium border border-line transition-colors"
           >
             Back to Home
           </Link>
@@ -584,7 +584,7 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
                       href={robloxProfile.profileUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="px-2.5 py-1 rounded-lg bg-sunk hover:bg-sunk text-[10px] text-ink-2 border border-line transition-colors"
+                      className="px-2.5 py-1 rounded-lg bg-surface hover:bg-sunk text-[10px] text-ink-2 border border-line transition-colors"
                     >
                       Roblox Profile ↗
                     </a>

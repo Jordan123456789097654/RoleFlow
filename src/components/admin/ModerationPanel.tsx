@@ -70,7 +70,7 @@ function PunishForm({ onDone }: { onDone: (ok: boolean, text: string) => void })
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
         <button disabled={busy || !targetId || !reason.trim()} onClick={() => submit(false)} className={`${btn} bg-rose-600 hover:bg-rose-500 text-white`}>Issue {action.toLowerCase()}</button>
-        <button disabled={busy || !targetId} onClick={() => submit(true)} className={`${btn} bg-sunk hover:bg-sunk text-ink-2`}>Lift active punishment</button>
+        <button disabled={busy || !targetId} onClick={() => submit(true)} className={`${btn} bg-surface hover:bg-sunk text-ink-2`}>Lift active punishment</button>
       </div>
     </section>
   );
@@ -121,7 +121,7 @@ function BulkCommunities({ onDone }: { onDone: (ok: boolean, text: string) => vo
       <div className="mt-3 flex flex-wrap gap-2">
         <span className="self-center text-xs text-muted">{selected.length} selected</span>
         <button disabled={!selected.length} onClick={() => run("PAUSE")} className={`${btn} bg-amber-600 hover:bg-amber-500 text-white`}>Pause</button>
-        <button disabled={!selected.length} onClick={() => run("UNPAUSE")} className={`${btn} bg-sunk hover:bg-sunk text-ink-2`}>Unpause</button>
+        <button disabled={!selected.length} onClick={() => run("UNPAUSE")} className={`${btn} bg-surface hover:bg-sunk text-ink-2`}>Unpause</button>
         <button disabled={!selected.length} onClick={() => run("BLACKLIST")} className={`${btn} bg-rose-600 hover:bg-rose-500 text-white`}>Blacklist</button>
       </div>
     </section>
@@ -168,7 +168,7 @@ function ReportsQueue({ onDone }: { onDone: (ok: boolean, text: string) => void 
               </ul>
               <div className="mt-2 flex gap-2">
                 <button onClick={() => close(r.targetType, r.targetId, "ACTION")} className={`${btn} bg-rose-600 hover:bg-rose-500 text-white`}>Mark actioned</button>
-                <button onClick={() => close(r.targetType, r.targetId, "DISMISS")} className={`${btn} bg-sunk hover:bg-sunk text-ink-2`}>Dismiss</button>
+                <button onClick={() => close(r.targetType, r.targetId, "DISMISS")} className={`${btn} bg-surface hover:bg-sunk text-ink-2`}>Dismiss</button>
               </div>
             </li>
           ))}
@@ -215,7 +215,7 @@ function AppealsQueue({ onDone }: { onDone: (ok: boolean, text: string) => void 
               <div className="mt-3 flex flex-col gap-2 sm:flex-row">
                 <input value={notes[a.id] || ""} onChange={(e) => setNotes({ ...notes, [a.id]: e.target.value })} placeholder="Note to the user (optional)" className={input} />
                 <button onClick={() => decide(a.id, "APPROVE")} className={`${btn} bg-emerald-600 hover:bg-emerald-500 text-white shrink-0`}>Approve</button>
-                <button onClick={() => decide(a.id, "DENY")} className={`${btn} bg-sunk hover:bg-sunk text-ink-2 shrink-0`}>Deny</button>
+                <button onClick={() => decide(a.id, "DENY")} className={`${btn} bg-surface hover:bg-sunk text-ink-2 shrink-0`}>Deny</button>
               </div>
             </li>
           ))}

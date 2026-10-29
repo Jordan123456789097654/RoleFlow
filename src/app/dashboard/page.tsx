@@ -306,7 +306,7 @@ export default function DashboardHubPage() {
                             href={`/c/${g.vanitySlug}`}
                             target="_blank"
                             title="View Public Apply Portal"
-                            className="p-2 rounded-lg bg-sunk hover:bg-sunk text-muted hover:text-ink transition-colors"
+                            className="p-2 rounded-lg bg-surface hover:bg-sunk text-muted hover:text-ink transition-colors"
                           >
                             <ExternalLink className="w-4 h-4" />
                           </Link>
@@ -342,19 +342,19 @@ export default function DashboardHubPage() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-4 pt-1">
                     <Link
                       href={`/dashboard/${g.id}?tab=builder`}
-                      className="px-2.5 py-1.5 rounded-lg bg-sunk hover:bg-sunk text-[11px] font-medium text-ink-2 hover:text-ink text-center transition-colors border border-line"
+                      className="px-2.5 py-1.5 rounded-lg bg-surface hover:bg-sunk text-[11px] font-medium text-ink-2 hover:text-ink text-center transition-colors border border-line"
                     >
                       Form Builder
                     </Link>
                     <Link
                       href={`/dashboard/${g.id}?tab=applications`}
-                      className="px-2.5 py-1.5 rounded-lg bg-sunk hover:bg-sunk text-[11px] font-medium text-ink-2 hover:text-ink text-center transition-colors border border-line"
+                      className="px-2.5 py-1.5 rounded-lg bg-surface hover:bg-sunk text-[11px] font-medium text-ink-2 hover:text-ink text-center transition-colors border border-line"
                     >
                       Kanban Review
                     </Link>
                     <Link
                       href={`/dashboard/${g.id}?tab=bot`}
-                      className="px-2.5 py-1.5 rounded-lg bg-sunk hover:bg-sunk text-[11px] font-medium text-ink-2 hover:text-ink text-center transition-colors border border-line"
+                      className="px-2.5 py-1.5 rounded-lg bg-surface hover:bg-sunk text-[11px] font-medium text-ink-2 hover:text-ink text-center transition-colors border border-line"
                     >
                       Bot Settings
                     </Link>

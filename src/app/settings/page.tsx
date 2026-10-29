@@ -591,7 +591,7 @@ export default function SettingsPage() {
                         document.cookie = "roleflow_user_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.roleflow.site;";
                         document.cookie = "roleflow_user_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
                       }}
-                      className="px-3.5 py-1.5 rounded-lg bg-sunk hover:bg-sunk text-ink-2 text-xs font-medium border border-line transition-all cursor-pointer"
+                      className="px-3.5 py-1.5 rounded-lg bg-surface hover:bg-sunk text-ink-2 text-xs font-medium border border-line transition-all cursor-pointer"
                     >
                       Sign Out
                     </a>
@@ -1058,7 +1058,7 @@ export default function SettingsPage() {
                     />
                     <button
                       onClick={copyApiKey}
-                      className="px-3.5 py-2 rounded-xl bg-sunk hover:bg-sunk text-ink text-xs font-semibold flex items-center gap-1.5 border border-line transition-all"
+                      className="px-3.5 py-2 rounded-xl bg-surface hover:bg-sunk text-ink text-xs font-semibold flex items-center gap-1.5 border border-line transition-all"
                     >
                       {copiedApiKey ? <Check className="w-3.5 h-3.5 text-moss" /> : <Copy className="w-3.5 h-3.5" />}
                       <span>{copiedApiKey ? "Copied" : "Copy"}</span>
@@ -1081,7 +1081,7 @@ export default function SettingsPage() {
                     className="w-full px-4 py-2.5 rounded-xl bg-sunk border border-line text-xs text-ink placeholder-faint focus:outline-none focus:border-accent font-mono"
                   />
                   <div className="flex justify-end">
-                    <button className="px-4 py-2 rounded-xl bg-sunk hover:bg-sunk text-ink text-xs font-semibold border border-line transition-all">
+                    <button className="px-4 py-2 rounded-xl bg-surface hover:bg-sunk text-ink text-xs font-semibold border border-line transition-all">
                       Save Webhook URL
                     </button>
                   </div>
@@ -1136,7 +1136,7 @@ export default function SettingsPage() {
                         });
                         fetchProfile();
                       }}
-                      className="px-4 py-2 rounded-xl bg-sunk hover:bg-sunk text-ink-2 text-xs font-semibold border border-line transition-all shrink-0"
+                      className="px-4 py-2 rounded-xl bg-surface hover:bg-sunk text-ink-2 text-xs font-semibold border border-line transition-all shrink-0"
                     >
                       Unlink Roblox
                     </button>

@@ -147,7 +147,7 @@ export default function SupportStaffPanelPage() {
         <div className="flex items-center justify-center gap-3">
           <Link
             href="/dashboard"
-            className="px-4 py-2 rounded-xl bg-sunk hover:bg-sunk text-xs font-semibold text-ink transition-all border border-line"
+            className="px-4 py-2 rounded-xl bg-surface hover:bg-sunk text-xs font-semibold text-ink transition-all border border-line"
           >
             Back to Dashboard
           </Link>
@@ -192,7 +192,7 @@ export default function SupportStaffPanelPage() {
             disabled={togglingMaintenance}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
               maintenanceEnabled
-                ? "bg-rose-500/20 text-danger border-rose-500/40 animate-pulse"
+                ? "bg-rose-500/10 text-danger border-rose-500/30"
                 : "bg-surface border-line text-muted hover:text-ink hover:border-line-strong"
             }`}
             title="Toggle Platform-Wide Maintenance Mode"
@@ -211,7 +211,7 @@ export default function SupportStaffPanelPage() {
           <button
             onClick={fetchActiveSessions}
             disabled={refreshing}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-sunk hover:bg-sunk text-xs font-semibold text-ink-2 transition-all border border-line"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface hover:bg-sunk text-xs font-semibold text-ink-2 transition-all border border-line"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin text-accent" : ""}`} />
             <span>Refresh</span>
@@ -242,13 +242,13 @@ export default function SupportStaffPanelPage() {
               placeholder="e.g. RF-8921-4472"
               value={codeQuery}
               onChange={(e) => setCodeQuery(e.target.value.toUpperCase())}
-              className="w-full px-4 py-3 rounded-xl bg-sunk border border-line text-sm text-ink placeholder-faint font-mono tracking-wider focus:outline-none focus:border-accent"
+              className="w-full px-4 py-3 rounded-xl bg-surface border border-line-strong text-sm text-ink placeholder-faint font-mono tracking-wider focus:outline-none focus:border-accent"
             />
           </div>
           <button
             type="submit"
             disabled={loggingIn || !codeQuery.trim()}
-            className="px-6 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-card shadow-violet-600/30 shrink-0"
+            className="px-6 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold transition-all shadow-card shrink-0 disabled:bg-sunk disabled:text-faint disabled:border disabled:border-line disabled:shadow-none disabled:cursor-not-allowed"
           >
             {loggingIn ? "Connecting..." : "Initiate Diagnostic Session"}
           </button>
@@ -280,7 +280,7 @@ export default function SupportStaffPanelPage() {
         </div>
 
         {activeSessions.length === 0 ? (
-          <div className="p-8 text-center rounded-2xl bg-sunk border border-line space-y-2">
+          <div className="p-8 text-center rounded-2xl bg-paper border border-dashed border-line-strong space-y-2">
             <CheckCircle2 className="w-8 h-8 text-moss mx-auto" />
             <h4 className="text-xs font-bold text-ink">No Pending Support Codes</h4>
             <p className="text-[11px] text-muted max-w-sm mx-auto">
@@ -292,7 +292,7 @@ export default function SupportStaffPanelPage() {
             {activeSessions.map((session) => (
               <div
                 key={session.id}
-                className="p-5 rounded-2xl bg-sunk border border-line hover:border-purple-500/40 transition-all flex items-center justify-between gap-4"
+                className="p-5 rounded-2xl bg-paper border border-line hover:border-purple-500/40 transition-all flex items-center justify-between gap-4"
               >
                 <div className="flex items-center gap-3">
                   <img
@@ -324,20 +324,20 @@ export default function SupportStaffPanelPage() {
       </div>
 
       {/* SECTION 3: STAFF SUPPORT GUIDELINES */}
-      <div className="p-5 rounded-2xl bg-sunk border border-line space-y-3">
+      <div className="p-5 rounded-2xl bg-surface border border-line space-y-3">
         <h4 className="text-xs font-bold text-ink-2 uppercase font-mono tracking-wider">
           Staff Operational Protocols
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-muted">
-          <div className="p-3 rounded-xl bg-sunk border border-line">
+          <div className="p-3 rounded-xl bg-paper border border-line">
             <span className="font-bold text-ink block mb-1">1. Respect Member Privacy</span>
             Never alter positions or form settings without explicit ticket instructions from the community owner.
           </div>
-          <div className="p-3 rounded-xl bg-sunk border border-line">
+          <div className="p-3 rounded-xl bg-paper border border-line">
             <span className="font-bold text-ink block mb-1">2. 10-Minute Timeframe</span>
             Sessions expire automatically after 10 minutes. Advise members to generate a new code if more time is required.
           </div>
-          <div className="p-3 rounded-xl bg-sunk border border-line">
+          <div className="p-3 rounded-xl bg-paper border border-line">
             <span className="font-bold text-ink block mb-1">3. Security Zero-Tolerance</span>
             Staff members will never ask for user passwords or OAuth tokens under any circumstances.
           </div>

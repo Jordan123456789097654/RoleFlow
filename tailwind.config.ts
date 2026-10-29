@@ -15,6 +15,22 @@ const config: Config = {
         mono: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
       },
       colors: {
+        purple: {
+          200: "rgb(var(--purple-200) / <alpha-value>)",
+          300: "rgb(var(--purple-300) / <alpha-value>)",
+          400: "rgb(var(--purple-400) / <alpha-value>)",
+          500: "rgb(var(--purple-500) / <alpha-value>)",
+          600: "rgb(var(--purple-600) / <alpha-value>)",
+          700: "rgb(var(--purple-700) / <alpha-value>)",
+        },
+        violet: {
+          200: "rgb(var(--violet-200) / <alpha-value>)",
+          300: "rgb(var(--violet-300) / <alpha-value>)",
+          400: "rgb(var(--violet-400) / <alpha-value>)",
+          500: "rgb(var(--violet-500) / <alpha-value>)",
+          600: "rgb(var(--violet-600) / <alpha-value>)",
+          700: "rgb(var(--violet-700) / <alpha-value>)",
+        },
         paper: "var(--paper)",
         surface: "var(--surface)",
         sunk: "var(--sunk)",

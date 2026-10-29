@@ -1243,7 +1243,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           </Link>
           <Link
             href="/"
-            className="px-4 py-2 rounded-xl bg-sunk hover:bg-sunk text-xs text-ink-2 transition-colors"
+            className="px-4 py-2 rounded-xl bg-surface hover:bg-sunk text-xs text-ink-2 transition-colors"
           >
             Home
           </Link>
@@ -1273,7 +1273,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           </button>
           <Link
             href="/dashboard"
-            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-sunk hover:bg-sunk text-xs text-ink-2 transition-colors text-center"
+            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-surface hover:bg-sunk text-xs text-ink-2 transition-colors text-center"
           >
             All Communities
           </Link>
@@ -1339,7 +1339,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
 
           <Link
             href={`/c/${guild.id}`}
-            className="px-3 py-1.5 rounded-lg bg-sunk hover:bg-sunk text-ink-2 text-xs font-medium border border-line flex items-center gap-1"
+            className="px-3 py-1.5 rounded-lg bg-surface hover:bg-sunk text-ink-2 text-xs font-medium border border-line flex items-center gap-1"
           >
             <span>Public Page</span>
             <ExternalLink className="w-3 h-3" />
@@ -1469,7 +1469,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                     setSelectedAppIds(filteredApps.map((a: any) => a.id));
                   }
                 }}
-                className="px-2.5 py-1 rounded-lg bg-sunk hover:bg-sunk text-xs font-medium text-ink-2 border border-line transition-colors"
+                className="px-2.5 py-1 rounded-lg bg-surface hover:bg-sunk text-xs font-medium text-ink-2 border border-line transition-colors"
               >
                 {selectedAppIds.length === filteredApps.length && filteredApps.length > 0 ? "Deselect All" : "Select All"}
               </button>
@@ -1478,7 +1478,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
               <button
                 type="button"
                 onClick={() => setImportModalOpen(true)}
-                className="px-2.5 py-1 rounded-lg bg-sunk hover:bg-sunk text-ink-2 border border-line text-xs font-medium flex items-center gap-1.5 transition-colors"
+                className="px-2.5 py-1 rounded-lg bg-surface hover:bg-sunk text-ink-2 border border-line text-xs font-medium flex items-center gap-1.5 transition-colors"
                 title="Import applications from CSV or JSON"
               >
                 <Upload className="w-3 h-3 text-accent" />
@@ -1596,7 +1596,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                 <button
                   type="button"
                   onClick={() => { setSelectedApp(null); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-                  className="lg:hidden mb-3 px-3 py-2 rounded-lg bg-sunk hover:bg-sunk text-xs font-semibold text-ink-2"
+                  className="lg:hidden mb-3 px-3 py-2 rounded-lg bg-surface hover:bg-sunk text-xs font-semibold text-ink-2"
                 >
                   ← Back to applications
                 </button>
@@ -1977,7 +1977,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
               <button
                 type="button"
                 onClick={handleExportSelectedCsv}
-                className="px-3 py-1.5 rounded-lg bg-sunk hover:bg-sunk text-ink text-xs font-medium transition-all flex items-center gap-1.5"
+                className="px-3 py-1.5 rounded-lg bg-surface hover:bg-sunk text-ink text-xs font-medium transition-all flex items-center gap-1.5"
               >
                 <Download className="w-3 h-3" />
                 <span>Export CSV</span>
@@ -2063,7 +2063,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
               <button
                 type="button"
                 onClick={() => setImportPosModal(true)}
-                className="px-3.5 py-2 rounded-xl bg-sunk hover:bg-sunk text-ink-2 border border-line text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                className="px-3.5 py-2 rounded-xl bg-surface hover:bg-sunk text-ink-2 border border-line text-xs font-semibold flex items-center gap-1.5 transition-colors"
                 title="Import entire form or opening from JSON"
               >
                 <Upload className="w-3.5 h-3.5 text-accent" />
@@ -2136,7 +2136,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                     <div className="flex items-center gap-2 shrink-0">
                       <button
                         onClick={() => openEditPositionModal(activePosition)}
-                        className="px-3 py-1.5 rounded-lg bg-sunk hover:bg-sunk text-ink text-xs font-semibold flex items-center gap-1.5 border border-line transition-colors shadow-sm"
+                        className="px-3 py-1.5 rounded-lg bg-surface hover:bg-sunk text-ink text-xs font-semibold flex items-center gap-1.5 border border-line transition-colors shadow-sm"
                         title="Edit application name, department, description, and settings"
                       >
                         <Pencil className="w-3.5 h-3.5 text-accent" />
@@ -3244,7 +3244,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                   </button>
                 </div>
 
-                <label className="px-3 py-1 rounded-lg bg-sunk hover:bg-sunk border border-line text-xs text-accent font-semibold cursor-pointer">
+                <label className="px-3 py-1 rounded-lg bg-surface hover:bg-sunk border border-line text-xs text-accent font-semibold cursor-pointer">
                   <span>Choose File</span>
                   <input
                     type="file"
@@ -3378,7 +3378,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                   </button>
                 </div>
 
-                <label className="px-3 py-1 rounded-lg bg-sunk hover:bg-sunk border border-line text-xs text-accent font-semibold cursor-pointer">
+                <label className="px-3 py-1 rounded-lg bg-surface hover:bg-sunk border border-line text-xs text-accent font-semibold cursor-pointer">
                   <span>Load File</span>
                   <input
                     type="file"
@@ -3486,7 +3486,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
             <form onSubmit={handleImportOpeningSubmit} className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] text-muted">JSON Template Format:</span>
-                <label className="px-3 py-1 rounded-lg bg-sunk hover:bg-sunk border border-line text-xs text-accent font-semibold cursor-pointer">
+                <label className="px-3 py-1 rounded-lg bg-surface hover:bg-sunk border border-line text-xs text-accent font-semibold cursor-pointer">
                   <span>Load JSON File</span>
                   <input
                     type="file"
