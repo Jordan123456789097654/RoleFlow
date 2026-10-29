@@ -352,6 +352,13 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
                         {pos.guild.isVerified && <BadgeCheck className="h-3.5 w-3.5 text-moss" />}
                       </span>
                       {pos.department && <span className="chip">{pos.department}</span>}
+                      {pos.closesAt && (
+                        <span className="chip">
+                          Closes {new Date(pos.closesAt).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })}
+                        </span>
+                      )}
+                      {pos.guild.enableRobloxAuth && <span className="chip">Roblox account</span>}
+                      {pos.guild.enableRobloxGroupCheck && <span className="chip">Group member required</span>}
                       {avg && (
                         <span className="inline-flex items-center gap-1 font-mono tabular-nums">
                           <Star className="h-3 w-3 fill-gold text-gold" />

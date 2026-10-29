@@ -311,6 +311,19 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
   const [importingData, setImportingData] = useState(false);
   const [importResultMsg, setImportResultMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
+  // Keyboard shortcut: N jumps to the next unreviewed application. Ignored while typing.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const target = e.target as HTMLElement | null;
+      if (target && (["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName) || target.isContentEditable)) return;
+      if (e.key.toLowerCase() !== "n") return;
+      document.getElementById("next-unreviewed-btn")?.click();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   useEffect(() => {
     fetchGuildData();
   }, [params.guildId]);
@@ -1462,6 +1475,24 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                   <option value="🌱 Trainee" className="bg-surface text-blue-700 dark:text-blue-300">🌱 Trainee</option>
                 </select>
               </div>
+
+              {/* Jump to the next pending application in the current queue, wrapping to the start */}
+              <button
+                id="next-unreviewed-btn"
+                type="button"
+                title="Shortcut: N"
+                onClick={() => {
+                  const queue = filteredApps;
+                  const start = selectedApp ? queue.findIndex((a: any) => a.id === selectedApp.id) : -1;
+                  const isPending = (a: any) => a.status === "PENDING";
+                  const next = queue.slice(start + 1).find(isPending) ?? queue.find(isPending);
+                  if (next) setSelectedApp(next);
+                }}
+                disabled={!filteredApps.some((a: any) => a.status === "PENDING")}
+                className="px-2.5 py-1 rounded-lg bg-surface hover:bg-sunk text-xs font-medium text-ink-2 border border-line transition-colors disabled:opacity-50"
+              >
+                Next unreviewed
+              </button>
 
               {/* Select All Checkbox */}
               <button

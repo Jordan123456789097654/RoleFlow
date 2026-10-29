@@ -1,7 +1,7 @@
 /**
- * High-performance, lightweight Discord Gateway client.
- * Connects directly to Discord WebSocket gateway without bulky dependencies.
- * Keeps bots Online with customizable activity status (Playing, Watching, Listening).
+ * Lightweight Discord Gateway client for community bots.
+ * Keeps each bot online with a custom activity. Handles HELLO, heartbeats,
+ * IDENTIFY, RESUME (op 6) after recoverable drops, and clean reconnects.
  */
 
 import WebSocket from "ws";
@@ -15,145 +15,194 @@ interface BotConfig {
   activityName?: string;
 }
 
+const GATEWAY_URL = "wss://gateway.discord.gg/?v=10&encoding=json";
+
 class DiscordGatewayConnection {
   private ws: WebSocket | null = null;
   private heartbeatInterval: NodeJS.Timeout | null = null;
+  private reconnectTimer: NodeJS.Timeout | null = null;
   private sequence: number | null = null;
+  private sessionId: string | null = null;
+  private resumeUrl: string | null = null;
   private isAlive = false;
+  private stopped = false;
 
   constructor(private config: BotConfig) {}
 
   public start() {
+    this.stopped = false;
     this.connect();
   }
 
+  private log(msg: string) {
+    console.log(`[Gateway] [${this.config.name}] ${msg}`);
+  }
+
   private connect() {
+    if (this.stopped) return;
+    this.teardownSocket();
+
+    const url = this.sessionId && this.resumeUrl ? this.resumeUrl : GATEWAY_URL;
+    const ws = new WebSocket(url);
+    this.ws = ws;
+
+    ws.on("message", (data: WebSocket.RawData) => this.onPayload(ws, data));
+
+    ws.on("close", (code) => {
+      if (this.ws !== ws) return; // a newer socket has taken over
+      this.cleanupHeartbeat();
+      this.ws = null;
+      this.log(`Disconnected (code ${code}).`);
+      // 4004 = bad token, 4010-4014 = invalid shard/intents: do not retry.
+      if (code === 4004 || (code >= 4010 && code <= 4014)) {
+        this.log("Fatal gateway error. Not reconnecting; check the bot token and settings.");
+        this.stopped = true;
+        return;
+      }
+      // Resumable codes keep the session; anything else starts fresh.
+      if (code === 4000 || code === 4001 || code === 4002 || code === 4003 || code === 4005 || code === 4007 || code === 4009) {
+        this.sessionId = null;
+        this.sequence = null;
+      }
+      this.scheduleReconnect(5000);
+    });
+
+    ws.on("error", (err) => {
+      this.log(`Socket error: ${err.message}`);
+    });
+  }
+
+  private onPayload(ws: WebSocket, data: WebSocket.RawData) {
+    if (this.ws !== ws) return;
+    let payload: any;
     try {
-      this.ws = new WebSocket("wss://gateway.discord.gg/?v=10&encoding=json");
+      payload = JSON.parse(data.toString());
+    } catch (err) {
+      this.log(`Parse error: ${String(err)}`);
+      return;
+    }
+    const { op, d, s, t } = payload;
+    if (typeof s === "number") this.sequence = s;
 
-      this.ws.on("open", () => {
-        console.log(`[Gateway] [${this.config.name}] Connected to Discord Gateway.`);
-      });
-
-      this.ws.on("message", (data: WebSocket.RawData) => {
-        try {
-          const payload = JSON.parse(data.toString());
-          const { op, d, s, t } = payload;
-          if (s !== null) this.sequence = s;
-
-          switch (op) {
-            case 10: // Hello
-              this.startHeartbeat(d.heartbeat_interval);
-              this.identify();
-              break;
-            case 11: // Heartbeat ACK
-              this.isAlive = true;
-              break;
-            case 0: // Dispatch
-              if (t === "READY") {
-                console.log(`[Gateway] [${this.config.name}] Bot is ONLINE as ${d.user.username}#${d.user.discriminator}!`);
-              }
-              break;
-            case 7: // Reconnect
-            case 9: // Invalid Session
-              this.reconnect();
-              break;
-          }
-        } catch (err) {
-          console.error(`[Gateway] [${this.config.name}] Parse error:`, err);
+    switch (op) {
+      case 10: // Hello
+        this.startHeartbeat(d.heartbeat_interval);
+        if (this.sessionId) this.resume();
+        else this.identify();
+        break;
+      case 11: // Heartbeat ACK
+        this.isAlive = true;
+        break;
+      case 1: // Server requests an immediate heartbeat
+        this.send(1, this.sequence);
+        break;
+      case 0: // Dispatch
+        if (t === "READY") {
+          this.sessionId = d.session_id;
+          this.resumeUrl = d.resume_gateway_url || null;
+          this.log(`ONLINE as ${d.user?.username ?? "unknown"}.`);
+        } else if (t === "RESUMED") {
+          this.log("Session resumed.");
         }
-      });
-
-      this.ws.on("close", (code) => {
-        console.warn(`[Gateway] [${this.config.name}] Disconnected (code: ${code}). Reconnecting in 5s...`);
-        this.cleanup();
-        setTimeout(() => this.connect(), 5000);
-      });
-
-      this.ws.on("error", (err) => {
-        console.error(`[Gateway] [${this.config.name}] Socket error:`, err.message);
-      });
-    } catch (e) {
-      console.error(`[Gateway] [${this.config.name}] Failed to open socket:`, e);
-      setTimeout(() => this.connect(), 5000);
+        break;
+      case 7: // Reconnect requested: resume on a fresh socket
+        this.log("Server requested reconnect.");
+        ws.close(4000);
+        break;
+      case 9: // Invalid session
+        this.log("Invalid session.");
+        if (!d) {
+          this.sessionId = null;
+          this.sequence = null;
+        }
+        ws.close(4000);
+        break;
     }
   }
 
   private startHeartbeat(intervalMs: number) {
-    if (this.heartbeatInterval) clearInterval(this.heartbeatInterval);
+    this.cleanupHeartbeat();
     this.isAlive = true;
+    // Jitter the first beat per Discord's spec.
+    const first = setTimeout(() => {
+      this.beat(intervalMs);
+      this.heartbeatInterval = setInterval(() => this.beat(intervalMs), intervalMs);
+    }, Math.floor(Math.random() * intervalMs));
+    this.heartbeatInterval = first as unknown as NodeJS.Timeout;
+  }
 
-    // Send first heartbeat with jitter per Discord API spec
-    this.heartbeatInterval = setInterval(() => {
-      if (!this.isAlive) {
-        console.warn(`[Gateway] [${this.config.name}] Missed heartbeat ACK. Reconnecting...`);
-        this.reconnect();
-        return;
-      }
-      this.isAlive = false;
-      this.send(1, this.sequence);
-    }, intervalMs);
+  private beat(_intervalMs: number) {
+    if (!this.isAlive) {
+      this.log("Missed heartbeat ACK. Reconnecting...");
+      this.ws?.terminate();
+      return;
+    }
+    this.isAlive = false;
+    this.send(1, this.sequence);
   }
 
   private identify() {
     const activityName = this.config.activityName || "Managing Applications";
-    const activityType = typeof this.config.activityType === "number" ? this.config.activityType : 3; // 3 = Watching
+    const activityType = typeof this.config.activityType === "number" ? this.config.activityType : 3;
 
-    const payload = {
+    this.send(2, {
       token: this.config.token,
-      intents: 0, // Zero privileged intents needed! Keeps it instant and unblocked
-      properties: {
-        os: "linux",
-        browser: "RoleFlow",
-        device: "RoleFlow",
-      },
+      intents: 0, // No privileged intents needed for presence and slash commands
+      properties: { os: "linux", browser: "RoleFlow", device: "RoleFlow" },
       presence: {
         status: this.config.status || "online",
         since: null,
         afk: false,
-        activities: [
-          {
-            name: activityName,
-            type: activityType,
-            state: "https://roleflow.site",
-          },
-        ],
+        activities: [{ name: activityName, type: activityType, state: "https://roleflow.site" }],
       },
-    };
-
-    this.send(2, payload);
+    });
   }
 
-  private send(op: number, d: any) {
+  private resume() {
+    this.send(6, {
+      token: this.config.token,
+      session_id: this.sessionId,
+      seq: this.sequence,
+    });
+  }
+
+  private send(op: number, d: unknown) {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify({ op, d }));
     }
   }
 
-  private reconnect() {
-    this.cleanup();
-    if (this.ws) {
-      try { this.ws.close(); } catch (_) {}
-      this.ws = null;
-    }
-    setTimeout(() => this.connect(), 3000);
+  private scheduleReconnect(delayMs: number) {
+    if (this.stopped || this.reconnectTimer) return;
+    this.reconnectTimer = setTimeout(() => {
+      this.reconnectTimer = null;
+      this.connect();
+    }, delayMs);
   }
 
-  private cleanup() {
+  private cleanupHeartbeat() {
     if (this.heartbeatInterval) {
       clearInterval(this.heartbeatInterval);
+      clearTimeout(this.heartbeatInterval as unknown as NodeJS.Timeout);
       this.heartbeatInterval = null;
     }
   }
 
-  public stop() {
-    this.cleanup();
+  private teardownSocket() {
+    this.cleanupHeartbeat();
     if (this.ws) {
-      this.ws.close();
+      const old = this.ws;
       this.ws = null;
+      try { old.removeAllListeners(); old.on("error", () => {}); old.terminate(); } catch (_) {}
     }
+  }
+
+  public stop() {
+    this.stopped = true;
+    if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
+    this.reconnectTimer = null;
+    this.teardownSocket();
   }
 }
 
-// Export runner
 export { DiscordGatewayConnection, type BotConfig };

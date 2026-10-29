@@ -1,6 +1,8 @@
 import React from "react";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { getGuildResponseTime } from "@/lib/response-time";
+import { ApplicationProgress } from "@/components/ApplicationProgress";
 import { getCurrentUser } from "@/lib/auth";
 import { StatusBadge } from "@/components/StatusBadge";
 import { formatDate } from "@/lib/utils";
@@ -11,7 +13,11 @@ import { SaveOpeningButton } from "@/components/SaveOpeningButton";
 
 export const revalidate = 0;
 
-export default async function MyApplicationsPage() {
+export default async function MyApplicationsPage({
+  searchParams,
+}: {
+  searchParams?: { status?: string; community?: string };
+}) {
   const user = await getCurrentUser();
 
   if (!user) {
@@ -51,6 +57,11 @@ export default async function MyApplicationsPage() {
   });
 
   // Approximate place in the waitlist: pending waitlisted applications submitted before this one, plus one.
+  const responseTimes = new Map<string, string | null>();
+  for (const gid of new Set(applications.map((a) => a.position.guild.id))) {
+    responseTimes.set(gid, await getGuildResponseTime(gid));
+  }
+
   const waitlistPositions = new Map<string, number>();
   for (const app of applications.filter((a) => a.waitlisted && a.status === "PENDING")) {
     const ahead = await prisma.application.count({
@@ -76,6 +87,22 @@ export default async function MyApplicationsPage() {
 
   const DAY = 24 * 60 * 60 * 1000;
   const now = Date.now();
+  const statusFilter = searchParams?.status && searchParams.status !== "ALL" ? searchParams.status : null;
+  const communityFilter = searchParams?.community || null;
+  const visibleApplications = applications.filter(
+    (a) => (!statusFilter || a.status === statusFilter) && (!communityFilter || a.position.guild.id === communityFilter)
+  );
+  const communityOptions = [...new Map(applications.map((a) => [a.position.guild.id, a.position.guild.name] as const)).entries()];
+  const filterHref = (next: { status?: string | null; community?: string | null }) => {
+    const status = next.status !== undefined ? next.status : statusFilter;
+    const community = next.community !== undefined ? next.community : communityFilter;
+    const q = new URLSearchParams();
+    if (status) q.set("status", status);
+    if (community) q.set("community", community);
+    const s = q.toString();
+    return s ? `/my-applications?${s}` : "/my-applications";
+  };
+
   const stats = {
     total: applications.length,
     inReview: applications.filter((a) => a.status === "PENDING" || a.status === "UNDER_REVIEW").length,
@@ -109,6 +136,38 @@ export default async function MyApplicationsPage() {
         </div>
       )}
 
+      {applications.length > 0 && (
+        <div className="mb-5 space-y-2 text-[13px]">
+          <div className="flex flex-wrap gap-1.5">
+            {["ALL", "PENDING", "UNDER_REVIEW", "INTERVIEW", "ACCEPTED", "REJECTED"].map((st) => (
+              <a
+                key={st}
+                href={filterHref({ status: st })}
+                className={`rounded-md border px-3 py-1.5 transition-colors ${
+                  (st === "ALL" ? !statusFilter : statusFilter === st)
+                    ? "border-ink bg-ink text-paper"
+                    : "border-line-strong text-ink-2 hover:border-ink hover:text-ink"
+                }`}
+              >
+                {st === "ALL" ? "All" : st.replace("_", " ").toLowerCase()}
+              </a>
+            ))}
+          </div>
+          {communityOptions.length > 1 && (
+            <div className="flex flex-wrap gap-1.5">
+              <a href={filterHref({ community: null })} className={`rounded-md border px-3 py-1.5 ${!communityFilter ? "border-ink bg-ink text-paper" : "border-line-strong text-ink-2 hover:border-ink"}`}>
+                All communities
+              </a>
+              {communityOptions.map(([id, name]) => (
+                <a key={id} href={filterHref({ community: id })} className={`rounded-md border px-3 py-1.5 ${communityFilter === id ? "border-ink bg-ink text-paper" : "border-line-strong text-ink-2 hover:border-ink"}`}>
+                  {name}
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {applications.length === 0 ? (
         <div className="card text-center py-20">
           <FileText className="w-12 h-12 text-faint mx-auto mb-3" />
@@ -126,7 +185,7 @@ export default async function MyApplicationsPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          {applications.map((app) => (
+          {visibleApplications.map((app) => (
             <div
               key={app.id}
               className="glass-panel rounded-2xl p-5 sm:p-6"
@@ -188,6 +247,8 @@ export default async function MyApplicationsPage() {
                 applicationId={app.id}
                 initialMessages={app.messages}
               />
+
+              <ApplicationProgress status={app.status} estimatedResponse={responseTimes.get(app.position.guild.id) ?? null} />
 
               {/* Actions: withdraw / reapply */}
               {app.waitlisted && app.status === "PENDING" && (

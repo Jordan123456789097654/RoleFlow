@@ -8,6 +8,8 @@ import { validSignature } from "@/lib/discord-signature";
 
 export const dynamic = "force-dynamic";
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://roleflow.site";
+
 
 type BotBinding = { publicKey: string | null; boundGuildId: string | null };
 

@@ -10,7 +10,7 @@ export function WithdrawButton({ applicationId, label }: { applicationId: string
   const [error, setError] = useState<string | null>(null);
 
   async function withdraw() {
-    if (!window.confirm(`Withdraw your application for ${label}? This permanently deletes it and cannot be undone.`)) return;
+    if (!window.confirm(`Withdraw your application for ${label}?\n\nYour answers will be deleted, and staff will no longer see this application.\n\nThis cannot be undone.`)) return;
     setBusy(true);
     setError(null);
     try {
