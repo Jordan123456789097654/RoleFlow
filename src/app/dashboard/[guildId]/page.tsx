@@ -69,10 +69,24 @@ const JSON_IMPORT_SAMPLE = `[
 ]`;
 
 
+type SettingsSectionId =
+  | "profile"
+  | "portal"
+  | "domain"
+  | "access"
+  | "blacklist"
+  | "notifications"
+  | "data"
+  | "plan";
+
 const SETTINGS_SECTIONS = [
-  { id: "profile" as const, label: "Profile & Branding" },
-  { id: "access" as const, label: "Access & Gating" },
+  { id: "profile" as const, label: "Profile" },
+  { id: "portal" as const, label: "Portal Look" },
+  { id: "domain" as const, label: "Custom Domain" },
+  { id: "access" as const, label: "Access Rules" },
+  { id: "blacklist" as const, label: "Blacklist" },
   { id: "notifications" as const, label: "Notifications" },
+  { id: "data" as const, label: "Data & Export" },
   { id: "plan" as const, label: "Plan" },
 ];
 
@@ -187,7 +201,7 @@ interface GuildData {
 export default function DashboardPage({ params }: { params: { guildId: string } }) {
   const [guild, setGuild] = useState<GuildData | null>(null);
   const [activeTab, setActiveTab] = useState<"overview" | "applications" | "builder" | "bot" | "staff" | "settings" | "gating" | "templates">("overview");
-  const [settingsSection, setSettingsSection] = useState<"profile" | "access" | "notifications" | "plan">("profile");
+  const [settingsSection, setSettingsSection] = useState<SettingsSectionId>("profile");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [selectedApp, setSelectedApp] = useState<any | null>(null);
   const [decisionNote, setDecisionNote] = useState("");
@@ -2756,11 +2770,6 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
 
       {/* TAB 4: COMMUNITY SETTINGS, GATING & POLICIES */}
       {activeTab === "settings" && (
-        <div className="mb-8">
-          <OwnerExtrasPanel guildId={guild.id} />
-        </div>
-      )}
-      {activeTab === "settings" && (
         <div className="max-w-3xl space-y-6">
           <div className="flex flex-wrap gap-2 border-b border-line pb-3">
             {SETTINGS_SECTIONS.map((s) => (
@@ -2940,13 +2949,13 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           </div>
           )}
 
-          {settingsSection === "profile" && (
+          {settingsSection === "domain" && (
           <div className="space-y-6">
           <CustomDomainPanel guildId={params.guildId} />
           </div>
           )}
 
-          {settingsSection === "profile" && (
+          {settingsSection === "portal" && (
           <div className="space-y-6">
           {/* Custom Community Portal Themes & Accents */}
           <div className="glass-panel rounded-2xl border border-line p-6 sm:p-8 space-y-4">
@@ -2957,6 +2966,17 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
             <p className="text-xs text-muted">
               Customize your community&apos;s public portal appearance (/c/[slug]).
             </p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-sunk border border-line">
+              <p className="text-[11px] text-muted">
+                For header, navigation, footer, and search customization, open the full site editor.
+              </p>
+              <Link
+                href={`/dashboard/${params.guildId}/site`}
+                className="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold text-center shrink-0 shadow-card shadow-violet-600/30"
+              >
+                Customize Full Site →
+              </Link>
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -3258,7 +3278,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           </div>
           )}
 
-          {settingsSection === "access" && (
+          {settingsSection === "blacklist" && (
           <div className="space-y-6">
           {/* Blacklist Management */}
           <div className="glass-panel rounded-2xl border border-line p-6 space-y-4">
@@ -3307,6 +3327,12 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
               )}
             </div>
           </div>
+          </div>
+          )}
+
+          {settingsSection === "data" && (
+          <div className="space-y-6">
+          <OwnerExtrasPanel guildId={guild.id} />
           </div>
           )}
         </div>

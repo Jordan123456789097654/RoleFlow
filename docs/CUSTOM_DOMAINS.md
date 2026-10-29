@@ -21,7 +21,7 @@ This manual has two parts:
 ### Step 1: Enter your domain
 
 1. Open your community's **dashboard** and go to **Settings**.
-2. Find the **Custom Domain** panel.
+2. Open the **Custom Domain** sub-tab. The panel is there.
 3. Type the domain you want, without `https://` or a trailing slash. For example, `apply.yourstudio.com`.
 4. Click **Connect domain**.
 
@@ -125,7 +125,12 @@ If you're already signed in on roleflow.site, Discord usually approves the login
 | Sign-in bridge | `src/app/api/auth/bridge/route.ts` | Sets the custom domain's session from a short-lived token |
 | Bridge tokens | `src/lib/custom-domain-auth.ts` | Signs and checks bridge tokens, sets the domain's cookie |
 | Login / callback | `src/app/api/auth/login/route.ts`, `src/app/api/auth/callback/route.ts` | Route sign-in through roleflow.site and back to the domain |
-| Dashboard UI | `src/components/CustomDomainPanel.tsx` | Connect, show DNS records, verify, remove |
+| Dashboard UI | `src/components/CustomDomainPanel.tsx` | Connect, show DNS records, verify, remove. Lives on the Custom Domain sub-tab. |
+| Site editor page | `src/app/dashboard/[guildId]/site/page.tsx` | Owner-only page at `/dashboard/<id>/site` |
+| Site editor form | `src/components/dashboard/SiteConfigForm.tsx` | Look, copy, navigation, footer, search, and link fields, with live preview |
+| Site options | `src/lib/site-config.ts` | Defaults, limits (header links 5, footer links 6), and validation for `Guild.siteConfig` |
+| Site loader | `src/lib/site-data.ts` | Loads the community data and site options for the editor and the domain pages |
+| Site chrome | `src/components/domain/DomainChrome.tsx` | Renders the header, footer, and the always-on "Powered by RoleFlow" line |
 | Discord links | `src/app/api/discord/interactions/route.ts` | `/portal` and `/apply` link to the verified domain |
 
 ### Request flow on a custom domain
@@ -177,19 +182,27 @@ If you're already signed in on roleflow.site, Discord usually approves the login
 
 ## Customizing your domain site (owners)
 
-Once a domain is verified, open **Dashboard → Settings → Custom Domain → Customize your site**, or go to `/dashboard/<your-community-id>/site`. You can change:
+Once a domain is verified, you can change how your site looks, what it says, and what the header and footer show. Open the site editor in either of two ways:
 
-- **Look:** accent color, opening layout, header style, and whether the header, reviews, and applicant count show.
-- **Copy:** announcement, welcome message, about text, the sign-in button label, and a footer note.
-- **Links and images:** logo, banner, website, and Discord invite. These must be `https://` addresses.
-- **Navigation:** up to 5 header links (shown on larger screens).
-- **Footer:** show or hide the footer, footer text, and up to 6 footer links. "Powered by RoleFlow" always stays.
-- **Search and sharing:** the page title and description used by search engines and link previews.
+- **Settings → Custom Domain**, then click **Customize your site →**.
+- **Settings → Portal Look**, then click **Customize Full Site →**.
+- Or go straight to `/dashboard/<your-community-id>/site`.
 
-A live preview updates as you type. Saved changes appear on your domain straight away.
+The site editor needs manage access to the community. It has these sections:
 
-Your domain shows only your community's name and header, with **Powered by RoleFlow** in the footer.
+- **Look:** accent color, the sign-in button label (up to 30 characters, shown to visitors who are not signed in), opening layout (Banner, Minimal, or Cards), header style (Accent bar and logo, or Plain), and toggles for the header, reviews, and applicant count. The accent color and opening layout are the same settings as on the **Portal Look** sub-tab.
+- **Copy:** an announcement (up to 280 characters), a welcome message (up to 1,000 characters), and an about section (up to 1,000 characters).
+- **Navigation:** up to 5 header links. Each link needs a label of up to 40 characters and an `https://` address. Links appear in the header on larger screens. Use the arrows to change their order.
+- **Footer:** show or hide the footer, add footer text (up to 160 characters), and add up to 6 footer links.
+- **Search and sharing:** a page title (up to 70 characters) and a page description (up to 200 characters), used by search engines and link previews. Leave them empty to use your community name and description.
+- **Links and images:** logo, banner, website, and Discord invite. Each must start with `https://`. Leave a field empty to remove it.
+
+A live preview updates as you type. Click **Save changes** to publish. The bar above the button shows **You have unsaved changes** until everything is stored, and then **All changes saved**.
+
+**"Powered by RoleFlow" always stays.** It appears at the bottom of every custom domain, even when you hide the footer. It cannot be turned off.
 
 ## Bot console (owners)
 
-**Dashboard → Discord Bot** shows a live console for your bot. Lines are tagged `[i]` (info), `[✓]` (connected or resumed), `[!]` (warning), and `[✗]` (error). Lines are kept for 7 days. Schema change: run `npm run db:push` once after deploying so the `BotLog` table and `Guild.siteConfig` column exist.
+**Dashboard → Discord Bot** shows a live console for your bot. Lines are tagged `[i]` (info), `[✓]` (connected or resumed), `[!]` (warning), and `[✗]` (error). The console refreshes every 3 seconds. Use **Pause** to stop updates, **Clear** to empty the view, and the **warnings & errors** checkbox to show only problems. Lines are kept for 7 days and then removed automatically. New lines appear only when the bot writes them, so the console stops updating while the bot is offline.
+
+Deployment note: the `BotLog` table and the `Guild.siteConfig` column are part of the current schema. Run `npm run db:push` once after deploying if your database does not have them yet. This change adds no new schema.

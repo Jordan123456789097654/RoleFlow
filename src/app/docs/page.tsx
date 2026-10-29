@@ -202,42 +202,88 @@ const groups: Group[] = [
         ],
       },
       {
-        id: "access",
-        title: "Settings → Access & Gating",
+        id: "settings-tabs",
+        title: "Settings sub-tabs",
+        intro: "Settings is split into sub-tabs, in this order: Profile, Portal Look, Custom Domain, Access Rules, Blacklist, Notifications, Data & Export, and Plan. Each sub-tab shows only its own options.",
         body: [
-          "Require Discord server membership: applicants must already be in your server.",
-          "Minimum account age: hold or block very new Discord accounts.",
-          "Roblox checks: require a linked account, a group and rank, a game pass, or a badge.",
-          "Rejection cooldown: how many days a rejected applicant must wait (0, 7, 14, or 30).",
-          "Blind voting threshold: how many votes are needed before scores are shown.",
-          "Blacklist: block a Discord user or Roblox username from applying to your community.",
+          "Profile, Portal Look, Access Rules, and Notifications are saved together by the Save Community Settings button at the bottom of Access Rules. After you change a field on any of those four sub-tabs, go to Access Rules and click that button.",
+          "Custom Domain, Blacklist, and Data & Export have their own controls and do not use that button.",
+          "Plan shows your partnership and subscription status. It has no form fields.",
         ],
       },
       {
-        id: "profile",
-        title: "Settings → Profile & Branding",
+        id: "settings-profile",
+        title: "Settings → Profile",
         body: [
-          "Community profile: name, description, banner, icon, welcome message, website, and Discord invite. Website and invite links must start with https://.",
-          "Portal theme: choose a preset (obsidian, cyberpunk, emerald, royal, or crimson), a layout (banner, minimal, or cards), and an accent color.",
-          "Applicant count: show or hide how many people have applied.",
-          "Discord widget: show your server's widget on your page.",
-          "Announcement: a short notice at the top of your page, such as a deadline.",
-          "Applications open: a switch that closes applications for the whole community.",
+          "Community name, vanity URL (your public address is roleflow.site/c/ followed by the vanity URL), description, and tags. Enter tags separated by commas.",
+          "Server icon and banner: paste the image URL for each.",
         ],
       },
       {
-        id: "notifications",
+        id: "settings-portal",
+        title: "Settings → Portal Look",
+        body: [
+          "Theme preset: Obsidian Dark (default), Cyberpunk Neon, Emerald Forest, Royal Purple, or Crimson Glow.",
+          "Community page layout: Banner-led (default), Minimal (no banner), or Card-led (openings in a grid).",
+          "Accent color: pick a color, or type a hex value such as #8B5CF6.",
+          "Discord server widget: shows live member counts and voice channels on your public community page.",
+          "Customize Full Site: opens the site editor at /dashboard/<your-community-id>/site, where you set the header, navigation, footer, and search options for your custom domain. Accent color and layout are the same settings in both places.",
+        ],
+      },
+      {
+        id: "settings-domain",
+        title: "Settings → Custom Domain",
+        body: [
+          "Connect your own domain, see the two DNS records to add, check verification, and remove the domain. Full steps are in the Custom domains section.",
+          "Customize your site: opens the site editor for your domain. See Customizing your site in the Custom domains section.",
+        ],
+      },
+      {
+        id: "settings-access",
+        title: "Settings → Access Rules",
+        body: [
+          "Require membership in the Discord server: applicants must already be in your server before they can submit.",
+          "Enforce Roblox account verification: applicants give their Roblox username for avatar and portfolio checks.",
+          "Staff blind voting mode: hides other reviewers' ratings until you submit your own. Set the number of approval votes a candidate needs to pass.",
+          "Official Roblox group membership and rank: checks that the applicant is in your Roblox group with at least a minimum rank. You can also set a minimum Roblox account age in days, a required badge ID, and an auto-accept rank. Paste an Open Cloud API key here; leave the field blank to keep the saved key.",
+          "Minimum Discord account age (up to 365 days): blocks freshly created accounts from applying.",
+          "Re-application cooldown (0 to 90 days): how long a rejected applicant must wait before applying again. Set 0 to turn it off.",
+        ],
+      },
+      {
+        id: "settings-blacklist",
+        title: "Settings → Blacklist",
+        body: [
+          "Block a Discord user from applying to your community by entering their Discord ID. Add an optional reason tag so your staff know why.",
+          "Each blocked entry is listed with its reason. Entries are saved as soon as you add them.",
+        ],
+      },
+      {
+        id: "settings-notifications",
         title: "Settings → Notifications",
         body: [
-          "Discord webhook for audit logs: paste a webhook URL from a Discord channel. RoleFlow posts a log there when staff make changes or decisions.",
+          "Discord audit log webhook: paste a webhook URL from a Discord channel. RoleFlow posts an embed there when an application is submitted, accepted, or rejected.",
+          "The webhook URL is saved with the Save Community Settings button on Access Rules.",
         ],
       },
       {
-        id: "plan",
+        id: "settings-data",
+        title: "Settings → Data & Export",
+        body: [
+          "Applications open: a switch that closes applications for the whole community.",
+          "Show applicant count: shows or hides how many people have applied on your community page.",
+          "Welcome message, website, and Discord invite for your community page. Website and invite must start with https://.",
+          "Roblox Open Cloud and gating settings, and the interactions endpoint for your own Discord bot.",
+          "Sync & Register Slash Commands: registers the bot's commands in Discord. They can take up to an hour to appear.",
+          "This sub-tab has its own Save community settings button.",
+        ],
+      },
+      {
+        id: "settings-plan",
         title: "Settings → Plan",
         body: [
-          "Shows your community's subscription tier and what it includes.",
-          "Plans control limits such as how many communities an account can own, how many openings a community can run, and access to features like custom domains. When licensing is turned off on the site, these features are free.",
+          "Shows the partnership panel and your community's subscription tier.",
+          "License keys and paid tiers are coming soon. During Open Beta, every community has full access to all features.",
         ],
       },
       {
@@ -257,6 +303,20 @@ const groups: Group[] = [
         ],
         tips: [
           "Your own bot is only online while RoleFlow keeps its connection running. If it shows offline, check the token and the bot's permissions in the server.",
+        ],
+      },
+      {
+        id: "bot-console",
+        title: "Discord Bot console",
+        intro: "The console on the Discord Bot tab shows what your bot is doing, as it happens.",
+        body: [
+          "Lines are tagged [i] for information, [✓] for a connection or resume, [!] for a warning, and [✗] for an error.",
+          "The console refreshes every few seconds. Use Pause to stop updates, Clear to empty the view, and the warnings & errors checkbox to show only problems.",
+          "Lines are kept for 7 days and then removed automatically.",
+        ],
+        tips: [
+          "New lines appear only when the bot writes them. If the bot is offline, the console stops getting new output.",
+          "If the console says it could not reach the server, it keeps retrying on its own. If the message stays, reload the page.",
         ],
       },
       {
@@ -305,8 +365,7 @@ const groups: Group[] = [
         title: "Step 1: Connect the domain",
         steps: [
           "Open your community dashboard and go to the Settings tab.",
-          "Open the Profile & Branding section.",
-          "Find the Custom Domain panel.",
+          "Open the Custom Domain sub-tab. The Custom Domain panel is there.",
           "Type the domain, without https:// and without a trailing slash, such as apply.yourstudio.com.",
           "Click Connect domain.",
           "RoleFlow saves the domain and shows the two DNS records you need to add. The domain is not live yet.",
@@ -372,12 +431,33 @@ const groups: Group[] = [
         id: "cd-using",
         title: "Using your domain",
         body: [
-          "Your home page (https://apply.yourstudio.com/) shows your community's portal, with your banner, description, announcement, and open positions.",
+          "Your home page (https://apply.yourstudio.com/) shows your community's portal, with your header, banner, description, announcement, and open positions. What the header and footer show is set in Customizing your site.",
           "Apply pages for your openings work on your domain. Applicants fill in the same form they would on roleflow.site.",
           "Your dashboard is at https://apply.yourstudio.com/dashboard/ followed by your community's ID. You can also open it from the dashboard link you already use.",
           "Your community page works on the domain as well, under /c/ followed by your vanity address.",
           "Any other RoleFlow page, such as Browse, Terms, Privacy, or another community, sends the visitor back to your community's home page. Visitors cannot browse other communities from your domain.",
           "My applications is not available on a community domain. Applicants track their applications on roleflow.site.",
+        ],
+      },
+      {
+        id: "cd-site",
+        title: "Customizing your site",
+        intro: "After your domain is connected, you can change how it looks, what it says, and what the header and footer show.",
+        steps: [
+          "Open Settings, go to the Custom Domain sub-tab, and click Customize your site. You can also click Customize Full Site on the Portal Look sub-tab.",
+          "Change the options you want. The preview updates as you type.",
+          "Click Save changes. The bar below the form says All changes saved when everything is stored.",
+        ],
+        body: [
+          "Look: accent color, the sign-in button label (up to 30 characters, shown to visitors who are not signed in), opening layout (Banner, Minimal, or Cards), header style (Accent bar and logo, or Plain), and whether to show the header, reviews, and the applicant count.",
+          "Copy: an announcement (up to 280 characters), a welcome message (up to 1,000 characters), and an about section (up to 1,000 characters).",
+          "Navigation: up to 5 header links. Each needs a label of up to 40 characters and an https:// address. Links show in the header on larger screens. Use the arrows to change their order.",
+          "Footer: show or hide the footer, add footer text (up to 160 characters), and add up to 6 footer links.",
+          "Search and sharing: a page title (up to 70 characters) and a page description (up to 200 characters) used by search engines and link previews. Leave them empty to use your community name and description.",
+          "Links and images: logo, banner, website, and Discord invite. Each must start with https://. Leave a field empty to remove it.",
+        ],
+        tips: [
+          "\"Powered by RoleFlow\" always appears at the bottom of your domain, even when the footer is hidden. It cannot be turned off.",
         ],
       },
       {
