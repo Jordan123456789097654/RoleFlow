@@ -305,6 +305,20 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
   // Bot Management states
   const [verifyingBot, setVerifyingBot] = useState(false);
   const [botVerifiedInfo, setBotVerifiedInfo] = useState<any | null>(null);
+  const [liveBot, setLiveBot] = useState<{ status: string; message?: string | null } | null>(null);
+  useEffect(() => {
+    let alive = true;
+    const load = async () => {
+      const res = await fetch(`/api/guilds/${params.guildId}/bot/status`, { cache: "no-store" });
+      if (alive && res.ok) setLiveBot(await res.json());
+    };
+    load();
+    const timer = setInterval(load, 30000);
+    return () => {
+      alive = false;
+      clearInterval(timer);
+    };
+  }, [params.guildId]);
   const [settingUpBot, setSettingUpBot] = useState(false);
   const [testingEmbed, setTestingEmbed] = useState(false);
   const [botFeedbackMsg, setBotFeedbackMsg] = useState<{ text: string; error?: boolean } | null>(null);
@@ -2599,17 +2613,24 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                   onChange={(e) => setBotTokenInput(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-line text-xs text-ink placeholder-faint focus:outline-none focus:border-accent"
                 />
-                {botVerifiedInfo ? (
+                {liveBot?.status === "ONLINE" ? (
                   <div className="flex items-center gap-2 mt-2 p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-moss text-xs">
                     <CheckCircle2 className="w-4 h-4" />
                     <span>
-                      Bot Online: <strong>{botVerifiedInfo.username}#{botVerifiedInfo.discriminator}</strong>
+                      Bot is online{botVerifiedInfo ? <> as <strong>{botVerifiedInfo.username}#{botVerifiedInfo.discriminator}</strong></> : ""}.
                     </span>
                   </div>
-                ) : (
+                ) : liveBot?.status === "NOT_CONFIGURED" ? (
                   <p className="text-[10px] text-muted">
                     RoleFlow securely stores your token to dispatch embeds and grant roles on your server&apos;s behalf.
                   </p>
+                ) : (
+                  <div className="flex items-start gap-2 mt-2 p-2 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs">
+                    <span>
+                      <strong>Bot is offline.</strong> {liveBot?.message || "Checking the bot's connection..."}
+                      {liveBot?.status === "ERROR" ? " Check the token and try again." : ""}
+                    </span>
+                  </div>
                 )}
               </div>
 

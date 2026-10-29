@@ -1,7 +1,8 @@
 import { promises as dns } from "dns";
 import { prisma } from "./prisma";
+import { platformOrigin } from "./platform-origin";
 
-export const PLATFORM_ORIGIN = process.env.NEXT_PUBLIC_APP_URL || "https://roleflow.site";
+export const PLATFORM_ORIGIN = platformOrigin();
 const APP_URL = PLATFORM_ORIGIN;
 const VERIFY_LABEL = "_roleflow-verify";
 const VERCEL_CNAME = "cname.vercel-dns.com";
@@ -155,7 +156,7 @@ export function isPlatformHost(host: string): boolean {
   } catch {
     /* keep default */
   }
-  return !h || h === own || h === "roleflow.site" || h === "www.roleflow.site" || h === "localhost" || h === "127.0.0.1" || h.endsWith(".vercel.app") || h.endsWith(".localhost");
+  return !h || h === own || h === "roleflow.site" || h === "www.roleflow.site" || h.endsWith(".vercel.app");
 }
 
 /** Validates a URL a user wants to return to after login. Only verified custom domains over https pass. */

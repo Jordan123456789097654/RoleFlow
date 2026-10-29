@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { randomBytes } from "crypto";
 import { isPlatformHost, validCustomReturn } from "@/lib/custom-domain";
+import { platformOrigin } from "@/lib/platform-origin";
 
 export const dynamic = "force-dynamic";
 
 const OAUTH_STATE_COOKIE = "rf_oauth_state";
 const OAUTH_RETURN_COOKIE = "rf_oauth_return";
-const PLATFORM = process.env.NEXT_PUBLIC_APP_URL || "https://roleflow.site";
+const PLATFORM = platformOrigin();
 
 export async function GET(request: Request) {
   const host = (request.headers.get("x-forwarded-host") || request.headers.get("host") || "")

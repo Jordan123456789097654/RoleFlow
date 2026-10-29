@@ -2,8 +2,9 @@ import { prisma } from "./prisma";
 import { recordAudit } from "./audit";
 import { sendModerationNoticeEmail, sendSecurityNoticeEmail } from "./email";
 import { signSessionValue } from "./session";
+import { platformOrigin } from "./platform-origin";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://roleflow.site";
+const APP_URL = platformOrigin();
 
 /** Warns, suspends, or bans a user. Bans and suspensions end all their sessions and email an appeal link. */
 export async function punishUser(a: {

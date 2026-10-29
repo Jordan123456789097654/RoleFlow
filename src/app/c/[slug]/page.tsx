@@ -19,8 +19,9 @@ interface CommunityPortalProps {
 }
 
 import type { Metadata } from "next";
+import { platformOrigin } from "@/lib/platform-origin";
 
-const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://roleflow.site";
+const SITE_URL = platformOrigin();
 
 /** Only absolute https images can be used in link previews; inline data URLs are skipped. */
 function previewImage(src: string | null | undefined): string | undefined {

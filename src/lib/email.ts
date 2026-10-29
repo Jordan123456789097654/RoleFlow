@@ -2,13 +2,14 @@ import { escapeHtml } from "./sanitize";
 import { Resend } from "resend";
 import { logger } from "./logger";
 import { logEvent } from "./health";
+import { platformOrigin } from "./platform-origin";
 
 const resendApiKey = process.env.RESEND_API_KEY || "";
 const resend = new Resend(resendApiKey);
 
 // Resend allows onboarding@resend.dev without custom domain verification
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "RoleFlow <onboarding@resend.dev>";
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://roleflow.site";
+const APP_URL = platformOrigin();
 
 interface EmailResult {
   success: boolean;

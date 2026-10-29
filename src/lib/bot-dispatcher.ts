@@ -2,6 +2,9 @@ import { logEvent } from "./health";
 import { decryptSecret } from "./crypto";
 import { discordSafe } from "./sanitize";
 import { prisma } from "./prisma";
+import { platformOrigin } from "./platform-origin";
+import { discordFetch } from "./discord-api";
+import { enqueueOrSend, sendEmailFallback, type EmailFallback } from "./bot-outbox";
 
 interface SendApplicationAlertParams {
   applicationId: string;
@@ -25,14 +28,27 @@ interface StatusChangeParams {
   reviewedByUsername?: string;
 }
 
+const STATUS_COLORS: Record<string, number> = {
+  ACCEPTED: 0x10b981,
+  REJECTED: 0xf43f5e,
+  INTERVIEW: 0x06b6d4,
+  UNDER_REVIEW: 0xf59e0b,
+};
+
+const STATUS_TITLES: Record<string, string> = {
+  ACCEPTED: "Application Accepted!",
+  REJECTED: "Update on your application",
+  INTERVIEW: "Interview Invitation",
+  UNDER_REVIEW: "👀 Application is Under Review",
+};
+
 /**
- * Dispatches automated Discord actions directly via Discord REST API using the community's custom bot token.
- * If the community chooses "No Bot", actions are safely skipped.
+ * Sends automated Discord actions through the community's own bot token.
+ * Rate limits are retried, failed alerts and DMs are queued, and applicants are emailed if a DM can't be delivered.
+ * Communities without a bot get no Discord actions.
  */
 export class BotDispatcher {
-  /**
-   * Sends an application notification embed into the community's configured staff channel using their custom bot token.
-   */
+  /** Posts the application embed to the community's staff log channel. */
   static async sendApplicationAlert(params: SendApplicationAlertParams): Promise<boolean> {
     try {
       const guild = await prisma.guild.findUnique({
@@ -47,16 +63,13 @@ export class BotDispatcher {
         },
       });
 
-      // Only a community's own bot can send for it. There is no platform-wide default bot.
-      const token = (guild?.useCustomBot && guild?.customBotToken?.trim())
-        ? decryptSecret(guild.customBotToken)
-        : null;
-
+      const token = guild?.useCustomBot && guild?.customBotToken?.trim() ? decryptSecret(guild.customBotToken) : null;
       if (!token || !guild?.logChannelId) {
         console.log(`[BotDispatcher] No bot token or log channel for guild ${params.guildId}. Skipping alert.`);
         return true;
       }
-      const webReviewUrl = `${process.env.NEXT_PUBLIC_APP_URL || "https://roleflow.site"}/dashboard/${params.guildId}`;
+
+      const webReviewUrl = `${platformOrigin()}/dashboard/${params.guildId}`;
 
       const fields = params.summaryAnswers.slice(0, 4).map((ans) => ({
         name: ans.label.length > 250 ? ans.label.slice(0, 247) + "..." : ans.label,
@@ -72,13 +85,10 @@ export class BotDispatcher {
         });
       }
 
-      // Parse custom hex color
       let colorInt = 0x8b5cf6;
       if (guild.embedColor) {
-        try {
-          const cleanHex = guild.embedColor.replace("#", "");
-          colorInt = parseInt(cleanHex, 16);
-        } catch (e) {}
+        const parsed = parseInt(guild.embedColor.replace("#", ""), 16);
+        if (!Number.isNaN(parsed)) colorInt = parsed;
       }
 
       const embed = {
@@ -87,39 +97,41 @@ export class BotDispatcher {
         color: colorInt,
         thumbnail: params.applicantAvatar ? { url: params.applicantAvatar } : undefined,
         fields,
-        footer: {
-          text: `${guild.name} • RoleFlow`,
-        },
+        footer: { text: `${guild.name} • RoleFlow` },
         timestamp: new Date().toISOString(),
       };
 
       const linkButton = { type: 2, style: 5, label: "Review on RoleFlow", url: webReviewUrl };
       const quickButtons = [
-            { type: 2, style: 3, label: "Quick Accept", custom_id: `rf:accept:${params.applicationId}` },
-            { type: 2, style: 4, label: "Quick Reject", custom_id: `rf:reject:${params.applicationId}` },
-          ];
+        { type: 2, style: 3, label: "Quick Accept", custom_id: `rf:accept:${params.applicationId}` },
+        { type: 2, style: 4, label: "Quick Reject", custom_id: `rf:reject:${params.applicationId}` },
+      ];
       const components = [{ type: 1, components: [linkButton, ...quickButtons] }];
 
-      const res = await fetch(`https://discord.com/api/v10/channels/${guild.logChannelId}/messages`, {
+      const result = await enqueueOrSend({
+        guildId: params.guildId,
+        token,
+        kind: "ALERT",
+        key: `alert:${params.applicationId}`,
         method: "POST",
-        headers: {
-          Authorization: `Bot ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+        path: `/channels/${guild.logChannelId}/messages`,
+        body: {
           content: guild.staffPingRoleId ? `<@&${guild.staffPingRoleId}> New candidate submission!` : undefined,
-          // Only the configured staff role may be pinged; applicant-supplied text can never trigger @everyone/@here.
+          // Only the configured staff role may be pinged. Applicant text can never trigger @everyone or @here.
           allowed_mentions: { parse: [], roles: guild.staffPingRoleId ? [guild.staffPingRoleId] : [] },
           embeds: [embed],
           components,
-        }),
+        },
       });
 
-      if (!res.ok) {
-        const body = await res.text().catch(() => "");
-        await logEvent("ERROR", "bot", `Alert for application ${params.applicationId} failed: ${res.status} ${body.slice(0, 200)}`);
+      if (!result.ok) {
+        await logEvent(
+          "ERROR",
+          "bot",
+          `Alert for application ${params.applicationId} failed: ${result.status} ${result.error ?? ""}`.slice(0, 300)
+        );
       }
-      return res.ok;
+      return result.ok || result.retryable; // retryable means it's queued and will be retried
     } catch (err) {
       console.error("[BotDispatcher] Failed to send application alert:", err);
       await logEvent("ERROR", "bot", `Alert for application ${params.applicationId} threw: ${String(err).slice(0, 200)}`);
@@ -127,182 +139,141 @@ export class BotDispatcher {
     }
   }
 
-  /**
-   * Handles status updates (Accept role assignment, DMs to applicant, Interview tickets)
-   */
+  /** Runs the actions for a status change: role grants, interview channel, and the applicant DM. */
   static async handleStatusChange(params: StatusChangeParams): Promise<void> {
     try {
       const guild = await prisma.guild.findUnique({
         where: { id: params.guildId },
-        include: {
-          positions: {
-            where: { title: params.positionTitle },
-          },
-        },
+        include: { positions: { where: { title: params.positionTitle } } },
       });
+      const token = guild?.useCustomBot && guild?.customBotToken?.trim() ? decryptSecret(guild.customBotToken) : null;
+      if (!guild || !token) return;
 
-      const token = (guild?.useCustomBot && guild?.customBotToken?.trim())
-        ? decryptSecret(guild.customBotToken)
-        : null;
-
-      if (!guild || !token) {
-        return; // No guild or bot token available
-      }
-
-      // 1. If ACCEPTED: Assign Discord Role automatically using their bot token
       const targetPosition = guild.positions[0];
-      if (params.newStatus === "ACCEPTED" && targetPosition?.acceptRoleId) {
-        try {
-          await fetch(
-            `https://discord.com/api/v10/guilds/${params.guildId}/members/${params.applicantDiscordId}/roles/${targetPosition.acceptRoleId}`,
-            {
-              method: "PUT",
-              headers: { Authorization: `Bot ${token}` },
-            }
-          );
-          console.log(`[BotDispatcher] Auto-assigned role ${targetPosition.acceptRoleId} to user ${params.applicantDiscordId}`);
-        } catch (err) {
-          console.error("[BotDispatcher] Error assigning role:", err);
-        }
+      const roleId = targetPosition?.acceptRoleId;
+
+      // 1. Accepted: grant the acceptance role.
+      if (params.newStatus === "ACCEPTED" && roleId) {
+        const r = await discordFetch(token, "PUT", `/guilds/${params.guildId}/members/${params.applicantDiscordId}/roles/${roleId}`);
+        if (!r.ok) console.error(`[BotDispatcher] Could not assign role ${roleId}: ${r.status} ${r.error ?? ""}`);
       }
 
-      // 1b. If an accepted application is reversed: take the acceptance role back
-      if (params.previousStatus === "ACCEPTED" && params.newStatus !== "ACCEPTED" && targetPosition?.acceptRoleId) {
-        try {
-          await fetch(
-            `https://discord.com/api/v10/guilds/${params.guildId}/members/${params.applicantDiscordId}/roles/${targetPosition.acceptRoleId}`,
-            { method: "DELETE", headers: { Authorization: `Bot ${token}` } }
-          );
-          console.log(`[BotDispatcher] Removed role ${targetPosition.acceptRoleId} from user ${params.applicantDiscordId}`);
-        } catch (err) {
-          console.error("[BotDispatcher] Error removing role:", err);
-        }
+      // 1b. An accepted application that was reversed: remove the role.
+      if (params.previousStatus === "ACCEPTED" && params.newStatus !== "ACCEPTED" && roleId) {
+        const r = await discordFetch(token, "DELETE", `/guilds/${params.guildId}/members/${params.applicantDiscordId}/roles/${roleId}`);
+        if (!r.ok) console.error(`[BotDispatcher] Could not remove role ${roleId}: ${r.status} ${r.error ?? ""}`);
       }
 
-      // 2. If INTERVIEW: Create automated private interview thread or channel
+      // 2. Interview: create a private thread (and optionally a voice channel).
       if (params.newStatus === "INTERVIEW" && guild.enableInterviewAutoChannel && guild.logChannelId) {
-        try {
-          const threadRes = await fetch(`https://discord.com/api/v10/channels/${guild.logChannelId}/threads`, {
-            method: "POST",
-            headers: {
-              Authorization: `Bot ${token}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              name: `interview-${params.applicationId.slice(-6)}`,
-              auto_archive_duration: 1440,
-              type: 11, // Public/Private Thread
-            }),
-          });
-
-          if (threadRes.ok) {
-            const threadData = (await threadRes.json()) as { id: string };
-            await prisma.application.update({
-              where: { id: params.applicationId },
-              data: { interviewChannelId: threadData.id },
-            });
-
-            await fetch(`https://discord.com/api/v10/channels/${threadData.id}/messages`, {
-              method: "POST",
-              headers: {
-                Authorization: `Bot ${token}`,
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                content: `Welcome <@${params.applicantDiscordId}>! Your application for **${discordSafe(params.positionTitle, 100)}** has advanced to the **Interview** stage.\nStaff will be with you shortly.`,
-                allowed_mentions: { parse: [], users: [params.applicantDiscordId] },
-              }),
-            });
-
-            // Optional private voice channel for the interview
-            if (guild.interviewVoice && guild.interviewCatId) {
-              try {
-                const VIEW_CONNECT = String(BigInt(1024) | BigInt(1048576));
-                const overwrites: Array<{ id: string; type: number; allow?: string; deny?: string }> = [
-                  { id: params.guildId, type: 0, deny: VIEW_CONNECT },
-                  { id: params.applicantDiscordId, type: 1, allow: VIEW_CONNECT },
-                ];
-                if (guild.reviewerRoleId) overwrites.push({ id: guild.reviewerRoleId, type: 0, allow: VIEW_CONNECT });
-                const voiceRes = await fetch(`https://discord.com/api/v10/guilds/${params.guildId}/channels`, {
-                  method: "POST",
-                  headers: { Authorization: `Bot ${token}`, "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    name: `interview-${params.applicationId.slice(-6)}`,
-                    type: 2,
-                    parent_id: guild.interviewCatId,
-                    permission_overwrites: overwrites,
-                  }),
-                });
-                if (voiceRes.ok) {
-                  const voice = (await voiceRes.json()) as { id: string };
-                  await fetch(`https://discord.com/api/v10/channels/${threadData.id}/messages`, {
-                    method: "POST",
-                    headers: { Authorization: `Bot ${token}`, "Content-Type": "application/json" },
-                    body: JSON.stringify({ content: `Voice channel for the interview: <#${voice.id}>`, allowed_mentions: { parse: [] } }),
-                  });
-                }
-              } catch (err) {
-                console.error("[BotDispatcher] Error creating interview voice channel:", err);
-              }
-            }
-          }
-        } catch (err) {
-          console.error("[BotDispatcher] Error creating interview thread:", err);
-        }
+        await this.createInterviewThread(params, guild, token);
       }
 
-      // 3. Send Direct Message to applicant with status update
-      try {
-        const dmChannelRes = await fetch("https://discord.com/api/v10/users/@me/channels", {
-          method: "POST",
-          headers: {
-            Authorization: `Bot ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ recipient_id: params.applicantDiscordId }),
-        });
-
-        if (dmChannelRes.ok) {
-          const dmData = (await dmChannelRes.json()) as { id: string };
-          const statusColors: Record<string, number> = {
-            ACCEPTED: 0x10b981,
-            REJECTED: 0xf43f5e,
-            INTERVIEW: 0x06b6d4,
-            UNDER_REVIEW: 0xf59e0b,
-          };
-
-          const statusTitles: Record<string, string> = {
-            ACCEPTED: "Application Accepted!",
-            REJECTED: "Update on your application",
-            INTERVIEW: "Interview Invitation",
-            UNDER_REVIEW: "👀 Application is Under Review",
-          };
-
-          const dmEmbed = {
-            title: statusTitles[params.newStatus] || "Application Status Update",
-            description: `Your application for **${params.positionTitle}** in **${guild.name}** has been updated to **${params.newStatus}**.`,
-            color: statusColors[params.newStatus] || 0x8b5cf6,
-            fields: params.decisionNote
-              ? [{ name: "Note from Staff", value: params.decisionNote }]
-              : [],
-            footer: { text: `${guild.name} • RoleFlow` },
-            timestamp: new Date().toISOString(),
-          };
-
-          await fetch(`https://discord.com/api/v10/channels/${dmData.id}/messages`, {
-            method: "POST",
-            headers: {
-              Authorization: `Bot ${token}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ embeds: [dmEmbed], allowed_mentions: { parse: [] } }),
-          });
-        }
-      } catch (err) {
-        console.log(`[BotDispatcher] Could not DM user <@${params.applicantDiscordId}>.`);
-      }
+      // 3. Tell the applicant.
+      await this.sendStatusDm(params, guild, token);
     } catch (err) {
       console.error("[BotDispatcher] Error handling status change:", err);
     }
+  }
+
+  private static async createInterviewThread(
+    params: StatusChangeParams,
+    guild: { logChannelId: string | null; interviewVoice: boolean; interviewCatId: string | null; name: string },
+    token: string
+  ) {
+    try {
+      const thread = await discordFetch(token, "POST", `/channels/${guild.logChannelId}/threads`, {
+        name: `interview-${params.applicationId.slice(-6)}`,
+        auto_archive_duration: 1440,
+        type: 11,
+      });
+      if (!thread.ok || !thread.data?.id) return;
+      const threadId = thread.data.id as string;
+
+      await prisma.application.update({ where: { id: params.applicationId }, data: { interviewChannelId: threadId } });
+
+      await discordFetch(token, "POST", `/channels/${threadId}/messages`, {
+        content: `Welcome <@${params.applicantDiscordId}>! Your application for **${discordSafe(params.positionTitle, 100)}** has advanced to the **Interview** stage.\nStaff will be with you shortly.`,
+        allowed_mentions: { parse: [], users: [params.applicantDiscordId] },
+      });
+
+      if (guild.interviewVoice && guild.interviewCatId) {
+        const VIEW_CONNECT = String(BigInt(1024) | BigInt(1048576));
+        const overwrites: Array<{ id: string; type: number; allow?: string; deny?: string }> = [
+          { id: params.guildId, type: 0, deny: VIEW_CONNECT },
+          { id: params.applicantDiscordId, type: 1, allow: VIEW_CONNECT },
+        ];
+        const reviewer = await prisma.guild.findUnique({ where: { id: params.guildId }, select: { reviewerRoleId: true } });
+        if (reviewer?.reviewerRoleId) overwrites.push({ id: reviewer.reviewerRoleId, type: 0, allow: VIEW_CONNECT });
+
+        const voice = await discordFetch(token, "POST", `/guilds/${params.guildId}/channels`, {
+          name: `interview-${params.applicationId.slice(-6)}`,
+          type: 2,
+          parent_id: guild.interviewCatId,
+          permission_overwrites: overwrites,
+        });
+        if (voice.ok && voice.data?.id) {
+          await discordFetch(token, "POST", `/channels/${threadId}/messages`, {
+            content: `Voice channel for the interview: <#${voice.data.id}>`,
+            allowed_mentions: { parse: [] },
+          });
+        }
+      }
+    } catch (err) {
+      console.error("[BotDispatcher] Error creating interview thread:", err);
+    }
+  }
+
+  private static async sendStatusDm(
+    params: StatusChangeParams,
+    guild: { name: string },
+    token: string
+  ) {
+    const status = params.newStatus;
+    if (status === "PENDING") return;
+
+    // Email the applicant if the DM can't be delivered (closed DMs, or a Discord outage that outlasts retries).
+    const app = await prisma.application.findUnique({
+      where: { id: params.applicationId },
+      select: { user: { select: { email: true, username: true, emailNotifications: true } } },
+    });
+    const fallback: EmailFallback | undefined =
+      app?.user?.email && app.user.emailNotifications && status !== "PENDING"
+        ? {
+            toEmail: app.user.email,
+            applicantName: app.user.username,
+            communityName: guild.name,
+            positionTitle: params.positionTitle,
+            status,
+            decisionNote: params.decisionNote ?? null,
+            applicationId: params.applicationId,
+          }
+        : undefined;
+
+    const dm = await discordFetch(token, "POST", "/users/@me/channels", { recipient_id: params.applicantDiscordId });
+    if (!dm.ok || !dm.data?.id) {
+      await sendEmailFallback(fallback);
+      return;
+    }
+
+    const embed = {
+      title: STATUS_TITLES[status] || "Application Status Update",
+      description: `Your application for **${params.positionTitle}** in **${guild.name}** has been updated to **${status}**.`,
+      color: STATUS_COLORS[status] || 0x8b5cf6,
+      fields: params.decisionNote ? [{ name: "Note from Staff", value: params.decisionNote }] : [],
+      footer: { text: `${guild.name} • RoleFlow` },
+      timestamp: new Date().toISOString(),
+    };
+
+    await enqueueOrSend({
+      guildId: params.guildId,
+      token,
+      kind: "DM",
+      key: `dm:${params.applicationId}:${status}:${Date.now()}`,
+      method: "POST",
+      path: `/channels/${dm.data.id}/messages`,
+      body: { embeds: [embed], allowed_mentions: { parse: [] } },
+      fallback,
+    });
   }
 }

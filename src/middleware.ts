@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { platformOrigin } from "@/lib/platform-origin";
 
 // ---- custom domains ----
-const PLATFORM_ORIGIN = process.env.NEXT_PUBLIC_APP_URL || "https://roleflow.site";
+const PLATFORM_ORIGIN = platformOrigin();
 const PLATFORM_HOSTS = new Set([
   "roleflow.site",
   "www.roleflow.site",
-  "localhost",
-  "127.0.0.1",
   (() => {
     try {
       return new URL(PLATFORM_ORIGIN).hostname;
@@ -25,7 +24,7 @@ function requestHost(req: NextRequest): string {
 }
 
 function isPlatformHost(host: string): boolean {
-  return !host || PLATFORM_HOSTS.has(host) || host.endsWith(".vercel.app") || host.endsWith(".localhost");
+  return !host || PLATFORM_HOSTS.has(host) || host.endsWith(".vercel.app");
 }
 
 type Rule = { max: number; windowMs: number };

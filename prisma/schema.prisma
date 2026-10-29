@@ -79,6 +79,10 @@ model Guild {
   customDomainVerified       Boolean          @default(false)
   customDomainVerifiedAt     DateTime?
   partnershipApplications    PartnershipApplication[]
+  botOutbox                  BotOutbox[]
+  botLiveStatus              String?          // ONLINE | OFFLINE | ERROR, written by the bot daemon
+  botLiveStatusAt            DateTime?        // last heartbeat from the daemon
+  botLiveMessage             String?
   useCustomBot               Boolean          @default(false)
   customBotToken             String?          // AES-256-GCM encrypted (enc:v1:...). Never returned by the API.
   
@@ -451,4 +455,25 @@ model PartnershipApplication {
 
   @@index([guildId])
   @@index([status])
+}
+
+model BotOutbox {
+  id             String    @id @default(cuid())
+  guildId        String
+  guild          Guild     @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  kind           String    // ALERT | DM
+  method         String
+  path           String
+  payload        Json?
+  fallback       Json?     // email to send if a DM can't be delivered
+  status         String    @default("PENDING") // PENDING | SENT | FAILED
+  attempts       Int       @default(0)
+  nextAttemptAt  DateTime  @default(now())
+  lastError      String?
+  idempotencyKey String    @unique
+  createdAt      DateTime  @default(now())
+  sentAt         DateTime?
+
+  @@index([status, nextAttemptAt])
+  @@index([guildId])
 }

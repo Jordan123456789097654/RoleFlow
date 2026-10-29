@@ -13,6 +13,7 @@ interface BotConfig {
   status?: "online" | "idle" | "dnd" | "invisible";
   activityType?: 0 | 1 | 2 | 3 | 5; // 0=Playing, 1=Streaming, 2=Listening, 3=Watching, 5=Competing
   activityName?: string;
+  onStatus?: (status: "ONLINE" | "OFFLINE" | "ERROR", message: string) => void;
 }
 
 const GATEWAY_URL = "wss://gateway.discord.gg/?v=10&encoding=json";
@@ -53,9 +54,11 @@ class DiscordGatewayConnection {
       this.cleanupHeartbeat();
       this.ws = null;
       this.log(`Disconnected (code ${code}).`);
+      this.config.onStatus?.("OFFLINE", `Disconnected (code ${code}), reconnecting`);
       // 4004 = bad token, 4010-4014 = invalid shard/intents: do not retry.
       if (code === 4004 || (code >= 4010 && code <= 4014)) {
         this.log("Fatal gateway error. Not reconnecting; check the bot token and settings.");
+        this.config.onStatus?.("ERROR", `Discord rejected the bot (code ${code}). Check the token and intents.`);
         this.stopped = true;
         return;
       }
@@ -101,8 +104,10 @@ class DiscordGatewayConnection {
           this.sessionId = d.session_id;
           this.resumeUrl = d.resume_gateway_url || null;
           this.log(`ONLINE as ${d.user?.username ?? "unknown"}.`);
+          this.config.onStatus?.("ONLINE", `Connected as ${d.user?.username ?? "unknown"}`);
         } else if (t === "RESUMED") {
           this.log("Session resumed.");
+          this.config.onStatus?.("ONLINE", "Session resumed");
         }
         break;
       case 7: // Reconnect requested: resume on a fresh socket

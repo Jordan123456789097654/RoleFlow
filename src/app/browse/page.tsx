@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { Search, Briefcase, Users, ArrowRight, Star, Building2, BadgeCheck } from "lucide-react";
 import { CommunityCard } from "@/components/CommunityCard";
 import { cn } from "@/lib/utils";
+import { platformOrigin } from "@/lib/platform-origin";
 
 export const revalidate = 0;
 
@@ -42,7 +43,7 @@ const SORTS: Array<{ value: string; label: string }> = [
   { value: "newest", label: "Newest" },
 ];
 
-const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://roleflow.site";
+const SITE_URL = platformOrigin();
 
 /** Filtered browse views get their own title and canonical URL so they can be shared and indexed. */
 export async function generateMetadata({ searchParams }: { searchParams?: { category?: string } }): Promise<Metadata> {

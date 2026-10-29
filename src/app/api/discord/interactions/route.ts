@@ -6,10 +6,11 @@ import { canDecideInGuild, canViewInGuild, changeApplicationStatus } from "@/lib
 import { logEvent } from "@/lib/health";
 import { validSignature } from "@/lib/discord-signature";
 import { publicGuildUrl } from "@/lib/custom-domain";
+import { platformOrigin } from "@/lib/platform-origin";
 
 export const dynamic = "force-dynamic";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://roleflow.site";
+const APP_URL = platformOrigin();
 
 
 type BotBinding = { publicKey: string | null; boundGuildId: string | null };
