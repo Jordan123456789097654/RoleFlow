@@ -195,11 +195,15 @@ export default function OwnerExtrasPanel({ guildId }: { guildId: string }) {
           <input value={form.customBotPublicKey} onChange={(e) => setForm({ ...form, customBotPublicKey: e.target.value })} placeholder="Public key (64 hex characters)" className={field} />
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <button onClick={registerCommandsNow} disabled={registering} className="rounded-lg bg-sunk px-3 py-1.5 text-xs font-semibold text-ink hover:bg-sunk disabled:opacity-50">
-            {registering ? "Registering..." : "Register commands on my bot"}
+          <button onClick={registerCommandsNow} disabled={registering} className="rounded-lg bg-purple-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-purple-500 disabled:opacity-50 transition-all shadow-sm">
+            {registering ? "Syncing..." : "⚡ Sync & Register Slash Commands"}
           </button>
-          <span className="text-[11px] text-faint">Save your settings first. The token must belong to the application ID above.</span>
-          {commandMsg && <span className={`text-xs ${commandMsg.ok ? "text-moss" : "text-danger"}`}>{commandMsg.text}</span>}
+          <span className="text-[11px] text-faint">Commands will appear instantly in your server with zero delay.</span>
+          {commandMsg && <span className={`text-xs font-medium ${commandMsg.ok ? "text-moss" : "text-danger"}`}>{commandMsg.text}</span>}
+        </div>
+        <div className="pt-2 text-[11px] text-muted space-y-1 bg-surface p-3 rounded-xl border border-line">
+          <span className="font-bold text-ink block">Supported Commands:</span>
+          <p className="font-mono text-[10px] text-ink-2">/help • /status • /openings • /apply • /ping • /portal • /pending • /stats • /lookup • /accept • /reject • /interview • /hold</p>
         </div>
       </section>
 

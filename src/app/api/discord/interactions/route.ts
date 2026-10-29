@@ -180,6 +180,45 @@ export async function POST(request: Request) {
       );
     }
 
+    if (name === "ping") {
+      return ephemeral("🏓 **Pong!** RoleFlow bot is connected and responsive.");
+    }
+
+    if (name === "portal") {
+      if (!guildId) return ephemeral(`Visit RoleFlow at ${APP_URL}`);
+      const g = await prisma.guild.findUnique({ where: { id: guildId }, select: { vanitySlug: true, name: true } });
+      const portalUrl = g?.vanitySlug ? `${APP_URL}/c/${g.vanitySlug}` : `${APP_URL}/c/${guildId}`;
+      return ephemeral(`**${g?.name || "Community"} Application Portal:**\n🔗 Apply: <${portalUrl}>\n📊 Dashboard: <${APP_URL}/dashboard/${guildId}>`);
+    }
+
+    if (name === "interview" || name === "hold") {
+      if (!guildId || !discordUserId) return ephemeral("Run this command inside a community server.");
+      const options: Array<{ name: string; value: string }> = i.data?.options || [];
+      const applicationId = options.find((o) => o.name === "application_id")?.value?.trim();
+      const note = options.find((o) => o.name === "note")?.value?.trim();
+      if (!applicationId) return ephemeral("Give the application ID from /pending.");
+
+      const app = await prisma.application.findUnique({
+        where: { id: applicationId },
+        select: { position: { select: { guildId: true } } },
+      });
+      if (!app || app.position.guildId !== guildId) return ephemeral("No application with that ID in this community.");
+      if (!(await canDecideInGuild(guildId, discordUserId))) {
+        return ephemeral("You don't have decision permission for this community on RoleFlow.");
+      }
+
+      const status = name === "interview" ? "INTERVIEW" : "UNDER_REVIEW";
+      const updated = await changeApplicationStatus({
+        applicationId,
+        status,
+        decisionNote: note || (name === "hold" ? "Marked on hold / under review via Discord." : null),
+        actorId: discordUserId,
+        actorName: i.member?.user?.username || "Discord staff",
+      });
+      if (!updated) return ephemeral("This application no longer exists.");
+      return ephemeral(`Application \`${applicationId}\` moved to **${status}**.`);
+    }
+
     if (name === "accept" || name === "reject") {
       if (!guildId || !discordUserId) return ephemeral("Run this command inside a community server.");
       const options: Array<{ name: string; value: string }> = i.data?.options || [];

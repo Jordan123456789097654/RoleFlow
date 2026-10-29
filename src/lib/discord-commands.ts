@@ -1,16 +1,18 @@
 /** Slash commands RoleFlow exposes. Registered once per bot application. */
 export const ROLEFLOW_COMMANDS = [
-  // Everyone
-  { name: "help", description: "List RoleFlow commands" },
+  // Public commands
+  { name: "help", description: "List all RoleFlow commands and portal links" },
   { name: "status", description: "See the status of your RoleFlow applications" },
-  { name: "openings", description: "List this community's open positions" },
-  { name: "apply", description: "Get the link to apply to this community" },
-  // Staff
+  { name: "openings", description: "List this community's open staff and creator positions" },
+  { name: "apply", description: "Get the direct link to apply to this community" },
+  { name: "ping", description: "Check RoleFlow bot latency and API connectivity" },
+  
+  // Staff review & queue commands
   { name: "pending", description: "Show the oldest applications waiting for review (staff)" },
-  { name: "stats", description: "Application counts for this community (staff)" },
+  { name: "stats", description: "Show recruitment metrics & approval rates for this community (staff)" },
   {
     name: "lookup",
-    description: "Look up a member's applications and account signals (staff)",
+    description: "Look up a member's applications, notes, and account signals (staff)",
     options: [{ name: "user", description: "The member to look up", type: 6, required: true }],
   },
   {
@@ -29,6 +31,25 @@ export const ROLEFLOW_COMMANDS = [
       { name: "note", description: "Optional note sent to the applicant", type: 3, required: false },
     ],
   },
+  {
+    name: "interview",
+    description: "Advance an application directly to the Interview stage (staff)",
+    options: [
+      { name: "application_id", description: "The application ID from /pending", type: 3, required: true },
+    ],
+  },
+  {
+    name: "hold",
+    description: "Put an application on hold while reviewing others (staff)",
+    options: [
+      { name: "application_id", description: "The application ID from /pending", type: 3, required: true },
+      { name: "note", description: "Reason for hold", type: 3, required: false },
+    ],
+  },
+  {
+    name: "portal",
+    description: "Get direct links to community application portal and staff dashboard",
+  },
 ];
 
 /** 
@@ -40,7 +61,6 @@ export async function registerCommands(
   botToken: string,
   guildId?: string
 ): Promise<{ ok: true; count: number } | { ok: false; status: number; detail: string }> {
-  // 1. If guildId is provided, register to the guild first so commands show up immediately without waiting 1 hour!
   const url = guildId 
     ? `https://discord.com/api/v10/applications/${applicationId}/guilds/${guildId}/commands`
     : `https://discord.com/api/v10/applications/${applicationId}/commands`;
@@ -56,7 +76,7 @@ export async function registerCommands(
     return { ok: false, status: res.status, detail };
   }
 
-  // 2. Also register globally in background so it works in DMs and across other servers
+  // Also register globally in background so it works in DMs and across other servers
   if (guildId) {
     fetch(`https://discord.com/api/v10/applications/${applicationId}/commands`, {
       method: "PUT",
