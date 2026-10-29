@@ -37,28 +37,31 @@ export async function POST(request: Request) {
     const now = new Date();
 
     let target = null as Awaited<ReturnType<typeof prisma.user.findUnique>>;
-    if (typeof body.userId === "string" && body.userId) {
-      target = await prisma.user.findUnique({ where: { id: body.userId } });
+    if (typeof body.userId === "string" && body.userId.trim()) {
+      target = await prisma.user.findUnique({ where: { id: body.userId.trim() } });
+    } else if (typeof body.discordId === "string" && body.discordId.trim()) {
+      target = await prisma.user.findUnique({ where: { id: body.discordId.trim() } });
+    } else if (typeof body.username === "string" && body.username.trim()) {
+      target = await prisma.user.findFirst({
+        where: { username: { equals: body.username.trim(), mode: "insensitive" } },
+      });
     } else if (typeof body.code === "string" && body.code.trim()) {
       target = await prisma.user.findFirst({ where: { supportCode: body.code.trim().toUpperCase() } });
     } else {
-      return NextResponse.json({ error: "Provide a member or a support code." }, { status: 400 });
+      return NextResponse.json({ error: "Provide a Discord ID, Username, or Support Code." }, { status: 400 });
     }
 
-    if (!target || !target.supportCode || !target.supportCodeExpiresAt || target.supportCodeExpiresAt <= now) {
-      return NextResponse.json(
-        { error: "The member needs an active 10-minute support code before you can send a reset." },
-        { status: 403 }
-      );
+    if (!target) {
+      return NextResponse.json({ error: "No user found matching that Discord ID or username." }, { status: 404 });
     }
     if (!target.passwordHash) {
-      return NextResponse.json({ error: "This account signs in with Discord only, so there is no password to reset." }, { status: 400 });
+      return NextResponse.json({ error: "This user signs in with Discord OAuth directly; they do not use a password." }, { status: 400 });
     }
     if (!target.email) {
-      return NextResponse.json({ error: "This account has no email address on file." }, { status: 400 });
+      return NextResponse.json({ error: "This account has no email address on file to send a reset link to." }, { status: 400 });
     }
     if ((target.isSiteAdmin || target.isSupportStaff || isFounderId(target.id)) && !callerIsAdmin) {
-      return NextResponse.json({ error: "Only a site admin can reset a staff account." }, { status: 403 });
+      return NextResponse.json({ error: "Only a site admin or founder can reset staff/admin accounts." }, { status: 403 });
     }
 
     const recent = await prisma.passwordResetToken.findFirst({
