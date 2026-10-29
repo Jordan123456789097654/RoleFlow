@@ -1,22 +1,11 @@
 import type { Config } from "tailwindcss";
 
 /**
- * RoleFlow design system v3 — "Ledger".
- * Warm paper, ink-black type, one vermilion accent, moss for "healthy/accepted".
- * Hairline borders and flat surfaces instead of glows. Light theme only.
- *
- * Token vocabulary (use these, never raw hex or violet/slate/white-on-dark):
- *   bg-paper        page background
- *   bg-surface      cards, panels, inputs
- *   bg-sunk         inset areas, table headers, zebra rows
- *   border-line     default hairline        border-line-strong  hover / emphasis
- *   text-ink        primary text            text-ink-2  secondary   text-muted  tertiary   text-faint  placeholder/disabled
- *   bg-accent / text-accent / bg-accent-soft     primary CTA, highlights (vermilion)
- *   bg-moss / text-moss / bg-moss-soft           success, accepted, online
- *   bg-gold / text-gold / bg-gold-soft           warnings, pending, featured
- *   bg-danger / text-danger / bg-danger-soft     errors, rejections, destructive
+ * RoleFlow Dark Mode Theme.
+ * Deep obsidian dark theme with violet & purple accents, glowing borders, and rich glassmorphism.
  */
 const config: Config = {
+  darkMode: "class",
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -30,35 +19,35 @@ const config: Config = {
         mono: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
       },
       colors: {
-        paper: "#f4f1ea",
-        surface: "#fbfaf6",
-        sunk: "#ebe6da",
-        line: "#d9d3c5",
-        "line-strong": "#bdb5a3",
+        paper: "#090a0f",
+        surface: "#10121a",
+        sunk: "#0c0d14",
+        line: "rgba(255, 255, 255, 0.08)",
+        "line-strong": "rgba(255, 255, 255, 0.16)",
         ink: {
-          DEFAULT: "#161512",
-          2: "#3d3a33",
+          DEFAULT: "#f1f3f9",
+          2: "#c5cbd9",
         },
-        muted: "#6b665a",
-        faint: "#958f80",
+        muted: "#8890a4",
+        faint: "#555c70",
         accent: {
-          DEFAULT: "#e5532d",
-          hover: "#cf4420",
-          soft: "#f8e1d9",
-          ink: "#9e2e12",
+          DEFAULT: "#8b5cf6",
+          hover: "#7c3aed",
+          soft: "rgba(139, 92, 246, 0.15)",
+          ink: "#ddd6fe",
         },
         moss: {
-          DEFAULT: "#2d5a47",
-          soft: "#dce9e2",
-          ink: "#1f4234",
+          DEFAULT: "#10b981",
+          soft: "rgba(16, 185, 129, 0.15)",
+          ink: "#6ee7b7",
         },
         gold: {
-          DEFAULT: "#a8771c",
-          soft: "#f3e8cc",
+          DEFAULT: "#f59e0b",
+          soft: "rgba(245, 158, 11, 0.15)",
         },
         danger: {
-          DEFAULT: "#b3261e",
-          soft: "#f7dcd9",
+          DEFAULT: "#ef4444",
+          soft: "rgba(239, 68, 68, 0.15)",
         },
       },
       borderRadius: {
@@ -66,19 +55,16 @@ const config: Config = {
         DEFAULT: "0.5rem",
         lg: "0.75rem",
         xl: "1rem",
+        "2xl": "1.25rem",
+        "3xl": "1.75rem",
       },
       boxShadow: {
-        card: "0 1px 0 rgba(22,21,18,0.04), 0 1px 2px rgba(22,21,18,0.04)",
-        pop: "0 12px 40px -12px rgba(22,21,18,0.25), 0 2px 6px rgba(22,21,18,0.08)",
-      },
-      keyframes: {
-        "rf-in": { from: { opacity: "0", transform: "translateY(6px)" }, to: { opacity: "1", transform: "none" } },
-      },
-      animation: {
-        "rf-in": "rf-in 0.2s ease-out both",
+        card: "0 1px 3px 0 rgba(0, 0, 0, 0.5), 0 1px 2px -1px rgba(0, 0, 0, 0.5)",
+        glow: "0 0 25px -5px rgba(139, 92, 246, 0.3)",
       },
     },
   },
   plugins: [],
 };
+
 export default config;

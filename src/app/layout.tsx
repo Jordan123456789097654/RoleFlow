@@ -24,8 +24,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f4f1ea",
-  colorScheme: "light",
+  themeColor: "#090a0f",
+  colorScheme: "dark",
   width: "device-width",
   initialScale: 1,
 };
@@ -38,7 +38,7 @@ export default async function RootLayout({
   const user = await getCurrentUser();
 
   return (
-    <html lang="en" className={`${sans.variable} ${display.variable} ${mono.variable}`}>
+    <html lang="en" className={`dark ${sans.variable} ${display.variable} ${mono.variable}`}>
       <body className="flex min-h-screen flex-col bg-paper text-ink antialiased">
         <a href="#main" className="skip-link">Skip to content</a>
 
