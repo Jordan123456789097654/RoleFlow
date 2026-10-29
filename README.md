@@ -77,3 +77,16 @@ To connect the bot to live Discord:
    ```
 
 *(Note: The web platform runs in self-contained demo mode even without Discord bot credentials!)*
+
+---
+
+## Scheduled jobs
+
+- **Auto-archive**: call `GET /api/cron/archive` daily with the header `Authorization: Bearer $CRON_SECRET`. It archives decided applications for communities that set an auto-archive window (Dashboard > Scheduling & Automation). Archived applications are hidden from the review board; applicants still see them.
+
+## After pulling this version
+
+```bash
+npx prisma db push && npx prisma generate
+npm run discord:register   # publishes the new /lookup command
+```

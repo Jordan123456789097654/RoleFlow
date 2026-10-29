@@ -1,3 +1,5 @@
+import { openNowWhere } from "@/lib/position-availability";
+import { discordAccountCreatedAt } from "@/lib/signals";
 import { NextResponse } from "next/server";
 import { createPublicKey, verify } from "crypto";
 import { prisma } from "@/lib/prisma";
@@ -98,7 +100,7 @@ export async function POST(request: Request) {
 
     if (name === "openings") {
       if (!guildId) return ephemeral("Run this command inside a server.");
-      const positions = await prisma.position.findMany({ where: { guildId, isOpen: true }, select: { title: true } });
+      const positions = await prisma.position.findMany({ where: { guildId, ...openNowWhere() }, select: { title: true } });
       if (positions.length === 0) return ephemeral("No open positions right now.");
       return ephemeral(positions.map((p) => `• **${p.title}**`).join("\n"));
     }
@@ -112,8 +114,36 @@ export async function POST(request: Request) {
     if (name === "help") {
       return ephemeral(
         "**Applicants:** `/status`, `/openings`, `/apply`\n" +
-        "**Staff:** `/pending`, `/stats`, `/accept <application_id> [note]`, `/reject <application_id> [note]`"
+        "**Staff:** `/pending`, `/stats`, `/lookup <user>`, `/accept <application_id> [note]`, `/reject <application_id> [note]`"
       );
+    }
+
+    if (name === "lookup") {
+      if (!guildId || !discordUserId) return ephemeral("Run this command inside a community server.");
+      if (!(await canViewInGuild(guildId, discordUserId))) return ephemeral("Only staff can use this command.");
+      const targetId = String((i.data?.options ?? []).find((o: any) => o.name === "user")?.value ?? "");
+      if (!/^\d{17,20}$/.test(targetId)) return ephemeral("Pick a member to look up.");
+
+      const [apps, person] = await Promise.all([
+        prisma.application.findMany({
+          where: { userId: targetId, position: { guildId } },
+          include: { position: { select: { title: true } } },
+          orderBy: { createdAt: "desc" },
+          take: 10,
+        }),
+        prisma.user.findUnique({ where: { id: targetId }, select: { username: true, robloxUsername: true } }),
+      ]);
+      const created = discordAccountCreatedAt(targetId);
+      const lines = [
+        `**<@${targetId}>**${person?.username ? ` (${person.username})` : ""}`,
+        created ? `Discord account created <t:${Math.floor(created.getTime() / 1000)}:D> (<t:${Math.floor(created.getTime() / 1000)}:R>)` : null,
+        person?.robloxUsername ? `Roblox: ${person.robloxUsername}` : "No Roblox account linked",
+        "",
+        apps.length === 0
+          ? "No applications to this community."
+          : apps.map((a) => `• \`${a.id}\` **${a.position.title}**: ${a.status}${a.waitlisted ? " (waitlist)" : ""}`).join("\n"),
+      ].filter((l): l is string => l !== null);
+      return ephemeral(lines.join("\n"));
     }
 
     if (name === "pending" || name === "stats") {

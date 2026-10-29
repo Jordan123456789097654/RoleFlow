@@ -6,6 +6,9 @@ import { getCurrentUser } from "@/lib/auth";
 import { BadgeCheck, Users, ArrowLeft, ArrowRight, Star } from "lucide-react";
 import ReportButton from "@/components/ReportButton";
 import { CommunityReviewModal } from "@/components/CommunityReviewModal";
+import { openNowWhere } from "@/lib/position-availability";
+import { SaveOpeningButton } from "@/components/SaveOpeningButton";
+import { getGuildResponseTime } from "@/lib/response-time";
 
 export const revalidate = 0;
 
@@ -23,7 +26,7 @@ export default async function CommunityPortalPage({ params }: CommunityPortalPro
     },
     include: {
       positions: {
-        where: { isOpen: true },
+        where: openNowWhere(),
         include: {
           _count: { select: { applications: true } },
         },
@@ -50,6 +53,18 @@ export default async function CommunityPortalPage({ params }: CommunityPortalPro
   }
 
   const currentUser = await getCurrentUser();
+
+  const responseTime = await getGuildResponseTime(guild.id);
+  const savedIds = new Set<string>(
+    currentUser
+      ? (
+          await prisma.savedPosition.findMany({
+            where: { userId: currentUser.id, positionId: { in: guild.positions.map((p) => p.id) } },
+            select: { positionId: true },
+          })
+        ).map((r) => r.positionId)
+      : []
+  );
 
   // Check if current user has an accepted application in this guild
   let canReview = false;
@@ -120,6 +135,7 @@ export default async function CommunityPortalPage({ params }: CommunityPortalPro
                 <span className="text-moss">
                   {guild.positions.length} open position{guild.positions.length === 1 ? "" : "s"}
                 </span>
+                {responseTime && <span>Usually decides in {responseTime}</span>}
                 {totalReviews > 0 && (
                   <span className="inline-flex items-center gap-1 font-mono tabular-nums text-ink-2">
                     <Star className="h-3.5 w-3.5 fill-gold text-gold" />
@@ -172,6 +188,13 @@ export default async function CommunityPortalPage({ params }: CommunityPortalPro
         </div>
       </header>
 
+      {guild.announcement && (
+        <div className="mb-8 rounded-xl border border-line bg-accent-soft p-4 text-[14px] leading-relaxed text-ink">
+          <span className="eyebrow mr-2">Notice</span>
+          {guild.announcement}
+        </div>
+      )}
+
       {/* Open positions */}
       <section className="mt-12">
         <div className="mb-6 flex items-baseline justify-between">
@@ -203,9 +226,17 @@ export default async function CommunityPortalPage({ params }: CommunityPortalPro
                   {guild.showApplicantCount && (
                     <p className="font-mono text-[12px] text-faint tabular-nums">{pos._count.applications} submitted</p>
                   )}
+                  {(pos.closesAt || pos.maxApplications) && (
+                    <p className="font-mono text-[12px] text-faint">
+                      {pos.closesAt ? `Closes ${new Date(pos.closesAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}` : ""}
+                      {pos.closesAt && pos.maxApplications ? " · " : ""}
+                      {pos.maxApplications ? `Limited to ${pos.maxApplications}${pos.waitlistEnabled ? " + waitlist" : ""}` : ""}
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex shrink-0 items-center gap-4">
+                  <SaveOpeningButton positionId={pos.id} initialSaved={savedIds.has(pos.id)} signedIn={Boolean(currentUser)} />
                   <ReportButton targetType="POSITION" targetId={pos.id} />
                   <Link href={`/apply/${pos.id}`} className="btn-accent">
                     Apply <ArrowRight className="h-3.5 w-3.5" />

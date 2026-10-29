@@ -358,6 +358,12 @@ export default function DashboardHubPage() {
                     >
                       Bot Settings
                     </Link>
+                    <Link
+                      href={`/dashboard/${g.id}/automation`}
+                      className="col-span-3 px-2.5 py-1.5 rounded-lg bg-surface hover:bg-sunk text-[11px] font-medium text-ink-2 hover:text-ink text-center transition-colors border border-line"
+                    >
+                      Scheduling &amp; Automation
+                    </Link>
                   </div>
                 </div>
               );

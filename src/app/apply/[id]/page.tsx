@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Send, Sparkles, CheckCircle2, AlertCircle, Save, User, Shield, HelpCircle, Clock, ExternalLink, Play, Github } from "lucide-react";
@@ -38,6 +38,8 @@ interface PositionData {
   questions: Question[];
 }
 
+const normLabel = (s: string) => s.trim().toLowerCase().replace(/\s+/g, " ").slice(0, 200);
+
 export default function ApplyPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const [position, setPosition] = useState<PositionData | null>(null);
@@ -61,6 +63,10 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
   const [lastSaved, setLastSaved] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [rememberAnswers, setRememberAnswers] = useState(false);
+  const syncedRef = useRef(false);
+  const draftTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [timeLeftSeconds, setTimeLeftSeconds] = useState<number | null>(null);
   const [timeExpired, setTimeExpired] = useState(false);
 
@@ -133,6 +139,35 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
     loadPosition();
   }, [params.id, draftKey]);
 
+  // Once the opening and the user are known, restore a server-side draft (works across devices)
+  // and prefill empty answers from answers the user chose to remember.
+  useEffect(() => {
+    if (!position || !currentUser || syncedRef.current) return;
+    syncedRef.current = true;
+    (async () => {
+      try {
+        const [draftRes, profileRes] = await Promise.all([fetch(`/api/drafts/${params.id}`), fetch("/api/user/profile")]);
+        const draft = draftRes.ok ? (await draftRes.json()).draft : null;
+        const saved: Record<string, string> | null = profileRes.ok ? (await profileRes.json()).answers : null;
+        setAnswers((current) => {
+          let next = { ...current };
+          if (draft?.answers && Object.keys(current).length === 0) next = { ...draft.answers };
+          if (saved) {
+            for (const q of position.questions) {
+              if (q.options || (next[q.id] || "").trim()) continue;
+              const v = saved[normLabel(q.label)];
+              if (v) next[q.id] = v;
+            }
+          }
+          return next;
+        });
+        if (draft?.robloxUsername) setRobloxUsername((cur) => cur || draft.robloxUsername);
+      } catch {
+        // drafts are best-effort
+      }
+    })();
+  }, [position, currentUser, params.id]);
+
   // Assessment countdown ticker
   useEffect(() => {
     if (timeLeftSeconds === null || timeLeftSeconds <= 0) return;
@@ -169,6 +204,17 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
       setLastSaved("Draft auto-saved");
     } catch (e) {
       // ignore quota errors
+    }
+
+    if (currentUser) {
+      if (draftTimer.current) clearTimeout(draftTimer.current);
+      draftTimer.current = setTimeout(() => {
+        fetch(`/api/drafts/${params.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ answers: updated, robloxUsername }),
+        }).catch(() => {});
+      }, 1500);
     }
   };
 
@@ -212,8 +258,14 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg(null);
+    setShowPreview(true);
+  };
+
+  const confirmSubmit = async () => {
+    setShowPreview(false);
     setErrorMsg(null);
     setSubmitting(true);
 
@@ -237,6 +289,21 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
         setSubmitting(false);
         return;
       }
+
+      if (rememberAnswers && position) {
+        const map: Record<string, string> = {};
+        for (const q of position.questions) {
+          const v = (answers[q.id] || "").trim();
+          if (v && !q.options) map[normLabel(q.label)] = v.slice(0, 2000);
+        }
+        fetch("/api/user/profile", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ answers: map }),
+        }).catch(() => {});
+      }
+      if (draftTimer.current) clearTimeout(draftTimer.current);
+      fetch(`/api/drafts/${params.id}`, { method: "DELETE" }).catch(() => {});
 
       // Clear draft on successful submission
       localStorage.removeItem(draftKey);
@@ -499,6 +566,51 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {showPreview && position && (
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Review your application"
+            >
+              <div className="card flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden">
+                <div className="border-b border-line p-5">
+                  <h2 className="font-display text-[22px] text-ink">Review your application</h2>
+                  <p className="mt-1 text-[13px] text-muted">
+                    {position.title} at {position.guild.name}. Check your answers before sending. You can&apos;t edit after submitting.
+                  </p>
+                </div>
+                <div className="space-y-4 overflow-y-auto p-5">
+                  {position.questions
+                    .filter((q) => (answers[q.id] || "").trim() !== "")
+                    .map((q) => (
+                      <div key={q.id}>
+                        <p className="text-[12px] font-medium text-muted">{q.label}</p>
+                        <p className="mt-1 whitespace-pre-wrap break-words text-[14px] text-ink">{answers[q.id]}</p>
+                      </div>
+                    ))}
+                  {position.questions.every((q) => (answers[q.id] || "").trim() === "") && (
+                    <p className="text-[13px] text-muted">You haven&apos;t answered any questions.</p>
+                  )}
+                </div>
+                {currentUser && (
+                  <label className="flex items-center gap-2 border-t border-line px-5 pt-4 text-[13px] text-ink-2">
+                    <input type="checkbox" checked={rememberAnswers} onChange={(e) => setRememberAnswers(e.target.checked)} />
+                    Remember my answers to prefill future applications
+                  </label>
+                )}
+                <div className="flex items-center justify-end gap-3 p-4">
+                  <button type="button" className="btn-ghost" onClick={() => setShowPreview(false)}>
+                    Go back and edit
+                  </button>
+                  <button type="button" className="btn-accent" onClick={confirmSubmit}>
+                    <Send className="h-3.5 w-3.5" />
+                    Confirm and submit
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
           {/* Applicant Discord Authentication */}
           {currentUser ? (
             <div className="p-3.5 rounded-2xl bg-sunk border border-line flex items-center justify-between">

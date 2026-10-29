@@ -1,3 +1,4 @@
+import { openNowWhere } from "@/lib/position-availability";
 import React from "react";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
@@ -127,13 +128,13 @@ export default async function HomePage() {
   const [guilds, totalOpenPositions, communityCount] = await Promise.all([
     prisma.guild.findMany({
       include: {
-        positions: { where: { isOpen: true } },
+        positions: { where: openNowWhere() },
         reviews: { select: { rating: true } },
       },
       take: 6,
       orderBy: { createdAt: "desc" },
     }),
-    prisma.position.count({ where: { isOpen: true } }),
+    prisma.position.count({ where: openNowWhere() }),
     prisma.guild.count(),
   ]);
 

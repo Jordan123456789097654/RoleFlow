@@ -20,6 +20,7 @@ interface StatusChangeParams {
   applicantDiscordId: string;
   positionTitle: string;
   newStatus: "PENDING" | "UNDER_REVIEW" | "INTERVIEW" | "ACCEPTED" | "REJECTED";
+  previousStatus?: string;
   decisionNote?: string;
   reviewedByUsername?: string;
 }
@@ -165,6 +166,19 @@ export class BotDispatcher {
         }
       }
 
+      // 1b. If an accepted application is reversed: take the acceptance role back
+      if (params.previousStatus === "ACCEPTED" && params.newStatus !== "ACCEPTED" && targetPosition?.acceptRoleId) {
+        try {
+          await fetch(
+            `https://discord.com/api/v10/guilds/${params.guildId}/members/${params.applicantDiscordId}/roles/${targetPosition.acceptRoleId}`,
+            { method: "DELETE", headers: { Authorization: `Bot ${token}` } }
+          );
+          console.log(`[BotDispatcher] Removed role ${targetPosition.acceptRoleId} from user ${params.applicantDiscordId}`);
+        } catch (err) {
+          console.error("[BotDispatcher] Error removing role:", err);
+        }
+      }
+
       // 2. If INTERVIEW: Create automated private interview thread or channel
       if (params.newStatus === "INTERVIEW" && guild.enableInterviewAutoChannel && guild.logChannelId) {
         try {
@@ -199,6 +213,38 @@ export class BotDispatcher {
                 allowed_mentions: { parse: [], users: [params.applicantDiscordId] },
               }),
             });
+
+            // Optional private voice channel for the interview
+            if (guild.interviewVoice && guild.interviewCatId) {
+              try {
+                const VIEW_CONNECT = String(BigInt(1024) | BigInt(1048576));
+                const overwrites: Array<{ id: string; type: number; allow?: string; deny?: string }> = [
+                  { id: params.guildId, type: 0, deny: VIEW_CONNECT },
+                  { id: params.applicantDiscordId, type: 1, allow: VIEW_CONNECT },
+                ];
+                if (guild.reviewerRoleId) overwrites.push({ id: guild.reviewerRoleId, type: 0, allow: VIEW_CONNECT });
+                const voiceRes = await fetch(`https://discord.com/api/v10/guilds/${params.guildId}/channels`, {
+                  method: "POST",
+                  headers: { Authorization: `Bot ${token}`, "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    name: `interview-${params.applicationId.slice(-6)}`,
+                    type: 2,
+                    parent_id: guild.interviewCatId,
+                    permission_overwrites: overwrites,
+                  }),
+                });
+                if (voiceRes.ok) {
+                  const voice = (await voiceRes.json()) as { id: string };
+                  await fetch(`https://discord.com/api/v10/channels/${threadData.id}/messages`, {
+                    method: "POST",
+                    headers: { Authorization: `Bot ${token}`, "Content-Type": "application/json" },
+                    body: JSON.stringify({ content: `Voice channel for the interview: <#${voice.id}>`, allowed_mentions: { parse: [] } }),
+                  });
+                }
+              } catch (err) {
+                console.error("[BotDispatcher] Error creating interview voice channel:", err);
+              }
+            }
           }
         } catch (err) {
           console.error("[BotDispatcher] Error creating interview thread:", err);

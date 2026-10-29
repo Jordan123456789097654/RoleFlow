@@ -59,9 +59,11 @@ export async function GET(
     }
 
     // Fetch applications for all positions in this guild
+    const showArchived = new URL(request.url).searchParams.get("archived") === "1";
     const applications = await prisma.application.findMany({
       where: {
         position: { guildId: params.id },
+        ...(showArchived ? {} : { archivedAt: null }),
       },
       include: {
         user: { select: SAFE_USER_SELECT },

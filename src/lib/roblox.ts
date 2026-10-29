@@ -223,3 +223,32 @@ export async function setGroupMemberRank(
     };
   }
 }
+
+/**
+ * Checks whether a Roblox user owns an Asset or a Game Pass. Needs a public inventory.
+ */
+export async function checkUserAssetOwnership(
+  robloxUserId: string | number,
+  assetId: string | number
+): Promise<{ owned: boolean; error?: string }> {
+  const id = String(assetId).trim();
+  if (!/^\d{1,20}$/.test(id)) return { owned: true };
+  try {
+    let privateInventory = false;
+    for (const type of ["Asset", "GamePass"]) {
+      const res = await fetch(`https://inventory.roblox.com/v1/users/${robloxUserId}/items/${type}/${id}/is-owned`, {
+        headers: { Accept: "application/json" },
+        cache: "no-store",
+      });
+      if (res.status === 403) privateInventory = true;
+      if (res.ok && (await res.json()) === true) return { owned: true };
+    }
+    if (privateInventory) {
+      return { owned: false, error: "Your Roblox inventory is private. Make it public to verify the required item, then try again." };
+    }
+    return { owned: false, error: `You do not own the required Roblox item (ID: ${id}).` };
+  } catch (err: any) {
+    logger.error("Error checking Roblox asset ownership:", { error: err?.message || String(err) });
+    return { owned: false, error: "Roblox item verification network error." };
+  }
+}

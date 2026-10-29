@@ -37,6 +37,7 @@ model User {
   totpEnabled          Boolean       @default(false)
   totpRecoveryCodes    String?       // JSON array of bcrypt-hashed one-time recovery codes
   loginDevices         LoginDevice[]
+  savedProfile         String?       // JSON of answers the user chose to remember
 }
 
 model PasswordResetToken {
@@ -85,6 +86,10 @@ model Guild {
 
   // Portal Customization & Themes
   applicationsOpen   Boolean @default(true)
+  announcement       String?  // Short notice shown on the community page
+  autoArchiveDays    Int      @default(0) // Archive decided applications after N days (0 = never)
+  robloxRequiredAssetId String? // Asset or Game Pass the applicant must own
+  interviewVoice     Boolean  @default(false) // Also create a private voice channel for interviews
   customBotAppId     String?  @unique // Discord application ID of the community's own bot (one community per app)
   customBotPublicKey String?  // Discord public key of that bot, for interaction signatures
   showApplicantCount Boolean @default(true)
@@ -134,6 +139,10 @@ model Position {
   isPublic         Boolean       @default(true)
   acceptRoleId     String?       // Discord role ID granted upon acceptance (#1)
   isOpen           Boolean       @default(true)
+  opensAt          DateTime?     // Scheduled opening (null = open immediately)
+  closesAt         DateTime?     // Scheduled closing (null = no deadline)
+  maxApplications  Int?          // Application cap (null = unlimited)
+  waitlistEnabled  Boolean       @default(false) // Accept applications past the cap as waitlisted
   timeLimitMinutes Int?          // Optional timed quiz/test countdown duration in minutes
   richMediaLinks   Boolean       @default(true) // enables media/portfolio auto-preview on external links
   questions        Question[]
@@ -176,6 +185,9 @@ model Application {
   assignedReviewerId String?   // Discord ID of the staff member reviewing this application
   reviewDueAt        DateTime?
   needsSecondOpinion Boolean     @default(false)
+  waitlisted         Boolean     @default(false)
+  trackingToken      String?     @unique // Public status-link token
+  archivedAt         DateTime?
 }
 
 model ApplicationMessage {
@@ -394,4 +406,25 @@ model SystemEvent {
   createdAt DateTime @default(now())
 
   @@index([createdAt])
+}
+
+model SavedPosition {
+  id         String   @id @default(cuid())
+  userId     String
+  positionId String
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, positionId])
+  @@index([userId])
+}
+
+model ApplicationDraft {
+  id         String   @id @default(cuid())
+  userId     String
+  positionId String
+  data       String   // JSON { answers, robloxUsername }
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, positionId])
+  @@index([userId])
 }

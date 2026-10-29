@@ -122,6 +122,9 @@ p { text-wrap: pretty; }
   /* ---------- Surfaces ---------- */
   .card { @apply rounded-xl border border-line bg-surface shadow-card backdrop-blur-md; }
   .card-hover { @apply transition-all hover:border-line-strong hover:shadow-glow; }
+  .glass-panel { @apply rounded-xl border border-line bg-surface shadow-card backdrop-blur-md; }
+  .chip { @apply inline-flex items-center gap-1 rounded-full border border-line bg-sunk px-2.5 py-0.5 font-mono text-[11px] text-ink-2; }
+  .field-sm { @apply w-full rounded-lg border border-line bg-surface px-3 py-1.5 text-[13px] text-ink focus:border-accent focus:outline-none transition-all; }
   .panel-sunk { @apply rounded-xl border border-line bg-sunk; }
 
   /* ---------- Buttons ---------- */

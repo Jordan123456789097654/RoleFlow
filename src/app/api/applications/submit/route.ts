@@ -6,7 +6,9 @@ import { dispatchCommunityWebhook } from "@/lib/webhook-dispatcher";
 import { sendApplicationSubmissionReceipt } from "@/lib/email";
 import { logger } from "@/lib/logger";
 import { discordSafe } from "@/lib/sanitize";
-import { checkRobloxAccountAge, checkUserBadgeOwnership } from "@/lib/roblox";
+import { checkRobloxAccountAge, checkUserBadgeOwnership, checkUserAssetOwnership } from "@/lib/roblox";
+import { availabilityOf } from "@/lib/position-availability";
+import { randomBytes } from "crypto";
 
 export async function POST(request: Request) {
   try {
@@ -47,6 +49,11 @@ export async function POST(request: Request) {
         { error: "This position is currently closed to new applications." },
         { status: 400 }
       );
+    }
+
+    const availability = availabilityOf(position);
+    if (!availability.open) {
+      return NextResponse.json({ error: availability.message }, { status: 400 });
     }
 
     // Check if community is paused by founder or owner
@@ -166,6 +173,17 @@ export async function POST(request: Request) {
           }
         }
 
+        // Check required Roblox asset / Game Pass
+        if (position.guild.robloxRequiredAssetId && position.guild.robloxRequiredAssetId.trim()) {
+          const assetCheck = await checkUserAssetOwnership(rUserId, position.guild.robloxRequiredAssetId.trim());
+          if (!assetCheck.owned) {
+            return NextResponse.json(
+              { error: assetCheck.error || "You do not own the required Roblox item to apply." },
+              { status: 403 }
+            );
+          }
+        }
+
         // Check Group Membership & Rank
         if (position.guild.enableRobloxGroupCheck && position.guild.robloxGroupId) {
           const groupRes = await fetch(`https://groups.roblox.com/v2/users/${rUserId}/groups/roles`);
@@ -252,12 +270,29 @@ export async function POST(request: Request) {
       });
     }
 
+    // 4b. Application cap / waitlist
+    let waitlisted = false;
+    if (position.maxApplications) {
+      const filled = await prisma.application.count({
+        where: { positionId, waitlisted: false, status: { not: "REJECTED" } },
+      });
+      if (filled >= position.maxApplications) {
+        if (position.waitlistEnabled) {
+          waitlisted = true;
+        } else {
+          return NextResponse.json({ error: "This opening has reached its application limit." }, { status: 409 });
+        }
+      }
+    }
+
     // 5. Create Application & Answers in database
     const application = await prisma.application.create({
       data: {
         positionId,
         userId: user.id,
         status: "PENDING",
+        waitlisted,
+        trackingToken: randomBytes(16).toString("hex"),
         answers: {
           create: Object.entries(answers).map(([questionId, value]) => ({
             questionId,
@@ -282,7 +317,7 @@ export async function POST(request: Request) {
     await BotDispatcher.sendApplicationAlert({
       applicationId: application.id,
       guildId: position.guildId,
-      positionTitle: position.title,
+      positionTitle: waitlisted ? `${position.title} (Waitlist)` : position.title,
       applicantDiscordId: user.id,
       applicantUsername: user.username,
       applicantAvatar: user.avatar,
@@ -325,6 +360,8 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       applicationId: application.id,
+      waitlisted,
+      trackingToken: application.trackingToken,
     });
   } catch (err) {
     console.error("Error creating application:", err);

@@ -9,6 +9,11 @@ export const ROLEFLOW_COMMANDS = [
   { name: "pending", description: "Show the oldest applications waiting for review (staff)" },
   { name: "stats", description: "Application counts for this community (staff)" },
   {
+    name: "lookup",
+    description: "Look up a member's applications and account signals (staff)",
+    options: [{ name: "user", description: "The member to look up", type: 6, required: true }],
+  },
+  {
     name: "accept",
     description: "Accept an application by its ID (staff with decision access)",
     options: [

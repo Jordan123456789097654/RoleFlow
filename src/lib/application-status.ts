@@ -108,6 +108,7 @@ export async function changeApplicationStatus(args: {
     applicantDiscordId: application.userId,
     positionTitle: application.position.title,
     newStatus: args.status,
+    previousStatus: application.status,
     decisionNote: args.decisionNote ?? undefined,
     reviewedByUsername: args.actorName,
   });

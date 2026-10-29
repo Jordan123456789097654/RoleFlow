@@ -1,3 +1,4 @@
+import { openNowWhere } from "@/lib/position-availability";
 import React from "react";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
@@ -97,7 +98,7 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
     },
     include: {
       positions: {
-        where: { isOpen: true, isPublic: true },
+        where: { ...openNowWhere(), isPublic: true },
         include: { _count: { select: { applications: true } } },
       },
       reviews: {
@@ -148,7 +149,7 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
 
   const positions = await prisma.position.findMany({
     where: {
-      isOpen: true,
+      ...openNowWhere(),
       isPublic: true,
       guild: {
         isPaused: false,
