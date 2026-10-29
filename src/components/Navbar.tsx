@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, X, ChevronDown, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 interface NavbarProps {
   user?: {
@@ -128,6 +129,8 @@ export function Navbar({ user }: NavbarProps) {
 
         {/* Search + account */}
         <div className="flex items-center gap-3">
+          <ThemeToggle />
+
           <Link
             href="/browse"
             className="hidden h-9 items-center gap-2 rounded-md border border-line-strong bg-surface px-3 text-[13px] text-muted transition-colors hover:border-ink hover:text-ink md:flex"

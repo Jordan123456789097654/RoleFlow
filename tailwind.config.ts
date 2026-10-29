@@ -1,9 +1,5 @@
 import type { Config } from "tailwindcss";
 
-/**
- * RoleFlow Dark Mode Theme.
- * Deep obsidian dark theme with violet & purple accents, glowing borders, and rich glassmorphism.
- */
 const config: Config = {
   darkMode: "class",
   content: [
@@ -19,35 +15,35 @@ const config: Config = {
         mono: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
       },
       colors: {
-        paper: "#090a0f",
-        surface: "#10121a",
-        sunk: "#0c0d14",
-        line: "rgba(255, 255, 255, 0.08)",
-        "line-strong": "rgba(255, 255, 255, 0.16)",
+        paper: "var(--paper)",
+        surface: "var(--surface)",
+        sunk: "var(--sunk)",
+        line: "var(--line)",
+        "line-strong": "var(--line-strong)",
         ink: {
-          DEFAULT: "#f1f3f9",
-          2: "#c5cbd9",
+          DEFAULT: "var(--ink)",
+          2: "var(--ink-2)",
         },
-        muted: "#8890a4",
-        faint: "#555c70",
+        muted: "var(--muted)",
+        faint: "var(--faint)",
         accent: {
-          DEFAULT: "#8b5cf6",
-          hover: "#7c3aed",
-          soft: "rgba(139, 92, 246, 0.15)",
-          ink: "#ddd6fe",
+          DEFAULT: "var(--accent)",
+          hover: "var(--accent-hover)",
+          soft: "var(--accent-soft)",
+          ink: "var(--accent-ink)",
         },
         moss: {
-          DEFAULT: "#10b981",
-          soft: "rgba(16, 185, 129, 0.15)",
-          ink: "#6ee7b7",
+          DEFAULT: "var(--moss)",
+          soft: "var(--moss-soft)",
+          ink: "var(--moss-ink)",
         },
         gold: {
-          DEFAULT: "#f59e0b",
-          soft: "rgba(245, 158, 11, 0.15)",
+          DEFAULT: "var(--gold)",
+          soft: "var(--gold-soft)",
         },
         danger: {
-          DEFAULT: "#ef4444",
-          soft: "rgba(239, 68, 68, 0.15)",
+          DEFAULT: "var(--danger)",
+          soft: "var(--danger-soft)",
         },
       },
       borderRadius: {
@@ -59,8 +55,8 @@ const config: Config = {
         "3xl": "1.75rem",
       },
       boxShadow: {
-        card: "0 1px 3px 0 rgba(0, 0, 0, 0.5), 0 1px 2px -1px rgba(0, 0, 0, 0.5)",
-        glow: "0 0 25px -5px rgba(139, 92, 246, 0.3)",
+        card: "var(--shadow-card)",
+        glow: "var(--shadow-glow)",
       },
     },
   },
