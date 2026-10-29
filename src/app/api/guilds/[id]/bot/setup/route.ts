@@ -35,7 +35,7 @@ export async function POST(
     }
 
     const body = await request.json().catch(() => ({}));
-    const token = (body.botToken || decryptSecret(guild.customBotToken) || process.env.DISCORD_BOT_TOKEN || "").trim();
+    const token = (body.botToken || decryptSecret(guild.customBotToken) || "").trim();
 
     if (!token) {
       return NextResponse.json({ error: "No bot token provided" }, { status: 400 });

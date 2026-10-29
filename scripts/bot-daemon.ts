@@ -2,57 +2,44 @@ import { prisma } from "../src/lib/prisma";
 import { decryptSecret } from "../src/lib/crypto";
 import { DiscordGatewayConnection } from "../src/lib/discord-gateway";
 
-async function main() {
-  console.log("⚡ [RoleFlow Bot Daemon] Initializing Gateway Connections...");
+/** Each community runs its own bot. This daemon keeps those gateway connections online. */
+const POLL_MS = 60_000;
+const started = new Set<string>(); // community IDs whose bot is already connected
 
-  // 1. Official Platform Bot (if configured)
-  if (process.env.DISCORD_BOT_TOKEN) {
-    const mainBot = new DiscordGatewayConnection({
-      guildId: "roleflow-official",
-      name: "RoleFlow Official",
-      token: process.env.DISCORD_BOT_TOKEN.trim(),
-      status: "online",
-      activityType: 3, // Watching
-      activityName: "Applications on RoleFlow",
-    });
-    mainBot.start();
-  }
-
-  // 2. Load all community custom bots
-  const customGuilds = await prisma.guild.findMany({
-    where: {
-      useCustomBot: true,
-      customBotToken: { not: null },
-    },
-    select: {
-      id: true,
-      name: true,
-      customBotToken: true,
-    },
+async function syncBots() {
+  const guilds = await prisma.guild.findMany({
+    where: { useCustomBot: true, customBotToken: { not: null } },
+    select: { id: true, name: true, customBotToken: true },
   });
 
-  console.log(`⚡ [RoleFlow Bot Daemon] Found ${customGuilds.length} community custom bots.`);
-
-  for (const g of customGuilds) {
+  for (const g of guilds) {
+    if (started.has(g.id)) continue;
     try {
-      const rawToken = decryptSecret(g.customBotToken);
-      if (!rawToken) continue;
-
-      const bot = new DiscordGatewayConnection({
+      const token = decryptSecret(g.customBotToken)?.trim();
+      if (!token) continue;
+      new DiscordGatewayConnection({
         guildId: g.id,
         name: g.name,
-        token: rawToken,
+        token,
         status: "online",
         activityType: 3, // Watching
         activityName: `${g.name} Applications`,
-      });
-      bot.start();
+      }).start();
+      started.add(g.id);
+      console.log(`[Bot Daemon] Connected bot for ${g.name}`);
     } catch (e) {
-      console.error(`Could not connect bot for community ${g.name}:`, e);
+      console.error(`[Bot Daemon] Could not connect bot for ${g.name}:`, e);
     }
   }
+}
 
-  // Keep process running
+async function main() {
+  console.log("[Bot Daemon] Starting community bots...");
+  await syncBots();
+  setInterval(() => {
+    syncBots().catch((e) => console.error("[Bot Daemon] Sync failed:", e));
+  }, POLL_MS);
+
   process.on("SIGINT", () => {
     console.log("Bot Daemon stopping...");
     process.exit(0);

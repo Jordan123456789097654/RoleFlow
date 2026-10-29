@@ -18,6 +18,53 @@ interface CommunityPortalProps {
   };
 }
 
+import type { Metadata } from "next";
+
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://roleflow.site";
+
+/** Only absolute https images can be used in link previews; inline data URLs are skipped. */
+function previewImage(src: string | null | undefined): string | undefined {
+  return src && src.startsWith("https://") ? src : undefined;
+}
+
+export async function generateMetadata({ params }: CommunityPortalProps): Promise<Metadata> {
+  const guild = await prisma.guild.findFirst({
+    where: { OR: [{ vanitySlug: params.slug }, { id: params.slug }] },
+    select: { name: true, description: true, icon: true, banner: true, vanitySlug: true, id: true, category: true },
+  });
+
+  if (!guild) {
+    return { title: "Community not found | RoleFlow", robots: { index: false } };
+  }
+
+  const title = `${guild.name} | RoleFlow`;
+  const description =
+    guild.description?.slice(0, 200) ||
+    `Apply to open positions at ${guild.name} on RoleFlow.`;
+  const url = `${SITE_URL}/c/${guild.vanitySlug || guild.id}`;
+  const images = [previewImage(guild.banner) ?? previewImage(guild.icon) ?? `${SITE_URL}/logo.png`];
+
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: "website",
+      siteName: "RoleFlow",
+      title,
+      description,
+      url,
+      images: images.map((src) => ({ url: src, alt: `${guild.name} on RoleFlow` })),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images,
+    },
+  };
+}
+
 export default async function CommunityPortalPage({ params }: CommunityPortalProps) {
   // Query by vanitySlug OR by ID
   const guild = await prisma.guild.findFirst({

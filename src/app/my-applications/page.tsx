@@ -7,7 +7,6 @@ import { formatDate } from "@/lib/utils";
 import { Clock, Briefcase, FileText, ArrowRight, MessageSquare, AlertCircle } from "lucide-react";
 import { ApplicantChatThread } from "@/components/ApplicantChatThread";
 import { WithdrawButton } from "@/components/WithdrawButton";
-import { TrackLinkButton } from "@/components/TrackLinkButton";
 import { SaveOpeningButton } from "@/components/SaveOpeningButton";
 
 export const revalidate = 0;
@@ -188,7 +187,6 @@ export default async function MyApplicationsPage() {
                 </div>
               )}
               <div className="mb-4 flex flex-wrap items-start justify-end gap-2">
-                <TrackLinkButton applicationId={app.id} initialToken={app.trackingToken} />
                 {(app.status === "PENDING" || app.status === "UNDER_REVIEW") && (
                   <WithdrawButton applicationId={app.id} label={`${app.position.title} at ${app.position.guild.name}`} />
                 )}

@@ -47,10 +47,10 @@ export class BotDispatcher {
         },
       });
 
-      // Determine bot token to use: custom bot if enabled and provided, otherwise official bot token
+      // Only a community's own bot can send for it. There is no platform-wide default bot.
       const token = (guild?.useCustomBot && guild?.customBotToken?.trim())
         ? decryptSecret(guild.customBotToken)
-        : process.env.DISCORD_BOT_TOKEN?.trim();
+        : null;
 
       if (!token || !guild?.logChannelId) {
         console.log(`[BotDispatcher] No bot token or log channel for guild ${params.guildId}. Skipping alert.`);
@@ -143,7 +143,7 @@ export class BotDispatcher {
 
       const token = (guild?.useCustomBot && guild?.customBotToken?.trim())
         ? decryptSecret(guild.customBotToken)
-        : process.env.DISCORD_BOT_TOKEN?.trim();
+        : null;
 
       if (!guild || !token) {
         return; // No guild or bot token available

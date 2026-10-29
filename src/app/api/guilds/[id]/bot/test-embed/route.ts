@@ -25,7 +25,7 @@ export async function POST(
       return NextResponse.json({ error: "Guild not found" }, { status: 404 });
     }
 
-    const token = (decryptSecret(guild.customBotToken) || process.env.DISCORD_BOT_TOKEN || "").trim();
+    const token = (decryptSecret(guild.customBotToken) || "").trim();
     if (!token) {
       return NextResponse.json({ error: "No bot token configured" }, { status: 400 });
     }
