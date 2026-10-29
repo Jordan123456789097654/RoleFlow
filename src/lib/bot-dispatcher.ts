@@ -238,7 +238,7 @@ export class BotDispatcher {
       select: { user: { select: { email: true, username: true, emailNotifications: true } } },
     });
     const fallback: EmailFallback | undefined =
-      app?.user?.email && app.user.emailNotifications && status !== "PENDING"
+      app?.user?.email && app.user.emailNotifications
         ? {
             toEmail: app.user.email,
             applicantName: app.user.username,
