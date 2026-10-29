@@ -20,18 +20,27 @@ export default function ReportButton({ targetType, targetId }: { targetType: "GU
 
   if (!open) {
     return (
-      <button onClick={() => setOpen(true)} className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-semibold border border-white/10 transition-colors">
+      <button type="button" onClick={() => setOpen(true)} className="btn-ghost btn-sm text-muted">
         Report
       </button>
     );
   }
   return (
     <div className="w-full max-w-sm space-y-2">
-      <textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={2} maxLength={500} placeholder="What is wrong with this?" className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-xs text-white outline-none focus:border-purple-500" />
-      <div className="flex items-center gap-2">
-        <button disabled={!reason.trim()} onClick={submit} className="rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-40">Send report</button>
-        <button onClick={() => setOpen(false)} className="text-xs text-slate-400 hover:text-white">Cancel</button>
-        {status && <span className="text-xs text-slate-300">{status}</span>}
+      <label className="sr-only" htmlFor={`report-${targetType}-${targetId}`}>Report reason</label>
+      <textarea
+        id={`report-${targetType}-${targetId}`}
+        value={reason}
+        onChange={(e) => setReason(e.target.value)}
+        rows={2}
+        maxLength={500}
+        placeholder="What is wrong with this?"
+        className="field field-sm"
+      />
+      <div className="flex flex-wrap items-center gap-3">
+        <button type="button" disabled={!reason.trim()} onClick={submit} className="btn-danger btn-sm">Send report</button>
+        <button type="button" onClick={() => setOpen(false)} className="text-[13px] text-muted hover:text-ink">Cancel</button>
+        {status && <span role="status" className="text-[13px] text-ink-2">{status}</span>}
       </div>
     </div>
   );

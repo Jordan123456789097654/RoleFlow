@@ -1,6 +1,5 @@
 import React from "react";
 import Link from "next/link";
-import { ExternalLink, MessageCircle } from "lucide-react";
 
 const COLUMNS: Array<{ title: string; links: Array<{ href: string; label: string }> }> = [
   {
@@ -27,39 +26,35 @@ const COLUMNS: Array<{ title: string; links: Array<{ href: string; label: string
 
 export function Footer() {
   return (
-    <footer className="w-full border-t border-white/[0.07] mt-24">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
-          <div className="md:col-span-5 space-y-4">
+    <footer className="mt-24 border-t border-line">
+      <div className="page-wrap py-14">
+        <div className="grid grid-cols-1 gap-12 md:grid-cols-12">
+          <div className="space-y-5 md:col-span-5">
             <div className="flex items-center gap-2.5">
-              <span className="w-8 h-8 rounded-[10px] overflow-hidden ring-1 ring-white/10">
-                <img src="/logo.png" alt="" className="w-full h-full object-cover" />
-              </span>
-              <span className="font-display text-lg font-bold text-white">RoleFlow</span>
+              <img src="/logo.png" alt="" className="h-7 w-7 rounded-md" />
+              <span className="font-display text-[19px] font-semibold text-ink">RoleFlow</span>
             </div>
-            <p className="text-[13px] text-slate-400 leading-relaxed max-w-sm">
+            <p className="max-w-sm text-[15px] leading-relaxed text-muted">
               The modern way to run staff applications, developer openings and community recruitment, without drowning in Discord DMs.
             </p>
             <a
               href="https://discord.gg/tKPbCXbmr9"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 h-9 px-3.5 rounded-lg border border-white/10 bg-white/[0.03] text-[13px] font-medium text-slate-200 hover:bg-white/[0.07] hover:border-white/20 transition"
+              className="btn-ghost btn-sm"
             >
-              <MessageCircle className="w-4 h-4 text-violet-300" />
-              Support Discord
-              <ExternalLink className="w-3 h-3 text-slate-500" />
+              Support Discord ↗
             </a>
           </div>
 
-          <div className="md:col-span-7 grid grid-cols-2 gap-8">
+          <div className="grid grid-cols-2 gap-8 md:col-span-7">
             {COLUMNS.map((col) => (
               <div key={col.title}>
-                <h4 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500 mb-4">{col.title}</h4>
+                <h4 className="eyebrow mb-4">{col.title}</h4>
                 <ul className="space-y-2.5">
                   {col.links.map((l) => (
                     <li key={l.href}>
-                      <Link href={l.href} className="text-[13px] text-slate-300 hover:text-white transition-colors">
+                      <Link href={l.href} className="text-[14px] text-ink-2 underline-offset-4 hover:text-ink hover:underline">
                         {l.label}
                       </Link>
                     </li>
@@ -70,8 +65,8 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 pt-6 border-t border-white/[0.06] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-[12px] text-slate-500">
-          <p>© {new Date().getFullYear()} RoleFlow · roleflow.site</p>
+        <div className="mt-14 flex flex-col gap-3 border-t border-line pt-6 text-[12px] text-faint sm:flex-row sm:items-center sm:justify-between">
+          <p className="font-mono">© {new Date().getFullYear()} RoleFlow · roleflow.site</p>
           <p className="max-w-xl sm:text-right">
             RoleFlow is an independent recruitment platform and is not affiliated with, endorsed by, or sponsored by Discord Inc. or Roblox Corporation.
           </p>

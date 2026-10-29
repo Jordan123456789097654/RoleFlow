@@ -3,7 +3,7 @@
 import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Lock, CheckCircle2, AlertCircle, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { AlertCircle, CheckCircle2, ArrowRight, Eye, EyeOff } from "lucide-react";
 
 function ResetPasswordForm() {
   const router = useRouter();
@@ -19,22 +19,13 @@ function ResetPasswordForm() {
 
   if (!token) {
     return (
-      <div className="text-center space-y-4 py-4">
-        <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 mx-auto">
-          <AlertCircle className="w-6 h-6" />
-        </div>
-        <h2 className="text-lg font-bold text-white">Invalid Reset Link</h2>
-        <p className="text-xs text-slate-400 leading-relaxed">
-          No password reset token was provided. Please request a new password reset link.
+      <div className="space-y-5">
+        <AlertCircle className="h-8 w-8 text-danger" />
+        <h1 className="display-md">This link isn&apos;t valid</h1>
+        <p className="text-[15px] leading-relaxed text-muted">
+          No password reset token was provided. Request a new reset link and try again.
         </p>
-        <div className="pt-2">
-          <Link
-            href="/auth/forgot-password"
-            className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition-all shadow-md shadow-purple-600/30 inline-block"
-          >
-            Request New Link
-          </Link>
-        </div>
+        <Link href="/auth/forgot-password" className="btn-primary">Request a new link</Link>
       </div>
     );
   }
@@ -69,7 +60,7 @@ function ResetPasswordForm() {
           router.push("/dashboard");
         }, 2000);
       }
-    } catch (err: any) {
+    } catch {
       setErrorMsg("Network error. Please try again.");
     } finally {
       setLoading(false);
@@ -78,89 +69,75 @@ function ResetPasswordForm() {
 
   if (success) {
     return (
-      <div className="text-center space-y-4 py-4 animate-fadeIn">
-        <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mx-auto shadow-lg shadow-emerald-500/10">
-          <CheckCircle2 className="w-7 h-7" />
-        </div>
-        <h2 className="text-xl font-bold text-white">Password Updated!</h2>
-        <p className="text-xs text-slate-300 leading-relaxed">
-          Your password has been securely updated. Redirecting you to your RoleFlow dashboard...
+      <div className="space-y-5">
+        <CheckCircle2 className="h-8 w-8 text-moss" />
+        <h1 className="display-md">Password updated</h1>
+        <p className="text-[15px] leading-relaxed text-muted">
+          Your password has been changed. Taking you to your dashboard…
         </p>
-        <div className="pt-2">
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold transition-all shadow-md shadow-violet-600/30"
-          >
-            <span>Go to Dashboard</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
+        <Link href="/dashboard" className="btn-primary">
+          Go to dashboard <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="w-12 h-12 rounded-2xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-6 shadow-md shadow-purple-500/10">
-        <Lock className="w-6 h-6" />
+    <div className="space-y-6">
+      <div>
+        <p className="eyebrow mb-3">Account</p>
+        <h1 className="display-md">Choose a new password</h1>
+        <p className="mt-3 text-[15px] leading-relaxed text-muted">At least 8 characters.</p>
       </div>
 
-      <h1 className="text-2xl font-extrabold text-white mb-2">Create New Password</h1>
-      <p className="text-xs text-slate-400 mb-6 leading-relaxed">
-        Choose a strong password with at least 8 characters.
-      </p>
-
       {errorMsg && (
-        <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 shrink-0" />
+        <div role="alert" className="flex items-center gap-2 rounded-md border border-danger bg-danger-soft px-4 py-3 text-[14px] text-danger">
+          <AlertCircle className="h-4 w-4 shrink-0" />
           <span>{errorMsg}</span>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-            New Password
-          </label>
+          <label htmlFor="new-password" className="label">New password</label>
           <div className="relative">
             <input
+              id="new-password"
               type={showPassword ? "text" : "password"}
               required
-              placeholder="Minimum 8 characters..."
+              autoComplete="new-password"
+              placeholder="At least 8 characters"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 pr-10"
+              className="field h-11 pr-11"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+              className="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-sm text-muted hover:text-ink"
+              aria-label={showPassword ? "Hide password" : "Show password"}
             >
-              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-            Confirm New Password
-          </label>
+          <label htmlFor="confirm-password" className="label">Confirm new password</label>
           <input
+            id="confirm-password"
             type={showPassword ? "text" : "password"}
             required
-            placeholder="Re-enter password..."
+            autoComplete="new-password"
+            placeholder="Re-enter the password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full px-4 py-2.5 rounded-xl bg-surface border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+            className="field h-11"
           />
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-3 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-lg shadow-violet-600/30 flex items-center justify-center gap-2"
-        >
-          <span>{loading ? "Updating Password..." : "Update Password & Sign In"}</span>
+        <button type="submit" disabled={loading} className="btn-primary btn-lg w-full">
+          {loading ? "Updating password…" : "Update password and sign in"}
         </button>
       </form>
     </div>
@@ -169,14 +146,11 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <div className="min-h-[85vh] flex items-center justify-center px-4 py-16">
-      <div className="w-full max-w-md">
-        <div className="glass-panel rounded-3xl border border-white/10 p-8 sm:p-10 shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl pointer-events-none" />
-          <Suspense fallback={<div className="text-center text-xs text-slate-400 py-8">Loading reset form...</div>}>
-            <ResetPasswordForm />
-          </Suspense>
-        </div>
+    <div className="page-wrap flex min-h-[80vh] items-center justify-center py-16">
+      <div className="card w-full max-w-md p-8 sm:p-10">
+        <Suspense fallback={<p className="py-8 text-center text-[14px] text-muted">Loading…</p>}>
+          <ResetPasswordForm />
+        </Suspense>
       </div>
     </div>
   );

@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
-import { Wrench, Shield, MessageCircle, RefreshCw, LifeBuoy } from "lucide-react";
+import { Wrench } from "lucide-react";
 
 interface MaintenanceGuardProps {
   isStaffOrAdmin: boolean;
@@ -20,7 +19,7 @@ export function MaintenanceGuard({ isStaffOrAdmin, children }: MaintenanceGuardP
           const data = await res.json();
           setMaintenance(data);
         }
-      } catch (e) {
+      } catch {
         // Fallback: don't block on network error
       }
     }
@@ -30,47 +29,30 @@ export function MaintenanceGuard({ isStaffOrAdmin, children }: MaintenanceGuardP
   // If maintenance is enabled and visitor is not staff, show maintenance screen
   if (maintenance?.enabled && !isStaffOrAdmin) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-center relative overflow-hidden z-50">
-        <div className="ambient-glow" />
-        <div className="fixed inset-0 bg-grid-pattern pointer-events-none opacity-40 z-0" />
+      <div className="page-wrap flex min-h-screen flex-col items-center justify-center py-16 text-center">
+        <div className="max-w-xl">
+          <Wrench className="mx-auto mb-8 h-8 w-8 text-accent" />
+          <p className="eyebrow mb-4">Scheduled maintenance</p>
+          <h1 className="display-lg">We&apos;ll be right back.</h1>
+          <p className="lede mx-auto mt-6">
+            {maintenance.message || "RoleFlow is undergoing scheduled maintenance. Your submissions and data are safe."}
+          </p>
 
-        <div className="relative z-10 max-w-lg mx-auto glass-panel p-8 sm:p-12 rounded-3xl border border-amber-500/30 bg-surface/90 shadow-2xl space-y-6">
-          <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto text-amber-400">
-            <Wrench className="w-8 h-8 animate-bounce" />
-          </div>
+          <dl className="mx-auto mt-10 max-w-md divide-y divide-line border-y border-line text-left text-[14px]">
+            <div className="py-3">
+              <dt className="font-medium text-ink">Your data is safe</dt>
+              <dd className="mt-1 text-muted">Application queues and records are preserved.</dd>
+            </div>
+            <div className="py-3">
+              <dt className="font-medium text-ink">Staff access</dt>
+              <dd className="mt-1 text-muted">Support staff and site admins can still sign in during maintenance.</dd>
+            </div>
+          </dl>
 
-          <div className="space-y-2">
-            <span className="px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">
-              PLATFORM UPGRADE IN PROGRESS
-            </span>
-            <h1 className="text-2xl sm:text-3xl font-black text-white">Scheduled Maintenance</h1>
-            <p className="text-xs text-slate-300 leading-relaxed">
-              {maintenance.message || "RoleFlow is currently undergoing scheduled platform maintenance. All submissions and data are secure."}
-            </p>
-          </div>
-
-          <div className="p-4 rounded-xl bg-black/40 border border-white/5 text-xs text-slate-400 space-y-1 text-left">
-            <span className="font-semibold text-white block">Status Briefing:</span>
-            <p>• Database integrity & application queues are fully preserved.</p>
-            <p>• Verified Support Specialists and Site Administrators may bypass via Discord OAuth.</p>
-          </div>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-            <a
-              href="/api/auth/login"
-              className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold transition-all shadow-lg shadow-violet-600/30 flex items-center justify-center gap-2"
-            >
-              <Shield className="w-3.5 h-3.5" />
-              <span>Staff Login Bypass</span>
-            </a>
-            <a
-              href="https://discord.gg/tKPbCXbmr9"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 text-xs font-semibold transition-all flex items-center justify-center gap-2"
-            >
-              <MessageCircle className="w-3.5 h-3.5" />
-              <span>Discord Status Server</span>
+          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <a href="/api/auth/login" className="btn-primary">Staff sign in</a>
+            <a href="https://discord.gg/tKPbCXbmr9" target="_blank" rel="noopener noreferrer" className="btn-ghost">
+              Status on Discord ↗
             </a>
           </div>
         </div>
@@ -81,9 +63,9 @@ export function MaintenanceGuard({ isStaffOrAdmin, children }: MaintenanceGuardP
   return (
     <>
       {maintenance?.enabled && isStaffOrAdmin && (
-        <div className="w-full bg-amber-500/20 border-b border-amber-500/40 px-4 py-2 text-center text-xs text-amber-300 font-semibold flex items-center justify-center gap-2 z-50 sticky top-0 backdrop-blur-md">
-          <Wrench className="w-3.5 h-3.5" />
-          <span>MAINTENANCE MODE ACTIVE — Public visitors are seeing the maintenance screen. Staff override enabled.</span>
+        <div className="sticky top-0 z-50 flex items-center justify-center gap-2 border-b border-gold bg-gold-soft px-4 py-2 text-center text-[13px] font-medium text-gold">
+          <Wrench className="h-3.5 w-3.5" />
+          <span>Maintenance mode is on. Public visitors see the maintenance screen; staff override is active.</span>
         </div>
       )}
       {children}

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Star, MessageSquareQuote, CheckCircle2, AlertCircle } from "lucide-react";
+import { Star, AlertCircle, CheckCircle2 } from "lucide-react";
 
 interface ReviewModalProps {
   guildId: string;
@@ -63,12 +63,8 @@ export function CommunityReviewModal({
 
   if (!currentUser) {
     return (
-      <a
-        href="/api/auth/login"
-        className="rf-btn-ghost !px-3.5 !py-2 !text-[13px] inline-flex items-center gap-1.5"
-      >
-        <MessageSquareQuote className="w-3.5 h-3.5 text-violet-300" />
-        <span>Log in to review</span>
+      <a href="/api/auth/login" className="btn-ghost">
+        Log in to review
       </a>
     );
   }
@@ -79,51 +75,47 @@ export function CommunityReviewModal({
 
   return (
     <>
-      <button
-        onClick={() => setIsOpen(true)}
-        className="rf-btn-primary !px-3.5 !py-2 !text-[13px] inline-flex items-center gap-1.5"
-      >
-        <MessageSquareQuote className="w-3.5 h-3.5" />
-        <span>Leave a Testimonial</span>
+      <button type="button" onClick={() => setIsOpen(true)} className="btn-primary">
+        Leave a review
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-150">
-          <div className="bg-surface-card border border-white/10 rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
-            <div className="flex items-center justify-between mb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4 animate-in">
+          <div role="dialog" aria-modal="true" aria-labelledby="review-title" className="relative w-full max-w-md rounded-lg border border-line-strong bg-surface p-6 shadow-pop sm:p-8">
+            <div className="mb-6 flex items-start justify-between gap-4">
               <div>
-                <h3 className="text-lg font-bold text-white">Community Testimonial</h3>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Share your experience as an accepted member of {guildName}
+                <h3 id="review-title" className="display-md text-[24px]">Leave a review</h3>
+                <p className="mt-1.5 text-[14px] text-muted">
+                  Share your experience as an accepted member of {guildName}.
                 </p>
               </div>
               <button
+                type="button"
                 onClick={() => setIsOpen(false)}
-                className="text-slate-400 hover:text-white p-1 rounded-lg"
+                aria-label="Close"
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-sm text-muted hover:bg-sunk hover:text-ink"
               >
                 ✕
               </button>
             </div>
 
             {success ? (
-              <div className="py-8 text-center space-y-2">
-                <CheckCircle2 className="w-10 h-10 text-emerald-400 mx-auto" />
-                <h4 className="text-base font-semibold text-white">Testimonial Published!</h4>
-                <p className="text-xs text-slate-400">Refreshing page to update reviews...</p>
+              <div className="space-y-2 py-8 text-center">
+                <CheckCircle2 className="mx-auto h-9 w-9 text-moss" />
+                <h4 className="display-md text-[22px]">Review published</h4>
+                <p className="text-[14px] text-muted">Refreshing to show your review…</p>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-5">
                 {error && (
-                  <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 shrink-0" />
+                  <div role="alert" className="flex items-center gap-2 rounded-md border border-danger bg-danger-soft px-3.5 py-2.5 text-[13px] text-danger">
+                    <AlertCircle className="h-4 w-4 shrink-0" />
                     <span>{error}</span>
                   </div>
                 )}
 
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-2">
-                    Rating (1 to 5 Stars)
-                  </label>
+                <fieldset>
+                  <legend className="label">Rating</legend>
                   <div className="flex items-center gap-1">
                     {[1, 2, 3, 4, 5].map((star) => {
                       const isFilled = (hoverRating || rating) >= star;
@@ -131,59 +123,45 @@ export function CommunityReviewModal({
                         <button
                           key={star}
                           type="button"
+                          aria-label={`${star} star${star === 1 ? "" : "s"}`}
                           onMouseEnter={() => setHoverRating(star)}
                           onMouseLeave={() => setHoverRating(0)}
                           onClick={() => setRating(star)}
-                          className="p-1 focus:outline-none transition-transform hover:scale-110"
+                          className="grid h-10 w-9 place-items-center"
                         >
-                          <Star
-                            className={`w-6 h-6 ${
-                              isFilled
-                                ? "fill-amber-400 text-amber-400"
-                                : "text-slate-600 hover:text-slate-500"
-                            }`}
-                          />
+                          <Star className={`h-6 w-6 ${isFilled ? "fill-gold text-gold" : "text-line-strong"}`} />
                         </button>
                       );
                     })}
-                    <span className="ml-2 text-xs font-medium text-amber-300">
+                    <span className="ml-3 font-mono text-[13px] tabular-nums text-ink-2">
                       {hoverRating || rating} / 5
                     </span>
                   </div>
-                </div>
+                </fieldset>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                    Your Review / Testimonial
-                  </label>
+                  <label htmlFor="review-comment" className="label">Your review</label>
                   <textarea
+                    id="review-comment"
                     rows={4}
                     maxLength={500}
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
-                    placeholder="Describe how the application & onboarding process was, the team culture, and management style..."
-                    className="w-full rounded-xl bg-black/40 border border-white/10 px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition resize-none"
+                    placeholder="How was the application and onboarding? What is the team like?"
+                    className="field resize-none"
                   />
-                  <div className="flex justify-between items-center text-[11px] text-slate-500 mt-1">
-                    <span>Markdown supported</span>
+                  <div className="mt-1.5 flex items-center justify-between font-mono text-[12px] text-faint tabular-nums">
+                    <span>Plain text</span>
                     <span>{comment.length} / 500</span>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-white/[0.08]">
-                  <button
-                    type="button"
-                    onClick={() => setIsOpen(false)}
-                    className="rf-btn-ghost !px-3.5 !py-2 !text-xs"
-                  >
+                <div className="flex items-center justify-end gap-3 border-t border-line pt-5">
+                  <button type="button" onClick={() => setIsOpen(false)} className="btn-ghost">
                     Cancel
                   </button>
-                  <button
-                    type="submit"
-                    disabled={loading || !comment.trim()}
-                    className="rf-btn-primary !px-4 !py-2 !text-xs disabled:opacity-50"
-                  >
-                    {loading ? "Posting..." : "Submit Review"}
+                  <button type="submit" disabled={loading || !comment.trim()} className="btn-primary">
+                    {loading ? "Posting…" : "Publish review"}
                   </button>
                 </div>
               </form>

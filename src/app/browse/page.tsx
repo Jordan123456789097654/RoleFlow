@@ -1,8 +1,9 @@
 import React from "react";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { Search, Briefcase, Users, BadgeCheck, ArrowRight, Star, Building2, Sparkles } from "lucide-react";
+import { Search, Briefcase, Users, ArrowRight, Star, Building2, BadgeCheck } from "lucide-react";
 import { CommunityCard } from "@/components/CommunityCard";
+import { cn } from "@/lib/utils";
 
 export const revalidate = 0;
 
@@ -31,6 +32,12 @@ const DEPARTMENTS = [
   "Staff & Moderation",
   "Design",
   "Community",
+];
+
+const SORTS: Array<{ value: string; label: string }> = [
+  { value: "openings", label: "Most openings" },
+  { value: "rating", label: "Most reviewed" },
+  { value: "newest", label: "Newest" },
 ];
 
 export default async function BrowsePage({ searchParams }: BrowsePageProps) {
@@ -170,84 +177,48 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
     orderBy: { createdAt: "desc" },
   });
 
+  const tabClass = (on: boolean) =>
+    cn(
+      "relative -mb-px pb-3 text-[15px] transition-colors",
+      on ? "font-medium text-ink after:absolute after:inset-x-0 after:-bottom-px after:h-[2px] after:bg-accent" : "text-muted hover:text-ink"
+    );
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-16">
-      <header className="mb-8 max-w-3xl">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-300 text-xs font-semibold mb-3">
-          <Sparkles className="w-3.5 h-3.5" />
-          Community Discovery &amp; Portals
-        </div>
-        <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
-          Explore Communities &amp; Open Roles
-        </h1>
-        <p className="text-sm sm:text-base text-slate-400 mt-2.5 leading-relaxed">
-          Find verified Roblox development studios, emergency services clans, tech collectives, and creator teams hiring right now.
+    <div className="page-wrap pt-12 pb-20 sm:pt-16">
+      <header className="max-w-3xl">
+        <p className="eyebrow mb-4">Directory</p>
+        <h1 className="display-lg">Find your next role.</h1>
+        <p className="lede mt-4">
+          Roblox studios, emergency services units, tech collectives and creator teams that are hiring right now.
         </p>
       </header>
 
-      {/* Main Tab Switcher */}
-      <div className="flex items-center gap-3 border-b border-white/[0.08] pb-4 mb-6">
-        <Link
-          href={`/browse${createQueryString({ tab: "communities" })}`}
-          className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
-            activeTab === "communities"
-              ? "bg-violet-600 text-white shadow-lg shadow-violet-600/25"
-              : "text-slate-400 hover:text-white hover:bg-white/[0.04]"
-          }`}
-        >
-          <Building2 className="w-4 h-4" />
-          Communities ({communities.length})
+      {/* Tabs */}
+      <div className="mt-12 flex items-end gap-8 border-b border-line">
+        <Link href={`/browse${createQueryString({ tab: "communities" })}`} className={tabClass(activeTab === "communities")}>
+          Communities <span className="ml-1 font-mono text-[13px] text-faint tabular-nums">{communities.length}</span>
         </Link>
-        <Link
-          href={`/browse${createQueryString({ tab: "positions" })}`}
-          className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
-            activeTab === "positions"
-              ? "bg-violet-600 text-white shadow-lg shadow-violet-600/25"
-              : "text-slate-400 hover:text-white hover:bg-white/[0.04]"
-          }`}
-        >
-          <Briefcase className="w-4 h-4" />
-          Individual Openings ({positions.length})
+        <Link href={`/browse${createQueryString({ tab: "positions" })}`} className={tabClass(activeTab === "positions")}>
+          Open positions <span className="ml-1 font-mono text-[13px] text-faint tabular-nums">{positions.length}</span>
         </Link>
       </div>
 
-      {/* Category Pills Bar */}
-      <div className="mb-6">
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-          {CATEGORIES.map((cat) => {
-            const isAll = cat === "All";
-            const isActive = isAll ? selectedCategory === "All" : selectedCategory === cat;
-            return (
-              <Link
-                key={cat}
-                href={`/browse${createQueryString({ category: isAll ? null : cat })}`}
-                className={`h-9 px-4 inline-flex items-center rounded-full text-xs font-semibold whitespace-nowrap transition-all border ${
-                  isActive
-                    ? "bg-violet-500/20 border-violet-400/50 text-violet-200 shadow-sm"
-                    : "bg-surface-card/60 border-white/10 text-slate-300 hover:text-white hover:border-white/20"
-                }`}
-              >
-                {cat}
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Search Bar + Controls */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
-        <form method="GET" action="/browse" role="search" className="relative w-full lg:w-96">
-          <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+      {/* Filters */}
+      <div className="mt-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <form method="GET" action="/browse" role="search" className="relative w-full lg:max-w-md">
+          <label htmlFor="browse-q" className="sr-only">Search</label>
+          <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-faint" />
           <input
+            id="browse-q"
             type="text"
             name="q"
             defaultValue={query}
             placeholder={
               activeTab === "communities"
-                ? "Search communities by name, tag, or focus…"
-                : "Search openings by role title, studio, or tag…"
+                ? "Search communities by name, tag or focus"
+                : "Search openings by role, studio or tag"
             }
-            className="w-full h-11 pl-10 pr-4 rounded-xl bg-surface-card border border-white/10 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-500/15 transition"
+            className="field h-11 pl-10"
           />
           {activeTab !== "communities" && <input type="hidden" name="tab" value={activeTab} />}
           {selectedCategory !== "All" && <input type="hidden" name="category" value={selectedCategory} />}
@@ -255,76 +226,73 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
           {sort !== "openings" && <input type="hidden" name="sort" value={sort} />}
         </form>
 
-        <div className="flex items-center gap-3 flex-wrap">
-          {/* Sorting for Communities */}
-          {activeTab === "communities" && (
-            <div className="flex items-center gap-1.5 bg-surface-card border border-white/10 rounded-xl p-1 text-xs">
-              <span className="text-slate-500 px-2 font-medium">Sort:</span>
+        {activeTab === "communities" && (
+          <div className="flex flex-wrap items-center gap-1.5 text-[13px]">
+            <span className="mr-2 font-mono text-[11px] uppercase tracking-wider text-muted">Sort</span>
+            {SORTS.map((s) => (
               <Link
-                href={`/browse${createQueryString({ sort: "openings" })}`}
-                className={`px-2.5 py-1.5 rounded-lg font-medium transition ${
-                  sort === "openings" ? "bg-violet-600 text-white" : "text-slate-400 hover:text-white"
-                }`}
+                key={s.value}
+                href={`/browse${createQueryString({ sort: s.value })}`}
+                className={cn(
+                  "rounded-md border px-3 py-1.5 transition-colors",
+                  sort === s.value ? "border-ink bg-ink text-paper" : "border-line-strong text-ink-2 hover:border-ink hover:text-ink"
+                )}
               >
-                Open Openings
+                {s.label}
               </Link>
-              <Link
-                href={`/browse${createQueryString({ sort: "rating" })}`}
-                className={`px-2.5 py-1.5 rounded-lg font-medium transition ${
-                  sort === "rating" ? "bg-violet-600 text-white" : "text-slate-400 hover:text-white"
-                }`}
-              >
-                Most Reviewed
-              </Link>
-              <Link
-                href={`/browse${createQueryString({ sort: "newest" })}`}
-                className={`px-2.5 py-1.5 rounded-lg font-medium transition ${
-                  sort === "newest" ? "bg-violet-600 text-white" : "text-slate-400 hover:text-white"
-                }`}
-              >
-                Newest
-              </Link>
-            </div>
-          )}
-
-          {/* Department Filters for Individual Openings Tab */}
-          {activeTab === "positions" && (
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0">
-              {DEPARTMENTS.map((dept) => {
-                const isAll = dept === "All Departments";
-                const isActive = isAll ? !selectedDept : selectedDept === dept;
-                return (
-                  <Link
-                    key={dept}
-                    href={`/browse${createQueryString({ department: isAll ? null : dept })}`}
-                    className={`h-9 px-3 inline-flex items-center rounded-lg text-xs font-medium whitespace-nowrap transition border ${
-                      isActive
-                        ? "bg-violet-600 border-violet-500 text-white"
-                        : "bg-surface-card border-white/10 text-slate-300 hover:text-white"
-                    }`}
-                  >
-                    {dept}
-                  </Link>
-                );
-              })}
-            </div>
-          )}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Content Rendering */}
-      {activeTab === "communities" ? (
-        <div>
-          {communities.length === 0 ? (
-            <div className="rf-card text-center py-16 px-6">
-              <Building2 className="w-10 h-10 text-slate-600 mx-auto mb-3" />
-              <h3 className="text-base font-semibold text-white">No communities match your filter</h3>
-              <p className="text-[13px] text-slate-400 mt-1 max-w-sm mx-auto">
-                Try selecting a different category or clearing your search term.
-              </p>
-            </div>
+      {/* Category chips */}
+      <div className="-mx-5 mt-5 flex gap-2 overflow-x-auto px-5 pb-1 sm:mx-0 sm:px-0">
+        {CATEGORIES.map((cat) => {
+          const isAll = cat === "All";
+          const isActive = isAll ? selectedCategory === "All" : selectedCategory === cat;
+          return (
+            <Link
+              key={cat}
+              href={`/browse${createQueryString({ category: isAll ? null : cat })}`}
+              className={cn(
+                "inline-flex h-8 shrink-0 items-center rounded-full border px-3.5 text-[13px] transition-colors",
+                isActive ? "border-accent bg-accent-soft text-accent-ink" : "border-line-strong text-ink-2 hover:border-ink hover:text-ink"
+              )}
+            >
+              {cat}
+            </Link>
+          );
+        })}
+      </div>
+
+      {activeTab === "positions" && (
+        <div className="-mx-5 mt-3 flex gap-2 overflow-x-auto px-5 pb-1 sm:mx-0 sm:px-0">
+          {DEPARTMENTS.map((dept) => {
+            const isAll = dept === "All Departments";
+            const isActive = isAll ? !selectedDept : selectedDept === dept;
+            return (
+              <Link
+                key={dept}
+                href={`/browse${createQueryString({ department: isAll ? null : dept })}`}
+                className={cn(
+                  "inline-flex h-8 shrink-0 items-center rounded-md border px-3 text-[13px] transition-colors",
+                  isActive ? "border-ink bg-ink text-paper" : "border-line text-ink-2 hover:border-ink hover:text-ink"
+                )}
+              >
+                {dept}
+              </Link>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Results */}
+      <div className="mt-10">
+        {activeTab === "communities" ? (
+          communities.length === 0 ? (
+            <EmptyState icon={Building2} title="No communities match" body="Try a different category or clear your search." />
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
               {communities.map((g) => (
                 <CommunityCard
                   key={g.id}
@@ -348,89 +316,71 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
                 />
               ))}
             </div>
-          )}
-        </div>
-      ) : (
-        <div>
-          {positions.length === 0 ? (
-            <div className="rf-card text-center py-16 px-6">
-              <Briefcase className="w-10 h-10 text-slate-600 mx-auto mb-3" />
-              <h3 className="text-base font-semibold text-white">No open positions found</h3>
-              <p className="text-[13px] text-slate-400 mt-1 max-w-sm mx-auto">
-                Try adjusting your search criteria or department filter.
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {positions.map((pos) => {
-                const reviews = pos.guild.reviews;
-                const avg =
-                  reviews.length > 0
-                    ? (reviews.reduce((a, b) => a + b.rating, 0) / reviews.length).toFixed(1)
-                    : null;
+          )
+        ) : positions.length === 0 ? (
+          <EmptyState icon={Briefcase} title="No open positions found" body="Try a different search or department." />
+        ) : (
+          <ul className="divide-y divide-line border-y border-line">
+            {positions.map((pos) => {
+              const reviews = pos.guild.reviews;
+              const avg =
+                reviews.length > 0
+                  ? (reviews.reduce((a, b) => a + b.rating, 0) / reviews.length).toFixed(1)
+                  : null;
 
-                return (
-                  <article
-                    key={pos.id}
-                    className="glass-panel glass-panel-hover rounded-2xl p-5 flex flex-col justify-between"
-                  >
-                    <div>
-                      <div className="flex items-center justify-between gap-3 mb-4">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div className="w-10 h-10 rounded-lg overflow-hidden bg-surface-card border border-white/10 shrink-0">
-                            {pos.guild.icon ? (
-                              <img src={pos.guild.icon} alt="" className="w-full h-full object-cover" />
-                            ) : (
-                              <div className="w-full h-full bg-gradient-to-br from-violet-500 to-violet-700 grid place-items-center font-display font-bold text-xs text-white">
-                                {pos.guild.name.charAt(0)}
-                              </div>
-                            )}
-                          </div>
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-1">
-                              <span className="text-[13px] font-medium text-slate-200 truncate">
-                                {pos.guild.name}
-                              </span>
-                              {pos.guild.isVerified && (
-                                <BadgeCheck className="w-3.5 h-3.5 text-violet-300 shrink-0" />
-                              )}
-                            </div>
-                            {pos.department && (
-                              <span className="text-[11px] text-violet-300">{pos.department}</span>
-                            )}
-                          </div>
-                        </div>
-
-                        {avg && (
-                          <div className="flex items-center gap-1 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded text-[11px] font-semibold text-amber-300 shrink-0">
-                            <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                            <span>{avg}</span>
-                          </div>
-                        )}
-                      </div>
-
-                      <h3 className="text-[17px] font-semibold text-white mb-2">{pos.title}</h3>
-                      <p className="text-[13px] text-slate-400 line-clamp-3 leading-relaxed mb-5">
-                        {pos.description}
-                      </p>
-                    </div>
-
-                    <div className="pt-4 border-t border-white/[0.06] flex items-center justify-between">
-                      <span className="text-[12px] text-slate-500 inline-flex items-center gap-1.5">
-                        <Users className="w-3.5 h-3.5" />
-                        {pos._count.applications} applied
+              return (
+                <li key={pos.id} className="group flex flex-col gap-4 py-6 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-muted">
+                      <span className="inline-flex items-center gap-1 font-medium text-ink-2">
+                        {pos.guild.name}
+                        {pos.guild.isVerified && <BadgeCheck className="h-3.5 w-3.5 text-moss" />}
                       </span>
-                      <Link href={`/apply/${pos.id}`} className="rf-btn-primary !px-3.5 !py-2 !text-[13px]">
-                        Apply <ArrowRight className="w-3.5 h-3.5" />
-                      </Link>
+                      {pos.department && <span className="chip">{pos.department}</span>}
+                      {avg && (
+                        <span className="inline-flex items-center gap-1 font-mono tabular-nums">
+                          <Star className="h-3 w-3 fill-gold text-gold" />
+                          {avg}
+                        </span>
+                      )}
                     </div>
-                  </article>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
+                    <h3 className="font-display text-[22px] leading-snug text-ink">{pos.title}</h3>
+                    <p className="mt-1.5 line-clamp-2 max-w-2xl text-[14px] leading-relaxed text-ink-2">{pos.description}</p>
+                  </div>
+
+                  <div className="flex shrink-0 items-center justify-between gap-6 sm:justify-end">
+                    <span className="inline-flex items-center gap-1.5 text-[13px] text-muted">
+                      <Users className="h-3.5 w-3.5" />
+                      <span className="tabular-nums">{pos._count.applications}</span> applied
+                    </span>
+                    <Link href={`/apply/${pos.id}`} className="btn-primary btn-sm">
+                      Apply <ArrowRight className="h-3.5 w-3.5" />
+                    </Link>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function EmptyState({
+  icon: Icon,
+  title,
+  body,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  body: string;
+}) {
+  return (
+    <div className="card flex flex-col items-center px-6 py-20 text-center">
+      <Icon className="mb-4 h-8 w-8 text-faint" />
+      <h3 className="display-md">{title}</h3>
+      <p className="mt-2 max-w-sm text-[14px] text-muted">{body}</p>
     </div>
   );
 }

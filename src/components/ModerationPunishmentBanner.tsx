@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { AlertOctagon, ExternalLink, ShieldAlert, X } from "lucide-react";
+import { ExternalLink, X } from "lucide-react";
 
 interface ModerationPunishmentBannerProps {
   isBanned?: boolean;
@@ -13,38 +13,31 @@ export function ModerationPunishmentBanner({ isBanned }: ModerationPunishmentBan
   if (!isBanned || dismissed) return null;
 
   return (
-    <div className="relative z-50 bg-gradient-to-r from-red-950/90 via-red-900/95 to-red-950/90 border-b border-red-500/40 text-red-100 px-4 py-3 shadow-xl backdrop-blur-md">
-      <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-red-500/20 border border-red-500/40 flex items-center justify-center shrink-0 text-red-400">
-            <ShieldAlert className="w-4 h-4 animate-pulse" />
-          </div>
-          <div>
-            <span className="font-bold text-red-200 uppercase tracking-wider text-[11px] block sm:inline sm:mr-2">
-              [Account Restriction Notice]
-            </span>
-            <span>
-              Your account has been restricted by Trust & Safety for policy violations. Submissions and management actions are restricted.
-            </span>
-          </div>
-        </div>
+    <div className="relative z-50 border-b border-danger bg-danger text-paper">
+      <div className="page-wrap flex flex-col items-start justify-between gap-3 py-3 text-[14px] sm:flex-row sm:items-center">
+        <p>
+          <span className="mr-2 font-mono text-[11px] uppercase tracking-wider opacity-80">Account restricted</span>
+          Trust &amp; Safety has restricted this account for policy violations. Submissions and management actions are unavailable.
+        </p>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex shrink-0 items-center gap-2">
           <a
             href="https://discord.gg/tKPbCXbmr9"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white font-medium text-xs transition shadow-sm"
+            className="inline-flex min-h-[32px] items-center gap-1.5 rounded-md border border-paper/40 px-3 py-1 text-[13px] font-medium transition-colors hover:bg-paper hover:text-danger"
           >
-            Submit Appeal
-            <ExternalLink className="w-3.5 h-3.5" />
+            Submit an appeal
+            <ExternalLink className="h-3.5 w-3.5" />
           </a>
           <button
+            type="button"
             onClick={() => setDismissed(true)}
             title="Dismiss notice"
-            className="p-1.5 rounded-md hover:bg-red-800/40 text-red-300 hover:text-white transition"
+            aria-label="Dismiss notice"
+            className="grid h-8 w-8 place-items-center rounded-md transition-colors hover:bg-paper/15"
           >
-            <X className="w-4 h-4" />
+            <X className="h-4 w-4" />
           </button>
         </div>
       </div>

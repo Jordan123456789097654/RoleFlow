@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Space_Grotesk } from "next/font/google";
+import { Fraunces, Instrument_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -9,8 +9,9 @@ import { ModerationPunishmentBanner } from "@/components/ModerationPunishmentBan
 import { MaintenanceGuard } from "@/components/MaintenanceGuard";
 import { getCurrentUser } from "@/lib/auth";
 
-const sans = Inter({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
-const display = Space_Grotesk({ subsets: ["latin"], variable: "--font-display", display: "swap" });
+const sans = Instrument_Sans({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
+const display = Fraunces({ subsets: ["latin"], variable: "--font-display", display: "swap", axes: ["opsz"] });
+const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap" });
 
 export const metadata: Metadata = {
   title: "RoleFlow — The New Way of Managing Applications",
@@ -23,8 +24,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#090a0f",
-  colorScheme: "dark",
+  themeColor: "#f4f1ea",
+  colorScheme: "light",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default async function RootLayout({
@@ -35,24 +38,18 @@ export default async function RootLayout({
   const user = await getCurrentUser();
 
   return (
-    <html lang="en" className={`dark ${sans.variable} ${display.variable}`}>
-      <body className="min-h-screen bg-background text-slate-100 flex flex-col relative antialiased">
+    <html lang="en" className={`${sans.variable} ${display.variable} ${mono.variable}`}>
+      <body className="flex min-h-screen flex-col bg-paper text-ink antialiased">
         <a href="#main" className="skip-link">Skip to content</a>
 
-        {/* Aurora + masked grid backdrop */}
-        <div className="ambient-glow" aria-hidden="true" />
-        <div className="fixed inset-0 bg-grid-pattern pointer-events-none z-0" aria-hidden="true" />
-
-        <div className="relative z-10 flex flex-col min-h-screen">
-          <MaintenanceGuard isStaffOrAdmin={Boolean(user?.isSupportStaff || user?.isSiteAdmin)}>
-            <ModerationPunishmentBanner isBanned={user?.isBanned} />
-            <BetaBanner />
-            <ChangelogBroadcastModal />
-            <Navbar user={user} />
-            <main id="main" className="flex-1">{children}</main>
-            <Footer />
-          </MaintenanceGuard>
-        </div>
+        <MaintenanceGuard isStaffOrAdmin={Boolean(user?.isSupportStaff || user?.isSiteAdmin)}>
+          <ModerationPunishmentBanner isBanned={user?.isBanned} />
+          <BetaBanner />
+          <ChangelogBroadcastModal />
+          <Navbar user={user} />
+          <main id="main" className="flex-1">{children}</main>
+          <Footer />
+        </MaintenanceGuard>
       </body>
     </html>
   );

@@ -3,20 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import {
-  Compass,
-  FileText,
-  LayoutDashboard,
-  Shield,
-  LifeBuoy,
-  Search,
-  Settings,
-  LogOut,
-  ChevronDown,
-  Menu,
-  X,
-  LayoutTemplate,
-} from "lucide-react";
+import { Menu, X, ChevronDown, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface NavbarProps {
@@ -74,85 +61,65 @@ export function Navbar({ user }: NavbarProps) {
 
   const roleLabel =
     user?.siteRole === "FOUNDER"
-      ? "Platform Founder"
+      ? "Platform founder"
       : user?.siteRole === "ADMIN" || user?.isSiteAdmin
-      ? "Site Admin"
+      ? "Site admin"
       : user?.siteRole === "MODERATOR"
       ? "Moderator"
       : user?.siteRole === "SUPPORT"
-      ? "Support Staff"
+      ? "Support staff"
       : user?.siteRole === "STAFF"
       ? "Staff"
       : user?.hasCommunities
-      ? "Community Lead"
+      ? "Community lead"
       : "Member";
 
   const links = [
-    { href: "/browse", label: "Browse", icon: Compass, active: pathname === "/browse" },
-    ...(user ? [{ href: "/my-applications", label: "My applications", icon: FileText, active: pathname === "/my-applications" }] : []),
-    ...(user?.hasCommunities ? [{ href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, active: pathname.startsWith("/dashboard") }] : []),
+    { href: "/browse", label: "Browse", active: pathname === "/browse" },
+    ...(user ? [{ href: "/my-applications", label: "My applications", active: pathname === "/my-applications" }] : []),
+    ...(user?.hasCommunities ? [{ href: "/dashboard", label: "Dashboard", active: pathname.startsWith("/dashboard") }] : []),
   ];
 
   const isStaff = Boolean(user?.isSupportStaff || user?.isSiteAdmin);
   const avatar = user?.avatar || FALLBACK_AVATAR;
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/[0.07] bg-background/75 backdrop-blur-xl">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-50 w-full border-b border-line bg-paper/90 backdrop-blur-md">
+      <div className="page-wrap flex h-16 items-center justify-between gap-6">
         {/* Brand + primary nav */}
-        <div className="flex items-center gap-8">
-          <Link href="/" className="flex items-center gap-2.5 group shrink-0" aria-label="RoleFlow home">
-            <span className="relative w-8 h-8 rounded-[10px] overflow-hidden ring-1 ring-white/10 group-hover:ring-violet-400/60 transition">
-              <img src="/logo.png" alt="" className="w-full h-full object-cover" />
-            </span>
-            <span className="font-display text-[17px] font-bold tracking-tight text-white">RoleFlow</span>
+        <div className="flex items-center gap-10">
+          <Link href="/" className="group flex shrink-0 items-center gap-2.5" aria-label="RoleFlow home">
+            <img src="/logo.png" alt="" className="h-7 w-7 rounded-md" />
+            <span className="font-display text-[19px] font-semibold tracking-tight text-ink">RoleFlow</span>
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-1" aria-label="Primary">
+          <nav className="hidden items-center gap-6 lg:flex" aria-label="Primary">
             {links.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}
                 aria-current={l.active ? "page" : undefined}
                 className={cn(
-                  "relative px-3 py-2 rounded-lg text-[13px] font-medium transition-colors flex items-center gap-1.5",
-                  l.active ? "text-white" : "text-slate-400 hover:text-white hover:bg-white/[0.05]"
+                  "text-[14px] transition-colors",
+                  l.active ? "font-medium text-ink underline decoration-accent decoration-2 underline-offset-[10px]" : "text-muted hover:text-ink"
                 )}
               >
-                <l.icon className="w-3.5 h-3.5" />
-                <span>{l.label}</span>
-                {l.active && <span className="absolute inset-x-3 -bottom-[17px] h-px bg-gradient-to-r from-transparent via-violet-400 to-transparent" />}
+                {l.label}
               </Link>
             ))}
-
-            {isStaff && <span className="h-4 w-px bg-white/10 mx-2" />}
             {isStaff && (
               <Link
                 href="/support/panel"
-                title="Support console"
-                className={cn(
-                  "px-2.5 py-1.5 rounded-lg text-[12px] font-medium flex items-center gap-1.5 border transition-colors",
-                  pathname.startsWith("/support/panel")
-                    ? "text-cyan-200 bg-cyan-500/10 border-cyan-500/30"
-                    : "text-cyan-300/90 border-transparent hover:bg-cyan-500/10"
-                )}
+                className={cn("text-[14px] transition-colors", pathname.startsWith("/support/panel") ? "font-medium text-ink" : "text-muted hover:text-ink")}
               >
-                <LifeBuoy className="w-3.5 h-3.5" />
                 Support
               </Link>
             )}
             {user?.isSiteAdmin && (
               <Link
                 href="/admin"
-                title="Admin console"
-                className={cn(
-                  "px-2.5 py-1.5 rounded-lg text-[12px] font-medium flex items-center gap-1.5 border transition-colors",
-                  pathname === "/admin"
-                    ? "text-violet-200 bg-violet-500/10 border-violet-500/30"
-                    : "text-violet-300/90 border-transparent hover:bg-violet-500/10"
-                )}
+                className={cn("text-[14px] transition-colors", pathname === "/admin" ? "font-medium text-ink" : "text-muted hover:text-ink")}
               >
-                <Shield className="w-3.5 h-3.5" />
                 Admin
               </Link>
             )}
@@ -160,15 +127,15 @@ export function Navbar({ user }: NavbarProps) {
         </div>
 
         {/* Search + account */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-3">
           <Link
             href="/browse"
-            className="hidden md:flex items-center gap-2 h-9 pl-3 pr-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-[13px] text-slate-400 hover:text-white hover:border-white/20 transition"
+            className="hidden h-9 items-center gap-2 rounded-md border border-line-strong bg-surface px-3 text-[13px] text-muted transition-colors hover:border-ink hover:text-ink md:flex"
             title="Search openings (press /)"
           >
-            <Search className="w-3.5 h-3.5" />
-            <span className="hidden xl:inline w-36 text-left">Search openings</span>
-            <kbd className="px-1.5 py-0.5 rounded bg-black/40 text-[10px] text-slate-400 border border-white/10 font-mono">/</kbd>
+            <Search className="h-3.5 w-3.5" />
+            <span className="hidden xl:inline">Search openings</span>
+            <kbd className="kbd">/</kbd>
           </Link>
 
           {user ? (
@@ -177,54 +144,53 @@ export function Navbar({ user }: NavbarProps) {
                 type="button"
                 onClick={() => setProfileOpen(!profileOpen)}
                 className={cn(
-                  "flex items-center gap-2 h-10 pl-1 pr-2 sm:pr-3 rounded-full border transition text-left",
-                  profileOpen ? "bg-white/10 border-violet-400/50" : "bg-white/[0.03] border-white/10 hover:border-white/25"
+                  "flex h-10 items-center gap-2 rounded-md border px-1.5 pr-2 text-left transition-colors sm:pr-3",
+                  profileOpen ? "border-ink bg-surface" : "border-line-strong bg-surface hover:border-ink"
                 )}
                 aria-expanded={profileOpen}
                 aria-haspopup="menu"
               >
-                <img src={avatar} alt="" className="w-8 h-8 rounded-full object-cover ring-1 ring-white/10" />
-                <span className="hidden sm:flex flex-col leading-none">
-                  <span className="text-[12px] font-semibold text-white truncate max-w-[110px]">{user.username}</span>
-                  <span className="text-[9px] font-mono uppercase tracking-wider mt-1 text-slate-400">{roleLabel}</span>
+                <img src={avatar} alt="" className="h-7 w-7 rounded-sm object-cover" />
+                <span className="hidden flex-col leading-tight sm:flex">
+                  <span className="max-w-[120px] truncate text-[13px] font-medium text-ink">{user.username}</span>
+                  <span className="font-mono text-[10px] uppercase tracking-wider text-muted">{roleLabel}</span>
                 </span>
-                <ChevronDown className={cn("w-3.5 h-3.5 text-slate-400 transition-transform hidden sm:block", profileOpen && "rotate-180 text-white")} />
+                <ChevronDown className={cn("hidden h-3.5 w-3.5 text-muted transition-transform sm:block", profileOpen && "rotate-180 text-ink")} />
               </button>
 
               {profileOpen && (
-                <div role="menu" className="animate-in absolute right-0 mt-2 w-72 rounded-2xl bg-surface border border-white/[0.12] shadow-2xl shadow-black/60 p-2 z-50">
-                  <div className="p-3 rounded-xl bg-white/[0.04] flex items-center gap-3 mb-1">
-                    <img src={avatar} alt="" className="w-10 h-10 rounded-full object-cover ring-1 ring-white/10 shrink-0" />
+                <div role="menu" className="animate-in absolute right-0 z-50 mt-2 w-72 rounded-lg border border-line-strong bg-surface p-2 shadow-pop">
+                  <div className="mb-1 flex items-center gap-3 rounded-md bg-sunk p-3">
+                    <img src={avatar} alt="" className="h-10 w-10 shrink-0 rounded-sm object-cover" />
                     <div className="min-w-0">
-                      <div className="text-sm font-semibold text-white truncate">{user.username}</div>
-                      <div className="text-[10px] text-slate-400 font-mono truncate">{user.id}</div>
-                      {user.robloxUsername && <div className="text-[10px] text-slate-300 font-mono truncate">@{user.robloxUsername}</div>}
+                      <div className="truncate text-[14px] font-semibold text-ink">{user.username}</div>
+                      <div className="truncate font-mono text-[11px] text-muted">{user.id}</div>
+                      {user.robloxUsername && <div className="truncate font-mono text-[11px] text-ink-2">@{user.robloxUsername}</div>}
                     </div>
                   </div>
 
-                  <div className="py-1 text-[13px]">
-                    <MenuLink href="/settings" icon={Settings}>Account settings</MenuLink>
-                    <MenuLink href="/my-applications" icon={FileText}>My applications</MenuLink>
-                    {user.hasCommunities && <MenuLink href="/dashboard" icon={LayoutDashboard}>Community dashboard</MenuLink>}
+                  <div className="py-1 text-[14px]">
+                    <MenuLink href="/settings">Account settings</MenuLink>
+                    <MenuLink href="/my-applications">My applications</MenuLink>
+                    {user.hasCommunities && <MenuLink href="/dashboard">Community dashboard</MenuLink>}
 
                     {isStaff && (
                       <>
-                        <div className="my-1.5 border-t border-white/10" />
-                        <div className="px-3 py-1 text-[10px] font-mono font-semibold text-slate-500 uppercase tracking-wider">Internal tools</div>
-                        {user.isSupportStaff && <MenuLink href="/support/panel" icon={LifeBuoy} tone="cyan">Support panel</MenuLink>}
-                        {user.isSiteAdmin && <MenuLink href="/admin" icon={Shield} tone="violet">Admin console</MenuLink>}
+                        <div className="my-1.5 border-t border-line" />
+                        <div className="px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-faint">Internal tools</div>
+                        {user.isSupportStaff && <MenuLink href="/support/panel">Support panel</MenuLink>}
+                        {user.isSiteAdmin && <MenuLink href="/admin">Admin console</MenuLink>}
                       </>
                     )}
 
-                    <div className="my-1.5 border-t border-white/10" />
+                    <div className="my-1.5 border-t border-line" />
                     {/* POST so other sites cannot sign people out with an image tag */}
                     <form action="/api/auth/logout" method="post">
                       <button
                         type="submit"
                         role="menuitem"
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-rose-400 hover:text-rose-200 hover:bg-rose-500/10 transition-colors font-medium"
+                        className="w-full rounded-sm px-3 py-2 text-left font-medium text-danger transition-colors hover:bg-danger-soft"
                       >
-                        <LogOut className="w-4 h-4" />
                         Log out
                       </button>
                     </form>
@@ -233,11 +199,7 @@ export function Navbar({ user }: NavbarProps) {
               )}
             </div>
           ) : (
-            <a
-              href="/api/auth/login"
-              className="inline-flex items-center gap-2 h-9 px-4 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-[13px] font-semibold transition-colors"
-              style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,.18), 0 6px 18px -8px rgba(109,77,245,.7)" }}
-            >
+            <a href="/api/auth/login" className="btn-primary btn-sm">
               Log in with Discord
             </a>
           )}
@@ -245,91 +207,57 @@ export function Navbar({ user }: NavbarProps) {
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden h-9 w-9 grid place-items-center rounded-lg text-slate-300 hover:text-white hover:bg-white/5 border border-white/10 transition-colors"
+            className="grid h-10 w-10 place-items-center rounded-md border border-line-strong bg-surface text-ink transition-colors hover:border-ink lg:hidden"
             aria-label="Toggle navigation menu"
             aria-expanded={mobileMenuOpen}
           >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {mobileMenuOpen ? <X className="h-4.5 w-4.5" /> : <Menu className="h-4.5 w-4.5" />}
           </button>
         </div>
       </div>
 
       {mobileMenuOpen && (
-        <nav className="animate-in lg:hidden border-t border-white/[0.07] bg-surface px-4 py-4 space-y-1" aria-label="Mobile">
-          {links.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className={cn(
-                "flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium",
-                l.active ? "text-white bg-white/10" : "text-slate-300 hover:bg-white/5"
-              )}
-            >
-              <l.icon className="w-4 h-4" />
-              {l.label}
-            </Link>
-          ))}
-          {user && (
-            <Link href="/settings" className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-white/5">
-              <Settings className="w-4 h-4" />
-              Account settings
-            </Link>
-          )}
-          {isStaff && (
-            <div className="pt-2 mt-2 border-t border-white/10 space-y-1">
-              {user?.isSupportStaff && (
-                <Link href="/support/panel" className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-cyan-300 hover:bg-cyan-500/10">
-                  <LifeBuoy className="w-4 h-4" />
-                  Support panel
-                </Link>
-              )}
-              {user?.isSiteAdmin && (
-                <Link href="/admin" className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-violet-300 hover:bg-violet-500/10">
-                  <Shield className="w-4 h-4" />
-                  Admin console
-                </Link>
-              )}
-            </div>
-          )}
-          {user && (
-            <form action="/api/auth/logout" method="post" className="pt-2 mt-2 border-t border-white/10">
-              <button type="submit" className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-rose-400 hover:bg-rose-500/10">
-                <LogOut className="w-4 h-4" />
-                Log out
-              </button>
-            </form>
-          )}
+        <nav className="animate-in border-t border-line bg-paper px-5 py-4 lg:hidden" aria-label="Mobile">
+          <div className="flex flex-col">
+            {links.map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                className={cn("border-b border-line py-3.5 font-display text-[22px]", l.active ? "text-accent" : "text-ink")}
+              >
+                {l.label}
+              </Link>
+            ))}
+            {user && (
+              <Link href="/settings" className="border-b border-line py-3.5 font-display text-[22px] text-ink">
+                Account settings
+              </Link>
+            )}
+            {isStaff && (
+              <div className="mt-2 flex flex-col">
+                {user?.isSupportStaff && (
+                  <Link href="/support/panel" className="border-b border-line py-3.5 font-display text-[22px] text-ink">Support panel</Link>
+                )}
+                {user?.isSiteAdmin && (
+                  <Link href="/admin" className="border-b border-line py-3.5 font-display text-[22px] text-ink">Admin console</Link>
+                )}
+              </div>
+            )}
+            {user && (
+              <form action="/api/auth/logout" method="post" className="mt-2">
+                <button type="submit" className="py-3.5 text-left font-medium text-danger">Log out</button>
+              </form>
+            )}
+          </div>
         </nav>
       )}
     </header>
   );
 }
 
-function MenuLink({
-  href,
-  icon: Icon,
-  children,
-  tone,
-}: {
-  href: string;
-  icon: React.ComponentType<{ className?: string }>;
-  children: React.ReactNode;
-  tone?: "cyan" | "violet";
-}) {
+function MenuLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <Link
-      href={href}
-      role="menuitem"
-      className={cn(
-        "flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors",
-        tone === "cyan"
-          ? "text-cyan-300 hover:bg-cyan-500/10"
-          : tone === "violet"
-          ? "text-violet-300 hover:bg-violet-500/10"
-          : "text-slate-300 hover:text-white hover:bg-white/[0.07]"
-      )}
-    >
-      <Icon className="w-4 h-4 opacity-80" />
+    <Link href={href} role="menuitem" className="block rounded-sm px-3 py-2 text-ink-2 transition-colors hover:bg-sunk hover:text-ink">
       {children}
     </Link>
   );
