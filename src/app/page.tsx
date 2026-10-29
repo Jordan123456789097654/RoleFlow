@@ -27,7 +27,7 @@ const FEATURES = [
   { icon: EyeOff, title: "Blind voting", body: "Votes stay hidden until each reviewer submits, so one loud opinion can't steer the team." },
   { icon: Bot, title: "White-label Discord bot", body: "Run the RoleFlow bot or bring your own: your name, avatar, embed colors, staff pings and role grants." },
   { icon: Gamepad2, title: "Roblox-aware", body: "Verified Roblox accounts, group rank checks and live profile previews for developer studios." },
-  { icon: Timer, title: "Anti-burnout tools", body: "Rejection cooldowns, community blacklists, and one-click templates keep low-effort spam out." },
+  { icon: Timer, title: "Anti-burnout tools", body: "Rejection cooldowns, community blacklists, and automated role triggers keep low-effort spam out." },
   { icon: MessagesSquare, title: "Interview channels", body: "Moving someone to Interview opens a private thread in Discord, with no manual setup." },
   { icon: FileText, title: "Quick actions", body: "Accept or reject straight from the staff embed or with slash commands, without leaving Discord." },
 ];
@@ -51,19 +51,21 @@ export default async function HomePage() {
       {/* ───────── Hero ───────── */}
       <section className="relative px-4 sm:px-6 lg:px-8 pt-20 sm:pt-28 pb-16 max-w-7xl mx-auto">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 h-7 pl-2 pr-3 rounded-full border border-white/10 bg-white/[0.04] text-[12px] text-slate-300 mb-8 animate-rf-fade">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-            {totalOpenPositions} open position{totalOpenPositions === 1 ? "" : "s"} right now
+          <div className="inline-flex items-center gap-2 h-7 pl-2.5 pr-3.5 rounded-full border border-violet-500/30 bg-violet-950/40 text-[12px] text-violet-200 mb-8 animate-rf-fade shadow-lg shadow-violet-500/10">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="font-semibold text-white">RoleFlow Live</span>
+            <span className="text-violet-400">·</span>
+            <span>{totalOpenPositions} open position{totalOpenPositions === 1 ? "" : "s"} across active communities</span>
           </div>
 
-          <h1 className="text-[2.6rem] sm:text-6xl lg:text-7xl font-bold text-white leading-[1.04]">
-            The new way of
+          <h1 className="text-[2.75rem] sm:text-6xl lg:text-7xl font-extrabold text-white leading-[1.05] tracking-tight">
+            Stop drowning in DMs.
             <br />
-            managing <span className="rf-gradient-text">applications</span>
+            Hire staff <span className="rf-gradient-text">effortlessly</span>.
           </h1>
 
-          <p className="mt-6 text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
-            Communities post openings. People apply once. Staff review, interview, and decide in one place instead of drowning in Discord DMs.
+          <p className="mt-6 text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
+            The dedicated recruiting platform for Discord servers, Roblox developer studios, and gaming networks. Form pipelines, blind voting, and automated Discord bot actions in one place.
           </p>
 
           {/* Search + CTA */}
@@ -75,7 +77,7 @@ export default async function HomePage() {
                 id="home-search"
                 type="text"
                 name="q"
-                placeholder="Search roles, communities…"
+                placeholder="Search studios, moderation, scripters…"
                 className="w-full h-12 pl-11 pr-10 rounded-xl bg-surface-card border border-white/10 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-violet-400/70 focus:ring-4 focus:ring-violet-500/15 transition"
               />
               <kbd className="absolute right-3.5 px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-[10px] text-slate-400 font-mono">/</kbd>
@@ -86,7 +88,25 @@ export default async function HomePage() {
             </Link>
           </div>
 
-          <div className="mt-5 flex items-center justify-center gap-5 text-[13px] text-slate-400">
+          {/* Quick Category Tags */}
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            {[
+              { label: "Roblox Studios", category: "Roblox Studios" },
+              { label: "Emergency Services", category: "Emergency Services" },
+              { label: "Moderators", category: "Gaming Clans" },
+              { label: "Developers", category: "Tech & Dev" },
+            ].map((tag) => (
+              <Link
+                key={tag.label}
+                href={`/browse?category=${encodeURIComponent(tag.category)}`}
+                className="px-2.5 py-1 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 hover:border-violet-500/30 text-[11px] font-medium text-slate-400 hover:text-white transition-all"
+              >
+                {tag.label}
+              </Link>
+            ))}
+          </div>
+
+          <div className="mt-6 flex items-center justify-center gap-5 text-[13px] text-slate-400">
             <Link href="/my-applications" className="hover:text-white transition-colors">My applications</Link>
             <span className="w-1 h-1 rounded-full bg-slate-600" />
             <Link href="/dashboard" className="hover:text-white transition-colors">Manage a community</Link>

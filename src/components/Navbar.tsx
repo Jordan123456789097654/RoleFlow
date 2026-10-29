@@ -89,7 +89,6 @@ export function Navbar({ user }: NavbarProps) {
 
   const links = [
     { href: "/browse", label: "Browse", icon: Compass, active: pathname === "/browse" },
-    { href: "/marketplace", label: "Templates", icon: LayoutTemplate, active: pathname === "/marketplace" },
     ...(user ? [{ href: "/my-applications", label: "My applications", icon: FileText, active: pathname === "/my-applications" }] : []),
     ...(user?.hasCommunities ? [{ href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, active: pathname.startsWith("/dashboard") }] : []),
   ];

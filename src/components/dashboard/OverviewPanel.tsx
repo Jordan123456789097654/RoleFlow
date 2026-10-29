@@ -121,11 +121,6 @@ export default function OverviewPanel({ guildId, onOpenApplications }: { guildId
           )}
         </section>
       </div>
-
-      <p className="text-xs text-slate-500">
-        Browse shared position templates in the{" "}
-        <Link href="/marketplace" className="text-purple-400 hover:text-purple-300">template marketplace</Link>.
-      </p>
     </div>
   );
 }

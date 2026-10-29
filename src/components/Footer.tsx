@@ -9,7 +9,6 @@ const COLUMNS: Array<{ title: string; links: Array<{ href: string; label: string
       { href: "/browse", label: "Browse openings" },
       { href: "/my-applications", label: "My applications" },
       { href: "/dashboard", label: "Community dashboard" },
-      { href: "/marketplace", label: "Template marketplace" },
       { href: "/settings", label: "Account & support" },
       { href: "/billing", label: "Billing" },
     ],
