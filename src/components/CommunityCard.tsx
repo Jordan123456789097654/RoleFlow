@@ -46,7 +46,7 @@ export function CommunityCard({ guild }: CommunityCardProps) {
   return (
     <Link
       href={targetUrl}
-      className="card card-hover group flex flex-col overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-accent/40"
+      className="card card-hover group flex flex-col overflow-hidden transition-all duration-300 hover:shadow-card hover:border-accent/40"
     >
       {/* Banner */}
       <div className="relative h-28 w-full overflow-hidden border-b border-line bg-sunk/60">

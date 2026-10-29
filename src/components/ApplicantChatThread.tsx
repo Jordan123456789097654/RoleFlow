@@ -72,7 +72,7 @@ export function ApplicantChatThread({
                   key={m.id}
                   className={`p-2.5 rounded-xl text-xs space-y-1 ${
                     m.senderRole === "STAFF"
-                      ? "bg-purple-900/30 border border-purple-500/20 text-purple-700 dark:text-purple-200 mr-3"
+                      ? "bg-purple-500/15 border border-purple-500/20 text-purple-700 dark:text-purple-200 mr-3"
                       : "bg-sunk border border-line text-ink-2 ml-3"
                   }`}
                 >

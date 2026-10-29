@@ -41,19 +41,19 @@ export default async function RootLayout({
   const user = await getCurrentUser();
 
   return (
-    <html lang="en" className={`dark ${sans.variable} ${display.variable} ${mono.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`light ${sans.variable} ${display.variable} ${mono.variable}`} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
             __html: `
               try {
                 var theme = localStorage.getItem('rf_theme');
-                if (theme === 'light') {
-                  document.documentElement.classList.remove('dark');
-                  document.documentElement.classList.add('light');
-                } else {
-                  document.documentElement.classList.add('dark');
+                if (theme === 'dark') {
                   document.documentElement.classList.remove('light');
+                  document.documentElement.classList.add('dark');
+                } else {
+                  document.documentElement.classList.add('light');
+                  document.documentElement.classList.remove('dark');
                 }
               } catch (_) {}
             `,

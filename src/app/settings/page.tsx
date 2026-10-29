@@ -281,7 +281,7 @@ export default function SettingsPage() {
         </p>
         <a
           href="/api/auth/login"
-          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold shadow-lg shadow-violet-600/30 transition-all"
+          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold shadow-card shadow-violet-600/30 transition-all"
         >
           <span>Login with Discord</span>
           <ArrowRight className="w-4 h-4" />
@@ -336,7 +336,7 @@ export default function SettingsPage() {
                 onClick={() => setActiveTab("profile")}
                 className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                   activeTab === "profile"
-                    ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
+                    ? "bg-purple-600 text-white shadow-card shadow-purple-600/30"
                     : "text-muted hover:text-ink hover:bg-sunk"
                 }`}
               >
@@ -347,7 +347,7 @@ export default function SettingsPage() {
                 onClick={() => setActiveTab("security")}
                 className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                   activeTab === "security"
-                    ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
+                    ? "bg-purple-600 text-white shadow-card shadow-purple-600/30"
                     : "text-muted hover:text-ink hover:bg-sunk"
                 }`}
               >
@@ -358,7 +358,7 @@ export default function SettingsPage() {
                 onClick={() => setActiveTab("status")}
                 className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                   activeTab === "status"
-                    ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
+                    ? "bg-purple-600 text-white shadow-card shadow-purple-600/30"
                     : "text-muted hover:text-ink hover:bg-sunk"
                 }`}
               >
@@ -369,7 +369,7 @@ export default function SettingsPage() {
                 onClick={() => setActiveTab("connected-apps")}
                 className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                   activeTab === "connected-apps"
-                    ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
+                    ? "bg-purple-600 text-white shadow-card shadow-purple-600/30"
                     : "text-muted hover:text-ink hover:bg-sunk"
                 }`}
               >
@@ -380,7 +380,7 @@ export default function SettingsPage() {
                 onClick={() => setActiveTab("linked-accounts")}
                 className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                   activeTab === "linked-accounts"
-                    ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
+                    ? "bg-purple-600 text-white shadow-card shadow-purple-600/30"
                     : "text-muted hover:text-ink hover:bg-sunk"
                 }`}
               >
@@ -400,7 +400,7 @@ export default function SettingsPage() {
                 onClick={() => setActiveTab("activation-keys")}
                 className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                   activeTab === "activation-keys"
-                    ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
+                    ? "bg-purple-600 text-white shadow-card shadow-purple-600/30"
                     : "text-muted hover:text-ink hover:bg-sunk"
                 }`}
               >
@@ -411,7 +411,7 @@ export default function SettingsPage() {
                 onClick={() => setActiveTab("ai-controls")}
                 className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                   activeTab === "ai-controls"
-                    ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
+                    ? "bg-purple-600 text-white shadow-card shadow-purple-600/30"
                     : "text-muted hover:text-ink hover:bg-sunk"
                 }`}
               >
@@ -431,7 +431,7 @@ export default function SettingsPage() {
                 onClick={() => setActiveTab("support")}
                 className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                   activeTab === "support"
-                    ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
+                    ? "bg-purple-600 text-white shadow-card shadow-purple-600/30"
                     : "text-muted hover:text-ink hover:bg-sunk"
                 }`}
               >
@@ -445,7 +445,7 @@ export default function SettingsPage() {
                 onClick={() => setActiveTab("developer")}
                 className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                   activeTab === "developer"
-                    ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
+                    ? "bg-purple-600 text-white shadow-card shadow-purple-600/30"
                     : "text-muted hover:text-ink hover:bg-sunk"
                 }`}
               >
@@ -456,7 +456,7 @@ export default function SettingsPage() {
                 onClick={() => setActiveTab("danger-zone")}
                 className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                   activeTab === "danger-zone"
-                    ? "bg-rose-600 text-white shadow-lg shadow-rose-600/30"
+                    ? "bg-rose-600 text-white shadow-card shadow-rose-600/30"
                     : "text-danger hover:text-danger hover:bg-rose-500/10"
                 }`}
               >
@@ -486,7 +486,7 @@ export default function SettingsPage() {
                     <img
                       src={profile.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"}
                       alt={profile.username}
-                      className="w-24 h-24 rounded-2xl object-cover border-2 border-purple-500/40 shadow-xl"
+                      className="w-24 h-24 rounded-2xl object-cover border-2 border-purple-500/40 shadow-card"
                     />
                     <div className="absolute -bottom-1.5 -right-1.5 px-2 py-0.5 rounded-md bg-purple-600 text-[10px] font-bold text-white font-mono shadow">
                       {profile.isSiteAdmin ? "ADMIN" : "CREATOR"}
@@ -721,7 +721,7 @@ export default function SettingsPage() {
                       <img
                         src={profile.robloxAvatar}
                         alt={profile.robloxUsername || "Roblox"}
-                        className="w-24 h-24 rounded-2xl object-cover border-2 border-emerald-500/40 bg-black shadow-xl"
+                        className="w-24 h-24 rounded-2xl object-cover border-2 border-emerald-500/40 bg-black shadow-card"
                       />
                     ) : (
                       <div className="w-24 h-24 rounded-2xl bg-surface border border-line flex flex-col items-center justify-center text-faint text-xs">
@@ -752,7 +752,7 @@ export default function SettingsPage() {
                   <button
                     type="submit"
                     disabled={savingRoblox}
-                    className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-xs font-bold text-white transition-all shadow-lg shadow-violet-600/30"
+                    className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-xs font-bold text-white transition-all shadow-card shadow-violet-600/30"
                   >
                     {savingRoblox ? "Linking..." : "Save Linked Roblox Identity"}
                   </button>
@@ -915,7 +915,7 @@ export default function SettingsPage() {
                 </div>
 
                 {supportCode ? (
-                  <div className="p-5 rounded-2xl bg-black/60 border border-purple-500/40 space-y-4">
+                  <div className="p-5 rounded-2xl bg-sunk border border-purple-500/40 space-y-4">
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                       <div>
                         <p className="text-xs font-medium text-muted mb-1">
@@ -970,7 +970,7 @@ export default function SettingsPage() {
                     <button
                       onClick={handleGenerateSupportCode}
                       disabled={generatingCode}
-                      className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-lg shadow-violet-600/30 shrink-0"
+                      className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-card shadow-violet-600/30 shrink-0"
                     >
                       {generatingCode ? "Generating..." : "Generate 10-Min Support Code"}
                     </button>
@@ -1054,7 +1054,7 @@ export default function SettingsPage() {
                       type={showApiKey ? "text" : "password"}
                       readOnly
                       value={`rf_live_${profile.id}_89f3a912e73c880`}
-                      className="flex-1 px-3.5 py-2 rounded-xl bg-black/60 border border-line text-xs text-accent font-mono"
+                      className="flex-1 px-3.5 py-2 rounded-xl bg-sunk border border-line text-xs text-accent font-mono"
                     />
                     <button
                       onClick={copyApiKey}
@@ -1093,7 +1093,7 @@ export default function SettingsPage() {
           {/* TAB 10: DANGER ZONE */}
           {activeTab === "danger-zone" && (
             <div className="space-y-6">
-              <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-rose-500/30 bg-rose-950/10 space-y-6">
+              <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-rose-500/30 bg-rose-500/10 space-y-6">
                 <div>
                   <h3 className="text-lg font-bold text-danger">Danger Zone</h3>
                   <p className="text-xs text-muted mt-1">
@@ -1155,7 +1155,7 @@ export default function SettingsPage() {
                         placeholder="Type DELETE to confirm"
                         value={dangerConfirm}
                         onChange={(e) => setDangerConfirm(e.target.value)}
-                        className="px-3.5 py-2 rounded-xl bg-black/60 border border-rose-500/30 text-xs text-ink placeholder-faint focus:outline-none focus:border-rose-500 font-mono"
+                        className="px-3.5 py-2 rounded-xl bg-sunk border border-rose-500/30 text-xs text-ink placeholder-faint focus:outline-none focus:border-rose-500 font-mono"
                       />
                       <button
                         disabled={dangerConfirm !== "DELETE"}

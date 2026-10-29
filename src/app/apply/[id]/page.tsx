@@ -276,7 +276,7 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
   if (success) {
     return (
       <div className="max-w-lg mx-auto px-4 py-20 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-moss mx-auto mb-6 shadow-xl shadow-emerald-500/10">
+        <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-moss mx-auto mb-6 shadow-card shadow-emerald-500/10">
           <CheckCircle2 className="w-8 h-8" />
         </div>
         <h1 className="text-2xl font-bold text-ink mb-2">Application Submitted!</h1>
@@ -289,7 +289,7 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
         <div className="flex items-center justify-center gap-3">
           <Link
             href="/my-applications"
-            className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold shadow-lg shadow-violet-600/30 transition-all"
+            className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold shadow-card shadow-violet-600/30 transition-all"
           >
             Track in My Applications
           </Link>
@@ -423,11 +423,11 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
       {/* Sticky Assessment Timer Header if timeLimitMinutes is set */}
       {position?.timeLimitMinutes && timeLeftSeconds !== null && (
-        <div className={`sticky top-4 z-40 mb-6 p-4 rounded-2xl backdrop-blur-xl border flex items-center justify-between shadow-2xl transition-all ${
+        <div className={`sticky top-4 z-40 mb-6 p-4 rounded-2xl backdrop-blur-xl border flex items-center justify-between shadow-card transition-all ${
           timeExpired
-            ? "bg-rose-950/80 border-rose-500/50 text-danger"
+            ? "bg-rose-500/15 border-rose-500/50 text-danger"
             : timeLeftSeconds < 120
-            ? "bg-amber-950/80 border-amber-500/50 text-gold animate-pulse"
+            ? "bg-amber-500/15 border-amber-500/50 text-gold animate-pulse"
             : "bg-surface/90 border-purple-500/30 text-purple-700 dark:text-purple-200"
         }`}>
           <div className="flex items-center gap-3">
@@ -475,7 +475,7 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
       </div>
 
       {/* Form Container */}
-      <div className="glass-panel rounded-3xl border border-line p-6 sm:p-10 shadow-2xl">
+      <div className="glass-panel rounded-3xl border border-line p-6 sm:p-10 shadow-card">
         {/* Form Header */}
         <div className="border-b border-line pb-6 mb-8">
           <div className="flex items-center gap-2 mb-2">
@@ -778,7 +778,7 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
               <button
                 type="submit"
                 disabled={submitting || timeExpired}
-                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-lg shadow-violet-600/30 flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-card shadow-violet-600/30 flex items-center justify-center gap-2"
               >
                 <Send className="w-3.5 h-3.5" />
                 <span>
@@ -792,7 +792,7 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
             ) : (
               <a
                 href="/api/auth/login"
-                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition-all shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition-all shadow-card shadow-purple-600/30 flex items-center justify-center gap-2"
               >
                 <span>Connect with Discord to Apply</span>
               </a>

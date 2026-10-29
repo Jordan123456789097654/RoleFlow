@@ -242,13 +242,13 @@ export default function SupportStaffPanelPage() {
               placeholder="e.g. RF-8921-4472"
               value={codeQuery}
               onChange={(e) => setCodeQuery(e.target.value.toUpperCase())}
-              className="w-full px-4 py-3 rounded-xl bg-black/60 border border-line text-sm text-ink placeholder-faint font-mono tracking-wider focus:outline-none focus:border-accent"
+              className="w-full px-4 py-3 rounded-xl bg-sunk border border-line text-sm text-ink placeholder-faint font-mono tracking-wider focus:outline-none focus:border-accent"
             />
           </div>
           <button
             type="submit"
             disabled={loggingIn || !codeQuery.trim()}
-            className="px-6 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-lg shadow-violet-600/30 shrink-0"
+            className="px-6 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-card shadow-violet-600/30 shrink-0"
           >
             {loggingIn ? "Connecting..." : "Initiate Diagnostic Session"}
           </button>

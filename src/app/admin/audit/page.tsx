@@ -34,7 +34,7 @@ export default function AuditLogPage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-[#08090d] p-8 text-ink-2">
+    <main className="min-h-screen bg-paper p-8 text-ink-2">
       <h1 className="mb-4 text-2xl font-bold text-ink">Audit log</h1>
       <div className="mb-4 flex gap-2">
         <input

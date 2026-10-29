@@ -1266,7 +1266,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           <button
             onClick={handleAutoInit}
             disabled={initLoading}
-            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-xs font-semibold transition-all shadow-lg shadow-violet-600/30 flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-xs font-semibold transition-all shadow-card shadow-violet-600/30 flex items-center justify-center gap-2"
           >
             <Sparkles className="w-4 h-4" />
             <span>{initLoading ? "Initializing..." : "Initialize Community Now"}</span>
@@ -1514,7 +1514,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                       onClick={() => setSelectedApp(app)}
                       className={`p-4 rounded-xl cursor-pointer transition-all border relative ${
                         isSelected
-                          ? "bg-accent-soft border-purple-500/60 shadow-lg shadow-purple-500/10"
+                          ? "bg-accent-soft border-purple-500/60 shadow-card shadow-purple-500/10"
                           : "glass-panel border-line hover:border-line-strong"
                       }`}
                     >
@@ -1931,7 +1931,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
 
           {/* Floating Bulk Action Bar */}
           {selectedAppIds.length > 0 && (
-            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-surface/95 backdrop-blur-xl border border-purple-500/40 shadow-2xl rounded-2xl px-6 py-3.5 flex items-center gap-3.5 animate-in fade-in slide-in-from-bottom-4">
+            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-surface/95 backdrop-blur-xl border border-purple-500/40 shadow-card rounded-2xl px-6 py-3.5 flex items-center gap-3.5 animate-in fade-in slide-in-from-bottom-4">
               <div className="flex items-center gap-2">
                 <span className="w-6 h-6 rounded-full bg-purple-600 text-white text-xs font-bold flex items-center justify-center">
                   {selectedAppIds.length}
@@ -2072,7 +2072,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
 
               <button
                 onClick={() => setNewPosModal(true)}
-                className="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-violet-600/30"
+                className="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-card shadow-violet-600/30"
               >
                 <Plus className="w-4 h-4" />
                 <span>Create New Opening</span>
@@ -2248,7 +2248,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
             <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
               <form
                 onSubmit={handleCreatePosition}
-                className="glass-panel border border-line rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl"
+                className="glass-panel border border-line rounded-2xl p-6 max-w-md w-full space-y-4 shadow-card"
               >
                 <h3 className="text-base font-bold text-ink">Create New Opening</h3>
                 <div className="space-y-1.5">
@@ -2320,7 +2320,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
             <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
               <form
                 onSubmit={handleAddQuestion}
-                className="glass-panel border border-line rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl"
+                className="glass-panel border border-line rounded-2xl p-6 max-w-md w-full space-y-4 shadow-card"
               >
                 <h3 className="text-base font-bold text-ink">Add Question to Form</h3>
                 <div className="space-y-1.5">
@@ -2447,7 +2447,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
       {activeTab === "bot" && (
         <div className="max-w-3xl space-y-6 animate-fadeIn">
           {/* Active Bot System Notice */}
-          <div className="glass-panel rounded-2xl border border-purple-500/30 bg-accent-soft p-6 sm:p-8 space-y-4 shadow-xl">
+          <div className="glass-panel rounded-2xl border border-purple-500/30 bg-accent-soft p-6 sm:p-8 space-y-4 shadow-card">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-start sm:items-center gap-3">
                 <div className="w-12 h-12 rounded-2xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-accent shrink-0">
@@ -2674,7 +2674,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           <button
             onClick={handleSaveSettings}
             disabled={savingSettings}
-            className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold flex items-center gap-2 shadow-lg shadow-violet-600/30"
+            className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold flex items-center gap-2 shadow-card shadow-violet-600/30"
           >
             <Save className="w-3.5 h-3.5" />
             <span>{savingSettings ? "Saving..." : "Save Integration Settings"}</span>
@@ -2692,7 +2692,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
       {activeTab === "settings" && (
         <div className="max-w-3xl space-y-6">
           {/* License & Subscription Tier Card (Coming Soon) */}
-          <div className="glass-panel rounded-2xl border border-purple-500/30 bg-purple-950/15 p-6 sm:p-8 space-y-4 shadow-xl">
+          <div className="glass-panel rounded-2xl border border-purple-500/30 bg-purple-500/10 p-6 sm:p-8 space-y-4 shadow-card">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-accent">
@@ -3137,7 +3137,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
               <button
                 onClick={handleSaveSettings}
                 disabled={savingSettings}
-                className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold flex items-center gap-2 shadow-lg shadow-violet-600/30"
+                className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold flex items-center gap-2 shadow-card shadow-violet-600/30"
               >
                 <Save className="w-3.5 h-3.5" />
                 <span>{savingSettings ? "Saving Settings..." : "Save Community Settings"}</span>
@@ -3198,7 +3198,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
       {/* Modal: Import Applications (CSV / JSON) */}
       {importModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="glass-panel border border-line rounded-2xl p-6 max-w-xl w-full space-y-4 shadow-2xl">
+          <div className="glass-panel border border-line rounded-2xl p-6 max-w-xl w-full space-y-4 shadow-card">
             <div className="flex items-center justify-between pb-3 border-b border-line">
               <div className="flex items-center gap-2">
                 <Upload className="w-4 h-4 text-accent" />
@@ -3276,7 +3276,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                   value={importRawText}
                   onChange={(e) => setImportRawText(e.target.value)}
                   placeholder={importFormat === "csv" ? CSV_IMPORT_SAMPLE : JSON_IMPORT_SAMPLE}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-line text-xs text-ink font-mono placeholder-faint focus:outline-none focus:border-accent"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-sunk border border-line text-xs text-ink font-mono placeholder-faint focus:outline-none focus:border-accent"
                 />
               </div>
 
@@ -3321,7 +3321,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
       {/* Modal: Import Questions in Bulk */}
       {importQModal && activePosition && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="glass-panel border border-line rounded-2xl p-6 max-w-xl w-full space-y-4 shadow-2xl">
+          <div className="glass-panel border border-line rounded-2xl p-6 max-w-xl w-full space-y-4 shadow-card">
             <div className="flex items-center justify-between pb-3 border-b border-line">
               <div className="flex items-center gap-2">
                 <Upload className="w-4 h-4 text-accent" />
@@ -3418,7 +3418,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                       ? '[\n  {\n    "label": "Roblox Profile URL",\n    "type": "TEXT",\n    "required": true\n  },\n  {\n    "label": "Why do you want to join?",\n    "type": "PARAGRAPH",\n    "required": true\n  }\n]'
                       : "Roblox Profile, TEXT, true\nWhy do you want to join?, PARAGRAPH, true\nYears of Experience, NUMBER, false"
                   }
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-line text-xs text-ink font-mono placeholder-faint focus:outline-none focus:border-accent"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-sunk border border-line text-xs text-ink font-mono placeholder-faint focus:outline-none focus:border-accent"
                 />
               </div>
 
@@ -3464,7 +3464,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
       {/* Modal: Import Entire Opening & Form */}
       {importPosModal && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="glass-panel border border-line rounded-2xl p-6 max-w-xl w-full space-y-4 shadow-2xl">
+          <div className="glass-panel border border-line rounded-2xl p-6 max-w-xl w-full space-y-4 shadow-card">
             <div className="flex items-center justify-between pb-3 border-b border-line">
               <div className="flex items-center gap-2">
                 <Upload className="w-4 h-4 text-accent" />
@@ -3513,7 +3513,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                   value={importPosRawText}
                   onChange={(e) => setImportPosRawText(e.target.value)}
                   placeholder={`{\n  "title": "Lead Scripter",\n  "department": "Development",\n  "description": "We are seeking an experienced Luau gameplay programmer.",\n  "questions": [\n    { "label": "Roblox Profile Link", "type": "TEXT", "required": true },\n    { "label": "Describe your Luau framework experience", "type": "PARAGRAPH", "required": true }\n  ]\n}`}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-line text-xs text-ink font-mono placeholder-faint focus:outline-none focus:border-accent"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-sunk border border-line text-xs text-ink font-mono placeholder-faint focus:outline-none focus:border-accent"
                 />
               </div>
 
@@ -3559,7 +3559,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
       {/* Edit Opening / Position Modal */}
       {editPosModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-          <div className="w-full max-w-lg bg-surface border border-line rounded-2xl shadow-2xl overflow-hidden p-6 max-h-[90vh] overflow-y-auto">
+          <div className="w-full max-w-lg bg-surface border border-line rounded-2xl shadow-card overflow-hidden p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-4 border-b border-line mb-4">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-accent">

@@ -708,7 +708,7 @@ export default function SiteAdminPage() {
       <div
         className={`p-5 rounded-2xl border transition-all flex flex-col gap-4 ${
           maintenanceEnabled
-            ? "bg-amber-950/30 border-amber-500/40 shadow-lg shadow-amber-500/10"
+            ? "bg-amber-500/10 border-amber-500/40 shadow-card shadow-amber-500/10"
             : "bg-sunk border-line"
         }`}
       >
@@ -810,7 +810,7 @@ export default function SiteAdminPage() {
         <button
           onClick={() => setActiveTab("moderation")}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
-            activeTab === "moderation" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30" : "text-muted hover:text-white hover:bg-sunk"
+            activeTab === "moderation" ? "bg-purple-600 text-white shadow-card shadow-purple-600/30" : "text-muted hover:text-white hover:bg-sunk"
           }`}
         >
           <span>Moderation</span>
@@ -818,7 +818,7 @@ export default function SiteAdminPage() {
         <button
           onClick={() => setActiveTab("accounts")}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
-            activeTab === "accounts" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30" : "text-muted hover:text-white hover:bg-sunk"
+            activeTab === "accounts" ? "bg-purple-600 text-white shadow-card shadow-purple-600/30" : "text-muted hover:text-white hover:bg-sunk"
           }`}
         >
           <span>Accounts</span>
@@ -826,7 +826,7 @@ export default function SiteAdminPage() {
         <button
           onClick={() => setActiveTab("health")}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
-            activeTab === "health" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30" : "text-muted hover:text-white hover:bg-sunk"
+            activeTab === "health" ? "bg-purple-600 text-white shadow-card shadow-purple-600/30" : "text-muted hover:text-white hover:bg-sunk"
           }`}
         >
           <span>Health</span>
@@ -834,7 +834,7 @@ export default function SiteAdminPage() {
         <button
           onClick={() => setActiveTab("metrics")}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
-            activeTab === "metrics" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30" : "text-muted hover:text-white hover:bg-sunk"
+            activeTab === "metrics" ? "bg-purple-600 text-white shadow-card shadow-purple-600/30" : "text-muted hover:text-white hover:bg-sunk"
           }`}
         >
           <span>Metrics</span>
@@ -844,7 +844,7 @@ export default function SiteAdminPage() {
         <button
             onClick={() => setActiveTab("flags")}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
-              activeTab === "flags" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30" : "text-muted hover:text-white hover:bg-sunk"
+              activeTab === "flags" ? "bg-purple-600 text-white shadow-card shadow-purple-600/30" : "text-muted hover:text-white hover:bg-sunk"
             }`}
           >
             <span>Feature Flags</span>
@@ -861,7 +861,7 @@ export default function SiteAdminPage() {
           onClick={() => setActiveTab("guilds")}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
             activeTab === "guilds"
-              ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
+              ? "bg-purple-600 text-white shadow-card shadow-purple-600/30"
               : "text-muted hover:text-ink hover:bg-sunk"
           }`}
         >
@@ -872,7 +872,7 @@ export default function SiteAdminPage() {
           onClick={() => setActiveTab("staff")}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
             activeTab === "staff"
-              ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
+              ? "bg-purple-600 text-white shadow-card shadow-purple-600/30"
               : "text-muted hover:text-ink hover:bg-sunk"
           }`}
         >
@@ -884,7 +884,7 @@ export default function SiteAdminPage() {
           onClick={() => setActiveTab("licenses")}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
             activeTab === "licenses"
-              ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
+              ? "bg-purple-600 text-white shadow-card shadow-purple-600/30"
               : "text-muted hover:text-ink hover:bg-sunk"
           }`}
         >
@@ -896,7 +896,7 @@ export default function SiteAdminPage() {
           onClick={() => setActiveTab("changelog")}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
             activeTab === "changelog"
-              ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
+              ? "bg-purple-600 text-white shadow-card shadow-purple-600/30"
               : "text-muted hover:text-ink hover:bg-sunk"
           }`}
         >
@@ -907,7 +907,7 @@ export default function SiteAdminPage() {
           onClick={() => setActiveTab("blacklist")}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
             activeTab === "blacklist"
-              ? "bg-rose-600 text-white shadow-lg shadow-rose-600/30"
+              ? "bg-rose-600 text-white shadow-card shadow-rose-600/30"
               : "text-danger hover:text-danger hover:bg-rose-500/10"
           }`}
         >
@@ -918,7 +918,7 @@ export default function SiteAdminPage() {
           onClick={() => setActiveTab("feedback")}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
             activeTab === "feedback"
-              ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
+              ? "bg-purple-600 text-white shadow-card shadow-purple-600/30"
               : "text-muted hover:text-ink hover:bg-sunk"
           }`}
         >
@@ -957,7 +957,7 @@ export default function SiteAdminPage() {
           </div>
 
           {/* Communities Table */}
-          <div className="glass-panel rounded-2xl border border-line overflow-hidden shadow-2xl">
+          <div className="glass-panel rounded-2xl border border-line overflow-hidden shadow-card">
             <div className="p-4 border-b border-line flex items-center justify-between gap-4">
               <div className="relative w-72">
                 <Search className="w-3.5 h-3.5 text-muted absolute left-3 top-1/2 -translate-y-1/2" />
@@ -1114,7 +1114,7 @@ export default function SiteAdminPage() {
             </Link>
           </div>
 
-          <div className="glass-panel rounded-2xl border border-line overflow-hidden shadow-2xl">
+          <div className="glass-panel rounded-2xl border border-line overflow-hidden shadow-card">
             <div className="p-4 border-b border-line flex items-center justify-between gap-4">
               <div className="relative w-80">
                 <Search className="w-3.5 h-3.5 text-muted absolute left-3 top-1/2 -translate-y-1/2" />
@@ -1262,7 +1262,7 @@ export default function SiteAdminPage() {
           {/* Create License Key Form */}
           <form
             onSubmit={handleCreateLicense}
-            className="glass-panel p-6 sm:p-8 rounded-2xl border border-purple-500/30 bg-accent-soft space-y-5 shadow-2xl"
+            className="glass-panel p-6 sm:p-8 rounded-2xl border border-purple-500/30 bg-accent-soft space-y-5 shadow-card"
           >
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-2.5">
@@ -1371,7 +1371,7 @@ export default function SiteAdminPage() {
             <button
               type="submit"
               disabled={generatingKey}
-              className="px-6 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-lg shadow-violet-600/30 flex items-center gap-2"
+              className="px-6 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-card shadow-violet-600/30 flex items-center gap-2"
             >
               <Key className="w-3.5 h-3.5" />
               <span>{generatingKey ? "Generating..." : "Generate & Issue License Key"}</span>
@@ -1379,7 +1379,7 @@ export default function SiteAdminPage() {
           </form>
 
           {/* License Keys Ledger */}
-          <div className="glass-panel rounded-2xl border border-line overflow-hidden shadow-2xl">
+          <div className="glass-panel rounded-2xl border border-line overflow-hidden shadow-card">
             <div className="p-4 border-b border-line flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="relative w-full sm:w-80">
                 <Search className="w-3.5 h-3.5 text-muted absolute left-3 top-1/2 -translate-y-1/2" />
@@ -1629,7 +1629,7 @@ export default function SiteAdminPage() {
             <button
               type="submit"
               disabled={broadcasting}
-              className="px-6 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-lg shadow-violet-600/30 flex items-center gap-2"
+              className="px-6 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-card shadow-violet-600/30 flex items-center gap-2"
             >
               <Megaphone className="w-3.5 h-3.5" />
               <span>{broadcasting ? "Broadcasting..." : "Broadcast Update Log to All Users"}</span>
@@ -1685,7 +1685,7 @@ export default function SiteAdminPage() {
           {/* Add Target to Blacklist Form */}
           <form
             onSubmit={handleAddBlacklist}
-            className="glass-panel p-6 sm:p-8 rounded-2xl border border-rose-500/30 bg-rose-950/10 space-y-4"
+            className="glass-panel p-6 sm:p-8 rounded-2xl border border-rose-500/30 bg-rose-500/10 space-y-4"
           >
             <div className="flex items-center gap-2">
               <Ban className="w-5 h-5 text-danger" />
@@ -1735,7 +1735,7 @@ export default function SiteAdminPage() {
             <button
               type="submit"
               disabled={blacklisting || !newTargetVal.trim()}
-              className="px-6 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-lg shadow-rose-600/30 flex items-center gap-2"
+              className="px-6 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-card shadow-rose-600/30 flex items-center gap-2"
             >
               <Ban className="w-3.5 h-3.5" />
               <span>{blacklisting ? "Blacklisting..." : "Blacklist User Globally"}</span>
@@ -1743,7 +1743,7 @@ export default function SiteAdminPage() {
           </form>
 
           {/* Blacklisted Targets Table */}
-          <div className="glass-panel rounded-2xl border border-line overflow-hidden shadow-2xl">
+          <div className="glass-panel rounded-2xl border border-line overflow-hidden shadow-card">
             <div className="p-4 border-b border-line flex items-center justify-between">
               <h4 className="text-xs font-bold text-ink uppercase font-mono tracking-wider">
                 Globally Blacklisted Entities ({blacklists.length})
@@ -1819,7 +1819,7 @@ export default function SiteAdminPage() {
             </Link>
           </div>
 
-          <div className="glass-panel rounded-2xl border border-line overflow-hidden shadow-2xl">
+          <div className="glass-panel rounded-2xl border border-line overflow-hidden shadow-card">
             <div className="p-4 border-b border-line flex items-center justify-between">
               <span className="text-xs font-mono font-bold text-muted uppercase tracking-wider">
                 All Reports & Suggestions ({feedbackList.length})

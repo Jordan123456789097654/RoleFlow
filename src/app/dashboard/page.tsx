@@ -133,7 +133,7 @@ export default function DashboardHubPage() {
         </p>
         <a
           href="/api/auth/login"
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-medium text-sm transition-all shadow-lg shadow-violet-600/30"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-medium text-sm transition-all shadow-card shadow-violet-600/30"
         >
           <span>Login with Discord</span>
           <ArrowRight className="w-4 h-4" />
@@ -158,7 +158,7 @@ export default function DashboardHubPage() {
           <img
             src={user.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"}
             alt={user.username}
-            className="w-14 h-14 rounded-2xl border-2 border-purple-500/40 object-cover shadow-xl shadow-purple-500/10"
+            className="w-14 h-14 rounded-2xl border-2 border-purple-500/40 object-cover shadow-card shadow-purple-500/10"
           />
           <div>
             <div className="flex items-center gap-2">
@@ -179,7 +179,7 @@ export default function DashboardHubPage() {
 
         <button
           onClick={() => setShowConnectModal(true)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold transition-all shadow-lg shadow-violet-600/25 active:scale-95"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold transition-all shadow-card shadow-violet-600/25 active:scale-95"
         >
           <Plus className="w-4 h-4" />
           <span>Connect Discord Server</span>
@@ -260,7 +260,7 @@ export default function DashboardHubPage() {
               return (
                 <div
                   key={g.id}
-                  className="rounded-2xl bg-surface/80 border border-line/80 hover:border-purple-500/40 p-5 transition-all shadow-xl group flex flex-col justify-between"
+                  className="rounded-2xl bg-surface/80 border border-line/80 hover:border-purple-500/40 p-5 transition-all shadow-card group flex flex-col justify-between"
                 >
                   <div>
                     {/* Header */}
@@ -369,7 +369,7 @@ export default function DashboardHubPage() {
       {/* Connect Server Modal */}
       {showConnectModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-          <div className="w-full max-w-md bg-surface border border-line rounded-2xl shadow-2xl overflow-hidden p-6">
+          <div className="w-full max-w-md bg-surface border border-line rounded-2xl shadow-card overflow-hidden p-6">
             <div className="flex items-center justify-between pb-4 border-b border-line">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-accent">
