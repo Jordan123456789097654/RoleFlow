@@ -1,5 +1,7 @@
 "use client";
 
+import { MonitoredRolesModal } from "@/components/dashboard/MonitoredRolesModal";
+
 import { AssignmentPanel, BulkAssignControl } from "@/components/dashboard/ReviewAssignment";
 import OwnerExtrasPanel from "@/components/dashboard/OwnerExtrasPanel";
 import OverviewPanel from "@/components/dashboard/OverviewPanel";
