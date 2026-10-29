@@ -8,6 +8,7 @@ import RobloxCheck from "@/components/dashboard/RobloxCheck";
 import LinkPreview from "@/components/LinkPreview";
 
 import React, { useState, useEffect } from "react";
+import CustomDomainPanel from "@/components/CustomDomainPanel";
 import Link from "next/link";
 import {
   Upload,
@@ -2878,6 +2879,8 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
               />
             </div>
           </div>
+
+          <CustomDomainPanel guildId={params.guildId} />
 
           {/* Custom Community Portal Themes & Accents */}
           <div className="glass-panel rounded-2xl border border-line p-6 sm:p-8 space-y-4">

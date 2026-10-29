@@ -1,18 +1,41 @@
 import { NextResponse } from "next/server";
 import { randomBytes } from "crypto";
-import { oauthRedirectUri } from "@/lib/session-cookie";
+import { isPlatformHost, validCustomReturn } from "@/lib/custom-domain";
 
 export const dynamic = "force-dynamic";
 
 const OAUTH_STATE_COOKIE = "rf_oauth_state";
+const OAUTH_RETURN_COOKIE = "rf_oauth_return";
+const PLATFORM = process.env.NEXT_PUBLIC_APP_URL || "https://roleflow.site";
 
-export async function GET() {
+export async function GET(request: Request) {
+  const host = (request.headers.get("x-forwarded-host") || request.headers.get("host") || "")
+    .split(",")[0].trim().toLowerCase();
+
+  // On a community's custom domain, sign-in has to happen on roleflow.site (Discord's redirect is fixed there).
+  // Send the user there and ask it to bring them back to this exact page afterwards.
+  if (!isPlatformHost(host)) {
+    let next = "/";
+    const referer = request.headers.get("referer");
+    if (referer) {
+      try {
+        const r = new URL(referer);
+        if (r.host.toLowerCase() === host && r.pathname.startsWith("/") && !r.pathname.startsWith("/api/")) {
+          next = r.pathname + r.search;
+        }
+      } catch {
+        /* keep "/" */
+      }
+    }
+    const back = `https://${host}${next}`;
+    return NextResponse.redirect(`${PLATFORM}/api/auth/login?return=${encodeURIComponent(back)}`);
+  }
+
   const clientId = process.env.DISCORD_CLIENT_ID || "1565049592788025344";
   if (!clientId) {
     return NextResponse.json({ error: "Discord login is not configured." }, { status: 500 });
   }
 
-  // Random state, bound to this browser by a short-lived cookie, checked in the callback (blocks login CSRF).
   const state = randomBytes(24).toString("base64url");
   const params = new URLSearchParams({
     client_id: clientId,
@@ -30,5 +53,17 @@ export async function GET() {
     sameSite: "lax",
     maxAge: 600,
   });
+
+  // Remember where to return after sign-in, but only if it is a verified custom domain.
+  const back = await validCustomReturn(new URL(request.url).searchParams.get("return"));
+  if (back) {
+    res.cookies.set(OAUTH_RETURN_COOKIE, encodeURIComponent(back), {
+      path: "/",
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 600,
+    });
+  }
   return res;
 }

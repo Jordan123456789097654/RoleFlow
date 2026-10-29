@@ -1,5 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
 
+// ---- custom domains ----
+const PLATFORM_ORIGIN = process.env.NEXT_PUBLIC_APP_URL || "https://roleflow.site";
+const PLATFORM_HOSTS = new Set([
+  "roleflow.site",
+  "www.roleflow.site",
+  "localhost",
+  "127.0.0.1",
+  (() => {
+    try {
+      return new URL(PLATFORM_ORIGIN).hostname;
+    } catch {
+      return "roleflow.site";
+    }
+  })(),
+]);
+
+function requestHost(req: NextRequest): string {
+  return (req.headers.get("x-forwarded-host") || req.headers.get("host") || "")
+    .split(",")[0]
+    .trim()
+    .toLowerCase()
+    .replace(/:\d+$/, "");
+}
+
+function isPlatformHost(host: string): boolean {
+  return !host || PLATFORM_HOSTS.has(host) || host.endsWith(".vercel.app") || host.endsWith(".localhost");
+}
+
 type Rule = { max: number; windowMs: number };
 
 // Exact-path limits for abuse-prone endpoints.
@@ -19,6 +47,7 @@ const EXACT: Record<string, Rule> = {
 // Pattern limits for routes with dynamic segments. GET is limited too where the route calls a third party.
 const PATTERNS: Array<{ re: RegExp; methods: string[]; rule: Rule }> = [
   { re: /^\/api\/guilds\/[^/]+\/bot\/(verify|setup|test-embed|commands)$/, methods: ["POST"], rule: { max: 15, windowMs: 15 * 60_000 } },
+  { re: /^\/api\/guilds\/[^/]+\/domain\/verify$/, methods: ["POST"], rule: { max: 10, windowMs: 15 * 60_000 } },
   { re: /^\/api\/roblox\/user$/, methods: ["GET"], rule: { max: 30, windowMs: 60_000 } },
   { re: /^\/api\/link-preview$/, methods: ["GET"], rule: { max: 60, windowMs: 60_000 } },
 ];
@@ -82,8 +111,66 @@ async function hit(key: string, rule: Rule): Promise<{ allowed: boolean; retryAf
   return { allowed: true, retryAfter: 0 };
 }
 
+type HostInfo = { verified: boolean; guildId?: string; slug?: string; positionOk?: boolean };
+
+// Cache of host lookups. Fails closed: a lookup error counts as "not verified".
+const hostCache = new Map<string, { info: HostInfo; at: number }>();
+
+async function lookupHost(host: string, position?: string): Promise<HostInfo> {
+  const key = `${host}|${position ?? ""}`;
+  const hit = hostCache.get(key);
+  if (hit && Date.now() - hit.at < (hit.info.verified ? 60_000 : 10_000)) return hit.info;
+  let info: HostInfo;
+  try {
+    const qs = new URLSearchParams({ host });
+    if (position) qs.set("position", position);
+    const res = await fetch(`${PLATFORM_ORIGIN}/api/custom-domain/resolve?${qs.toString()}`, {
+      signal: AbortSignal.timeout(1500),
+    });
+    info = res.ok ? ((await res.json()) as HostInfo) : { verified: false };
+  } catch {
+    return { verified: false };
+  }
+  if (hostCache.size > 5000) hostCache.clear();
+  hostCache.set(key, { info, at: Date.now() });
+  return info;
+}
+
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+
+  // A community's own domain: serve its portal at "/", keep the API working, and send everything
+  // else to roleflow.site. Login is handed off from roleflow.site with a short-lived token.
+  const host = requestHost(req);
+  if (!isPlatformHost(host)) {
+    const parts = pathname.split("/").filter(Boolean); // e.g. ["c", "meridian"]
+    const info = await lookupHost(host, parts[0] === "apply" ? parts[1] : undefined);
+    // Unknown or unverified domains go back to roleflow.site.
+    if (!info.verified) {
+      return NextResponse.redirect(new URL(pathname + req.nextUrl.search, PLATFORM_ORIGIN), 308);
+    }
+
+    if (pathname.startsWith("/api/")) {
+      // API routes work on the domain (sign-in, applying, dashboard data). Fall through to the checks below.
+    } else if (pathname === "/") {
+      const url = req.nextUrl.clone();
+      url.pathname = `/domain-portal/${encodeURIComponent(host)}`;
+      return NextResponse.rewrite(url);
+    } else {
+      // Only this community's pages are reachable here: its portal, its apply pages, and its dashboard.
+      const allowed =
+        (parts[0] === "c" && (parts[1] === info.slug || parts[1] === info.guildId)) ||
+        (parts[0] === "dashboard" && parts[1] === info.guildId) ||
+        (parts[0] === "apply" && info.positionOk === true);
+      if (allowed) return NextResponse.next();
+      const home = req.nextUrl.clone();
+      home.pathname = "/";
+      home.search = "";
+      return NextResponse.redirect(home, 308);
+    }
+  }
+
+  if (!pathname.startsWith("/api/")) return NextResponse.next();
 
   // CSRF defence for cookie-authenticated mutations.
   if (MUTATING.has(req.method) && !SIGNED_WEBHOOKS.has(pathname)) {
@@ -129,5 +216,6 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/api/:path*"],
+  // Every page and API route, except Next.js build assets and files with an extension (images, robots.txt).
+  matcher: ["/((?!_next/static|_next/image|.*\\.[a-zA-Z0-9]+$).*)"],
 };

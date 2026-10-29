@@ -1,4 +1,6 @@
 import { notifyNewDevice } from "@/lib/second-factor";
+import { validCustomReturn } from "@/lib/custom-domain";
+import { signBridgeToken } from "@/lib/custom-domain-auth";
 import { signSessionValue } from "@/lib/session";
 import { setSessionCookie, oauthRedirectUri } from "@/lib/session-cookie";
 import { timingSafeEqual } from "crypto";
@@ -115,14 +117,28 @@ export async function GET(request: Request) {
 
     await notifyNewDevice(user, request);
 
-    // 4. Set session cookie and redirect home
-    const response = NextResponse.redirect(new URL("/", request.url));
+    // 4. Set session cookie on roleflow.site. If sign-in started on a community's custom domain, hand off to it.
+    const returnRaw = request.headers.get("cookie")?.match(/(?:^|;\s*)rf_oauth_return=([^;]+)/)?.[1];
+    const returnTo = await validCustomReturn(returnRaw ? decodeURIComponent(returnRaw) : null);
+
+    const response = returnTo
+      ? NextResponse.redirect(bridgeUrl(returnTo, signBridgeToken(user.id, user.sessionVersion, new URL(returnTo).host)))
+      : NextResponse.redirect(new URL("/", request.url));
     setSessionCookie(response, signSessionValue(user.id, user.sessionVersion));
     response.cookies.set("rf_oauth_state", "", { path: "/", maxAge: 0 });
+    response.cookies.set("rf_oauth_return", "", { path: "/", maxAge: 0 });
 
     return response;
   } catch (err) {
     console.error("OAuth error:", err);
     return NextResponse.redirect(new URL("/?error=oauth_error", request.url));
   }
+}
+
+function bridgeUrl(returnTo: string, token: string): URL {
+  const target = new URL(returnTo);
+  const url = new URL("/api/auth/bridge", target.origin);
+  url.searchParams.set("token", token);
+  url.searchParams.set("next", target.pathname + target.search);
+  return url;
 }

@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { canDecideInGuild, canViewInGuild, changeApplicationStatus } from "@/lib/application-status";
 import { logEvent } from "@/lib/health";
 import { validSignature } from "@/lib/discord-signature";
+import { publicGuildUrl } from "@/lib/custom-domain";
 
 export const dynamic = "force-dynamic";
 
@@ -91,8 +92,13 @@ export async function POST(request: Request) {
     }
 
     if (name === "apply") {
-      const guild = guildId ? await prisma.guild.findUnique({ where: { id: guildId }, select: { vanitySlug: true } }) : null;
-      const url = guild?.vanitySlug ? `${APP_URL}/c/${guild.vanitySlug}` : `${APP_URL}/browse`;
+      const guild = guildId
+        ? await prisma.guild.findUnique({
+            where: { id: guildId },
+            select: { id: true, vanitySlug: true, customDomain: true, customDomainVerified: true },
+          })
+        : null;
+      const url = guild ? publicGuildUrl(guild) : `${APP_URL}/browse`;
       return ephemeral(`Apply here: ${url}`);
     }
 
@@ -171,8 +177,11 @@ export async function POST(request: Request) {
 
     if (name === "portal") {
       if (!guildId) return ephemeral(`Visit RoleFlow at ${APP_URL}`);
-      const g = await prisma.guild.findUnique({ where: { id: guildId }, select: { vanitySlug: true, name: true } });
-      const portalUrl = g?.vanitySlug ? `${APP_URL}/c/${g.vanitySlug}` : `${APP_URL}/c/${guildId}`;
+      const g = await prisma.guild.findUnique({
+        where: { id: guildId },
+        select: { id: true, vanitySlug: true, name: true, customDomain: true, customDomainVerified: true },
+      });
+      const portalUrl = g ? publicGuildUrl(g) : `${APP_URL}/c/${guildId}`;
       return ephemeral(`**${g?.name || "Community"} Application Portal:**\n🔗 Apply: <${portalUrl}>\n📊 Dashboard: <${APP_URL}/dashboard/${guildId}>`);
     }
 

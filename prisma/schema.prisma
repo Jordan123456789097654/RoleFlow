@@ -73,6 +73,11 @@ model Guild {
   licenseExpiresAt           DateTime?
 
   // Custom Bot White-label Configuration
+  // Custom domain (community's own address for its portal)
+  customDomain               String?          @unique // e.g. apply.yourstudio.com
+  customDomainToken          String?          // Random token the owner publishes in a DNS TXT record
+  customDomainVerified       Boolean          @default(false)
+  customDomainVerifiedAt     DateTime?
   useCustomBot               Boolean          @default(false)
   customBotToken             String?          // AES-256-GCM encrypted (enc:v1:...). Never returned by the API.
   
