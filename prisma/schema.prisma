@@ -148,6 +148,7 @@ model Position {
   questions        Question[]
   applications     Application[]
   createdAt        DateTime      @default(now())
+  deadlineReminderSentAt DateTime? // Set once the closing-soon reminder has gone out
 }
 
 model Question {

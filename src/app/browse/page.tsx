@@ -1,5 +1,6 @@
 import { openNowWhere } from "@/lib/position-availability";
 import React from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Search, Briefcase, Users, ArrowRight, Star, Building2, BadgeCheck } from "lucide-react";
@@ -40,6 +41,19 @@ const SORTS: Array<{ value: string; label: string }> = [
   { value: "rating", label: "Most reviewed" },
   { value: "newest", label: "Newest" },
 ];
+
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://roleflow.site";
+
+/** Filtered browse views get their own title and canonical URL so they can be shared and indexed. */
+export async function generateMetadata({ searchParams }: { searchParams?: { category?: string } }): Promise<Metadata> {
+  const category = searchParams?.category && searchParams.category !== "All" ? searchParams.category : null;
+  const title = category ? `${category} communities | RoleFlow` : "Browse communities | RoleFlow";
+  const description = category
+    ? `Find open ${category} positions and communities hiring on RoleFlow.`
+    : "Find open positions across Discord and Roblox communities on RoleFlow.";
+  const url = `${SITE_URL}/browse${category ? `?category=${encodeURIComponent(category)}` : ""}`;
+  return { title, description, alternates: { canonical: url }, openGraph: { title, description, url, siteName: "RoleFlow", type: "website" } };
+}
 
 export default async function BrowsePage({ searchParams }: BrowsePageProps) {
   const query = searchParams?.q?.toLowerCase() || "";

@@ -2,6 +2,7 @@ import { openNowWhere } from "@/lib/position-availability";
 import React from "react";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import FeaturedCommunities from "@/components/FeaturedCommunities";
 import { CommunityCard } from "@/components/CommunityCard";
 import { ArrowRight, Search, FileText, EyeOff, Bot, ShieldCheck, UserCheck, Terminal } from "lucide-react";
 
@@ -183,6 +184,7 @@ export default async function HomePage() {
       </section>
 
       {/* Communities */}
+      <FeaturedCommunities />
       <section className="border-t border-line">
         <div className="page-wrap section">
           <div className="mb-10 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">

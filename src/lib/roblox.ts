@@ -139,6 +139,25 @@ export async function getRobloxGroupRoles(groupId: string | number): Promise<Rob
   }
 }
 
+/** Turns an Open Cloud failure into a message staff can act on. */
+function openCloudErrorMessage(status: number, body: any): string {
+  const detail = body?.message || body?.error || "";
+  switch (status) {
+    case 400:
+      return `Roblox rejected the rank change${detail ? `: ${detail}` : "."} Check that the target role still exists in the group.`;
+    case 401:
+      return "The Open Cloud API key is invalid or has expired. Create a new key in the Roblox Creator Hub and save it in Gating settings.";
+    case 403:
+      return "The Open Cloud API key doesn't have permission to manage this group. Give the key group management access for this group and try again.";
+    case 404:
+      return "This applicant isn't a member of the group, so their rank can't be changed. Ask them to join the group first.";
+    case 429:
+      return "Roblox is rate-limiting rank changes. Wait a minute and try again.";
+    default:
+      return detail || `Roblox returned an unexpected error (${status}).`;
+  }
+}
+
 /**
  * Update a group member's rank using Roblox Open Cloud v2 Groups API:
  * PATCH https://apis.roblox.com/cloud/v2/groups/{groupId}/memberships/{userId}
@@ -199,7 +218,7 @@ export async function setGroupMemberRank(
     }
 
     if (!res.ok) {
-      const errMsg = resJson?.message || resJson?.error || `Open Cloud API responded with ${res.status}`;
+      const errMsg = openCloudErrorMessage(res.status, resJson);
       logger.error(`Roblox Open Cloud rank update failed (${res.status}): ${errMsg}`, typeof resJson === "object" && resJson ? resJson : { res: String(resJson) });
       return {
         success: false,
@@ -250,5 +269,31 @@ export async function checkUserAssetOwnership(
   } catch (err: any) {
     logger.error("Error checking Roblox asset ownership:", { error: err?.message || String(err) });
     return { owned: false, error: "Roblox item verification network error." };
+  }
+}
+
+export type UserGroupRole = {
+  status: "member" | "not_member" | "unknown";
+  roleName: string | null;
+  rank: number | null;
+};
+
+/** The user's role in one group. "unknown" means Roblox couldn't answer, not that they aren't a member. */
+export async function getUserGroupRole(robloxUserId: string | number, groupId: string | number): Promise<UserGroupRole> {
+  const unknown: UserGroupRole = { status: "unknown", roleName: null, rank: null };
+  try {
+    const res = await fetch(`https://groups.roblox.com/v2/users/${robloxUserId}/groups/roles`, {
+      headers: { Accept: "application/json" },
+      cache: "no-store",
+    });
+    if (!res.ok) return unknown;
+
+    const data: { data?: Array<{ group: { id: number }; role: { name: string; rank: number } }> } = await res.json();
+    const hit = (data.data || []).find((g) => String(g.group.id) === String(groupId));
+    if (!hit) return { status: "not_member", roleName: null, rank: null };
+    return { status: "member", roleName: hit.role.name, rank: hit.role.rank };
+  } catch (err: any) {
+    logger.error("Error fetching Roblox group membership:", { error: err?.message || String(err) });
+    return unknown;
   }
 }

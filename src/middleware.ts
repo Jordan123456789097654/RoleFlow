@@ -20,6 +20,7 @@ const EXACT: Record<string, Rule> = {
 const PATTERNS: Array<{ re: RegExp; methods: string[]; rule: Rule }> = [
   { re: /^\/api\/guilds\/[^/]+\/bot\/(verify|setup|test-embed|commands)$/, methods: ["POST"], rule: { max: 15, windowMs: 15 * 60_000 } },
   { re: /^\/api\/roblox\/user$/, methods: ["GET"], rule: { max: 30, windowMs: 60_000 } },
+  { re: /^\/api\/link-preview$/, methods: ["GET"], rule: { max: 60, windowMs: 60_000 } },
 ];
 
 const MUTATING = new Set(["POST", "PUT", "PATCH", "DELETE"]);

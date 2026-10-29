@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import PositionAnalytics from "./PositionAnalytics";
+import ReviewerWorkload from "./ReviewerWorkload";
+import ChangeHistory from "./ChangeHistory";
 
 type App = { id: string; status: string; createdAt: string; user: { username: string }; position: { title: string } };
 type Position = { id: string; title: string; isOpen: boolean; _count?: { applications: number } };
@@ -121,6 +124,9 @@ export default function OverviewPanel({ guildId, onOpenApplications }: { guildId
           )}
         </section>
       </div>
+      <PositionAnalytics guildId={guildId} />
+      <ReviewerWorkload guildId={guildId} />
+      <ChangeHistory guildId={guildId} />
     </div>
   );
 }

@@ -36,7 +36,7 @@ Designed for Discord communities, Roblox development studios, gaming clans, and 
    - 1-Click Form Templates (Roblox Dev, Discord Staff, Event Host).
 
 6. **Applicant Experience**:
-   - **Auto-Save Drafts in LocalStorage**: Never lose answers if a tab is accidentally closed.
+   - **Auto-Save Drafts**: Answers are saved to your account as you type, so a closed tab or a new device doesn't lose them.
    - Community vanity URLs (e.g. `/c/meridian`, `/c/lucid`).
    - "My Applications" tracking hub.
 
@@ -55,7 +55,7 @@ Designed for Discord communities, Roblox development studios, gaming clans, and 
 
 ### 1. Start the Web Platform
 ```bash
-cd "C:\Users\jorda\.gemini\antigravity\scratch\applix"
+cd roleflow
 npm run dev
 ```
 Open **[http://localhost:3000](http://localhost:3000)** in your browser.
@@ -76,7 +76,7 @@ To connect the bot to live Discord:
    npm run dev:all
    ```
 
-*(Note: The web platform runs in self-contained demo mode even without Discord bot credentials!)*
+*(Note: Each community connects its own Discord bot in Bot Settings. There is no platform-wide bot. The bot process must run continuously on a host that is not serverless, such as Railway, Render, or Fly.io.)*
 
 ---
 

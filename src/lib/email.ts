@@ -497,3 +497,50 @@ export async function sendSecurityNoticeEmail({
     return { success: false, error: err?.message || "send failed" };
   }
 }
+
+
+/**
+ * 11. Deadline reminder: sent once per position, when it closes within the next 24 hours.
+ */
+export async function sendDeadlineReminderEmail({
+  toEmail,
+  applicantName,
+  communityName,
+  positionTitle,
+  closesAt,
+  positionId,
+}: {
+  toEmail: string;
+  applicantName: string;
+  communityName: string;
+  positionTitle: string;
+  closesAt: Date;
+  positionId: string;
+}): Promise<EmailResult> {
+  const subject = `Applications for ${positionTitle} close soon`;
+  const closeText = closesAt.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" }) + " UTC";
+  const link = `${APP_URL}/apply/${positionId}`;
+
+  const contentHtml = `
+    <p>Hi ${escapeHtml(applicantName)},</p>
+    <p>You saved <strong>${escapeHtml(positionTitle)}</strong> at <strong>${escapeHtml(communityName)}</strong>. Applications close on <strong>${escapeHtml(closeText)}</strong>.</p>
+    <p><a href="${link}">Finish your application</a></p>
+  `;
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: [toEmail],
+      subject,
+      html: renderEmailShell(subject, contentHtml),
+    });
+    if (error) {
+      logger.error("Failed to send deadline reminder via Resend", { error, toEmail });
+      return { success: false, error: error.message };
+    }
+    return { success: true, id: data?.id };
+  } catch (err: any) {
+    logger.error("Resend error sending deadline reminder", { err: err.message, toEmail });
+    return { success: false, error: err.message };
+  }
+}

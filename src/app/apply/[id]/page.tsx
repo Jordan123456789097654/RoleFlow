@@ -27,6 +27,7 @@ interface PositionData {
   isOpen: boolean;
   timeLimitMinutes?: number | null;
   richMediaLinks?: boolean;
+  estimatedResponse?: string | null;
   guild: {
     id: string;
     name: string;
@@ -201,7 +202,7 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
           savedAt: new Date().toISOString(),
         })
       );
-      setLastSaved("Draft auto-saved");
+      setLastSaved("Saved in this browser");
     } catch (e) {
       // ignore quota errors
     }
@@ -213,7 +214,9 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ answers: updated, robloxUsername }),
-        }).catch(() => {});
+        })
+          .then((r) => { if (r.ok) setLastSaved("Saved to your account"); })
+          .catch(() => {});
       }, 1500);
     }
   };
@@ -553,6 +556,26 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
           <h1 className="text-2xl sm:text-3xl font-extrabold text-ink mb-3">
             Application for {position?.title}
           </h1>
+          {position && position.isOpen && (
+            <>
+              {position.estimatedResponse && (
+                <p className="mb-4 text-sm text-muted">Usually responds in {position.estimatedResponse}.</p>
+              )}
+              <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                  __html: JSON.stringify({
+                    "@context": "https://schema.org",
+                    "@type": "JobPosting",
+                    title: position.title,
+                    description: position.description,
+                    hiringOrganization: { "@type": "Organization", name: position.guild.name },
+                    directApply: true,
+                  }),
+                }}
+              />
+            </>
+          )}
           <p className="text-xs text-muted leading-relaxed whitespace-pre-line">
             {position?.description}
           </p>

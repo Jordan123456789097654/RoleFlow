@@ -1,6 +1,8 @@
 import { isFounderId } from "@/lib/roles";
+import { getGuildResponseTime } from "@/lib/response-time";
 import { verifySessionValue } from "@/lib/session";
 import { NextResponse } from "next/server";
+import { recordAudit } from "@/lib/audit";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 
@@ -43,7 +45,8 @@ export async function GET(
       return NextResponse.json({ error: "Position not found" }, { status: 404 });
     }
 
-    return NextResponse.json(position);
+    const estimatedResponse = await getGuildResponseTime(position.guild.id);
+    return NextResponse.json({ ...position, estimatedResponse });
   } catch (err: any) {
     return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 });
   }
@@ -94,6 +97,7 @@ export async function PATCH(
       },
     });
 
+    await recordAudit({ actorId: userId, action: "POSITION_UPDATE", targetId: params.id, details: { title: updated.title } });
     return NextResponse.json({ success: true, position: updated });
   } catch (err: any) {
     return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 });

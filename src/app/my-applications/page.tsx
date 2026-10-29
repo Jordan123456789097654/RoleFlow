@@ -50,6 +50,15 @@ export default async function MyApplicationsPage() {
     orderBy: { createdAt: "desc" },
   });
 
+  // Approximate place in the waitlist: pending waitlisted applications submitted before this one, plus one.
+  const waitlistPositions = new Map<string, number>();
+  for (const app of applications.filter((a) => a.waitlisted && a.status === "PENDING")) {
+    const ahead = await prisma.application.count({
+      where: { positionId: app.positionId, waitlisted: true, status: "PENDING", createdAt: { lt: app.createdAt } },
+    });
+    waitlistPositions.set(app.id, ahead + 1);
+  }
+
   const savedRows = await prisma.savedPosition.findMany({
     where: { userId: user.id },
     orderBy: { createdAt: "desc" },
@@ -183,7 +192,7 @@ export default async function MyApplicationsPage() {
               {/* Actions: withdraw / reapply */}
               {app.waitlisted && app.status === "PENDING" && (
                 <div className="mb-4 rounded-xl border border-line bg-sunk p-3.5 text-[13px] text-ink-2">
-                  <strong>Waitlisted:</strong> this opening was full when you applied. Staff can still review your application and move it forward.
+                  <strong>Waitlisted{waitlistPositions.get(app.id) ? ` (#${waitlistPositions.get(app.id)})` : ""}:</strong> this opening was full when you applied. Staff can still review your application and move it forward.
                 </div>
               )}
               <div className="mb-4 flex flex-wrap items-start justify-end gap-2">

@@ -4,6 +4,8 @@ import { AssignmentPanel, BulkAssignControl } from "@/components/dashboard/Revie
 import OwnerExtrasPanel from "@/components/dashboard/OwnerExtrasPanel";
 import OverviewPanel from "@/components/dashboard/OverviewPanel";
 import SavedReplyPicker from "@/components/dashboard/SavedReplyPicker";
+import RobloxCheck from "@/components/dashboard/RobloxCheck";
+import LinkPreview from "@/components/LinkPreview";
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
@@ -184,6 +186,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
   // Bulk selection & Multi-application review state
   const [selectedAppIds, setSelectedAppIds] = useState<string[]>([]);
   const [bulkProcessing, setBulkProcessing] = useState(false);
+  const [bulkNote, setBulkNote] = useState("");
   const [tagFilter, setTagFilter] = useState<string>("ALL");
   const [customTagInput, setCustomTagInput] = useState("");
 
@@ -508,6 +511,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           applicationIds: selectedAppIds,
           action,
           tag,
+          decisionNote: bulkNote || undefined,
         }),
       });
       if (res.ok) {
@@ -1592,6 +1596,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
 
             {/* Right Column: Full Application Detail View */}
             <div className={`lg:col-span-7 ${selectedApp ? "block" : "hidden lg:block"}`}>
+              {selectedApp && <div className="mb-4 rounded-xl border border-line bg-surface p-4"><RobloxCheck applicationId={selectedApp.id} /></div>}
               {selectedApp && (
                 <button
                   type="button"
@@ -1802,6 +1807,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                         <p className="text-xs text-ink-2 whitespace-pre-wrap leading-relaxed">
                           {ans.value}
                         </p>
+                        {/^https:\/\//.test(String(ans.value).trim()) && <LinkPreview url={String(ans.value).trim()} />}
                       </div>
                     ))}
                   </div>
@@ -1950,6 +1956,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                 {bulkProcessing ? "Processing..." : "Batch Accept"}
               </button>
 
+              <SavedReplyPicker guildId={guild.id} type="REJECT" currentText={bulkNote} onPick={setBulkNote} />
               <button
                 type="button"
                 disabled={bulkProcessing}

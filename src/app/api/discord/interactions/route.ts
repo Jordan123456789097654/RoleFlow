@@ -1,30 +1,13 @@
 import { openNowWhere } from "@/lib/position-availability";
 import { discordAccountCreatedAt } from "@/lib/signals";
 import { NextResponse } from "next/server";
-import { createPublicKey, verify } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { canDecideInGuild, canViewInGuild, changeApplicationStatus } from "@/lib/application-status";
 import { logEvent } from "@/lib/health";
+import { validSignature } from "@/lib/discord-signature";
 
 export const dynamic = "force-dynamic";
 
-// Ed25519 SubjectPublicKeyInfo prefix; Discord sends the raw 32-byte key as hex.
-const SPKI_PREFIX = Buffer.from("302a300506032b6570032100", "hex");
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://roleflow.site";
-
-function validSignature(body: string, publicKeyHex: string | null, signature: string | null, timestamp: string | null): boolean {
-  if (!publicKeyHex || !signature || !timestamp) return false;
-  try {
-    const key = createPublicKey({
-      key: Buffer.concat([SPKI_PREFIX, Buffer.from(publicKeyHex, "hex")]),
-      format: "der",
-      type: "spki",
-    });
-    return verify(null, Buffer.from(timestamp + body), key, Buffer.from(signature, "hex"));
-  } catch {
-    return false;
-  }
-}
 
 type BotBinding = { publicKey: string | null; boundGuildId: string | null };
 
