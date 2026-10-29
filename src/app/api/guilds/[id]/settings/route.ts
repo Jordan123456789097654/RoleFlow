@@ -103,7 +103,7 @@ export async function PATCH(
       return NextResponse.json({ error: "The welcome message must be 500 characters or fewer." }, { status: 400 });
     }
 
-    if (customBotAppId && String(customBotAppId).trim() === process.env.DISCORD_CLIENT_ID) {
+    if (customBotAppId && String(customBotAppId).trim() === process.env.DISCORD_CLIENT_ID && !isSiteAdmin) {
       return NextResponse.json({ error: "That is the RoleFlow application ID and cannot be used as a custom bot." }, { status: 400 });
     }
     if (customBotAppId) {
