@@ -5,35 +5,25 @@ import { CommunityCard } from "@/components/CommunityCard";
 import {
   Search,
   ArrowRight,
-  FileText,
-  Users,
-  CheckCircle2,
-  EyeOff,
+  Sparkles,
   Bot,
   Gamepad2,
-  Timer,
+  CheckCircle2,
+  Users2,
+  ShieldCheck,
+  Zap,
+  Lock,
   MessagesSquare,
+  Vote,
+  Clock,
+  Send,
+  Layers,
 } from "lucide-react";
 
 export const revalidate = 0; // Fresh dynamic counts
 
-const STEPS = [
-  { icon: FileText, title: "Apply once", body: "Sign in with Discord, link Roblox, and answer a community's questions. Drafts auto-save as you type." },
-  { icon: Users, title: "Staff review together", body: "A shared pipeline with ratings, blind voting and private notes replaces scattered DMs and spreadsheets." },
-  { icon: CheckCircle2, title: "Decisions that land", body: "Roles are granted and applicants are told automatically, by DM, email, and on their tracking page." },
-];
-
-const FEATURES = [
-  { icon: EyeOff, title: "Blind voting", body: "Votes stay hidden until each reviewer submits, so one loud opinion can't steer the team." },
-  { icon: Bot, title: "White-label Discord bot", body: "Run the RoleFlow bot or bring your own: your name, avatar, embed colors, staff pings and role grants." },
-  { icon: Gamepad2, title: "Roblox-aware", body: "Verified Roblox accounts, group rank checks and live profile previews for developer studios." },
-  { icon: Timer, title: "Anti-burnout tools", body: "Rejection cooldowns, community blacklists, and automated role triggers keep low-effort spam out." },
-  { icon: MessagesSquare, title: "Interview channels", body: "Moving someone to Interview opens a private thread in Discord, with no manual setup." },
-  { icon: FileText, title: "Quick actions", body: "Accept or reject straight from the staff embed or with slash commands, without leaving Discord." },
-];
-
 export default async function HomePage() {
-  const [guilds, totalOpenPositions, communityCount] = await Promise.all([
+  const [guilds, totalOpenPositions, communityCount, totalAppsProcessed] = await Promise.all([
     prisma.guild.findMany({
       include: {
         positions: { where: { isOpen: true } },
@@ -44,99 +34,106 @@ export default async function HomePage() {
     }),
     prisma.position.count({ where: { isOpen: true } }),
     prisma.guild.count(),
+    prisma.application.count(),
   ]);
 
   return (
-    <div className="relative">
-      {/* ───────── Hero ───────── */}
-      <section className="relative px-4 sm:px-6 lg:px-8 pt-20 sm:pt-28 pb-16 max-w-7xl mx-auto">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 h-7 pl-2.5 pr-3.5 rounded-full border border-violet-500/30 bg-violet-950/40 text-[12px] text-violet-200 mb-8 animate-rf-fade shadow-lg shadow-violet-500/10">
+    <div className="relative min-h-screen text-slate-100 overflow-hidden">
+      {/* ───────── Ambient Glowing Auroras ───────── */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[550px] bg-gradient-to-b from-violet-600/20 via-fuchsia-600/10 to-transparent blur-[120px] pointer-events-none -z-10" />
+      <div className="absolute top-96 left-1/4 w-[600px] h-[400px] bg-indigo-600/15 blur-[140px] pointer-events-none -z-10" />
+
+      {/* ───────── Hero Section ───────── */}
+      <section className="relative px-4 sm:px-6 lg:px-8 pt-20 sm:pt-28 pb-20 max-w-7xl mx-auto">
+        <div className="max-w-4xl mx-auto text-center space-y-8">
+          
+          {/* Live Platform Pill */}
+          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-violet-500/30 bg-violet-950/40 backdrop-blur-md text-xs text-violet-200 shadow-lg shadow-violet-500/10">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="font-semibold text-white">RoleFlow Live</span>
+            <span className="font-semibold text-white">RoleFlow Recruiting</span>
             <span className="text-violet-400">·</span>
-            <span>{totalOpenPositions} open position{totalOpenPositions === 1 ? "" : "s"} across active communities</span>
+            <span>{totalOpenPositions} open role{totalOpenPositions === 1 ? "" : "s"} live now</span>
           </div>
 
-          <h1 className="text-[2.75rem] sm:text-6xl lg:text-7xl font-extrabold text-white leading-[1.05] tracking-tight">
-            Stop drowning in DMs.
-            <br />
-            Hire staff <span className="rf-gradient-text">effortlessly</span>.
+          {/* Master Headline */}
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.08]">
+            The intelligent hiring platform for{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-purple-300 to-indigo-300">
+              communities &amp; studios
+            </span>
           </h1>
 
-          <p className="mt-6 text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
-            The dedicated recruiting platform for Discord servers, Roblox developer studios, and gaming networks. Form pipelines, blind voting, and automated Discord bot actions in one place.
+          {/* Subtitle */}
+          <p className="text-base sm:text-xl text-slate-300 max-w-2xl mx-auto font-normal leading-relaxed">
+            Stop sorting through chaotic Discord DMs and fragile spreadsheets. Centralize applications, automate role grants, and conduct fair staff reviews with your own white-label bot.
           </p>
 
-          {/* Search + CTA */}
-          <div className="mt-10 max-w-2xl mx-auto flex flex-col sm:flex-row items-stretch gap-3">
+          {/* Interactive Search + Primary Action */}
+          <div className="pt-2 max-w-2xl mx-auto flex flex-col sm:flex-row items-stretch gap-3">
             <form action="/browse" method="GET" className="relative flex-1 flex items-center" role="search">
-              <Search className="w-4 h-4 text-slate-500 absolute left-4 pointer-events-none" />
+              <Search className="w-4 h-4 text-slate-400 absolute left-4 pointer-events-none" />
               <label htmlFor="home-search" className="sr-only">Search roles and communities</label>
               <input
                 id="home-search"
                 type="text"
                 name="q"
-                placeholder="Search studios, moderation, scripters…"
-                className="w-full h-12 pl-11 pr-10 rounded-xl bg-surface-card border border-white/10 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-violet-400/70 focus:ring-4 focus:ring-violet-500/15 transition"
+                placeholder="Search studios, clans, moderation, scripters..."
+                className="w-full h-13 pl-11 pr-10 rounded-2xl bg-white/[0.04] border border-white/10 hover:border-violet-500/40 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-500/15 backdrop-blur-md transition-all"
               />
-              <kbd className="absolute right-3.5 px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-[10px] text-slate-400 font-mono">/</kbd>
+              <kbd className="absolute right-3.5 px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-[10px] text-slate-400 font-mono">/</kbd>
             </form>
-            <Link href="/browse" className="rf-btn-primary h-12 shrink-0">
-              Browse openings
+            <Link
+              href="/browse"
+              className="h-13 px-7 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-xl shadow-violet-600/30 hover:shadow-violet-600/50 transition-all shrink-0 active:scale-[0.98]"
+            >
+              <span>Explore Openings</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
 
-          {/* Quick Category Tags */}
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-            {[
-              { label: "Roblox Studios", category: "Roblox Studios" },
-              { label: "Emergency Services", category: "Emergency Services" },
-              { label: "Moderators", category: "Gaming Clans" },
-              { label: "Developers", category: "Tech & Dev" },
-            ].map((tag) => (
-              <Link
-                key={tag.label}
-                href={`/browse?category=${encodeURIComponent(tag.category)}`}
-                className="px-2.5 py-1 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 hover:border-violet-500/30 text-[11px] font-medium text-slate-400 hover:text-white transition-all"
-              >
-                {tag.label}
-              </Link>
-            ))}
-          </div>
-
-          <div className="mt-6 flex items-center justify-center gap-5 text-[13px] text-slate-400">
-            <Link href="/my-applications" className="hover:text-white transition-colors">My applications</Link>
-            <span className="w-1 h-1 rounded-full bg-slate-600" />
-            <Link href="/dashboard" className="hover:text-white transition-colors">Manage a community</Link>
+          {/* Quick Sub-navigation */}
+          <div className="flex items-center justify-center gap-5 text-xs text-slate-400">
+            <Link href="/my-applications" className="hover:text-white transition-colors">Track my submissions</Link>
+            <span className="w-1 h-1 rounded-full bg-slate-700" />
+            <Link href="/dashboard" className="text-violet-400 hover:text-violet-300 font-medium transition-colors">Create / Manage community →</Link>
           </div>
         </div>
 
-        {/* Stat strip */}
-        <dl className="mt-16 max-w-3xl mx-auto grid grid-cols-3 rounded-2xl border border-white/[0.07] bg-surface-card/60 divide-x divide-white/[0.07]">
+        {/* ───────── Stats Metric Bar ───────── */}
+        <div className="mt-16 max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            { k: "Communities", v: communityCount },
-            { k: "Open positions", v: totalOpenPositions },
-            { k: "Avg. setup time", v: "5 min" },
-          ].map((s) => (
-            <div key={s.k} className="py-5 px-3 text-center">
-              <dd className="font-display text-2xl sm:text-3xl font-bold text-white">{s.v}</dd>
-              <dt className="mt-1 text-[11px] uppercase tracking-[0.12em] text-slate-500">{s.k}</dt>
+            { label: "Active Communities", value: communityCount },
+            { label: "Open Positions", value: totalOpenPositions },
+            { label: "Applications Processed", value: totalAppsProcessed > 0 ? totalAppsProcessed : "Active" },
+            { label: "Average Setup Time", value: "< 5 mins" },
+          ].map((stat) => (
+            <div
+              key={stat.label}
+              className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.07] backdrop-blur-md text-center"
+            >
+              <div className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">{stat.value}</div>
+              <div className="text-[11px] font-medium uppercase tracking-wider text-slate-400 mt-1">{stat.label}</div>
             </div>
           ))}
-        </dl>
+        </div>
       </section>
 
-      {/* ───────── Featured communities ───────── */}
+      {/* ───────── Featured Communities ───────── */}
       <section className="px-4 sm:px-6 lg:px-8 py-16 max-w-7xl mx-auto">
-        <div className="flex items-end justify-between gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
           <div>
-            <p className="rf-eyebrow mb-2">Now hiring</p>
-            <h2 className="text-2xl sm:text-3xl font-bold text-white">Featured communities &amp; studios</h2>
+            <div className="flex items-center gap-2 text-violet-400 text-xs font-semibold uppercase tracking-wider mb-1.5">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Verified Directory</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">Active Studios &amp; Communities</h2>
           </div>
-          <Link href="/browse" className="text-[13px] text-violet-300 hover:text-white inline-flex items-center gap-1 font-medium transition-colors shrink-0">
-            View all <ArrowRight className="w-3.5 h-3.5" />
+          <Link
+            href="/browse"
+            className="text-xs text-violet-300 hover:text-white inline-flex items-center gap-1 font-semibold transition-colors shrink-0"
+          >
+            <span>View all directory</span>
+            <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
@@ -173,57 +170,129 @@ export default async function HomePage() {
             })}
           </div>
         ) : (
-          <div className="rf-card p-10 text-center text-sm text-slate-400">No communities yet. Be the first to open applications.</div>
+          <div className="p-12 rounded-3xl bg-white/[0.02] border border-white/10 text-center text-sm text-slate-400">
+            No communities listed yet. Be the first to open applications!
+          </div>
         )}
       </section>
 
-      {/* ───────── How it works ───────── */}
-      <section className="px-4 sm:px-6 lg:px-8 py-16 max-w-7xl mx-auto">
-        <div className="max-w-2xl mb-10">
-          <p className="rf-eyebrow mb-2">How it works</p>
-          <h2 className="text-2xl sm:text-3xl font-bold text-white">From first click to final decision, in one place</h2>
+      {/* ───────── Three Pillar Interactive Flow ───────── */}
+      <section className="px-4 sm:px-6 lg:px-8 py-20 max-w-7xl mx-auto border-t border-white/5">
+        <div className="max-w-2xl mx-auto text-center mb-14 space-y-3">
+          <div className="text-xs font-semibold uppercase tracking-wider text-violet-400">Workflow</div>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Recruiting built for modern teams</h2>
+          <p className="text-sm text-slate-400">Everything needed to source, evaluate, and onboard candidates with zero friction.</p>
         </div>
-        <ol className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {STEPS.map((s, i) => (
-            <li key={s.title} className="rf-card p-6 relative overflow-hidden">
-              <span className="absolute -top-3 right-4 font-display text-7xl font-bold text-white/[0.04] select-none">{i + 1}</span>
-              <span className="w-10 h-10 rounded-xl bg-violet-500/10 border border-violet-400/20 text-violet-300 grid place-items-center mb-4">
-                <s.icon className="w-5 h-5" />
-              </span>
-              <h3 className="text-base font-semibold text-white mb-1.5">{s.title}</h3>
-              <p className="text-[13px] text-slate-400 leading-relaxed">{s.body}</p>
-            </li>
-          ))}
-        </ol>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="p-7 rounded-3xl bg-gradient-to-b from-white/[0.04] to-transparent border border-white/10 relative overflow-hidden group hover:border-violet-500/30 transition-all">
+            <div className="w-12 h-12 rounded-2xl bg-violet-500/10 border border-violet-500/20 text-violet-400 flex items-center justify-center mb-5">
+              <Send className="w-5 h-5" />
+            </div>
+            <h3 className="text-lg font-bold text-white mb-2">1. One-Click Applications</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Applicants authenticate through Discord, link verified Roblox profiles, and complete smart forms with dynamic conditional questions.
+            </p>
+          </div>
+
+          <div className="p-7 rounded-3xl bg-gradient-to-b from-white/[0.04] to-transparent border border-white/10 relative overflow-hidden group hover:border-violet-500/30 transition-all">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mb-5">
+              <Vote className="w-5 h-5" />
+            </div>
+            <h3 className="text-lg font-bold text-white mb-2">2. Collaborative Review</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Scorecards, blind voting, and private internal notes eliminate review bias and prevent noisy opinions from dominating evaluations.
+            </p>
+          </div>
+
+          <div className="p-7 rounded-3xl bg-gradient-to-b from-white/[0.04] to-transparent border border-white/10 relative overflow-hidden group hover:border-violet-500/30 transition-all">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mb-5">
+              <Bot className="w-5 h-5" />
+            </div>
+            <h3 className="text-lg font-bold text-white mb-2">3. Automated Actions</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Instantly grant Discord roles, promote ranks in Roblox groups via Open Cloud, and dispatch custom embed notifications under your own bot identity.
+            </p>
+          </div>
+        </div>
       </section>
 
-      {/* ───────── Feature grid ───────── */}
-      <section className="px-4 sm:px-6 lg:px-8 py-16 max-w-7xl mx-auto">
-        <div className="max-w-2xl mb-10">
-          <p className="rf-eyebrow mb-2">For staff teams</p>
-          <h2 className="text-2xl sm:text-3xl font-bold text-white">Built to keep reviewers fast, fair and un-burnt-out</h2>
+      {/* ───────── Feature Matrix Grid ───────── */}
+      <section className="px-4 sm:px-6 lg:px-8 py-20 max-w-7xl mx-auto">
+        <div className="max-w-2xl mb-12">
+          <div className="text-xs font-semibold uppercase tracking-wider text-violet-400 mb-1">Architecture</div>
+          <h2 className="text-3xl font-extrabold text-white">Engineered for reliability &amp; scale</h2>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px rounded-2xl overflow-hidden border border-white/[0.07] bg-white/[0.07]">
-          {FEATURES.map((f) => (
-            <div key={f.title} className="bg-surface p-6 hover:bg-surface-card transition-colors">
-              <f.icon className="w-5 h-5 text-violet-300 mb-4" />
-              <h3 className="text-[15px] font-semibold text-white mb-1.5">{f.title}</h3>
-              <p className="text-[13px] text-slate-400 leading-relaxed">{f.body}</p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[
+            {
+              icon: Bot,
+              title: "White-Label Custom Bot",
+              desc: "Deploy automated embeds, role assigners, and slash commands under your community's own bot avatar and name.",
+            },
+            {
+              icon: Gamepad2,
+              title: "Roblox Group Auto-Ranking",
+              desc: "Connect your Roblox Open Cloud API key to automatically promote accepted applicants in your Roblox Group.",
+            },
+            {
+              icon: ShieldCheck,
+              title: "Anti-Alt & Age Verification",
+              desc: "Gate submissions by minimum account age, Discord membership, and required Roblox badges to block burner accounts.",
+            },
+            {
+              icon: MessagesSquare,
+              title: "Interactive Ticket Channels",
+              desc: "Moving an applicant to Interview automatically provisions a private text thread in your Discord server.",
+            },
+            {
+              icon: Zap,
+              title: "Discord Slash Commands",
+              desc: "Register native /status, /apply, /openings, /accept, and /reject commands directly to your staff bot.",
+            },
+            {
+              icon: Lock,
+              title: "Encrypted Token Vault",
+              desc: "All Discord bot tokens and Roblox Open Cloud keys are stored using AES-256-GCM encryption.",
+            },
+          ].map((item) => (
+            <div
+              key={item.title}
+              className="p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-white/15 transition-all"
+            >
+              <item.icon className="w-5 h-5 text-violet-400 mb-3" />
+              <h3 className="text-sm font-bold text-white mb-1.5">{item.title}</h3>
+              <p className="text-xs text-slate-400 leading-relaxed">{item.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ───────── CTA band ───────── */}
-      <section className="px-4 sm:px-6 lg:px-8 pt-8 pb-8 max-w-7xl mx-auto">
-        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-surface-card px-6 py-14 sm:px-14 text-center">
-          <div className="absolute inset-0 bg-[radial-gradient(60%_90%_at_50%_0%,rgba(127,102,255,0.28),transparent_70%)]" aria-hidden="true" />
-          <div className="relative">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white">Ready to run applications properly?</h2>
-            <p className="mt-3 text-slate-400 max-w-xl mx-auto">Create your community in minutes, add positions, and connect your Discord server.</p>
-            <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
-              <Link href="/dashboard" className="rf-btn-primary">Set up your community <ArrowRight className="w-4 h-4" /></Link>
-              <Link href="/browse" className="rf-btn-ghost">Browse openings</Link>
+      {/* ───────── Final Call to Action ───────── */}
+      <section className="px-4 sm:px-6 lg:px-8 pt-8 pb-24 max-w-7xl mx-auto">
+        <div className="relative overflow-hidden rounded-3xl border border-violet-500/20 bg-gradient-to-b from-violet-950/40 via-surface-card to-surface-card p-10 sm:p-16 text-center shadow-2xl">
+          <div className="max-w-xl mx-auto space-y-4">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+              Ready to streamline your staff hiring?
+            </h2>
+            <p className="text-sm text-slate-300 leading-relaxed">
+              Launch your community portal in under five minutes. Connect your Discord bot, create custom forms, and start reviewing candidates today.
+            </p>
+            <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Link
+                href="/dashboard"
+                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold transition-all shadow-lg shadow-violet-600/30 flex items-center justify-center gap-2"
+              >
+                <span>Set Up Your Community</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+              <Link
+                href="/browse"
+                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-semibold transition-all"
+              >
+                Browse Open Openings
+              </Link>
             </div>
           </div>
         </div>
