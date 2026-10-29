@@ -6,6 +6,7 @@ const COLUMNS: Array<{ title: string; links: Array<{ href: string; label: string
     title: "Platform",
     links: [
       { href: "/browse", label: "Browse openings" },
+      { href: "/docs", label: "Documentation" },
       { href: "/my-applications", label: "My applications" },
       { href: "/dashboard", label: "Community dashboard" },
       { href: "/settings", label: "Account & support" },
