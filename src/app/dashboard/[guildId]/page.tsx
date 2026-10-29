@@ -9,6 +9,7 @@ import LinkPreview from "@/components/LinkPreview";
 
 import React, { useState, useEffect } from "react";
 import CustomDomainPanel from "@/components/CustomDomainPanel";
+import PartnershipPanel from "@/components/PartnershipPanel";
 import Link from "next/link";
 import {
   Upload,
@@ -2754,6 +2755,8 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           </div>
           {settingsSection === "plan" && (
           <div className="space-y-6">
+          <PartnershipPanel guildId={params.guildId} />
+
           {/* License & Subscription Tier Card (Coming Soon) */}
           <div className="glass-panel rounded-2xl border border-purple-500/30 bg-purple-500/10 p-6 sm:p-8 space-y-4 shadow-card">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

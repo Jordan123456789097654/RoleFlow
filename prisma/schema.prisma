@@ -78,6 +78,7 @@ model Guild {
   customDomainToken          String?          // Random token the owner publishes in a DNS TXT record
   customDomainVerified       Boolean          @default(false)
   customDomainVerifiedAt     DateTime?
+  partnershipApplications    PartnershipApplication[]
   useCustomBot               Boolean          @default(false)
   customBotToken             String?          // AES-256-GCM encrypted (enc:v1:...). Never returned by the API.
   
@@ -433,4 +434,21 @@ model ApplicationDraft {
 
   @@unique([userId, positionId])
   @@index([userId])
+}
+
+model PartnershipApplication {
+  id           String    @id @default(cuid())
+  guildId      String
+  guild        Guild     @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  applicantId  String
+  message      String
+  website      String?
+  status       String    @default("PENDING") // PENDING, APPROVED, REJECTED
+  reviewNote   String?
+  reviewedById String?
+  reviewedAt   DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@index([guildId])
+  @@index([status])
 }

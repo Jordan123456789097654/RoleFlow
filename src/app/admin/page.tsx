@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { PartnershipReview } from "@/components/admin/PartnershipReview";
 import Link from "next/link";
 import ModerationPanel from "@/components/admin/ModerationPanel";
 import HealthPanel from "@/components/admin/HealthPanel";
@@ -108,7 +109,7 @@ interface BlacklistEntry {
 }
 
 export default function SiteAdminPage() {
-  const [activeTab, setActiveTab] = useState<"guilds" | "staff" | "licenses" | "changelog" | "blacklist" | "feedback" | "moderation" | "health" | "metrics" | "accounts" | "flags">("guilds");
+  const [activeTab, setActiveTab] = useState<"guilds" | "staff" | "licenses" | "changelog" | "blacklist" | "feedback" | "moderation" | "health" | "metrics" | "accounts" | "flags" | "partnerships">("guilds");
   const [whoami, setWhoami] = useState<{ username: string; isFounder: boolean; isAdmin: boolean } | null>(null);
   const [guilds, setGuilds] = useState<AdminGuild[]>([]);
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -807,6 +808,14 @@ export default function SiteAdminPage() {
 
       {/* Tabs */}
       <div className="flex flex-wrap items-center gap-2 sm:gap-3 border-b border-line pb-3">
+        <button
+          onClick={() => setActiveTab("partnerships")}
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+            activeTab === "partnerships" ? "bg-purple-600 text-white shadow-card shadow-purple-600/30" : "text-muted hover:text-white hover:bg-sunk"
+          }`}
+        >
+          <span>Partnerships</span>
+        </button>
         <button
           onClick={() => setActiveTab("moderation")}
           className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
@@ -1797,6 +1806,7 @@ export default function SiteAdminPage() {
         </div>
       )}
       {/* TAB 5: FEEDBACK & BUG REPORTS */}
+      {activeTab === "partnerships" && <PartnershipReview isFounder={Boolean(whoami?.isFounder)} />}
       {activeTab === "feedback" && (
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-accent-soft border border-purple-500/20">

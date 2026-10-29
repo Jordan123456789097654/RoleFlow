@@ -226,30 +226,6 @@ const groups: Group[] = [
         ],
       },
       {
-        id: "custom-domain",
-        title: "Using your own domain",
-        intro: "Run your community from an address you own, such as apply.yourstudio.com. This is in Settings → Profile & Branding, under the Custom Domain panel. Only the community owner can set it up.",
-        steps: [
-          "Type your domain in the box and click Connect domain. Enter just the domain, such as apply.yourstudio.com. RoleFlow's own domains can't be used.",
-          "The panel shows two records. Add them at your DNS provider (for example Cloudflare, GoDaddy, or Namecheap).",
-          "Record 1 (proves ownership): a TXT record at the Host shown, with the Value shown.",
-          "Record 2 (points the domain at RoleFlow): a CNAME record for a subdomain, or an A record for a root domain. The panel shows which one, and the exact host and value.",
-          "Wait a few minutes, then click Check verification. DNS changes can take a few minutes to 48 hours.",
-          "When it says the domain is verified and live, open the domain in your browser.",
-        ],
-        body: [
-          "On your domain, your portal, the apply pages for your openings, and your dashboard all work. Other RoleFlow pages redirect back to your community's home page.",
-          "Signing in on your domain: click Log in. You're sent to RoleFlow to sign in with Discord, then brought back to the page you were on.",
-          "To change the domain, enter a new one and click Connect domain. The old one stops working on your community.",
-          "To stop using it, click Remove domain. Visitors go back to RoleFlow, and the domain can be connected to another community.",
-        ],
-        tips: [
-          "If the panel says the TXT record isn't visible, check the Host and Value match the panel exactly, then wait and check again.",
-          "If you use a root domain (example.com) and the panel asks for an A record, remove any existing A or CNAME record for the same host first. Two records for the same name will break it.",
-          "Each domain can belong to one community at a time.",
-        ],
-      },
-      {
         id: "notifications",
         title: "Settings → Notifications",
         body: [
@@ -291,6 +267,247 @@ const groups: Group[] = [
           "Everyone: /help, /status (your applications), /openings (open positions), /apply (apply link), /portal (community links), /ping (bot check).",
           "Staff: /pending (oldest applications waiting), /stats (totals and approval rates), /lookup <user> (a member's applications, Roblox account, and account age).",
           "Decision makers: /accept <application_id> [note], /reject <application_id> [note], /interview <application_id>, /hold <application_id> [note]. Get the application ID from /pending or the staff alert.",
+        ],
+      },
+    ],
+  },
+  {
+    title: "Custom domains",
+    sections: [
+      {
+        id: "cd-overview",
+        title: "What custom domains do",
+        intro: "A custom domain lets your community run from an address you own, such as apply.yourstudio.com, instead of roleflow.site/c/your-community. Applicants and staff use your address for everything RoleFlow does for your community.",
+        body: [
+          "Once connected, your domain serves your community's portal at its home page, the apply pages for your openings, and your community dashboard. Applicants can read your portal, apply, and track their applications from your domain.",
+          "A domain can belong to one community at a time. Connecting it does not change your community's RoleFlow address, which still works.",
+          "Custom domains are set up by the community owner from Settings → Profile & Branding. Team members can use the domain but cannot change it.",
+          "Plan requirement: where licensing is turned on, custom domains are part of a paid plan. Where licensing is off, they are free for every community.",
+        ],
+      },
+      {
+        id: "cd-before",
+        title: "Before you start",
+        body: [
+          "You need a domain you own. Examples: apply.yourstudio.com (a subdomain) or yourstudio.com (a root domain).",
+          "You need access to the place where the domain's DNS is managed. This is usually your domain registrar or DNS host, such as Cloudflare, GoDaddy, Namecheap, Google Domains, Squarespace, or your hosting control panel.",
+          "You need to be the owner of the community on RoleFlow. Staff with decision permission cannot connect a domain.",
+          "RoleFlow's own domains cannot be used. That includes roleflow.site, www.roleflow.site, and any subdomain of roleflow.site.",
+          "Recommendation: use a subdomain such as apply.yourstudio.com. Subdomains are simpler to set up and leave your main website and email on the root domain untouched.",
+        ],
+        tips: [
+          "Decide before you start whether the domain will be a subdomain or a root domain. The records you add are different for each (see Step 3).",
+          "Check that nothing else already uses the name you want. If the host already has a website or an email record, adding a RoleFlow record for it can break that service.",
+        ],
+      },
+      {
+        id: "cd-connect",
+        title: "Step 1: Connect the domain",
+        steps: [
+          "Open your community dashboard and go to the Settings tab.",
+          "Open the Profile & Branding section.",
+          "Find the Custom Domain panel.",
+          "Type the domain, without https:// and without a trailing slash, such as apply.yourstudio.com.",
+          "Click Connect domain.",
+          "RoleFlow saves the domain and shows the two DNS records you need to add. The domain is not live yet.",
+        ],
+        body: [
+          "If you see \"Enter a domain you own\", the name is not valid, or it belongs to RoleFlow. Check for typos, spaces, and extra characters.",
+          "If you see \"That domain is already connected to another community\", another community is using it. Only that community's owner can remove it.",
+          "If you see \"Custom domains are part of a paid plan\", the community needs a paid plan while licensing is turned on.",
+        ],
+      },
+      {
+        id: "cd-txt",
+        title: "Step 2: Add the TXT record (proves ownership)",
+        intro: "The TXT record proves that you control the domain. Nobody else can connect your domain without access to its DNS.",
+        steps: [
+          "Open your DNS provider and go to the page for managing DNS records for your domain.",
+          "Click Add record and choose TXT.",
+          "Enter the Host exactly as shown in the panel. The panel shows the full name, for example _roleflow-verify.apply.yourstudio.com.",
+          "Enter the Value exactly as shown in the panel. It starts with roleflow-verify= and ends with a long random code.",
+          "Save the record. Leave the TTL on automatic or the default.",
+        ],
+        body: [
+          "Some DNS providers only want the part before your domain. For apply.yourstudio.com, enter _roleflow-verify.apply as the host. Cloudflare and some others add the domain for you, so enter what they expect. If the record shows as _roleflow-verify.apply.yourstudio.com.yourstudio.com, the host was entered twice.",
+          "Do not add quotation marks around the value. Copy it exactly, including the = sign.",
+          "Keep this record in place after verification. Removing it later can cause verification to fail on a future check.",
+        ],
+        tips: [
+          "Copy the value by selecting the text in the panel rather than retyping it. One wrong character will fail verification.",
+        ],
+      },
+      {
+        id: "cd-routing",
+        title: "Step 3: Add the routing record (points your domain at RoleFlow)",
+        intro: "The routing record tells the internet where to send visitors to your domain. The panel shows which type to use.",
+        body: [
+          "For a subdomain such as apply.yourstudio.com: add a CNAME record. The host is the part before your domain (here, apply). The value is cname.vercel-dns.com.",
+          "For a root domain such as yourstudio.com: add an A record. The host is @ (sometimes written as the root or blank). The value is 76.76.21.21.",
+          "If your domain already has an A or CNAME record for the same host, replace it. Two records for the same name will prevent the domain from working.",
+          "Cloudflare users: set the record's proxy status to DNS only (grey cloud). The orange proxy cloud stops RoleFlow from issuing the HTTPS certificate.",
+          "If you want both www and the bare domain to work, add the www record separately. RoleFlow connects the exact domain you entered.",
+        ],
+        tips: [
+          "The panel always shows the exact host and value for your domain. If the values here and in the panel differ, follow the panel.",
+        ],
+      },
+      {
+        id: "cd-verify",
+        title: "Step 4: Check verification",
+        steps: [
+          "Wait a few minutes after saving the records. Most changes appear within an hour.",
+          "Open the Custom Domain panel and click Check verification.",
+          "Read the message RoleFlow shows and follow its advice.",
+          "When the message says the domain is verified and live, open the domain in a browser.",
+        ],
+        body: [
+          "The panel shows one of three states. Waiting for DNS verification means the TXT record is not visible yet. Ownership verified means the TXT record is correct, but the routing record is not pointing at RoleFlow yet. Live means both records are correct and the domain works.",
+          "\"The TXT record isn't visible yet\" usually means the record was entered incorrectly or has not spread yet. Check the host and value, then wait and try again. DNS can take up to 48 hours, although most changes finish much sooner.",
+          "The HTTPS certificate is issued after the routing record is correct. Right after you fix the routing, the browser may show a certificate warning for a few minutes. This clears on its own.",
+          "Click Recheck at any time, even after the domain is live, to confirm it still works.",
+        ],
+      },
+      {
+        id: "cd-using",
+        title: "Using your domain",
+        body: [
+          "Your home page (https://apply.yourstudio.com/) shows your community's portal, with your banner, description, announcement, and open positions.",
+          "Apply pages for your openings work on your domain. Applicants fill in the same form they would on roleflow.site.",
+          "Your dashboard is at https://apply.yourstudio.com/dashboard/ followed by your community's ID. You can also open it from the dashboard link you already use.",
+          "Your community page works on the domain as well, under /c/ followed by your vanity address.",
+          "Any other RoleFlow page, such as Browse, Terms, Privacy, or another community, sends the visitor back to your community's home page. Visitors cannot browse other communities from your domain.",
+          "My applications is not available on a community domain. Applicants track their applications on roleflow.site.",
+        ],
+      },
+      {
+        id: "cd-signin",
+        title: "Signing in on your domain",
+        intro: "Discord only sends sign-in back to roleflow.site, so RoleFlow handles sign-in in two steps. You won't need to do anything special.",
+        steps: [
+          "On your domain, click Log in (or Connect with Discord to Apply on an apply page).",
+          "You're taken to roleflow.site, where you sign in with Discord as usual.",
+          "RoleFlow sends you back to your domain, to the page you were on, already signed in.",
+        ],
+        body: [
+          "If you're already signed in to roleflow.site and approved RoleFlow on Discord, the sign-in often finishes without asking again.",
+          "Signing in on roleflow.site does not sign you in on your domain, and signing in on your domain does not sign you in on roleflow.site. Each domain keeps its own session.",
+          "Logging out on your domain signs you out there and takes you to roleflow.site. Log in again on your domain when you return.",
+          "Sign-in links are short-lived. If a link expires while you're on the page, go back and click Log in again.",
+        ],
+        tips: [
+          "If the sign-in loops back to the login page, make sure you're using the exact domain you connected, and try a private window to clear old sessions.",
+        ],
+      },
+      {
+        id: "cd-discord",
+        title: "Discord bot and emails",
+        body: [
+          "Once your domain is verified, the Discord commands /portal and /apply give your domain's address.",
+          "The Review on RoleFlow button on staff alerts opens the application on roleflow.site, where your staff already sign in.",
+          "Email notifications link to roleflow.site, not to your domain.",
+          "Changes to the domain take effect within a few minutes. Discord messages that were already posted keep their original links.",
+        ],
+      },
+      {
+        id: "cd-change",
+        title: "Changing or removing your domain",
+        body: [
+          "To change your domain, enter the new domain in the Custom Domain panel and click Connect domain. The old domain stops working for your community, and the new one must be verified from the beginning.",
+          "Remove the old TXT and routing records from your DNS provider once the new domain is live. Leaving them in place does not break anything, but they are no longer needed.",
+          "To remove the domain entirely, click Remove domain in the panel. Visitors to the old address go back to roleflow.site, and the domain is released so another community can connect it.",
+          "Removing the domain does not delete your community, openings, or applications.",
+        ],
+        tips: [
+          "Wait until the new domain shows Live before removing the old DNS records. This avoids a gap in service.",
+        ],
+      },
+      {
+        id: "cd-troubleshooting",
+        title: "Troubleshooting custom domains",
+        body: [
+          "The TXT record isn't visible. Check the host and value match the panel exactly, with no extra spaces or quotation marks. Some providers add your domain automatically, so the host may need to be only the first part. Wait 10 to 15 minutes, then check again.",
+          "Verified, but the domain doesn't open. The routing record is missing or wrong. Confirm the type (CNAME for subdomains, A for root domains), the host, and the value. For Cloudflare, use DNS only, not proxied.",
+          "Certificate or \"not secure\" warning. The HTTPS certificate is still being issued. This takes a few minutes after the routing record is correct. If it continues for more than an hour, recheck the routing record.",
+          "The domain goes to roleflow.site. It is not verified yet, or the routing record is not in place. Finish the TXT and routing steps, then check verification.",
+          "Page not found on the domain. The page may be part of another community or a RoleFlow page that is not available on community domains. Go to your home page.",
+          "\"Already connected to another community\". Another community is using the domain. Only that community's owner can remove it.",
+          "Your domain has a www version. The domain you connected is the only one RoleFlow serves. Add a separate www record if you need it, and connect it as its own domain only if you want it to work the same way.",
+          "The bot links still go to roleflow.site. Discord messages that were already posted keep their old links. New commands like /portal use the custom domain after verification.",
+        ],
+      },
+      {
+        id: "cd-security",
+        title: "Security and privacy",
+        body: [
+          "Ownership: the TXT record is the only proof RoleFlow accepts. We check it for the token shown in your panel. Nobody can verify your domain without adding that record to its DNS.",
+          "Tokens are random for each connection. Changing the domain issues a new token.",
+          "RoleFlow does not ask for your DNS provider login or API keys.",
+          "A domain can only be connected to one community at a time, and RoleFlow never serves a domain that has not been verified.",
+          "Sign-in tokens used to move you from roleflow.site to your domain are short-lived and tied to that one domain.",
+        ],
+      },
+      {
+        id: "cd-faq",
+        title: "Frequently asked questions",
+        body: [
+          "Can I use a domain I bought from another company? Yes, any domain you control can be used, wherever it was registered.",
+          "Can I use a free domain? Yes, as long as you control its DNS records. Some free hosts do not allow the records RoleFlow needs.",
+          "Do applicants need an account on my domain? No. They sign in with Discord, which takes them to roleflow.site and back to your domain.",
+          "Will my existing applicants and openings move? Yes. Your community's data is the same. Only the address changes.",
+          "Can I have two domains for one community? One custom domain per community is supported. Your roleflow.site address keeps working alongside it.",
+          "How long does it take? Usually a few minutes after you save the records. DNS can take up to 48 hours in rare cases.",
+        ],
+      },
+    ],
+  },
+  {
+    title: "Partnerships",
+    sections: [
+      {
+        id: "pt-what",
+        title: "What a partnership is",
+        body: [
+          "A partnership is an official connection between your community and RoleFlow. Partner communities get the Partner badge, which appears on their community card and page.",
+          "Partner communities can be featured on the RoleFlow home page, where new applicants are likely to see them.",
+          "A partnership is granted by the RoleFlow founder after review. It is not something you can switch on yourself.",
+        ],
+      },
+      {
+        id: "pt-apply",
+        title: "Applying for a partnership",
+        steps: [
+          "Open your community dashboard and go to the Settings tab.",
+          "Open the Plan section. The Partnership card is at the top.",
+          "Write a message about your community, at least 80 characters. Describe what the community does, how active it is, and why it should be a partner.",
+          "Add your website if you have one. It must start with https://.",
+          "Click Apply for partnership.",
+        ],
+        body: [
+          "Only the community owner can apply. Staff members can see the status but cannot submit a request.",
+          "You can have one request under review at a time. Once a request is decided, you can apply again.",
+          "A community that is already a partner will see that the partnership is active, and no new request is needed.",
+        ],
+        tips: [
+          "A clear, specific message is easier to review. Include your community's focus, how many members and open positions it has, and anything that shows it is well run.",
+        ],
+      },
+      {
+        id: "pt-review",
+        title: "How applications are reviewed",
+        body: [
+          "The RoleFlow founder reviews every partnership application in the founder panel. Open the Admin console and choose the Partnerships tab. Only the founder can approve or reject.",
+          "The founder reads your message and website, and may add a note to the owner with the decision.",
+          "Your Partnership card shows the status: Under review, Approved, or Not approved, along with any note.",
+        ],
+      },
+      {
+        id: "pt-outcome",
+        title: "After a decision",
+        body: [
+          "Approved: your community receives the Partner badge straight away. The badge is shown on your community card and page, and your community can be featured on the home page.",
+          "Not approved: the note explains the decision where the founder left one. You can apply again later, once you've addressed the points raised.",
+          "Badges are managed by RoleFlow. If a partnership needs to be changed later, contact support@roleflow.site.",
         ],
       },
     ],
