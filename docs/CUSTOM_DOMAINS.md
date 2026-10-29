@@ -172,3 +172,24 @@ If you're already signed in on roleflow.site, Discord usually approves the login
 - Applicant "My Applications" is not available on custom domains.
 - Root-domain detection counts domains with two labels as roots. Domains like `example.co.uk` are treated as subdomains and may need the CNAME shown in the panel instead of the A record.
 - Vercel's API paths used here are `/v10/projects/{id}/domains`, `/v9/projects/{id}/domains/{domain}/verify`, and `/v6/domains/{domain}/config`. Check them against Vercel's current API reference if a call fails.
+
+---
+
+## Customizing your domain site (owners)
+
+Once a domain is verified, open **Dashboard → Settings → Custom Domain → Customize your site**, or go to `/dashboard/<your-community-id>/site`. You can change:
+
+- **Look:** accent color, opening layout, header style, and whether the header, reviews, and applicant count show.
+- **Copy:** announcement, welcome message, about text, the sign-in button label, and a footer note.
+- **Links and images:** logo, banner, website, and Discord invite. These must be `https://` addresses.
+- **Navigation:** up to 5 header links (shown on larger screens).
+- **Footer:** show or hide the footer, footer text, and up to 6 footer links. "Powered by RoleFlow" always stays.
+- **Search and sharing:** the page title and description used by search engines and link previews.
+
+A live preview updates as you type. Saved changes appear on your domain straight away.
+
+Your domain shows only your community's name and header, with **Powered by RoleFlow** in the footer.
+
+## Bot console (owners)
+
+**Dashboard → Discord Bot** shows a live console for your bot. Lines are tagged `[i]` (info), `[✓]` (connected or resumed), `[!]` (warning), and `[✗]` (error). Lines are kept for 7 days. Schema change: run `npm run db:push` once after deploying so the `BotLog` table and `Guild.siteConfig` column exist.

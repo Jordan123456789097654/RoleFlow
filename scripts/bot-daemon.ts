@@ -2,11 +2,13 @@ import { prisma } from "../src/lib/prisma";
 import { decryptSecret } from "../src/lib/crypto";
 import { DiscordGatewayConnection } from "../src/lib/discord-gateway";
 import { processOutbox } from "../src/lib/bot-outbox";
+import { recordBotLog, pruneBotLogs } from "../src/lib/bot-log";
 
 /** Keeps each community's bot connected, and writes its live status to the database for the dashboard. */
 const SYNC_MS = 60_000;
 const HEARTBEAT_MS = 60_000;
 const OUTBOX_MS = 30_000;
+const PRUNE_MS = 60 * 60_000;
 
 type Status = "ONLINE" | "OFFLINE" | "ERROR";
 type Running = { conn: DiscordGatewayConnection; token: string; name: string; status: Status };
@@ -34,10 +36,15 @@ function connect(g: { id: string; name: string }, token: string) {
       if (entry) entry.status = status;
       writeStatus(g.id, status, message);
     },
+    // Every gateway console line is also saved so the dashboard console can show it.
+    onLog: (level, message) => {
+      void recordBotLog(g.id, level, message);
+    },
   });
   running.set(g.id, { conn, token, name: g.name, status: "OFFLINE" });
   conn.start();
   console.log(`[Bot Daemon] Connecting bot for ${g.name}`);
+  void recordBotLog(g.id, "info", `Connecting bot for ${g.name}...`);
 }
 
 async function syncBots() {
@@ -64,6 +71,7 @@ async function syncBots() {
       running.delete(id);
       await writeStatus(id, "OFFLINE", "Bot was turned off");
       console.log(`[Bot Daemon] Stopped bot for ${r.name}`);
+      await recordBotLog(id, "warn", "Bot was turned off");
     }
   }
   // Start newly enabled bots.
@@ -85,6 +93,7 @@ async function main() {
   setInterval(() => syncBots().catch((e) => console.error("[Bot Daemon] Sync failed:", e)), SYNC_MS);
   setInterval(() => heartbeat().catch((e) => console.error("[Bot Daemon] Heartbeat failed:", e)), HEARTBEAT_MS);
   setInterval(() => processOutbox().catch((e) => console.error("[Bot Daemon] Outbox failed:", e)), OUTBOX_MS);
+  setInterval(() => pruneBotLogs().catch((e) => console.error("[Bot Daemon] Log cleanup failed:", e)), PRUNE_MS);
 }
 
 async function shutdown() {

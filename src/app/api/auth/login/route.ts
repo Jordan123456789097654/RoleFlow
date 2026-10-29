@@ -58,7 +58,9 @@ export async function GET(request: Request) {
   // Remember where to return after sign-in, but only if it is a verified custom domain.
   const back = await validCustomReturn(new URL(request.url).searchParams.get("return"));
   if (back) {
-    res.cookies.set(OAUTH_RETURN_COOKIE, encodeURIComponent(back), {
+    // Store the raw URL. Next's cookie serializer percent-encodes the value itself, so encoding it here as well
+    // made the callback read a double-encoded string that failed validation and dropped the user on roleflow.site.
+    res.cookies.set(OAUTH_RETURN_COOKIE, back, {
       path: "/",
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

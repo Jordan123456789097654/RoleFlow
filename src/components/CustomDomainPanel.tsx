@@ -63,7 +63,12 @@ export default function CustomDomainPanel({ guildId }: { guildId: string }) {
 
   return (
     <div className="glass-panel rounded-2xl border border-line p-6 sm:p-8 space-y-4">
-      <h2 className="text-base font-bold text-ink mb-1">Custom Domain</h2>
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-base font-bold text-ink mb-1">Custom Domain</h2>
+        <a href={`/dashboard/${guildId}/site`} className="text-xs font-semibold text-accent hover:underline">
+          Customize your site →
+        </a>
+      </div>
       <p className="text-xs text-muted">
         Run your community from your own address, like <span className="font-mono">apply.yourstudio.com</span>.
         The portal, applications, and your dashboard all work there. Sign-in is handled through roleflow.site.

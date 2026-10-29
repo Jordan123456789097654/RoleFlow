@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
 import { Fraunces, Instrument_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
@@ -7,7 +8,11 @@ import { ChangelogBroadcastModal } from "@/components/ChangelogBroadcastModal";
 import { BetaBanner } from "@/components/BetaBanner";
 import { ModerationPunishmentBanner } from "@/components/ModerationPunishmentBanner";
 import { MaintenanceGuard } from "@/components/MaintenanceGuard";
+import { DomainHeader, DomainFooter, type DomainBrand } from "@/components/domain/DomainChrome";
 import { getCurrentUser } from "@/lib/auth";
+import { isPlatformHost, guildForCustomDomain, normalizeDomain } from "@/lib/custom-domain";
+import { prisma } from "@/lib/prisma";
+import { readSiteConfig } from "@/lib/site-config";
 
 const sans = Instrument_Sans({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
 const display = Fraunces({ subsets: ["latin"], variable: "--font-display", display: "swap", axes: ["opsz"] });
@@ -39,45 +44,85 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
+/** The Host header of this request, without a port. Empty when unknown. */
+function requestHost(): string {
+  const h = headers();
+  return (h.get("x-forwarded-host") || h.get("host") || "")
+    .split(",")[0]
+    .trim()
+    .toLowerCase()
+    .replace(/:\d+$/, "");
+}
+
+/** The community whose own domain this request came in on, or null on RoleFlow's own hosts. */
+async function domainBrand(host: string): Promise<DomainBrand | null> {
+  if (isPlatformHost(host)) return null;
+  const domain = normalizeDomain(host);
+  if (!domain) return null;
+  const guild = await guildForCustomDomain(domain);
+  if (!guild) return null;
+  const g = await prisma.guild.findUnique({
+    where: { id: guild.id },
+    select: { name: true, icon: true, portalAccentColor: true, siteConfig: true },
+  });
+  return g;
+}
+
+const THEME_SCRIPT = `
+  try {
+    var theme = localStorage.getItem('rf_theme');
+    if (theme === 'dark') {
+      document.documentElement.classList.remove('light');
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.add('light');
+      document.documentElement.classList.remove('dark');
+    }
+  } catch (_) {}
+`;
+
 export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const user = await getCurrentUser();
+  const host = requestHost();
+  const brand = await domainBrand(host);
+  const onOwnDomain = !isPlatformHost(host);
 
   return (
     <html lang="en" className={`light ${sans.variable} ${display.variable} ${mono.variable}`} suppressHydrationWarning>
       <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              try {
-                var theme = localStorage.getItem('rf_theme');
-                if (theme === 'dark') {
-                  document.documentElement.classList.remove('light');
-                  document.documentElement.classList.add('dark');
-                } else {
-                  document.documentElement.classList.add('light');
-                  document.documentElement.classList.remove('dark');
-                }
-              } catch (_) {}
-            `,
-          }}
-        />
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
-      <body className="flex min-h-screen flex-col bg-paper text-ink antialiased">
-        <a href="#main" className="skip-link">Skip to content</a>
+      {onOwnDomain ? (
+        <body
+          className="flex min-h-screen flex-col bg-paper text-ink antialiased"
+          style={brand?.portalAccentColor ? ({ "--accent": brand.portalAccentColor } as React.CSSProperties) : undefined}
+        >
+          <a href="#main" className="skip-link">Skip to content</a>
+          <MaintenanceGuard isStaffOrAdmin={Boolean(user?.isSupportStaff || user?.isSiteAdmin)}>
+            <ModerationPunishmentBanner isBanned={user?.isBanned} />
+            {brand && <DomainHeader brand={brand} user={user ? { username: user.username } : null} />}
+            <main id="main" className="flex-1">{children}</main>
+            <DomainFooter site={readSiteConfig(brand?.siteConfig)} />
+          </MaintenanceGuard>
+        </body>
+      ) : (
+        <body className="flex min-h-screen flex-col bg-paper text-ink antialiased">
+          <a href="#main" className="skip-link">Skip to content</a>
 
-        <MaintenanceGuard isStaffOrAdmin={Boolean(user?.isSupportStaff || user?.isSiteAdmin)}>
-          <ModerationPunishmentBanner isBanned={user?.isBanned} />
-          <BetaBanner />
-          <ChangelogBroadcastModal />
-          <Navbar user={user} />
-          <main id="main" className="flex-1">{children}</main>
-          <Footer />
-        </MaintenanceGuard>
-      </body>
+          <MaintenanceGuard isStaffOrAdmin={Boolean(user?.isSupportStaff || user?.isSiteAdmin)}>
+            <ModerationPunishmentBanner isBanned={user?.isBanned} />
+            <BetaBanner />
+            <ChangelogBroadcastModal />
+            <Navbar user={user} />
+            <main id="main" className="flex-1">{children}</main>
+            <Footer />
+          </MaintenanceGuard>
+        </body>
+      )}
     </html>
   );
 }

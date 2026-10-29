@@ -9,6 +9,7 @@ import LinkPreview from "@/components/LinkPreview";
 
 import React, { useState, useEffect } from "react";
 import CustomDomainPanel from "@/components/CustomDomainPanel";
+import BotConsole from "@/components/dashboard/BotConsole";
 import PartnershipPanel from "@/components/PartnershipPanel";
 import Link from "next/link";
 import {
@@ -2508,6 +2509,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
       {/* TAB 3: DISCORD INTEGRATION & HOSTED BOT */}
       {activeTab === "bot" && (
         <div className="max-w-3xl space-y-6 animate-fadeIn">
+          <BotConsole guildId={params.guildId} />
           {/* Active Bot System Notice */}
           <div className="glass-panel rounded-2xl border border-purple-500/30 bg-accent-soft p-6 sm:p-8 space-y-4 shadow-card">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

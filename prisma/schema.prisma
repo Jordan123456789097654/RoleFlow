@@ -83,6 +83,7 @@ model Guild {
   botLiveStatus              String?          // ONLINE | OFFLINE | ERROR, written by the bot daemon
   botLiveStatusAt            DateTime?        // last heartbeat from the daemon
   botLiveMessage             String?
+  botLogs                    BotLog[]
   useCustomBot               Boolean          @default(false)
   customBotToken             String?          // AES-256-GCM encrypted (enc:v1:...). Never returned by the API.
   
@@ -109,6 +110,7 @@ model Guild {
   portalLayout String @default("banner") // banner | minimal | cards
   portalTheme                String?          @default("obsidian") // obsidian, cyberpunk, emerald, royal, crimson
   portalAccentColor          String?          @default("#8B5CF6")
+  siteConfig                 Json?            // Custom-domain look: header style, button label, footer note, reviews toggle (see src/lib/site-config.ts)
   discordWidgetEnabled       Boolean          @default(false)
   
   // Gating & Policy Rules
@@ -210,6 +212,19 @@ model ApplicationMessage {
   senderRole    String      @default("STAFF") // STAFF or APPLICANT
   content       String
   createdAt     DateTime    @default(now())
+}
+
+/// Console lines written by the bot daemon and gateway, shown on the dashboard's live console.
+model BotLog {
+  id        String   @id @default(cuid())
+  guildId   String
+  guild     Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  level     String   @default("info") // info | success | warn | error
+  message   String   @db.VarChar(500)
+  createdAt DateTime @default(now())
+
+  @@index([guildId, createdAt])
+  @@index([createdAt])
 }
 
 model GuildStaff {

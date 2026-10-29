@@ -9,6 +9,7 @@ import { CommunityReviewModal } from "@/components/CommunityReviewModal";
 import { openNowWhere } from "@/lib/position-availability";
 import { SaveOpeningButton } from "@/components/SaveOpeningButton";
 import { getGuildResponseTime } from "@/lib/response-time";
+import { readSiteConfig } from "@/lib/site-config";
 
 export const revalidate = 0;
 
@@ -16,6 +17,8 @@ interface CommunityPortalProps {
   params: {
     slug: string;
   };
+  /** True when rendered on a community's own domain, where RoleFlow's other pages are not reachable. */
+  embedded?: boolean;
 }
 
 import type { Metadata } from "next";
@@ -66,7 +69,7 @@ export async function generateMetadata({ params }: CommunityPortalProps): Promis
   };
 }
 
-export default async function CommunityPortalPage({ params }: CommunityPortalProps) {
+export default async function CommunityPortalPage({ params, embedded = false }: CommunityPortalProps) {
   // Query by vanitySlug OR by ID
   const guild = await prisma.guild.findFirst({
     where: {
@@ -149,10 +152,12 @@ export default async function CommunityPortalPage({ params }: CommunityPortalPro
 
   return (
     <div className="page-wrap pt-10 pb-20 sm:pt-14">
-      <Link href="/browse" className="inline-flex items-center gap-1.5 text-[13px] text-muted transition-colors hover:text-ink">
-        <ArrowLeft className="h-3.5 w-3.5" />
-        All communities
-      </Link>
+      {!embedded && (
+        <Link href="/browse" className="inline-flex items-center gap-1.5 text-[13px] text-muted transition-colors hover:text-ink">
+          <ArrowLeft className="h-3.5 w-3.5" />
+          All communities
+        </Link>
+      )}
 
       {/* Profile */}
       <header className="mt-8 grid gap-8 border-b border-line pb-10 md:grid-cols-[1fr_auto] md:items-end">
@@ -184,7 +189,7 @@ export default async function CommunityPortalPage({ params }: CommunityPortalPro
                   {guild.positions.length} open position{guild.positions.length === 1 ? "" : "s"}
                 </span>
                 {responseTime && <span>Usually decides in {responseTime}</span>}
-                {totalReviews > 0 && (
+                {totalReviews > 0 && readSiteConfig(guild.siteConfig).showReviews && (
                   <span className="inline-flex items-center gap-1 font-mono tabular-nums text-ink-2">
                     <Star className="h-3.5 w-3.5 fill-gold text-gold" />
                     {avgRating} · {totalReviews} review{totalReviews === 1 ? "" : "s"}

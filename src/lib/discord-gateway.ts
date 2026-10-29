@@ -14,7 +14,11 @@ interface BotConfig {
   activityType?: 0 | 1 | 2 | 3 | 5; // 0=Playing, 1=Streaming, 2=Listening, 3=Watching, 5=Competing
   activityName?: string;
   onStatus?: (status: "ONLINE" | "OFFLINE" | "ERROR", message: string) => void;
+  /** Receives every console line the connection writes, so the dashboard can show them. */
+  onLog?: (level: BotLogLevel, message: string) => void;
 }
+
+export type BotLogLevel = "info" | "success" | "warn" | "error";
 
 const GATEWAY_URL = "wss://gateway.discord.gg/?v=10&encoding=json";
 
@@ -35,8 +39,9 @@ class DiscordGatewayConnection {
     this.connect();
   }
 
-  private log(msg: string) {
+  private log(msg: string, level: BotLogLevel = "info") {
     console.log(`[Gateway] [${this.config.name}] ${msg}`);
+    this.config.onLog?.(level, msg);
   }
 
   private connect() {
@@ -53,11 +58,11 @@ class DiscordGatewayConnection {
       if (this.ws !== ws) return; // a newer socket has taken over
       this.cleanupHeartbeat();
       this.ws = null;
-      this.log(`Disconnected (code ${code}).`);
+      this.log(`Disconnected (code ${code}).`, "warn");
       this.config.onStatus?.("OFFLINE", `Disconnected (code ${code}), reconnecting`);
       // 4004 = bad token, 4010-4014 = invalid shard/intents: do not retry.
       if (code === 4004 || (code >= 4010 && code <= 4014)) {
-        this.log("Fatal gateway error. Not reconnecting; check the bot token and settings.");
+        this.log("Fatal gateway error. Not reconnecting; check the bot token and settings.", "error");
         this.config.onStatus?.("ERROR", `Discord rejected the bot (code ${code}). Check the token and intents.`);
         this.stopped = true;
         return;
@@ -71,7 +76,7 @@ class DiscordGatewayConnection {
     });
 
     ws.on("error", (err) => {
-      this.log(`Socket error: ${err.message}`);
+      this.log(`Socket error: ${err.message}`, "error");
     });
   }
 
@@ -81,7 +86,7 @@ class DiscordGatewayConnection {
     try {
       payload = JSON.parse(data.toString());
     } catch (err) {
-      this.log(`Parse error: ${String(err)}`);
+      this.log(`Parse error: ${String(err)}`, "warn");
       return;
     }
     const { op, d, s, t } = payload;
@@ -103,19 +108,19 @@ class DiscordGatewayConnection {
         if (t === "READY") {
           this.sessionId = d.session_id;
           this.resumeUrl = d.resume_gateway_url || null;
-          this.log(`ONLINE as ${d.user?.username ?? "unknown"}.`);
+          this.log(`ONLINE as ${d.user?.username ?? "unknown"}.`, "success");
           this.config.onStatus?.("ONLINE", `Connected as ${d.user?.username ?? "unknown"}`);
         } else if (t === "RESUMED") {
-          this.log("Session resumed.");
+          this.log("Session resumed.", "success");
           this.config.onStatus?.("ONLINE", "Session resumed");
         }
         break;
       case 7: // Reconnect requested: resume on a fresh socket
-        this.log("Server requested reconnect.");
+        this.log("Server requested reconnect.", "info");
         ws.close(4000);
         break;
       case 9: // Invalid session
-        this.log("Invalid session.");
+        this.log("Invalid session.", "warn");
         if (!d) {
           this.sessionId = null;
           this.sequence = null;
@@ -138,7 +143,7 @@ class DiscordGatewayConnection {
 
   private beat(_intervalMs: number) {
     if (!this.isAlive) {
-      this.log("Missed heartbeat ACK. Reconnecting...");
+      this.log("Missed heartbeat ACK. Reconnecting...", "warn");
       this.ws?.terminate();
       return;
     }
