@@ -67,6 +67,13 @@ const JSON_IMPORT_SAMPLE = `[
 ]`;
 
 
+const SETTINGS_SECTIONS = [
+  { id: "profile" as const, label: "Profile & Branding" },
+  { id: "access" as const, label: "Access & Gating" },
+  { id: "notifications" as const, label: "Notifications" },
+  { id: "plan" as const, label: "Plan" },
+];
+
 interface GuildData {
   id: string;
   name: string;
@@ -178,6 +185,7 @@ interface GuildData {
 export default function DashboardPage({ params }: { params: { guildId: string } }) {
   const [guild, setGuild] = useState<GuildData | null>(null);
   const [activeTab, setActiveTab] = useState<"overview" | "applications" | "builder" | "bot" | "staff" | "settings" | "gating" | "templates">("overview");
+  const [settingsSection, setSettingsSection] = useState<"profile" | "access" | "notifications" | "plan">("profile");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [selectedApp, setSelectedApp] = useState<any | null>(null);
   const [decisionNote, setDecisionNote] = useState("");
@@ -1386,7 +1394,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           }`}
         >
           <FileText className="w-3.5 h-3.5" />
-          <span>Review Applications ({guild.applications.length})</span>
+          <span>Applications ({guild.applications.length})</span>
         </button>
 
         <button
@@ -1398,7 +1406,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           }`}
         >
           <Sliders className="w-3.5 h-3.5" />
-          <span>Visual Form Builder</span>
+          <span>Openings & Form</span>
         </button>
 
         <button
@@ -1422,7 +1430,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           }`}
         >
           <Users className="w-3.5 h-3.5" />
-          <span>Team & Staff ({staffList.length})</span>
+          <span>Team ({staffList.length})</span>
         </button>
 
         <button
@@ -1434,7 +1442,7 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           }`}
         >
           <Settings className="w-3.5 h-3.5" />
-          <span>Community Settings & Gating</span>
+          <span>Settings</span>
         </button>
       </div>
 
@@ -2730,6 +2738,22 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
       )}
       {activeTab === "settings" && (
         <div className="max-w-3xl space-y-6">
+          <div className="flex flex-wrap gap-2 border-b border-line pb-3">
+            {SETTINGS_SECTIONS.map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => setSettingsSection(s.id)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                  settingsSection === s.id ? "bg-purple-600 text-white" : "text-muted hover:text-ink hover:bg-sunk"
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+          {settingsSection === "plan" && (
+          <div className="space-y-6">
           {/* License & Subscription Tier Card (Coming Soon) */}
           <div className="glass-panel rounded-2xl border border-purple-500/30 bg-purple-500/10 p-6 sm:p-8 space-y-4 shadow-card">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -2759,7 +2783,11 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
               <span className="font-semibold text-accent text-[11px]">Beta Access Active</span>
             </div>
           </div>
+          </div>
+          )}
 
+          {settingsSection === "profile" && (
+          <div className="space-y-6">
           {/* General Community Info */}
           <div className="glass-panel rounded-2xl border border-line p-6 sm:p-8 space-y-5">
             <div>
@@ -2855,7 +2883,11 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
               </div>
             </div>
           </div>
+          </div>
+          )}
 
+          {settingsSection === "notifications" && (
+          <div className="space-y-6">
           {/* Discord Webhooks for Audit Logs */}
           <div className="glass-panel rounded-2xl border border-line p-6 sm:p-8 space-y-4">
             <h2 className="text-base font-bold text-ink mb-1 flex items-center gap-2">
@@ -2879,9 +2911,17 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
               />
             </div>
           </div>
+          </div>
+          )}
 
+          {settingsSection === "profile" && (
+          <div className="space-y-6">
           <CustomDomainPanel guildId={params.guildId} />
+          </div>
+          )}
 
+          {settingsSection === "profile" && (
+          <div className="space-y-6">
           {/* Custom Community Portal Themes & Accents */}
           <div className="glass-panel rounded-2xl border border-line p-6 sm:p-8 space-y-4">
             <h2 className="text-base font-bold text-ink mb-1 flex items-center gap-2">
@@ -2961,7 +3001,11 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
               />
             </div>
           </div>
+          </div>
+          )}
 
+          {settingsSection === "access" && (
+          <div className="space-y-6">
           {/* Application Rules & Gating Policies */}
           <div className="glass-panel rounded-2xl border border-line p-6 sm:p-8 space-y-4">
             <h2 className="text-base font-bold text-ink mb-1">Access Rules & Security Gating</h2>
@@ -3185,7 +3229,11 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
               </button>
             </div>
           </div>
+          </div>
+          )}
 
+          {settingsSection === "access" && (
+          <div className="space-y-6">
           {/* Blacklist Management */}
           <div className="glass-panel rounded-2xl border border-line p-6 space-y-4">
             <h2 className="text-base font-bold text-ink flex items-center gap-2">
@@ -3233,6 +3281,8 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
               )}
             </div>
           </div>
+          </div>
+          )}
         </div>
       )}
 

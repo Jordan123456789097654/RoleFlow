@@ -2,11 +2,10 @@
 
 A community can run from its own address, such as `apply.theirstudio.com`. The portal, applications, and the community dashboard all work on that domain. Sign-in is handled through roleflow.site.
 
-This manual has three parts:
+This manual has two parts:
 
 1. **For community owners:** how to connect a domain.
-2. **For the site operator:** one-time setup on Vercel.
-3. **For developers:** how it works and how to troubleshoot it.
+2. **For developers:** how it works and how to troubleshoot it.
 
 ---
 
@@ -110,57 +109,7 @@ If you're already signed in on roleflow.site, Discord usually approves the login
 
 ---
 
-## Part 2: Site operator setup (Vercel)
-
-These steps are needed once per deployment.
-
-### 1. Create a Vercel access token
-
-1. Go to vercel.com, then **Account Settings → Tokens**.
-2. Create a token with access to the project that runs RoleFlow. Give it a name you'll recognize, like `roleflow-domains`.
-3. Copy it once. You can't view it again.
-
-### 2. Find your project ID
-
-Open the project in Vercel, go to **Settings → General**, and copy the **Project ID**. It starts with `prj_`.
-
-### 3. Find your team ID (only for team accounts)
-
-If the project belongs to a team, copy the **Team ID** from **Settings → General** at team level. If the project belongs to your personal account, skip this.
-
-### 4. Add environment variables
-
-In **Settings → Environment Variables** for the project, add:
-
-| Name | Value |
-|---|---|
-| `VERCEL_API_TOKEN` | the token from step 1 |
-| `VERCEL_PROJECT_ID` | the project ID from step 2 |
-| `VERCEL_TEAM_ID` | the team ID from step 3, or leave unset |
-
-Mark them for Production (and Preview if you want to test there). Redeploy after adding them.
-
-Without these variables, domains can still be entered and verified, but they won't receive HTTPS or routing until they're set.
-
-### 5. Confirm the deployment
-
-- Connect a test domain in the dashboard.
-- Verify its TXT record.
-- Check that the domain loads over HTTPS with the community portal.
-
-### Required database step
-
-Custom domains add fields to the `Guild` table. Apply the schema before deploying:
-
-```bash
-npx prisma db push
-```
-
-The build script already runs `prisma generate`.
-
----
-
-## Part 3: Developers
+## Part 2: Developers
 
 ### How it fits together
 
@@ -223,16 +172,3 @@ The build script already runs `prisma generate`.
 - Applicant "My Applications" is not available on custom domains.
 - Root-domain detection counts domains with two labels as roots. Domains like `example.co.uk` are treated as subdomains and may need the CNAME shown in the panel instead of the A record.
 - Vercel's API paths used here are `/v10/projects/{id}/domains`, `/v9/projects/{id}/domains/{domain}/verify`, and `/v6/domains/{domain}/config`. Check them against Vercel's current API reference if a call fails.
-
-### Testing checklist
-
-- [ ] Connect a subdomain and a root domain. Each shows the right routing record.
-- [ ] Reject `roleflow.site`, `www.roleflow.site`, `foo.vercel.app`, IP addresses, and `localhost`.
-- [ ] Verify with the correct TXT record, and confirm a wrong or missing record fails.
-- [ ] Connect a domain already used by another community. Expect 409.
-- [ ] Load the domain: `/` shows the portal over HTTPS.
-- [ ] `/browse`, `/terms`, and another community's `/c/...` redirect to `/`.
-- [ ] An apply link for a position from another community redirects to `/`.
-- [ ] Log in from the domain. Confirm you return to the same page and can apply.
-- [ ] Dashboard loads on the domain for the owner, and returns an error for non-owners.
-- [ ] Remove the domain. It returns to roleflow.site, and the domain is free to connect elsewhere.
