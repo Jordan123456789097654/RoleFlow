@@ -437,20 +437,14 @@ const groups: Group[] = [
         ],
       },
       {
-        id: "cd-security",
-        title: "Security and privacy",
+        id: "cd-faq",
+        title: "Security, privacy, and FAQ",
         body: [
           "Ownership: the TXT record is the only proof RoleFlow accepts. We check it for the token shown in your panel. Nobody can verify your domain without adding that record to its DNS.",
           "Tokens are random for each connection. Changing the domain issues a new token.",
           "RoleFlow does not ask for your DNS provider login or API keys.",
           "A domain can only be connected to one community at a time, and RoleFlow never serves a domain that has not been verified.",
           "Sign-in tokens used to move you from roleflow.site to your domain are short-lived and tied to that one domain.",
-        ],
-      },
-      {
-        id: "cd-faq",
-        title: "Frequently asked questions",
-        body: [
           "Can I use a domain I bought from another company? Yes, any domain you control can be used, wherever it was registered.",
           "Can I use a free domain? Yes, as long as you control its DNS records. Some free hosts do not allow the records RoleFlow needs.",
           "Do applicants need an account on my domain? No. They sign in with Discord, which takes them to roleflow.site and back to your domain.",
@@ -617,7 +611,6 @@ function Block({ section, index }: { section: Section; index: number }) {
 }
 
 export default function DocsPage() {
-  let counter = 0;
   return (
     <div className="page-wrap py-12 sm:py-16">
       <Link
@@ -629,26 +622,29 @@ export default function DocsPage() {
       </Link>
 
       <div className="mx-auto mt-10 grid max-w-5xl gap-12 lg:grid-cols-[220px_1fr]">
-        <aside className="lg:sticky lg:top-24 lg:self-start">
-          <nav aria-label="Documentation contents" className="space-y-6">
-            {groups.map((g) => (
-              <div key={g.title}>
-                <p className="eyebrow mb-3">{g.title}</p>
-                <ol className="space-y-2 text-[13px]">
-                  {g.sections.map((s) => {
-                    counter += 1;
-                    return (
+        <aside className="lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto lg:pr-2">
+          <nav aria-label="Documentation contents" className="space-y-2">
+            {groups.map((g, gi) => {
+              const start = groups.slice(0, gi).reduce((n, x) => n + x.sections.length, 0);
+              return (
+                <details key={g.title} open={gi === 0} className="group rounded-lg">
+                  <summary className="eyebrow flex cursor-pointer select-none list-none items-center justify-between py-2">
+                    {g.title}
+                    <span className="font-mono text-faint transition-transform group-open:rotate-90">›</span>
+                  </summary>
+                  <ol className="space-y-1.5 pb-3 pl-1 text-[13px]">
+                    {g.sections.map((s, i) => (
                       <li key={s.id}>
-                        <a href={`#${s.id}`} className="text-ink-2 hover:text-accent">
-                          <span className="mr-2 font-mono text-faint">{String(counter).padStart(2, "0")}</span>
+                        <a href={`#${s.id}`} className="block rounded-md px-2 py-1 text-ink-2 hover:bg-sunk hover:text-accent">
+                          <span className="mr-2 font-mono text-faint">{String(start + i + 1).padStart(2, "0")}</span>
                           {s.title}
                         </a>
                       </li>
-                    );
-                  })}
-                </ol>
-              </div>
-            ))}
+                    ))}
+                  </ol>
+                </details>
+              );
+            })}
           </nav>
         </aside>
 
