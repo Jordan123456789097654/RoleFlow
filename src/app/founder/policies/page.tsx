@@ -16,6 +16,7 @@ const PUBLIC_PATHS: Record<string, string> = {
 
 const input = "w-full px-3 py-2 rounded-xl bg-surface border border-line text-xs text-ink focus:outline-none focus:border-accent";
 const btn = "px-4 py-2 rounded-xl bg-accent text-white text-xs font-semibold disabled:opacity-40";
+const POLICY_SLUGS = ["privacy", "terms", "acceptable-use", "community-guidelines", "cookies"];
 const ghost = "px-3 py-1.5 rounded-lg bg-surface border border-line text-xs font-semibold text-ink-2 hover:bg-sunk";
 
 /** Paragraphs are separated by blank lines. Lines starting with "- " become bullets. */
@@ -38,6 +39,8 @@ export default function FounderPoliciesPage() {
   const [revisions, setRevisions] = useState<any[]>([]);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [forbidden, setForbidden] = useState(false);
+  const [jsonText, setJsonText] = useState("");
+  const [jsonMsg, setJsonMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
   async function loadAll() {
     const res = await fetch("/api/founder/policies");
@@ -84,6 +87,76 @@ export default function FounderPoliciesPage() {
     if (!draft) return;
     setDraft({ ...draft, sections: [...draft.sections, { title: "New section", paragraphs: ["Write the text here."] }] });
     setTexts([...texts, "Write the text here."]);
+  }
+
+  function currentPayload() {
+    if (!draft) return null;
+    const sections = draft.sections.map((sec, i) => ({ title: sec.title, paragraphs: fromText(texts[i] ?? "") }));
+    return { title: draft.title, subtitle: draft.subtitle, updated: draft.updated, sections };
+  }
+
+  function loadCurrentIntoBox() {
+    const payload = currentPayload();
+    if (!payload) return;
+    setJsonText(JSON.stringify(payload, null, 2));
+    setJsonMsg({ ok: true, text: "Current text copied into the box. Edit it, then import to publish." });
+  }
+
+  function downloadCurrent() {
+    const payload = currentPayload();
+    if (!payload) return;
+    const url = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${slug}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function loadFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    file.text().then((t) => { setJsonText(t); setJsonMsg({ ok: true, text: `Loaded ${file.name}. Check it, then import.` }); });
+  }
+
+  async function importJson() {
+    setJsonMsg(null);
+    let parsed: any;
+    try {
+      parsed = JSON.parse(jsonText);
+    } catch (err: any) {
+      return setJsonMsg({ ok: false, text: `That is not valid JSON: ${err.message}` });
+    }
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return setJsonMsg({ ok: false, text: "The JSON must be an object." });
+    }
+
+    // One policy (has sections), or a bundle keyed by slug: { "privacy": {...}, "terms": {...} }
+    const isSingle = "sections" in parsed;
+    const targets: [string, any][] = isSingle
+      ? [[slug, parsed]]
+      : Object.entries(parsed).filter(([k]) => POLICY_SLUGS.includes(k));
+    if (targets.length === 0) {
+      return setJsonMsg({ ok: false, text: `No policy found. Use a policy object with "sections", or keys from: ${POLICY_SLUGS.join(", ")}.` });
+    }
+
+    const names = targets.map(([k]) => k).join(", ");
+    if (!window.confirm(`Publish ${names}? This replaces the current text on the public pages. Previous versions are kept in history.`)) return;
+
+    for (const [s2, body] of targets) {
+      const res = await fetch(`/api/founder/policies/${s2}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        return setJsonMsg({ ok: false, text: `${s2}: ${data.error || "invalid"}. Nothing after it was published.` });
+      }
+    }
+    setJsonText("");
+    setJsonMsg({ ok: true, text: `Published ${names}. Reloading...` });
+    setTimeout(() => window.location.reload(), 600);
   }
 
   async function save() {
@@ -136,6 +209,34 @@ export default function FounderPoliciesPage() {
           </button>
         ))}
       </div>
+
+      <details className="glass-panel p-5 rounded-2xl space-y-4">
+        <summary className="cursor-pointer text-sm font-semibold text-ink">Import and export as JSON</summary>
+        <p className="text-[12px] text-muted">
+          Edit a policy outside the browser and publish it here. Paragraphs are strings. A list of strings is a bulleted list.
+          A file with one policy object updates the policy open above. A file keyed by slug ({POLICY_SLUGS.join(", ")}) updates several at once.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <button className={ghost} onClick={loadCurrentIntoBox}>Load current text into box</button>
+          <button className={ghost} onClick={downloadCurrent}>Download {slug}.json</button>
+          <label className={`${ghost} cursor-pointer`}>
+            Choose JSON file
+            <input type="file" accept=".json,application/json" className="hidden" onChange={loadFile} />
+          </label>
+        </div>
+        <textarea
+          rows={12}
+          className={`${input} font-mono`}
+          placeholder={'{\n  "title": "Privacy Policy",\n  "subtitle": "...",\n  "updated": "October 29, 2026",\n  "sections": [\n    { "title": "Who we are", "paragraphs": ["First paragraph.", ["Bullet one", "Bullet two"]] }\n  ]\n}'}
+          value={jsonText}
+          onChange={(e) => setJsonText(e.target.value)}
+        />
+        <div className="flex flex-wrap items-center gap-3">
+          <button className={btn} disabled={!jsonText.trim()} onClick={importJson}>Import and publish</button>
+          <button className={ghost} onClick={() => { setJsonText(""); setJsonMsg(null); }}>Clear</button>
+        </div>
+        {jsonMsg && <p className={`text-xs ${jsonMsg.ok ? "text-emerald-500" : "text-danger"}`}>{jsonMsg.text}</p>}
+      </details>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
         <div className="space-y-5">
