@@ -139,7 +139,8 @@
         "We may remove Content, pause Communities, restrict features, suspend or ban accounts, and take other action to enforce these Terms and our policies. Our approach is described in the Community Guidelines.",
         "Where practical, we will tell you the reason for any action we take and give you a way to appeal, as described in the Community Guidelines. A signed appeal link is sent with the notice where one is available, and appeals are reviewed by site administrators.",
         "Bans and suspensions end your active sessions. A banned or suspended account may not be used to access the Service, and you may not create a new account to avoid a restriction.",
-        "We may take emergency action without prior notice where we believe it is necessary to prevent harm to people, to protect the Service, or to comply with the law. Where we do so, we will explain the action and provide an appeal route as soon as we reasonably can."
+        "We may take emergency action without prior notice where we believe it is necessary to prevent harm to people, to protect the Service, or to comply with the law. Where we do so, we will explain the action and provide an appeal route as soon as we reasonably can.",
+        "To appeal a decision, use the appeal page or email appeals@roleflow.site with the punishment reference. Appeals are reviewed by someone other than the person who made the original decision, where possible."
       ]
     },
     {
@@ -184,7 +185,7 @@
     {
       "title": "Disputes and governing law",
       "paragraphs": [
-        "Before starting formal proceedings, please contact us at support@roleflow.site so we can try to resolve the issue informally. Any formal dispute will be brought before a competent court, unless applicable consumer protection law gives you the right to bring a claim where you live."
+        "Before starting formal proceedings, please contact legal@roleflow.site so we can try to resolve the issue informally. Any formal dispute will be brought before a competent court, unless applicable consumer protection law gives you the right to bring a claim where you live."
       ]
     },
     {
@@ -205,7 +206,15 @@
     {
       "title": "Contact",
       "paragraphs": [
-        "Questions about these Terms: support@roleflow.site. For community support or appeals, visit our official community server at https://discord.gg/tKPbCXbmr9."
+        "You can reach the RoleFlow team at the addresses below. Please use the one that fits your question so it reaches the right team faster.",
+        [
+          "support@roleflow.site: general help with your account, applications, communities, and technical problems.",
+          "contact@roleflow.site: general enquiries that do not fit another address.",
+          "appeals@roleflow.site: appeals against a moderation decision, punishment, or suspension.",
+          "legal@roleflow.site: legal notices, questions about these Terms or other policies, and formal disputes.",
+          "partnerships@roleflow.site: partnership and sponsorship enquiries."
+        ],
+        "For community support, you can also visit our official community server at https://discord.gg/tKPbCXbmr9."
       ]
     }
   ]
