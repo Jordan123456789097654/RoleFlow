@@ -55,6 +55,17 @@ export function Navbar({ user }: NavbarProps) {
     };
   }, [router]);
 
+  /** Clears the session on the server, then reloads the public home page so no signed-in state remains. */
+  async function logOut() {
+    setProfileOpen(false);
+    setMobileMenuOpen(false);
+    try {
+      await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" });
+    } finally {
+      window.location.assign("/");
+    }
+  }
+
   useEffect(() => {
     setProfileOpen(false);
     setMobileMenuOpen(false);
@@ -190,15 +201,14 @@ export function Navbar({ user }: NavbarProps) {
 
                     <div className="my-1.5 border-t border-line" />
                     {/* POST so other sites cannot sign people out with an image tag */}
-                    <form action="/api/auth/logout" method="post">
-                      <button
-                        type="submit"
-                        role="menuitem"
-                        className="w-full rounded-sm px-3 py-2 text-left font-medium text-danger transition-colors hover:bg-danger-soft"
-                      >
-                        Log out
-                      </button>
-                    </form>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={logOut}
+                      className="w-full rounded-sm px-3 py-2 text-left font-medium text-danger transition-colors hover:bg-danger-soft"
+                    >
+                      Log out
+                    </button>
                   </div>
                 </div>
               )}
@@ -255,9 +265,7 @@ export function Navbar({ user }: NavbarProps) {
               </div>
             )}
             {user && (
-              <form action="/api/auth/logout" method="post" className="mt-2">
-                <button type="submit" className="py-3.5 text-left font-medium text-danger">Log out</button>
-              </form>
+              <button type="button" onClick={logOut} className="mt-2 py-3.5 text-left font-medium text-danger">Log out</button>
             )}
           </div>
         </nav>
