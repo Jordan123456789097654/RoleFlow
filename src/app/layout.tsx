@@ -95,7 +95,6 @@ export default async function RootLayout({
 }) {
   const user = await getCurrentUser();
   const host = requestHost();
-  const locked = headers().get("x-site-locked") === "1";
   const brand = await domainBrand(host);
   const onOwnDomain = !isPlatformHost(host);
   const isApplyHub = isApplicationsHost(host);
@@ -107,11 +106,7 @@ export default async function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
-      {locked ? (
-        <body className="flex min-h-screen flex-col bg-paper text-ink antialiased">
-          <main id="main" className="flex-1">{children}</main>
-        </body>
-      ) : onOwnDomain ? (
+      {onOwnDomain ? (
         <body
           className="flex min-h-screen flex-col bg-paper text-ink antialiased"
           style={brand?.portalAccentColor ? ({ "--accent": brand.portalAccentColor } as React.CSSProperties) : undefined}

@@ -127,20 +127,8 @@ async function lookupHost(host: string, position?: string): Promise<HostInfo> {
   return info;
 }
 
-// While SITE_LOCKDOWN=true, only the coming-soon page works. Every API route, including cron jobs and Discord interactions, returns 503.
-const LOCKDOWN_ALLOW = [/^\/coming-soon$/];
-
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-
-  if (process.env.SITE_LOCKDOWN === "true" && !LOCKDOWN_ALLOW.some((re) => re.test(pathname))) {
-    if (pathname.startsWith("/api/")) {
-      return NextResponse.json({ error: "RoleFlow is temporarily unavailable." }, { status: 503 });
-    }
-    const headers = new Headers(req.headers);
-    headers.set("x-site-locked", "1");
-    return NextResponse.rewrite(new URL("/coming-soon", req.url), { request: { headers } });
-  }
 
   // A community's own domain: serve its portal at "/", keep the API working, and send everything
   // else to roleflow.site. Login is handed off from roleflow.site with a short-lived token.
