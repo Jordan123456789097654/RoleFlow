@@ -75,7 +75,8 @@ export async function POST(request: Request) {
     // One-time use: burn the code so it cannot be replayed.
     await prisma.user.update({ where: { id: targetUser.id }, data: { supportCode: null, supportCodeExpiresAt: null } });
 
-    if (targetUser.email && targetUser.emailNotifications !== false) {
+    // Security notice: always sent when an address exists.
+    if (targetUser.email) {
       sendSecurityNoticeEmail({
         toEmail: targetUser.email,
         username: targetUser.username,

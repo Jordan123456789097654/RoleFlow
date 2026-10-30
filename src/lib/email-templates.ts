@@ -16,6 +16,7 @@ export const CATEGORIES = [
   "Support",
   "Legal",
   "Seasonal",
+  "Staff",
 ] as const;
 export type Category = (typeof CATEGORIES)[number];
 
@@ -43,10 +44,14 @@ export type Built = {
   footnote?: string;
 };
 
+/** "all" goes to every eligible address. "staff" goes only to verified company addresses of staff members. */
+export type Audience = "all" | "staff";
+
 export type Template = {
   id: string;
   name: string;
   category: Category;
+  audience?: Audience;
   description: string;
   fields: FieldDef[];
   build: (v: Record<string, string>) => Built;
@@ -1001,9 +1006,115 @@ const T: Template[] = [
       cta: { label: v.ctaLabel, url: v.ctaUrl },
     }),
   },
+  // ===== Staff only (verified company addresses of staff) =====
+  {
+    id: "staff-promotion",
+    name: "Staff promotion",
+    category: "Staff",
+    audience: "staff",
+    description: "Announce a promotion or new role to the team, internal only.",
+    fields: [
+      text("person", "Person being promoted", "Alex Morgan", { required: true }),
+      text("newRole", "New role", "Senior support lead", { required: true }),
+      body("We are pleased to announce that {PERSON} is moving into the role of {ROLE}. This recognises the work they have done for our communities and the standard they hold the rest of the team to."),
+      text("effective", "Effective from", "Monday"),
+      bullets("New responsibilities start on the effective date above\nPlease welcome them in the team channel\nQuestions about handover go to your manager"),
+      ...ctaFields("Open the staff hub", `${DEFAULT_ORIGIN}/admin`),
+    ],
+    build: (v) => ({
+      subject: `Internal: ${v.person} is now ${v.newRole}`,
+      preheader: "Internal staff announcement",
+      heading: `Congratulations, ${v.person}`,
+      paragraphs: splitParas(v.body.split("{PERSON}").join(v.person).split("{ROLE}").join(v.newRole)),
+      sections: [{ title: "Effective", paragraphs: [`Effective from ${v.effective}.`] }, { title: "Next steps", bullets: splitLines(v.bullets) }],
+      cta: { label: v.ctaLabel, url: v.ctaUrl },
+    }),
+  },
+  {
+    id: "staff-role-change",
+    name: "Staff role or permission change",
+    category: "Staff",
+    audience: "staff",
+    description: "Tell staff their permissions or responsibilities changed, and what they can now do.",
+    fields: [
+      body("Your access on RoleFlow is changing. The details below explain what is new, what is removed, and who to contact if something does not look right."),
+      bullets("Gained: review access for reports\nRemoved: direct account deletion\nUnchanged: application decisions"),
+      text("reason", "Reason for the change", "Team restructure for the new support rota"),
+      text("contact", "Who to contact", "Your team lead, or the founder for urgent issues"),
+      ...ctaFields("Review my access", `${DEFAULT_ORIGIN}/admin`),
+    ],
+    build: (v) => ({
+      subject: "Internal: your staff access has changed",
+      preheader: "What changed for your role",
+      heading: "Your staff access has changed",
+      paragraphs: splitParas(v.body),
+      sections: [
+        { title: "What changed", bullets: splitLines(v.bullets) },
+        { title: "Why", paragraphs: [v.reason] },
+        { title: "Questions", paragraphs: [`Contact ${v.contact}.`] },
+      ],
+      cta: { label: v.ctaLabel, url: v.ctaUrl },
+    }),
+  },
+  {
+    id: "staff-internal-announcement",
+    name: "Internal announcement",
+    category: "Staff",
+    audience: "staff",
+    description: "A general announcement for the team: process changes, policy reminders, or events.",
+    fields: [
+      text("topic", "Topic", "Updated application review process", { required: true }),
+      body("We are changing how applications are reviewed. The goal is faster decisions and clearer reasons for every applicant. Please read the details before your next shift."),
+      bullets("Decision notes are required for every rejection\nReviews must be recorded within one working day\nUse saved replies for common questions"),
+      text("deadline", "Takes effect", "Next Monday"),
+      ...ctaFields("Read the process", `${DEFAULT_ORIGIN}/docs`),
+    ],
+    build: (v) => ({
+      subject: `Internal: ${v.topic}`,
+      preheader: "For staff only",
+      heading: v.topic,
+      paragraphs: splitParas(v.body),
+      sections: [{ title: "What to do", bullets: splitLines(v.bullets) }, { title: "Takes effect", paragraphs: [v.deadline] }],
+      cta: { label: v.ctaLabel, url: v.ctaUrl },
+    }),
+  },
+  {
+    id: "staff-training-reminder",
+    name: "Staff training reminder",
+    category: "Staff",
+    audience: "staff",
+    description: "Remind staff about a required training session or policy acknowledgement.",
+    fields: [
+      text("training", "Training or acknowledgement", "Data handling refresher", { required: true }),
+      text("due", "Due by", "Friday at 5 PM ET", { required: true }),
+      body("Please complete the training below by the due date. It covers how to handle personal information in reviews, reports, and support tickets."),
+      bullets("Takes about 20 minutes\nIncludes a short check at the end\nYour completion is recorded automatically"),
+      ...ctaFields("Start the training", `${DEFAULT_ORIGIN}/admin`),
+    ],
+    build: (v) => ({
+      subject: `Internal: ${v.training} due ${v.due}`,
+      preheader: "Required staff training",
+      heading: v.training,
+      paragraphs: splitParas(v.body),
+      sections: [{ title: "Due", paragraphs: [v.due] }, { title: "Details", bullets: splitLines(v.bullets) }],
+      cta: { label: v.ctaLabel, url: v.ctaUrl },
+    }),
+  },
 ];
 
 export const TEMPLATES: Template[] = T;
+
+export function templateAudience(tpl: Template | null | undefined): Audience {
+  return tpl?.audience ?? "all";
+}
+
+/**
+ * Service notices: security and operations messages about the account or the platform itself.
+ * These ignore the bulk opt-out list. Marketing, product, growth, community, and staff messages honor it.
+ */
+export function isTransactional(tpl: Template | null | undefined): boolean {
+  return tpl?.category === "Security" || tpl?.category === "Operations";
+}
 
 export function getTemplate(id: string): Template | null {
   return TEMPLATES.find((t) => t.id === id) ?? null;

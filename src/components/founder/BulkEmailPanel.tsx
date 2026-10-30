@@ -7,6 +7,7 @@ type Meta = {
   categories: string[];
   templates: { id: string; name: string; category: string; description: string; fields: Template["fields"] }[];
   audience: number;
+  staffAudience: number;
   batchLimit: number;
   campaigns: { id: string; name: string; templateId: string; status: string; totalSent: number; totalFailed: number; createdAt: string }[];
 };
@@ -25,6 +26,8 @@ export default function BulkEmailPanel() {
   const [campaignName, setCampaignName] = useState("");
   const [draftId, setDraftId] = useState<string | null>(null);
   const [confirmText, setConfirmText] = useState("");
+  const [oneEmail, setOneEmail] = useState("");
+  const [oneConfirm, setOneConfirm] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
@@ -83,12 +86,19 @@ export default function BulkEmailPanel() {
     setMsg({ ok: true, text: "Test sent to your account email. Check your inbox." });
   });
 
+  const sendOne = () => run(async () => {
+    const data = await post({ action: "sendOne", templateId: tplId, values, email: oneEmail, confirm: oneConfirm });
+    setOneConfirm("");
+    setMsg({ ok: true, text: `Sent to ${data.email}.` });
+  });
+
   const createDraft = () => run(async () => {
     const data = await post({ action: "create", name: campaignName, templateId: tplId, values });
     setDraftId(data.campaign.id);
     setConfirmText("");
     await load();
-    setMsg({ ok: true, text: `Draft saved. It will reach up to ${meta?.audience ?? "?"} accounts. Nothing has been sent yet.` });
+    const reach = tpl?.audience === "staff" ? `${meta?.staffAudience ?? "?"} verified staff addresses` : `${meta?.audience ?? "?"} addresses`;
+    setMsg({ ok: true, text: `Draft saved. It will reach up to ${reach}. Nothing has been sent yet.` });
   });
 
   const sendBatch = () => run(async () => {
@@ -125,6 +135,7 @@ export default function BulkEmailPanel() {
         </p>
         <p className="text-[12px] text-ink-2 mt-2">
           Eligible addresses right now (before de-duplication): <span className="font-semibold">{meta?.audience ?? "-"}</span>
+          {" · "}Verified staff addresses: <span className="font-semibold">{meta?.staffAudience ?? "-"}</span>
         </p>
       </div>
 
@@ -144,7 +155,10 @@ export default function BulkEmailPanel() {
               onClick={() => pick(t)}
               className={`text-left p-4 rounded-xl border transition-colors ${tplId === t.id ? "border-accent bg-sunk" : "border-line bg-surface hover:border-accent"}`}
             >
-              <p className="text-[11px] uppercase tracking-wide text-muted">{t.category}</p>
+              <p className="text-[11px] uppercase tracking-wide text-muted">
+                {t.category}
+                {t.audience === "staff" && <span className="ml-2 rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-bold text-amber-600">Staff only</span>}
+              </p>
               <p className="text-sm font-semibold text-ink mt-1">{t.name}</p>
               <p className="text-[12px] text-muted mt-1">{t.description}</p>
             </button>
@@ -157,6 +171,11 @@ export default function BulkEmailPanel() {
           {/* 2. Fields */}
           <div className="space-y-4">
             <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">Content: {tpl.name}</p>
+            {tpl.audience === "staff" && (
+              <p className="rounded-xl bg-amber-500/10 p-3 text-[12px] text-amber-700">
+                Staff only. This sends only to verified company addresses of staff members, never to general accounts.
+              </p>
+            )}
             {tpl.fields.map((f) => (
               <div key={f.key}>
                 <label className="text-[11px] font-semibold text-muted">{f.label}{f.required ? " *" : ""}</label>
@@ -185,6 +204,27 @@ export default function BulkEmailPanel() {
             ) : (
               <p className="text-xs text-danger">{preview && !preview.ok ? preview.error : ""}</p>
             )}
+          </div>
+        </div>
+      )}
+
+      {tpl && (
+        <div className="space-y-3 border-t border-line pt-4">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">Send to one address</p>
+          <p className="text-[12px] text-muted max-w-3xl">
+            Sends this exact email to a single address, outside any campaign. Addresses that unsubscribed are refused.
+            {tpl.audience === "staff" ? " Staff-only templates need a verified staff company address." : ""}
+          </p>
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="min-w-[220px] flex-1">
+              <label className="text-[11px] font-semibold text-muted">Recipient email</label>
+              <input className={input} value={oneEmail} onChange={(e) => setOneEmail(e.target.value)} placeholder="name@example.com" />
+            </div>
+            <div>
+              <label className="text-[11px] font-semibold text-muted">Type SEND to confirm</label>
+              <input className={input} value={oneConfirm} onChange={(e) => setOneConfirm(e.target.value)} placeholder="SEND" />
+            </div>
+            <button className={btn} disabled={busy || !preview?.ok || !oneEmail.trim() || oneConfirm !== "SEND"} onClick={sendOne}>Send to this address</button>
           </div>
         </div>
       )}

@@ -87,7 +87,8 @@ export async function notifyNewDevice(
     });
 
     const deviceCount = await prisma.loginDevice.count({ where: { userId: user.id } });
-    if (deviceCount > 1 && user.email && user.emailNotifications !== false) {
+    // New-device alerts are security notices, so they are not gated on the notifications setting.
+    if (deviceCount > 1 && user.email) {
       await sendSecurityNoticeEmail({
         toEmail: user.email,
         username: user.username,

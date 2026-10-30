@@ -1,7 +1,7 @@
 import { Resend } from "resend";
 import { prisma } from "./prisma";
 import { logger } from "./logger";
-import { getTemplate, normalizeValues, renderEmail, TemplateInputError, type RenderedEmail } from "./email-templates";
+import { getTemplate, isTransactional, normalizeValues, renderEmail, templateAudience, TemplateInputError, type Audience, type RenderedEmail } from "./email-templates";
 import { optedOutSet, unsubscribeUrl } from "./unsubscribe";
 
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "RoleFlow <onboarding@resend.dev>";
@@ -34,6 +34,23 @@ const COMPANY_WHERE = {
   isBanned: false,
 } as const;
 
+/** Staff: a verified company address AND a staff role (support, moderator, admin, or founder). Used by staff-only templates. */
+const STAFF_WHERE = {
+  companyEmail: { not: null },
+  companyEmailVerifiedAt: { not: null },
+  isBanned: false,
+  OR: [
+    { isSupportStaff: true },
+    { isSiteAdmin: true },
+    { siteRole: { in: ["FOUNDER", "ADMIN", "MODERATOR", "SUPPORT", "STAFF"] } },
+  ],
+};
+
+/** How many verified staff company addresses exist right now. */
+export async function staffEligibleCount(): Promise<number> {
+  return prisma.user.count({ where: STAFF_WHERE });
+}
+
 /** How many addresses are eligible right now, before opt-outs and de-duplication. */
 export async function eligibleCount(): Promise<number> {
   const [accounts, companies] = await Promise.all([
@@ -44,15 +61,25 @@ export async function eligibleCount(): Promise<number> {
 }
 
 /** Eligible addresses that this campaign has not sent to yet. Each address appears once. */
-export async function remainingRecipients(campaignId: string): Promise<Recipient[]> {
+export type CampaignRules = { audience: Audience; ignoreOptOut: boolean };
+
+function rulesFor(templateId: string): CampaignRules {
+  const tpl = getTemplate(templateId);
+  return { audience: templateAudience(tpl), ignoreOptOut: isTransactional(tpl) };
+}
+
+export async function remainingRecipients(campaignId: string, rules: CampaignRules = { audience: "all", ignoreOptOut: false }): Promise<Recipient[]> {
+  const isStaff = rules.audience === "staff";
   const [accounts, companies, sent, optedOut] = await Promise.all([
+    isStaff
+      ? Promise.resolve([] as { id: string; username: string; email: string | null }[])
+      : prisma.user.findMany({
+          where: ACCOUNT_WHERE,
+          select: { id: true, username: true, email: true },
+          orderBy: { createdAt: "asc" },
+        }),
     prisma.user.findMany({
-      where: ACCOUNT_WHERE,
-      select: { id: true, username: true, email: true },
-      orderBy: { createdAt: "asc" },
-    }),
-    prisma.user.findMany({
-      where: COMPANY_WHERE,
+      where: isStaff ? STAFF_WHERE : COMPANY_WHERE,
       select: { id: true, username: true, companyEmail: true },
       orderBy: { createdAt: "asc" },
     }),
@@ -60,7 +87,7 @@ export async function remainingRecipients(campaignId: string): Promise<Recipient
     optedOutSet(),
   ]);
   // Each address once, even when an account and a company address match. Sent and opted-out addresses are skipped.
-  const seen = new Set<string>([...sent.map((s) => s.email.toLowerCase()), ...optedOut]);
+  const seen = new Set<string>([...sent.map((s) => s.email.toLowerCase()), ...(rules.ignoreOptOut ? [] : optedOut)]);
   const out: Recipient[] = [];
   const add = (userId: string, name: string, raw: string | null) => {
     const email = (raw ?? "").trim();
@@ -132,8 +159,15 @@ export async function sendTest(input: { templateId: string; values: Record<strin
   return { sent: true };
 }
 
+/** The audience and opt-out rules a campaign was created with, taken from its template. */
+async function campaignRules(campaignId: string): Promise<CampaignRules> {
+  const c = await prisma.bulkCampaign.findUnique({ where: { id: campaignId }, select: { templateId: true } });
+  return c ? rulesFor(c.templateId) : { audience: "all", ignoreOptOut: false };
+}
+
 /**
  * Sends the next batch (up to LIVE_BATCH_LIMIT) for a campaign. Call again to continue.
+ * Staff-only campaigns reach only verified staff company addresses.
  * A short lease stops two requests from sending the same batch at once.
  */
 export async function sendNextBatch(campaignId: string) {
@@ -156,7 +190,7 @@ export async function sendNextBatch(campaignId: string) {
   let failed = 0;
   try {
     const campaign = await prisma.bulkCampaign.findUniqueOrThrow({ where: { id: campaignId } });
-    const recipients = (await remainingRecipients(campaignId)).slice(0, LIVE_BATCH_LIMIT);
+    const recipients = (await remainingRecipients(campaignId, rulesFor(campaign.templateId))).slice(0, LIVE_BATCH_LIMIT);
     const resend = resendClient();
 
     for (let i = 0; i < recipients.length; i += RESEND_BATCH) {
@@ -180,7 +214,7 @@ export async function sendNextBatch(campaignId: string) {
       sent += chunk.length;
     }
   } finally {
-    const remaining = (await remainingRecipients(campaignId)).length;
+    const remaining = (await remainingRecipients(campaignId, await campaignRules(campaignId))).length;
     await prisma.bulkCampaign.update({
       where: { id: campaignId },
       data: {
@@ -193,7 +227,7 @@ export async function sendNextBatch(campaignId: string) {
   }
 
   const after = await prisma.bulkCampaign.findUniqueOrThrow({ where: { id: campaignId }, select: { status: true, totalSent: true, totalFailed: true } });
-  const remaining = (await remainingRecipients(campaignId)).length;
+  const remaining = (await remainingRecipients(campaignId, await campaignRules(campaignId))).length;
   return { sent, failed, remaining, status: after.status, totalSent: after.totalSent, totalFailed: after.totalFailed };
 }
 
@@ -203,4 +237,46 @@ export async function discardDraft(campaignId: string) {
   if (!c) throw new BulkError("Campaign not found.");
   if (c.status !== "DRAFT" || c.totalSent > 0) throw new BulkError("Only drafts that have not sent anything can be discarded.");
   await prisma.bulkCampaign.delete({ where: { id: campaignId } });
+}
+
+const EMAIL_RE = /^[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{2,24}$/;
+
+/**
+ * Sends one copy of a template to one address, outside any campaign. Respects opt-outs.
+ * Staff-only templates only go to a verified staff company address.
+ */
+export async function sendSingle(input: { templateId: string; values: Record<string, unknown>; email: string; actorId: string }) {
+  const tpl = getTemplate(input.templateId);
+  if (!tpl) throw new TemplateInputError("Unknown template.");
+  const email = input.email.trim().toLowerCase();
+  if (!EMAIL_RE.test(email) || email.length > 320) throw new TemplateInputError("Enter a valid email address.");
+
+  const optedOut = await prisma.emailOptOut.findUnique({ where: { email } });
+  if (optedOut && !isTransactional(tpl)) throw new BulkError("This address has unsubscribed from bulk email, so it cannot be sent to.");
+
+  const staffMatch = await prisma.user.findFirst({
+    where: { AND: [{ companyEmail: { equals: email, mode: "insensitive" } }, STAFF_WHERE] },
+    select: { username: true },
+  });
+  if (templateAudience(tpl) === "staff" && !staffMatch) {
+    throw new BulkError("Staff-only templates can only be sent to a verified staff company address.");
+  }
+
+  const account = await prisma.user.findFirst({
+    where: { OR: [{ email: { equals: email, mode: "insensitive" } }, { companyEmail: { equals: email, mode: "insensitive" } }] },
+    select: { username: true },
+  });
+  const name = staffMatch?.username ?? account?.username ?? null;
+
+  const m = renderEmail(tpl, normalizeValues(tpl, input.values), name, { unsubscribeUrl: unsubscribeUrl(email) });
+  const { data, error } = await resendClient().emails.send({
+    from: FROM_EMAIL,
+    to: [email],
+    subject: m.subject,
+    html: m.html,
+    text: m.text,
+    headers: listHeaders(email),
+  });
+  if (error || !data) throw new BulkError("The email could not be sent. Check the sending settings.");
+  return { sent: true, email };
 }

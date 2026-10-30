@@ -4,7 +4,7 @@ import { recordAudit } from "@/lib/audit";
 import { getFounderCaller } from "@/lib/staff-access";
 import { TEMPLATES, CATEGORIES } from "@/lib/email-templates";
 import { TemplateInputError } from "@/lib/email-templates";
-import { BulkError, LIVE_BATCH_LIMIT, createCampaign, discardDraft, eligibleCount, sendNextBatch, sendTest } from "@/lib/bulk-email";
+import { BulkError, LIVE_BATCH_LIMIT, createCampaign, discardDraft, eligibleCount, sendSingle, staffEligibleCount, sendNextBatch, sendTest } from "@/lib/bulk-email";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
@@ -21,8 +21,9 @@ export async function GET() {
   const caller = await getFounderCaller();
   if (!caller) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const [audience, campaigns] = await Promise.all([
+  const [audience, staffAudience, campaigns] = await Promise.all([
     eligibleCount(),
+    staffEligibleCount(),
     prisma.bulkCampaign.findMany({
       orderBy: { createdAt: "desc" },
       take: 25,
@@ -32,8 +33,9 @@ export async function GET() {
 
   return NextResponse.json({
     categories: CATEGORIES,
-    templates: TEMPLATES.map((t) => ({ id: t.id, name: t.name, category: t.category, description: t.description, fields: t.fields })),
+    templates: TEMPLATES.map((t) => ({ id: t.id, name: t.name, category: t.category, audience: t.audience ?? "all", description: t.description, fields: t.fields })),
     audience,
+    staffAudience,
     batchLimit: LIVE_BATCH_LIMIT,
     campaigns,
   });
@@ -90,6 +92,18 @@ export async function POST(request: Request) {
         targetId: campaignId,
         details: { sent: result.sent, failed: result.failed, remaining: result.remaining, status: result.status },
       });
+      return NextResponse.json(result);
+    }
+
+    if (action === "sendOne") {
+      if (body.confirm !== "SEND") return NextResponse.json({ error: "Type SEND to confirm." }, { status: 400 });
+      const result = await sendSingle({
+        templateId: String(body.templateId ?? ""),
+        values: body.values ?? {},
+        email: String(body.email ?? ""),
+        actorId: caller.id,
+      });
+      await recordAudit({ actorId: caller.id, action: "BULK_EMAIL_SINGLE", targetId: null, details: { templateId: body.templateId, email: result.email } });
       return NextResponse.json(result);
     }
 

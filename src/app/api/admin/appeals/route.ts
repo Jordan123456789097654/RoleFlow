@@ -66,7 +66,8 @@ export async function POST(request: Request) {
 
   if (punishment.targetType === "USER") {
     const user = await prisma.user.findUnique({ where: { id: punishment.targetId }, select: { username: true, email: true, emailNotifications: true } });
-    if (user?.email && user.emailNotifications !== false) {
+    // Appeal decisions are account-safety notices, so they are not gated on the notifications setting.
+    if (user?.email) {
       await sendSecurityNoticeEmail({
         toEmail: user.email,
         username: user.username,

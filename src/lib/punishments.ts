@@ -39,7 +39,8 @@ export async function punishUser(a: {
     details: { punishmentId: punishment.id, action: a.action, reason: a.reason, days: a.days ?? null },
   });
 
-  if (user.email && user.emailNotifications !== false) {
+  // Account-safety notices always go out when an address exists. The notifications setting does not apply.
+  if (user.email) {
     await sendModerationNoticeEmail({
       toEmail: user.email,
       username: user.username,
