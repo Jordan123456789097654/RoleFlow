@@ -17,7 +17,7 @@ interface NavbarProps {
     isSupportStaff?: boolean;
     siteRole?: string;
     hasCommunities?: boolean;
-    supportSession?: boolean;
+    supportSession?: { expiresAt: number; ticketRef: string | null } | null;
   } | null;
 }
 
