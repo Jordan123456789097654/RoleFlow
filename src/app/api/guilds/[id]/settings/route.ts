@@ -50,7 +50,7 @@ export async function PATCH(
 
     const body = await request.json();
     // Reject images that cannot be shown. Saving them silently would make the logo revert to the default.
-    for (const [label, v] of [["Logo", icon], ["Banner", banner]] as const) {
+    for (const [label, v] of [["Logo", body.icon], ["Banner", body.banner]] as const) {
       if (v !== undefined && v !== null && v !== "" && cleanHttpsUrl(v) === undefined) {
         return NextResponse.json({ error: `${label} must be a full https:// link to an image.` }, { status: 400 });
       }
