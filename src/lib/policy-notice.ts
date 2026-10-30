@@ -130,5 +130,5 @@ export async function sendPolicyNotice(opts: { noticeId: string; summary: string
   }
 
   const progress = await noticeProgress(opts.noticeId);
-  return { sent, failed, ...progress };
+  return { sent, failed, totalSent: progress.sent, remaining: progress.remaining };
 }
