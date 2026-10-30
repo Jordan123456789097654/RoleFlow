@@ -637,3 +637,11 @@ model EmailOptOut {
   source    String   // UNSUBSCRIBE_LINK, ONE_CLICK, ADMIN
   createdAt DateTime @default(now())
 }
+
+model SiteDoc {
+  slug        String   @id // support-handbook | documentation
+  title       String
+  body        String   // Plain text: "## Heading" starts a section, "- " starts a bullet, other lines are paragraphs
+  updatedAt   DateTime @updatedAt
+  updatedById String?
+}

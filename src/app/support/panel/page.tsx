@@ -20,6 +20,7 @@ import {
   Mail,
 } from "lucide-react";
 import SupportWorkspace, { UserLookup } from "@/components/support/SupportWorkspace";
+import StaffHandbook from "@/components/support/StaffHandbook";
 
 interface ActiveSessionUser {
   id: string;
@@ -476,6 +477,11 @@ export default function SupportStaffPanelPage() {
           </div>
         </div>
       </div>
+      {/* SECTION: STAFF HANDBOOK */}
+      <section id="handbook" className="pt-8 scroll-mt-24">
+        <StaffHandbook />
+      </section>
+
       {/* SECTION: MEMBER LOOKUP AND DATA REMOVAL */}
       <section id="members" className="pt-8 space-y-4 scroll-mt-24">
         <div>
