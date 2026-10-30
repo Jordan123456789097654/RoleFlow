@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import JsonTransfer from "@/components/founder/JsonTransfer";
 
 type Section = { id: string; title: string; intro?: string; steps?: string[]; body?: string[]; tips?: string[] };
 type Group = { title: string; sections: Section[] };
@@ -22,6 +23,25 @@ function moved<T>(arr: T[], i: number, dir: -1 | 1): T[] {
 
 /** Lines in a text box become list items. Blank lines are dropped on save. */
 const toLines = (items?: string[]) => (items ?? []).join("\n");
+const clean = (items?: string[]) => {
+  const out = (items ?? []).map((x) => x.trim()).filter(Boolean);
+  return out.length ? out : undefined;
+};
+
+/** The structure the server expects, with blank lines removed. */
+function buildPayload(groups: Group[]) {
+  return groups.map((g) => ({
+    title: g.title.trim(),
+    sections: g.sections.map((s) => ({
+      id: s.id.trim(),
+      title: s.title.trim(),
+      ...(s.intro?.trim() ? { intro: s.intro.trim() } : {}),
+      ...(clean(s.steps) ? { steps: clean(s.steps) } : {}),
+      ...(clean(s.body) ? { body: clean(s.body) } : {}),
+      ...(clean(s.tips) ? { tips: clean(s.tips) } : {}),
+    })),
+  }));
+}
 
 export default function DocsPageEditor() {
   const [groups, setGroups] = useState<Group[]>([]);
@@ -67,32 +87,21 @@ export default function DocsPageEditor() {
     setGroups((gs) => gs.map((g, i) => (i !== gi ? g : { ...g, sections: g.sections.filter((_, j) => j !== si) })));
   };
 
-  const clean = (items?: string[]) => {
-    const out = (items ?? []).map((x) => x.trim()).filter(Boolean);
-    return out.length ? out : undefined;
-  };
-
-  const save = async () => {
-    if (!window.confirm("Publish this documentation? It replaces the text on /docs straight away. Earlier versions are kept.")) return;
-    setBusy(true);
-    setMsg(null);
-    const payload = groups.map((g) => ({
-      title: g.title.trim(),
-      sections: g.sections.map((s) => ({
-        id: s.id.trim(),
-        title: s.title.trim(),
-        ...(s.intro?.trim() ? { intro: s.intro.trim() } : {}),
-        ...(clean(s.steps) ? { steps: clean(s.steps) } : {}),
-        ...(clean(s.body) ? { body: clean(s.body) } : {}),
-        ...(clean(s.tips) ? { tips: clean(s.tips) } : {}),
-      })),
-    }));
+  const publish = async (payload: unknown[]) => {
     const res = await fetch("/api/founder/docs-page", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ groups: payload }),
     });
     const d = await res.json().catch(() => ({}));
+    return { res, d };
+  };
+
+  const save = async () => {
+    if (!window.confirm("Publish this documentation? It replaces the text on /docs straight away. Earlier versions are kept.")) return;
+    setBusy(true);
+    setMsg(null);
+    const { res, d } = await publish(buildPayload(groups));
     setBusy(false);
     if (!res.ok) return setMsg({ ok: false, text: d.error || "Save failed." });
     setMsg({ ok: true, text: "Published. The documentation page is updated." });
@@ -112,6 +121,21 @@ export default function DocsPageEditor() {
   const loadRevision = (r: Revision) => {
     setGroups(r.groups);
     setMsg({ ok: true, text: `Loaded the version from ${new Date(r.createdAt).toLocaleString()}. Review it, then publish to make it live.` });
+  };
+
+  const importJson = async (raw: string) => {
+    const parsed = JSON.parse(raw);
+    const list = Array.isArray(parsed) ? parsed : parsed?.groups;
+    if (!Array.isArray(list)) {
+      return { ok: false, text: 'The JSON must be a list of groups, or an object with a "groups" list.' };
+    }
+    if (!window.confirm("Publish these groups? This replaces the text on /docs straight away. Earlier versions are kept.")) {
+      return { ok: false, text: "Import cancelled." };
+    }
+    const { res, d } = await publish(list);
+    if (!res.ok) return { ok: false, text: d.error || "Import failed. Nothing was changed." };
+    load();
+    return { ok: true, text: "Imported and published." };
   };
 
   return (
@@ -172,6 +196,13 @@ export default function DocsPageEditor() {
         <button onClick={resetToBuiltIn} disabled={busy || !customised} className={small}>Use built-in text</button>
       </div>
       {msg && <p className={`text-xs ${msg.ok ? "text-emerald-500" : "text-rose-500"}`}>{msg.text}</p>}
+
+      <JsonTransfer
+        filename="public-docs.json"
+        getCurrent={() => JSON.stringify({ groups: buildPayload(groups) }, null, 2)}
+        onImport={importJson}
+        hint='Accepts {"groups": [...]} or a plain list of groups. Import publishes straight away, so check the JSON first.'
+      />
 
       {revisions.length > 0 && (
         <div className="space-y-2 pt-2">

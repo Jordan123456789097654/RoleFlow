@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import JsonTransfer from "@/components/founder/JsonTransfer";
 
 const card = "rounded-2xl border border-line bg-surface p-5 space-y-3";
 const input = "w-full rounded-lg border border-line bg-sunk px-3 py-2 text-sm text-ink outline-none focus:border-accent";
@@ -28,18 +29,37 @@ export default function DocsEditor() {
     if (d) { setTitle(d.title); setBody(d.body); }
   }, [slug, docs]);
 
-  const save = async () => {
-    if (!confirm("Save changes? Support staff will see them right away.")) return;
-    setMsg(null);
+  const publish = async (payload: { slug: string; title: string; body: string }) => {
     const res = await fetch("/api/founder/docs", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ slug, title, body }),
+      body: JSON.stringify(payload),
     });
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
+    return { res, data };
+  };
+
+  const save = async () => {
+    if (!confirm("Save changes? Support staff will see them right away.")) return;
+    setMsg(null);
+    const { res, data } = await publish({ slug, title, body });
     if (!res.ok) { setMsg({ ok: false, text: data.error || "Save failed" }); return; }
     setMsg({ ok: true, text: "Saved." });
     load();
+  };
+
+  const importJson = async (raw: string) => {
+    const parsed = JSON.parse(raw);
+    if (typeof parsed?.title !== "string" || typeof parsed?.body !== "string") {
+      return { ok: false, text: 'The JSON must have a "title" and a "body" text field.' };
+    }
+    if (!confirm(`Replace "${title}" with the imported text? Support staff will see it right away.`)) {
+      return { ok: false, text: "Import cancelled." };
+    }
+    const { res, data } = await publish({ slug, title: parsed.title, body: parsed.body });
+    if (!res.ok) return { ok: false, text: data.error || "Import failed. Nothing was changed." };
+    load();
+    return { ok: true, text: "Imported and saved." };
   };
 
   return (
@@ -61,6 +81,13 @@ export default function DocsEditor() {
       <textarea rows={18} className={`${input} font-mono text-xs`} value={body} onChange={(e) => setBody(e.target.value)} />
       <button onClick={save} disabled={!title.trim() || !body.trim()} className="rounded-lg bg-purple-600 px-4 py-2 text-xs font-semibold text-white hover:bg-purple-500 disabled:opacity-40">Save document</button>
       {msg && <p className={`text-xs ${msg.ok ? "text-emerald-500" : "text-rose-500"}`}>{msg.text}</p>}
+
+      <JsonTransfer
+        filename={`${slug}.json`}
+        getCurrent={() => JSON.stringify({ title, body }, null, 2)}
+        onImport={importJson}
+        hint='Accepts {"title": "...", "body": "..."} for the document you have selected. Import saves straight away.'
+      />
     </section>
   );
 }
