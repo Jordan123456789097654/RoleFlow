@@ -903,7 +903,7 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
           {/* Submission Action */}
           <div className="pt-6 border-t border-line flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-[11px] text-faint">
-              By submitting, you agree to the community&apos;s rules and RoleFlow{" "}
+              By submitting, you agree to the community&apos;s rules and ApplyHub by RoleFlow{" "}
               <Link href="/terms" className="text-accent hover:underline">
                 Terms
               </Link>.

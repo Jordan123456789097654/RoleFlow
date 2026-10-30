@@ -78,7 +78,7 @@ export default async function ParentHomePage() {
             Launch ApplyHub
           </a>
           <Link
-            href="/parent/products"
+            href="/products"
             className="rounded-xl border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-slate-200 transition-colors hover:bg-white/10 hover:text-white"
           >
             Explore All Products

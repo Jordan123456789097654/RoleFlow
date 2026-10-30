@@ -48,12 +48,12 @@ const SITE_URL = platformOrigin();
 /** Filtered browse views get their own title and canonical URL so they can be shared and indexed. */
 export async function generateMetadata({ searchParams }: { searchParams?: { category?: string } }): Promise<Metadata> {
   const category = searchParams?.category && searchParams.category !== "All" ? searchParams.category : null;
-  const title = category ? `${category} communities | RoleFlow` : "Browse communities | RoleFlow";
+  const title = category ? `${category} communities | ApplyHub by RoleFlow` : "Browse communities | ApplyHub by RoleFlow";
   const description = category
-    ? `Find open ${category} positions and communities hiring on RoleFlow.`
-    : "Find open positions across Discord and Roblox communities on RoleFlow.";
+    ? `Find open ${category} positions and communities hiring on ApplyHub by RoleFlow.`
+    : "Find open positions across Discord and Roblox communities on ApplyHub by RoleFlow.";
   const url = `${SITE_URL}/browse${category ? `?category=${encodeURIComponent(category)}` : ""}`;
-  return { title, description, alternates: { canonical: url }, openGraph: { title, description, url, siteName: "RoleFlow", type: "website" } };
+  return { title, description, alternates: { canonical: url }, openGraph: { title, description, url, siteName: "ApplyHub by RoleFlow", type: "website" } };
 }
 
 export default async function BrowsePage({ searchParams }: BrowsePageProps) {

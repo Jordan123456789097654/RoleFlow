@@ -73,3 +73,17 @@ export function isPlatformHostName(host: string | null | undefined): boolean {
   const platformHosts = platformHostNames();
   return platformHosts.includes(normalized);
 }
+
+/** Checks whether a host is the parent company site host (roleflow.site or www.roleflow.site) */
+export function isParentHost(host: string | null | undefined): boolean {
+  if (!host) return false;
+  const normalized = host.split(":")[0].replace(/\.+$/, "").trim().toLowerCase();
+  return normalized === PARENT_HOST.toLowerCase() || normalized === `www.${PARENT_HOST}`.toLowerCase();
+}
+
+/** Checks whether a host is the ApplyHub product host */
+export function isApplicationsHost(host: string | null | undefined): boolean {
+  if (!host) return false;
+  const normalized = host.split(":")[0].replace(/\.+$/, "").trim().toLowerCase();
+  return normalized === APPLICATIONS_HOST.toLowerCase();
+}

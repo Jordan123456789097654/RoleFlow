@@ -38,13 +38,13 @@ export async function generateMetadata({ params }: CommunityPortalProps): Promis
   });
 
   if (!guild) {
-    return { title: "Community not found | RoleFlow", robots: { index: false } };
+    return { title: "Community not found | ApplyHub by RoleFlow", robots: { index: false } };
   }
 
-  const title = `${guild.name} | RoleFlow`;
+  const title = `${guild.name} | ApplyHub by RoleFlow`;
   const description =
     guild.description?.slice(0, 200) ||
-    `Apply to open positions at ${guild.name} on RoleFlow.`;
+    `Apply to open positions at ${guild.name} on ApplyHub by RoleFlow.`;
   const url = `${SITE_URL}/c/${guild.vanitySlug || guild.id}`;
   const images = [previewImage(guild.banner) ?? previewImage(guild.icon) ?? `${SITE_URL}/logo.png`];
 
@@ -54,11 +54,11 @@ export async function generateMetadata({ params }: CommunityPortalProps): Promis
     alternates: { canonical: url },
     openGraph: {
       type: "website",
-      siteName: "RoleFlow",
+      siteName: "ApplyHub by RoleFlow",
       title,
       description,
       url,
-      images: images.map((src) => ({ url: src, alt: `${guild.name} on RoleFlow` })),
+      images: images.map((src) => ({ url: src, alt: `${guild.name} on ApplyHub by RoleFlow` })),
     },
     twitter: {
       card: "summary_large_image",

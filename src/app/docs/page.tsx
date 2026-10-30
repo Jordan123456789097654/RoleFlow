@@ -3,8 +3,8 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Documentation | RoleFlow",
-  description: "How to use every part of RoleFlow: applying, tracking applications, running a community, and account settings.",
+  title: "Documentation | ApplyHub by RoleFlow",
+  description: "How to use every part of ApplyHub: applying, tracking applications, running a community, and account settings.",
 };
 
 import { getDocGroups } from "@/lib/docs-page";
@@ -88,9 +88,9 @@ export default async function DocsPage() {
         <article className="min-w-0">
           <header className="border-b border-line pb-8">
             <p className="eyebrow mb-4">Documentation</p>
-            <h1 className="display-lg">RoleFlow Documentation</h1>
+            <h1 className="display-lg">ApplyHub Documentation</h1>
             <p className="mt-4 text-[17px] text-ink-2">
-              How to apply to communities, run one, and use each part of RoleFlow.
+              How to apply to communities, run one, and use each part of ApplyHub.
             </p>
           </header>
 

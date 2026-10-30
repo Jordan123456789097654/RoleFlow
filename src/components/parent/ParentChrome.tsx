@@ -6,7 +6,7 @@ export function ParentHeader() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#090a0f]/85 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
-        <Link href="/parent" className="flex items-center gap-3">
+        <Link href="/" className="flex items-center gap-3">
           <Image
             src="/logo-pack/roleflow-lockup-dark-transparent.png"
             alt="RoleFlow"
@@ -18,11 +18,11 @@ export function ParentHeader() {
         </Link>
 
         <nav className="hidden items-center gap-6 text-sm font-medium text-slate-300 md:flex">
-          <Link href="/parent/products" className="transition-colors hover:text-white">Products</Link>
-          <Link href="/parent/about" className="transition-colors hover:text-white">About</Link>
-          <Link href="/parent/blog" className="transition-colors hover:text-white">Blog</Link>
-          <Link href="/parent/ideas" className="transition-colors hover:text-white">Suggest Idea</Link>
-          <Link href="/parent/contact" className="transition-colors hover:text-white">Contact</Link>
+          <Link href="/products" className="transition-colors hover:text-white">Products</Link>
+          <Link href="/about" className="transition-colors hover:text-white">About</Link>
+          <Link href="/blog" className="transition-colors hover:text-white">Blog</Link>
+          <Link href="/ideas" className="transition-colors hover:text-white">Suggest Idea</Link>
+          <Link href="/contact" className="transition-colors hover:text-white">Contact</Link>
         </nav>
 
         <div className="flex items-center gap-3">
@@ -66,17 +66,17 @@ export function ParentFooter() {
             <h4 className="font-mono text-xs font-semibold uppercase tracking-wider text-slate-200">Products</h4>
             <ul className="mt-3 space-y-2 text-xs">
               <li><a href="https://applyhub.roleflow.site" className="hover:text-white">ApplyHub by RoleFlow</a></li>
-              <li><Link href="/parent/products#roster" className="hover:text-white">Roster by RoleFlow (Soon)</Link></li>
-              <li><Link href="/parent/ideas" className="hover:text-white">Vote on next tool</Link></li>
+              <li><Link href="/products#roster" className="hover:text-white">Roster by RoleFlow (Soon)</Link></li>
+              <li><Link href="/ideas" className="hover:text-white">Vote on next tool</Link></li>
             </ul>
           </div>
 
           <div>
             <h4 className="font-mono text-xs font-semibold uppercase tracking-wider text-slate-200">Company</h4>
             <ul className="mt-3 space-y-2 text-xs">
-              <li><Link href="/parent/about" className="hover:text-white">Our Story</Link></li>
-              <li><Link href="/parent/blog" className="hover:text-white">Changelog & Blog</Link></li>
-              <li><Link href="/parent/contact" className="hover:text-white">Contact & Support</Link></li>
+              <li><Link href="/about" className="hover:text-white">Our Story</Link></li>
+              <li><Link href="/blog" className="hover:text-white">Changelog &amp; Blog</Link></li>
+              <li><Link href="/contact" className="hover:text-white">Contact &amp; Support</Link></li>
               <li><a href="https://discord.gg/tKPbCXbmr9" target="_blank" rel="noreferrer" className="hover:text-white">Discord Community</a></li>
             </ul>
           </div>
@@ -93,7 +93,7 @@ export function ParentFooter() {
         </div>
 
         <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-white/5 pt-6 text-xs text-slate-500 sm:flex-row">
-          <p>© {new Date().getFullYear()} RoleFlow. All rights reserved. Everything is free forever.</p>
+          <p>&copy; {new Date().getFullYear()} RoleFlow. All rights reserved. Everything is free forever.</p>
           <p className="font-mono text-[11px]">support@roleflow.site</p>
         </div>
       </div>

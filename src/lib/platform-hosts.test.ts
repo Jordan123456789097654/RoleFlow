@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { isPlatformHostName, platformHostNames, PARENT_HOST, APPLICATIONS_HOST } from "./platform-hosts";
+import { isPlatformHostName, platformHostNames, PARENT_HOST, APPLICATIONS_HOST, isParentHost, isApplicationsHost } from "./platform-hosts";
 
 test("recognizes parent host and www parent host", () => {
   assert.equal(isPlatformHostName("roleflow.site"), true);
@@ -8,11 +8,16 @@ test("recognizes parent host and www parent host", () => {
   assert.equal(isPlatformHostName("ROLEFLOW.SITE"), true);
   assert.equal(isPlatformHostName("roleflow.site:3000"), true);
   assert.equal(isPlatformHostName("www.roleflow.site:443"), true);
+  assert.equal(isParentHost("roleflow.site"), true);
+  assert.equal(isParentHost("www.roleflow.site"), true);
+  assert.equal(isParentHost("applyhub.roleflow.site"), false);
 });
 
 test("recognizes applications host", () => {
   assert.equal(isPlatformHostName("applyhub.roleflow.site"), true);
   assert.equal(isPlatformHostName("APPLYHUB.ROLEFLOW.SITE:8080"), true);
+  assert.equal(isApplicationsHost("applyhub.roleflow.site"), true);
+  assert.equal(isApplicationsHost("roleflow.site"), false);
 });
 
 test("recognizes vercel preview domains and localhost", () => {

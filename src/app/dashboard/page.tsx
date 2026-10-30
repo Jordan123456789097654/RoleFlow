@@ -435,7 +435,7 @@ export default function DashboardHubPage() {
                 </label>
                 <div className="flex items-center">
                   <span className="px-3 py-2.5 bg-sunk border border-r-0 border-line rounded-l-xl text-[11px] text-faint">
-                    roleflow.site/c/
+                    applyhub.roleflow.site/c/
                   </span>
                   <input
                     type="text"

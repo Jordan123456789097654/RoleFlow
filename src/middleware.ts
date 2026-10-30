@@ -1,4 +1,4 @@
-import { isPlatformHostName } from "@/lib/platform-hosts";
+import { isPlatformHostName, isParentHost, APPLICATIONS_ORIGIN } from "@/lib/platform-hosts";
 import { NextRequest, NextResponse } from "next/server";
 import { platformOrigin } from "@/lib/platform-origin";
 
@@ -145,6 +145,13 @@ export async function middleware(req: NextRequest) {
   // A community's own domain: serve its portal at "/", keep the API working, and send everything
   // else to roleflow.site. Login is handed off from roleflow.site with a short-lived token.
   const host = requestHost(req);
+  // 308 permanent redirects for old application paths on the parent company host
+  if (isParentHost(host)) {
+    if (pathname === "/browse" || pathname.startsWith("/browse/") || pathname === "/my-applications" || pathname.startsWith("/c/")) {
+      return NextResponse.redirect(new URL(pathname + req.nextUrl.search, APPLICATIONS_ORIGIN), 308);
+    }
+  }
+
   if (!isPlatformHost(host)) {
     const parts = pathname.split("/").filter(Boolean); // e.g. ["c", "meridian"]
     const info = await lookupHost(host, parts[0] === "apply" ? parts[1] : undefined);

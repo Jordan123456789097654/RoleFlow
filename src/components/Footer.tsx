@@ -33,7 +33,7 @@ export function Footer() {
           <div className="space-y-5 md:col-span-5">
             <div className="flex items-center gap-2.5">
               <img src="/logo.png" alt="" className="h-7 w-7 rounded-md" />
-              <span className="font-display text-[19px] font-semibold text-ink">RoleFlow</span>
+              <span className="font-display text-[19px] font-semibold text-ink">ApplyHub <span className="text-xs font-normal text-muted">by RoleFlow</span></span>
             </div>
             <p className="max-w-sm text-[15px] leading-relaxed text-muted">
               The modern way to run staff applications, developer openings and community recruitment, without drowning in Discord DMs.
@@ -67,9 +67,9 @@ export function Footer() {
         </div>
 
         <div className="mt-14 flex flex-col gap-3 border-t border-line pt-6 text-[12px] text-faint sm:flex-row sm:items-center sm:justify-between">
-          <p className="font-mono">© {new Date().getFullYear()} RoleFlow · roleflow.site</p>
+          <p className="font-mono">© {new Date().getFullYear()} ApplyHub by RoleFlow · applyhub.roleflow.site</p>
           <p className="max-w-xl sm:text-right">
-            RoleFlow is an independent recruitment platform and is not affiliated with, endorsed by, or sponsored by Discord Inc. or Roblox Corporation.
+            ApplyHub is an independent recruitment product by RoleFlow and is not affiliated with, endorsed by, or sponsored by Discord Inc. or Roblox Corporation.
           </p>
         </div>
       </div>

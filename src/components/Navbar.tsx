@@ -112,9 +112,9 @@ export function Navbar({ user }: NavbarProps) {
       <div className="page-wrap flex h-16 items-center justify-between gap-6">
         {/* Brand + primary nav */}
         <div className="flex items-center gap-10">
-          <Link href="/" className="group flex shrink-0 items-center gap-2.5" aria-label="RoleFlow home">
+          <Link href="/" className="group flex shrink-0 items-center gap-2.5" aria-label="ApplyHub by RoleFlow home">
             <img src="/logo.png" alt="" className="h-7 w-7 rounded-md" />
-            <span className="font-display text-[19px] font-semibold tracking-tight text-ink">RoleFlow</span>
+            <span className="font-display text-[19px] font-semibold tracking-tight text-ink">ApplyHub <span className="text-xs font-normal text-muted">by RoleFlow</span></span>
           </Link>
 
           <nav className="hidden items-center gap-6 lg:flex" aria-label="Primary">

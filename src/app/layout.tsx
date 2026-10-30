@@ -8,6 +8,7 @@ import "./globals.css";
 import SupportSessionBanner from "@/components/SupportSessionBanner";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { ParentHeader, ParentFooter } from "@/components/parent/ParentChrome";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { ChangelogBroadcastModal } from "@/components/ChangelogBroadcastModal";
 import { BetaBanner } from "@/components/BetaBanner";
@@ -16,6 +17,7 @@ import { MaintenanceGuard } from "@/components/MaintenanceGuard";
 import { DomainHeader, DomainFooter, type DomainBrand } from "@/components/domain/DomainChrome";
 import { getCurrentUser } from "@/lib/auth";
 import { isPlatformHost, guildForCustomDomain, normalizeDomain } from "@/lib/custom-domain";
+import { isApplicationsHost } from "@/lib/platform-hosts";
 import { prisma } from "@/lib/prisma";
 import { readSiteConfig } from "@/lib/site-config";
 
@@ -24,9 +26,9 @@ const display = Fraunces({ subsets: ["latin"], variable: "--font-display", displ
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "RoleFlow — The New Way of Managing Applications",
+  title: "RoleFlow — The Family of Products for Communities",
   description:
-    "Communities post openings. People apply once. Staff review, interview, and decide in one place instead of drowning in Discord DMs.",
+    "RoleFlow builds modern management, application, and operations tools for Discord servers and Roblox game studios.",
   icons: {
     icon: [
       { url: "/favicon.ico?v=3", sizes: "any" },
@@ -96,6 +98,7 @@ export default async function RootLayout({
   const locked = headers().get("x-site-locked") === "1";
   const brand = await domainBrand(host);
   const onOwnDomain = !isPlatformHost(host);
+  const isApplyHub = isApplicationsHost(host);
   const adminEmailRequired = Boolean(user && requiresCompanyEmail(user) && !user.companyEmailVerified);
   const robloxLinkRequired = Boolean(user) && !user?.robloxId && (await isFeatureEnabled("roblox_linking"));
 
@@ -121,7 +124,7 @@ export default async function RootLayout({
             <DomainFooter site={readSiteConfig(brand?.siteConfig)} />
           </MaintenanceGuard>
         </body>
-      ) : (
+      ) : isApplyHub ? (
         <body className="flex min-h-screen flex-col bg-paper text-ink antialiased">
           <a href="#main" className="skip-link">Skip to content</a>
 
@@ -136,6 +139,14 @@ export default async function RootLayout({
             <main id="main" className="flex-1"><RobloxLinkGate required={robloxLinkRequired}><AdminEmailGate required={adminEmailRequired}>{children}</AdminEmailGate></RobloxLinkGate></main>
             <Footer />
           </MaintenanceGuard>
+        </body>
+      ) : (
+        /* Parent site chrome on roleflow.site and default */
+        <body className="flex min-h-screen flex-col bg-[#090a0f] text-slate-100 antialiased selection:bg-violet-600/40">
+          <a href="#main" className="skip-link sr-only">Skip to content</a>
+          <ParentHeader />
+          <main id="main" className="flex-1">{children}</main>
+          <ParentFooter />
         </body>
       )}
     </html>
