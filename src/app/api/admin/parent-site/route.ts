@@ -4,6 +4,7 @@ import { verifySessionValue } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { isSiteAdminUser } from "@/lib/roles";
 import { getDynamicProducts, getDynamicCountdown, getDynamicBlogPosts } from "@/lib/parent-site";
+import { sendBlogPostEmailBlast } from "@/lib/newsletter";
 
 export const dynamic = "force-dynamic";
 
@@ -83,7 +84,7 @@ export async function POST(request: Request) {
 
   // 3. Create or Edit Blog Post
   if (action === "save_blog_post") {
-    const { slug, title, excerpt, content, author, readTime, date } = body;
+    const { slug, title, excerpt, content, author, readTime, date, sendEmail } = body;
     if (!slug || !title || !content) {
       return NextResponse.json({ error: "Slug, title, and content are required." }, { status: 400 });
     }
@@ -114,7 +115,52 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json({ success: true, message: "Blog post published successfully!" });
+    let emailStats = null;
+    if (sendEmail) {
+      try {
+        emailStats = await sendBlogPostEmailBlast({
+          slug: cleanSlug,
+          title,
+          excerpt: excerpt || contentArray[0]?.slice(0, 160) || "",
+          author: author || "RoleFlow Team",
+          content: contentArray,
+        });
+      } catch (err) {
+        console.error("Failed to blast blog post email:", err);
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: emailStats && emailStats.sent > 0
+        ? `Blog post published & emailed to ${emailStats.sent} subscribers!`
+        : "Blog post published successfully!",
+      emailStats,
+    });
+  }
+
+  // 3b. Send email blast for an already existing post
+  if (action === "send_blog_email") {
+    const { slug } = body;
+    if (!slug) return NextResponse.json({ error: "Missing post slug." }, { status: 400 });
+
+    const post = await prisma.parentBlogPost.findUnique({ where: { slug } });
+    if (!post) return NextResponse.json({ error: "Blog post not found." }, { status: 404 });
+
+    const contentArray = typeof post.content === "string" ? JSON.parse(post.content) : post.content;
+    const emailStats = await sendBlogPostEmailBlast({
+      slug: post.slug,
+      title: post.title,
+      excerpt: post.excerpt,
+      author: post.author,
+      content: contentArray,
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: `Email broadcast dispatched to ${emailStats.sent} of ${emailStats.eligible} subscribers!`,
+      emailStats,
+    });
   }
 
   // 4. Delete Blog Post

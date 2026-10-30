@@ -2,7 +2,23 @@
 
 import React, { useState, useEffect } from "react";
 import { Product, BlogPost } from "@/lib/parent-site";
-import { Plus, Trash2, Edit3, Save, RefreshCw, Clock, Sparkles, BookOpen, ExternalLink, Check } from "lucide-react";
+import { BLOG_TEMPLATES, BlogPostTemplate } from "@/lib/blog-templates";
+import {
+  Plus,
+  Trash2,
+  Edit3,
+  Save,
+  RefreshCw,
+  Clock,
+  Sparkles,
+  BookOpen,
+  ExternalLink,
+  Check,
+  Send,
+  Mail,
+  FileText,
+  ChevronDown,
+} from "lucide-react";
 
 const card = "rounded-2xl border border-line bg-surface p-5";
 
@@ -15,6 +31,7 @@ export function ParentSiteAdminManager() {
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [blasting, setBlasting] = useState<string | null>(null);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
 
   // Edit / Add product state
@@ -23,6 +40,8 @@ export function ParentSiteAdminManager() {
 
   // Edit / Add blog post state
   const [showBlogModal, setShowBlogModal] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("");
+  const [sendEmailBlast, setSendEmailBlast] = useState(true);
   const [blogForm, setBlogForm] = useState<{
     slug: string;
     title: string;
@@ -124,6 +143,22 @@ export function ParentSiteAdminManager() {
     }
   };
 
+  const handleApplyTemplate = (templateId: string) => {
+    setSelectedTemplate(templateId);
+    if (!templateId) return;
+    const tpl = BLOG_TEMPLATES.find((t) => t.id === templateId);
+    if (!tpl) return;
+
+    setBlogForm({
+      slug: tpl.defaultSlug,
+      title: tpl.defaultTitle,
+      excerpt: tpl.defaultExcerpt,
+      author: tpl.defaultAuthor,
+      readTime: tpl.defaultReadTime,
+      content: tpl.content,
+    });
+  };
+
   const handleSaveBlogPost = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -135,6 +170,7 @@ export function ParentSiteAdminManager() {
         body: JSON.stringify({
           action: "save_blog_post",
           ...blogForm,
+          sendEmail: sendEmailBlast,
           content: blogForm.content.split("\n\n").filter(Boolean),
         }),
       });
@@ -142,7 +178,8 @@ export function ParentSiteAdminManager() {
       if (res.ok) {
         setShowBlogModal(false);
         setBlogForm({ slug: "", title: "", excerpt: "", author: "RoleFlow Engineering", readTime: "3 min read", content: "" });
-        setMessage({ ok: true, text: "Blog post published successfully!" });
+        setSelectedTemplate("");
+        setMessage({ ok: true, text: data.message || "Blog post published successfully!" });
         fetchData();
       } else {
         setMessage({ ok: false, text: data.error || "Failed to publish post." });
@@ -151,6 +188,29 @@ export function ParentSiteAdminManager() {
       setMessage({ ok: false, text: "Network error publishing post." });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleSendEmailBlast = async (slug: string) => {
+    if (!confirm(`Broadcast an email update for post "${slug}" to all opted-in newsletter subscribers?`)) return;
+    setBlasting(slug);
+    setMessage(null);
+    try {
+      const res = await fetch("/api/admin/parent-site", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "send_blog_email", slug }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setMessage({ ok: true, text: data.message || "Email blast dispatched!" });
+      } else {
+        setMessage({ ok: false, text: data.error || "Failed to send email blast." });
+      }
+    } catch {
+      setMessage({ ok: false, text: "Network error sending email blast." });
+    } finally {
+      setBlasting(null);
     }
   };
 
@@ -364,34 +424,43 @@ export function ParentSiteAdminManager() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
           <form
             onSubmit={handleProductSubmit}
-            className="w-full max-w-lg rounded-2xl border border-line bg-surface p-6 shadow-2xl space-y-4"
+            className="w-full max-w-lg rounded-2xl border border-line bg-surface p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
           >
-            <h4 className="text-base font-bold text-ink">
-              {isNewProduct ? "Add New Product" : `Edit "${editingProduct.name}"`}
-            </h4>
+            <div className="flex items-center justify-between border-b border-line pb-3">
+              <h4 className="text-base font-bold text-ink">
+                {isNewProduct ? "Add New Product" : `Edit Product: ${editingProduct.name}`}
+              </h4>
+              <button
+                type="button"
+                onClick={() => setEditingProduct(null)}
+                className="text-muted hover:text-ink text-sm font-bold"
+              >
+                ✕
+              </button>
+            </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="block text-xs font-medium text-ink mb-1">Product ID (slug)</label>
+                <label className="block text-xs font-medium text-ink mb-1">Product ID</label>
                 <input
                   type="text"
                   required
                   disabled={!isNewProduct}
-                  placeholder="e.g. roster"
                   value={editingProduct.id}
-                  onChange={(e) => setEditingProduct({ ...editingProduct, id: e.target.value.toLowerCase().replace(/\s+/g, "-") })}
-                  className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none disabled:opacity-50"
+                  onChange={(e) => setEditingProduct({ ...editingProduct, id: e.target.value })}
+                  placeholder="e.g. roster"
+                  className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none font-mono disabled:opacity-60"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-ink mb-1">Display Name</label>
+                <label className="block text-xs font-medium text-ink mb-1">Product Name</label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Roster by RoleFlow"
                   value={editingProduct.name}
                   onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })}
+                  placeholder="e.g. Roster by RoleFlow"
                   className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none"
                 />
               </div>
@@ -402,9 +471,9 @@ export function ParentSiteAdminManager() {
               <input
                 type="text"
                 required
-                placeholder="e.g. Staff and member management for Roblox groups."
                 value={editingProduct.tagline}
                 onChange={(e) => setEditingProduct({ ...editingProduct, tagline: e.target.value })}
+                placeholder="e.g. Staff and member management for Roblox groups."
                 className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none"
               />
             </div>
@@ -414,37 +483,47 @@ export function ParentSiteAdminManager() {
               <textarea
                 required
                 rows={3}
-                placeholder="Describe what the product does..."
                 value={editingProduct.description}
                 onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })}
+                placeholder="Detailed overview of what the tool does..."
                 className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none"
               />
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="block text-xs font-medium text-ink mb-1">Link URL</label>
+                <label className="block text-xs font-medium text-ink mb-1">Target URL or Anchor</label>
                 <input
                   type="text"
                   required
-                  placeholder="https://roster.roleflow.site"
                   value={editingProduct.href}
                   onChange={(e) => setEditingProduct({ ...editingProduct, href: e.target.value })}
-                  className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none"
+                  placeholder="https://applyhub.roleflow.site or #notify"
+                  className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none font-mono"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-ink mb-1">Badge Status</label>
+                <label className="block text-xs font-medium text-ink mb-1">Status Badge</label>
                 <select
                   value={editingProduct.badge}
-                  onChange={(e) => setEditingProduct({ ...editingProduct, badge: e.target.value as any })}
+                  onChange={(e) => setEditingProduct({ ...editingProduct, badge: e.target.value as "Live" | "Coming soon" })}
                   className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none"
                 >
                   <option value="Live">Live</option>
                   <option value="Coming soon">Coming soon</option>
                 </select>
               </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-ink mb-1">Solid Logo Asset URL</label>
+              <input
+                type="text"
+                value={editingProduct.logoSolid}
+                onChange={(e) => setEditingProduct({ ...editingProduct, logoSolid: e.target.value })}
+                className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none font-mono"
+              />
             </div>
 
             <div>
@@ -486,39 +565,57 @@ export function ParentSiteAdminManager() {
               <h3 className="text-sm font-bold text-ink">Blog &amp; Announcements</h3>
             </div>
             <p className="mt-1 text-xs text-muted">
-              Publish news, architecture deep-dives, and community notes directly to <code className="font-mono">/blog</code>.
+              Publish news, release notes, and engineering stories. Automatically email your subscribers.
             </p>
           </div>
 
           <button
             type="button"
-            onClick={() => setShowBlogModal(true)}
+            onClick={() => {
+              setSelectedTemplate("");
+              setShowBlogModal(true);
+            }}
             className="flex items-center gap-1.5 rounded-xl bg-purple-600 px-3.5 py-2 text-xs font-bold text-white shadow-card shadow-purple-600/30 transition-colors hover:bg-purple-500"
           >
             <Plus className="h-3.5 w-3.5" /> New Post
           </button>
         </div>
 
-        {/* Existing Posts */}
+        {/* Existing Blog Posts List */}
         <div className="mt-5 space-y-3">
           {blogPosts.map((post) => (
             <div
               key={post.slug}
-              className="flex flex-col gap-3 rounded-xl border border-line bg-paper p-4 sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-4 rounded-xl border border-line bg-paper p-4 sm:flex-row sm:items-center sm:justify-between"
             >
-              <div>
-                <p className="text-sm font-bold text-ink">{post.title}</p>
-                <p className="text-xs text-muted">{post.excerpt}</p>
-                <div className="mt-1 flex items-center gap-2 font-mono text-[10px] text-faint">
-                  <span>Slug: /blog/{post.slug}</span>
-                  <span>&bull;</span>
-                  <span>{post.readTime}</span>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-sm text-ink">{post.title}</span>
+                  <span className="rounded-full bg-surface border border-line px-2 py-0.5 text-[10px] text-faint font-mono">
+                    /{post.slug}
+                  </span>
+                </div>
+                <p className="text-xs text-muted max-w-xl">{post.excerpt}</p>
+                <div className="flex items-center gap-3 text-[11px] text-faint">
+                  <span>By {post.author}</span>
                   <span>&bull;</span>
                   <span>{post.date}</span>
+                  <span>&bull;</span>
+                  <span>{post.readTime}</span>
                 </div>
               </div>
 
               <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  disabled={blasting === post.slug}
+                  onClick={() => handleSendEmailBlast(post.slug)}
+                  className="rounded-xl border border-line bg-surface hover:bg-purple-600/10 hover:text-accent hover:border-purple-500/30 px-3 py-1.5 text-xs text-ink transition-all flex items-center gap-1.5 disabled:opacity-50"
+                  title="Broadcast email update to subscribers"
+                >
+                  <Mail className="h-3.5 w-3.5 text-accent" />
+                  <span>{blasting === post.slug ? "Sending..." : "Email Blast"}</span>
+                </button>
                 <a
                   href={`/blog/${post.slug}`}
                   target="_blank"
@@ -541,14 +638,57 @@ export function ParentSiteAdminManager() {
         </div>
       </section>
 
-      {/* New Blog Post Modal */}
+      {/* New Blog Post Modal with Templates & Email Blast */}
       {showBlogModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
           <form
             onSubmit={handleSaveBlogPost}
-            className="w-full max-w-xl rounded-2xl border border-line bg-surface p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
+            className="w-full max-w-2xl rounded-2xl border border-line bg-surface p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto"
           >
-            <h4 className="text-base font-bold text-ink">Publish New Blog Post</h4>
+            <div className="flex items-center justify-between border-b border-line pb-3">
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-accent" />
+                <h4 className="text-base font-bold text-ink">Publish New Blog Post</h4>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowBlogModal(false)}
+                className="text-muted hover:text-ink text-sm font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Template Selector */}
+            <div className="p-3.5 rounded-xl bg-paper border border-line space-y-2">
+              <div className="flex items-center gap-2 text-xs font-bold text-ink">
+                <FileText className="w-4 h-4 text-accent" />
+                <span>Choose a Pre-Engineered Template (Optional)</span>
+              </div>
+              <p className="text-[11px] text-muted leading-relaxed">
+                Speed up writing by starting from an expertly structured product release, engineering post, or community update.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                {BLOG_TEMPLATES.map((tpl) => (
+                  <button
+                    key={tpl.id}
+                    type="button"
+                    onClick={() => handleApplyTemplate(tpl.id)}
+                    className={`text-left p-2.5 rounded-xl border text-xs transition-all ${
+                      selectedTemplate === tpl.id
+                        ? "bg-purple-600/20 border-purple-500/50 text-ink shadow-sm"
+                        : "bg-surface border-line hover:border-line-strong text-ink-2"
+                    }`}
+                  >
+                    <div className="font-semibold text-ink flex items-center justify-between">
+                      <span>{tpl.name}</span>
+                      {selectedTemplate === tpl.id && <Check className="w-3.5 h-3.5 text-accent" />}
+                    </div>
+                    <p className="text-[11px] text-muted mt-0.5 line-clamp-1">{tpl.tagline}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
 
             <div>
               <label className="block text-xs font-medium text-ink mb-1">Post Title</label>
@@ -594,27 +734,60 @@ export function ParentSiteAdminManager() {
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-medium text-ink mb-1">Short Excerpt</label>
-              <input
-                type="text"
-                placeholder="Brief summary displayed on social cards and post lists..."
-                value={blogForm.excerpt}
-                onChange={(e) => setBlogForm({ ...blogForm, excerpt: e.target.value })}
-                className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none"
-              />
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label className="block text-xs font-medium text-ink mb-1">Short Excerpt</label>
+                <input
+                  type="text"
+                  placeholder="Brief summary displayed on social cards and post lists..."
+                  value={blogForm.excerpt}
+                  onChange={(e) => setBlogForm({ ...blogForm, excerpt: e.target.value })}
+                  className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-ink mb-1">Estimated Read Time</label>
+                <input
+                  type="text"
+                  placeholder="3 min read"
+                  value={blogForm.readTime}
+                  onChange={(e) => setBlogForm({ ...blogForm, readTime: e.target.value })}
+                  className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none font-mono"
+                />
+              </div>
             </div>
 
             <div>
               <label className="block text-xs font-medium text-ink mb-1">Article Content (Separate paragraphs with double Enter)</label>
               <textarea
                 required
-                rows={8}
+                rows={9}
                 placeholder="Write your article paragraphs here..."
                 value={blogForm.content}
                 onChange={(e) => setBlogForm({ ...blogForm, content: e.target.value })}
-                className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none"
+                className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none font-sans leading-relaxed"
               />
+            </div>
+
+            {/* Email Blast Toggle */}
+            <div className="p-3.5 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-start gap-3">
+              <input
+                id="sendEmailBlastCheckbox"
+                type="checkbox"
+                checked={sendEmailBlast}
+                onChange={(e) => setSendEmailBlast(e.target.checked)}
+                className="mt-0.5 rounded border-line text-purple-600 focus:ring-purple-500"
+              />
+              <label htmlFor="sendEmailBlastCheckbox" className="text-xs text-ink cursor-pointer select-none">
+                <span className="font-bold flex items-center gap-1.5 text-accent">
+                  <Mail className="w-3.5 h-3.5" />
+                  Send blog post email blast to newsletter subscribers
+                </span>
+                <p className="text-[11px] text-muted mt-0.5">
+                  Automatically delivers a branded email dispatch to all opted-in subscribers with an instant one-click link to read the full post.
+                </p>
+              </label>
             </div>
 
             <div className="flex justify-end gap-2 pt-3 border-t border-line">
@@ -628,9 +801,10 @@ export function ParentSiteAdminManager() {
               <button
                 type="submit"
                 disabled={saving}
-                className="rounded-xl bg-purple-600 px-4 py-2 text-xs font-bold text-white shadow-card shadow-purple-600/30 hover:bg-purple-500 disabled:opacity-50"
+                className="rounded-xl bg-purple-600 px-4 py-2 text-xs font-bold text-white shadow-card shadow-purple-600/30 hover:bg-purple-500 disabled:opacity-50 flex items-center gap-1.5"
               >
-                {saving ? "Publishing..." : "Publish Article"}
+                <Send className="w-3.5 h-3.5" />
+                <span>{saving ? "Publishing..." : sendEmailBlast ? "Publish & Send Email" : "Publish Article"}</span>
               </button>
             </div>
           </form>
