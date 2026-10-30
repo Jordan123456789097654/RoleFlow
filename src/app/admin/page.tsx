@@ -544,19 +544,6 @@ export default function SiteAdminPage() {
     }
   };
 
-  const handleRandomizeKey = () => {
-    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-    const pick = (len: number) => Array.from({ length: len }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
-    const prefix = `RF-${newKeyTier.toUpperCase().slice(0, 4)}`;
-    setNewKeyCustom(`${prefix}-${pick(4)}-${pick(4)}-${pick(4)}`);
-  };
-
-  const handleCopyKey = (key: string, id: string) => {
-    navigator.clipboard.writeText(key);
-    setCopiedKeyId(id);
-    setTimeout(() => setCopiedKeyId(null), 2000);
-  };
-
   if (loading) {
     return (
       <div className="max-w-6xl mx-auto px-4 py-24 text-center">
