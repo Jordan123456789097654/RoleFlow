@@ -5,24 +5,17 @@ import { prisma } from "@/lib/prisma";
 import { getDynamicProducts, getDynamicCountdown } from "@/lib/parent-site";
 import { ParentNotifyForm } from "@/components/parent/ParentForms";
 import { ParentCountdownBanner } from "@/components/parent/ParentCountdownBanner";
-import { CommunityShowcaseCarousel, FeaturedStudio } from "@/components/parent/CommunityShowcaseCarousel";
 import { ArrowRight, Search, ShieldCheck, Zap, Users, Sparkles, Layers, CheckCircle2, ChevronRight } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
 export default async function ParentHomePage() {
-  const [communityCount, openCount, appCount, dynamicProducts, dynamicCountdown, topCommunities] = await Promise.all([
+  const [communityCount, openCount, appCount, dynamicProducts, dynamicCountdown] = await Promise.all([
     prisma.guild.count().catch(() => 0),
     prisma.position.count({ where: { isOpen: true } }).catch(() => 0),
     prisma.application.count().catch(() => 0),
     getDynamicProducts(),
     getDynamicCountdown(),
-    prisma.guild.findMany({
-      where: { isPaused: false },
-      select: { id: true, name: true, icon: true, vanitySlug: true, description: true, verifiedBadges: true },
-      take: 10,
-      orderBy: { memberCount: "desc" },
-    }).catch(() => [] as FeaturedStudio[]),
   ]);
 
   return (
@@ -119,9 +112,6 @@ export default async function ParentHomePage() {
           </Link>
         </div>
       </section>
-
-      {/* Community & Studio Showcase Carousel (#3) */}
-      <CommunityShowcaseCarousel communities={topCommunities} />
 
       {/* Product Suite Showcase with Enlarged Logos */}
       <section className="relative border-t border-white/10 bg-[#07080c] py-20">
