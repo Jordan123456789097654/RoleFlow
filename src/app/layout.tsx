@@ -14,6 +14,7 @@ import { ChangelogBroadcastModal } from "@/components/ChangelogBroadcastModal";
 import { BetaBanner } from "@/components/BetaBanner";
 import { ModerationPunishmentBanner } from "@/components/ModerationPunishmentBanner";
 import { MaintenanceGuard } from "@/components/MaintenanceGuard";
+import { CountdownLockdownGuard } from "@/components/CountdownLockdownGuard";
 import { DomainHeader, DomainFooter, type DomainBrand } from "@/components/domain/DomainChrome";
 import { getCurrentUser } from "@/lib/auth";
 import { isPlatformHost, guildForCustomDomain, normalizeDomain } from "@/lib/custom-domain";
@@ -100,9 +101,10 @@ export default async function RootLayout({
   const isApplyHub = isApplicationsHost(host);
   const adminEmailRequired = Boolean(user && requiresCompanyEmail(user) && !user.companyEmailVerified);
   const robloxLinkRequired = Boolean(user) && !user?.robloxId && (await isFeatureEnabled("roblox_linking"));
+  const isStaffOrAdmin = Boolean(user?.isSupportStaff || user?.isSiteAdmin);
 
   return (
-    <html lang="en" className={`light ${sans.variable} ${display.variable} ${mono.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`dark ${sans.variable} ${display.variable} ${mono.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
@@ -112,36 +114,41 @@ export default async function RootLayout({
           style={brand?.portalAccentColor ? ({ "--accent": brand.portalAccentColor } as React.CSSProperties) : undefined}
         >
           <a href="#main" className="skip-link">Skip to content</a>
-          <MaintenanceGuard isStaffOrAdmin={Boolean(user?.isSupportStaff || user?.isSiteAdmin)}>
-            <ModerationPunishmentBanner isBanned={user?.isBanned} />
-            {brand && <DomainHeader brand={brand} user={user ? { username: user.username } : null} />}
-            <main id="main" className="flex-1"><RobloxLinkGate required={robloxLinkRequired}><AdminEmailGate required={adminEmailRequired}>{children}</AdminEmailGate></RobloxLinkGate></main>
-            <DomainFooter site={readSiteConfig(brand?.siteConfig)} />
-          </MaintenanceGuard>
+          <CountdownLockdownGuard isStaffOrAdmin={isStaffOrAdmin}>
+            <MaintenanceGuard isStaffOrAdmin={isStaffOrAdmin}>
+              <ModerationPunishmentBanner isBanned={user?.isBanned} />
+              {brand && <DomainHeader brand={brand} user={user ? { username: user.username } : null} />}
+              <main id="main" className="flex-1"><RobloxLinkGate required={robloxLinkRequired}><AdminEmailGate required={adminEmailRequired}>{children}</AdminEmailGate></RobloxLinkGate></main>
+              <DomainFooter site={readSiteConfig(brand?.siteConfig)} />
+            </MaintenanceGuard>
+          </CountdownLockdownGuard>
         </body>
       ) : isApplyHub ? (
         <body className="flex min-h-screen flex-col bg-paper text-ink antialiased">
           <a href="#main" className="skip-link">Skip to content</a>
-
-          <MaintenanceGuard isStaffOrAdmin={Boolean(user?.isSupportStaff || user?.isSiteAdmin)}>
-            <ModerationPunishmentBanner isBanned={user?.isBanned} />
-            <BetaBanner />
-            <ChangelogBroadcastModal />
-            {user?.supportSession && user.supportSession.expiresAt > 0 && (
-              <SupportSessionBanner username={user.username} expiresAt={user.supportSession.expiresAt} ticketRef={user.supportSession.ticketRef} />
-            )}
-            <Navbar user={user} />
-            <main id="main" className="flex-1"><RobloxLinkGate required={robloxLinkRequired}><AdminEmailGate required={adminEmailRequired}>{children}</AdminEmailGate></RobloxLinkGate></main>
-            <Footer />
-          </MaintenanceGuard>
+          <CountdownLockdownGuard isStaffOrAdmin={isStaffOrAdmin}>
+            <MaintenanceGuard isStaffOrAdmin={isStaffOrAdmin}>
+              <ModerationPunishmentBanner isBanned={user?.isBanned} />
+              <BetaBanner />
+              <ChangelogBroadcastModal />
+              {user?.supportSession && user.supportSession.expiresAt > 0 && (
+                <SupportSessionBanner username={user.username} expiresAt={user.supportSession.expiresAt} ticketRef={user.supportSession.ticketRef} />
+              )}
+              <Navbar user={user} />
+              <main id="main" className="flex-1"><RobloxLinkGate required={robloxLinkRequired}><AdminEmailGate required={adminEmailRequired}>{children}</AdminEmailGate></RobloxLinkGate></main>
+              <Footer />
+            </MaintenanceGuard>
+          </CountdownLockdownGuard>
         </body>
       ) : (
         /* Parent site chrome on roleflow.site and default */
         <body className="flex min-h-screen flex-col bg-[#090a0f] text-slate-100 antialiased selection:bg-violet-600/40">
           <a href="#main" className="skip-link sr-only">Skip to content</a>
-          <ParentHeader />
-          <main id="main" className="flex-1">{children}</main>
-          <ParentFooter />
+          <CountdownLockdownGuard isStaffOrAdmin={isStaffOrAdmin}>
+            <ParentHeader />
+            <main id="main" className="flex-1">{children}</main>
+            <ParentFooter />
+          </CountdownLockdownGuard>
         </body>
       )}
     </html>

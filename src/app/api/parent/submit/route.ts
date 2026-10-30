@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { validateParentSubmission } from "@/lib/parent-submission";
 import { Resend } from "resend";
-import { SUPPORT_EMAIL } from "@/lib/parent-site";
+import { SUPPORT_EMAIL, STAFF_INBOX_EMAIL } from "@/lib/parent-site";
 
 export const dynamic = "force-dynamic";
 
@@ -50,16 +50,18 @@ export async function POST(request: Request) {
       },
     });
 
-    // Send contact notification to support team
+    // Send contact notification to staff team at staff@roleflow.site
     if (kind === "contact" || kind === "idea") {
       const subject = kind === "idea" ? `[RoleFlow Product Suggestion] from ${name || email}` : `[RoleFlow Contact Inquiry] from ${name || email}`;
-      const textBody = `New ${kind} submission received on roleflow.site:\n\nFrom: ${name || "Anonymous"} <${email}>\n\nMessage:\n${message || "(No message)"}\n`;
+      const textBody = `New ${kind} form submission received on roleflow.site:\n\nFrom: ${name || "Anonymous"} <${email}>\n\nMessage:\n${message || "(No message)"}\n`;
+      const recipientEmail = kind === "contact" ? STAFF_INBOX_EMAIL : SUPPORT_EMAIL;
 
       if (resend) {
         try {
           await resend.emails.send({
             from: FROM_EMAIL,
-            to: SUPPORT_EMAIL,
+            to: recipientEmail,
+            replyTo: email,
             subject,
             text: textBody,
           });

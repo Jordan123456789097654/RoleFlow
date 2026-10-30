@@ -35,6 +35,7 @@ export interface BlogPost {
 }
 
 export const SUPPORT_EMAIL = "support@roleflow.site";
+export const STAFF_INBOX_EMAIL = "staff@roleflow.site";
 
 export const DEFAULT_PRODUCTS: Product[] = [
   {
