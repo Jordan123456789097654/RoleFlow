@@ -750,3 +750,17 @@ model ParentBlogPost {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+// One-time "why are you leaving" survey, linked to a goodbye email.
+// Deliberately has NO user reference: the account is deleted, so the answer
+// cannot be traced back to the person who left.
+model DepartureSurvey {
+  id          String    @id // random 32-byte token, base64url; this is the link ID in the email
+  reason      String?
+  comment     String?
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime
+  submittedAt DateTime?
+
+  @@index([expiresAt])
+}

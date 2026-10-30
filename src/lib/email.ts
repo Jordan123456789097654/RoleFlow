@@ -402,6 +402,43 @@ export async function sendSecurityNoticeEmail({
 
 
 /**
+ * Goodbye email sent after an account is deleted. Includes a one-time,
+ * unlinked "why are you leaving" survey link, which is unique to this email.
+ */
+export async function sendAccountDeletedEmail({
+  toEmail,
+  username,
+  surveyId,
+}: {
+  toEmail: string;
+  username: string;
+  surveyId: string;
+}): Promise<EmailResult> {
+  const esc = (v: string) => v.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const surveyUrl = `${APP_URL}/leaving/${encodeURIComponent(surveyId)}`;
+  const subject = "We're sad to see you go";
+  const html = renderEmailShell(
+    subject,
+    `<p>Hi ${esc(username)},</p>` +
+      `<p>We are sad to see you go. Your RoleFlow account and its data have been permanently deleted.</p>` +
+      `<p>If you have a moment, tell us why you left. Your answer helps us decide what to fix and what to build next. It takes less than a minute, and it is not linked to your deleted account.</p>` +
+      `<p style="margin:24px 0"><a href="${surveyUrl}" style="background:#7c3aed;color:#ffffff;padding:12px 20px;border-radius:10px;text-decoration:none;font-weight:600;display:inline-block">Tell us why you're leaving</a></p>` +
+      `<p style="font-size:12px;color:#6b7280">This link works once and expires in 30 days. If you did not delete your account, contact support@roleflow.site right away.</p>`
+  );
+  try {
+    const { data, error } = await resend.emails.send({ from: FROM_EMAIL, to: toEmail, subject, html });
+    if (error) {
+      await logEvent("ERROR", "email", `Goodbye email to ${toEmail} failed: ${error.message}`);
+      return { success: false, error: error.message };
+    }
+    return { success: true, id: data?.id };
+  } catch (err: any) {
+    await logEvent("ERROR", "email", `Goodbye email to ${toEmail} threw: ${err?.message || "send failed"}`);
+    return { success: false, error: err?.message || "send failed" };
+  }
+}
+
+/**
  * 11. Deadline reminder: sent once per position, when it closes within the next 24 hours.
  */
 export async function sendDeadlineReminderEmail({

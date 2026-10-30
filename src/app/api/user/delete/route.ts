@@ -4,6 +4,8 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { verifySessionValue, SESSION_COOKIE_NAME } from "@/lib/session";
+import { createDepartureSurvey } from "@/lib/departure-survey";
+import { sendAccountDeletedEmail } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +38,9 @@ export async function POST(request: Request) {
     );
   }
 
+  // Read the address before the record is gone, so the goodbye email can still be sent.
+  const leavingUser = await prisma.user.findUnique({ where: { id: userId }, select: { username: true, email: true } });
+
   // Purge all records across products in a single database transaction
   await prisma.$transaction([
     // Delete non-cascading user records
@@ -65,6 +70,16 @@ export async function POST(request: Request) {
     // Finally delete user record (cascades applications, reviews, reset tokens, login devices)
     prisma.user.delete({ where: { id: userId } }),
   ]);
+
+  // Goodbye email with a unique survey link. Best effort: a failure here must not undo the deletion.
+  if (leavingUser?.email) {
+    try {
+      const survey = await createDepartureSurvey();
+      await sendAccountDeletedEmail({ toEmail: leavingUser.email, username: leavingUser.username, surveyId: survey.id });
+    } catch {
+      // Already logged inside the email helper; the deletion itself succeeded.
+    }
+  }
 
   const response = NextResponse.json({ success: true, message: "Your account and all associated data have been permanently purged." });
   clearSessionCookie(response);

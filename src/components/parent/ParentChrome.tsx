@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import { ParentMobileNav } from "@/components/parent/ParentMobileNav";
 
 export function ParentHeader() {
   return (
@@ -22,9 +23,10 @@ export function ParentHeader() {
         </nav>
 
         <div className="flex items-center gap-3">
+          <ParentMobileNav />
           <Link
             href="/settings"
-            className="rounded-xl border border-white/15 bg-white/5 px-3.5 py-1.5 text-xs font-semibold text-slate-200 transition-colors hover:bg-white/10 hover:text-white"
+            className="hidden rounded-xl border border-white/15 bg-white/5 px-3.5 py-1.5 text-xs font-semibold text-slate-200 transition-colors hover:bg-white/10 hover:text-white sm:inline-block"
           >
             Account
           </Link>

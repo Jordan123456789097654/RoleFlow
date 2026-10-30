@@ -216,3 +216,80 @@ p { text-wrap: pretty; }
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ───────── Parent site motion (RoleFlow family landing) ───────── */
+@keyframes parentAuroraDrift {
+  0% { transform: translate3d(-50%, 0, 0) scale(1); }
+  50% { transform: translate3d(-46%, 6%, 0) scale(1.06); }
+  100% { transform: translate3d(-50%, 0, 0) scale(1); }
+}
+@keyframes parentMarquee {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+@keyframes parentShimmer {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+@keyframes parentFlipIn {
+  0% { transform: translateY(-40%) rotateX(-70deg); opacity: 0; }
+  100% { transform: translateY(0) rotateX(0deg); opacity: 1; }
+}
+@keyframes parentRingPulse {
+  0% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.45); }
+  70% { box-shadow: 0 0 0 10px rgba(139, 92, 246, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
+}
+@keyframes parentFloat {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -10px, 0); }
+}
+
+.parent-aurora {
+  animation: parentAuroraDrift 16s ease-in-out infinite;
+  will-change: transform;
+}
+.parent-shimmer-text {
+  background-size: 200% auto;
+  animation: parentShimmer 6s linear infinite;
+}
+.parent-marquee {
+  display: flex;
+  width: max-content;
+  animation: parentMarquee 38s linear infinite;
+}
+.parent-marquee:hover { animation-play-state: paused; }
+.parent-flip { display: inline-block; animation: parentFlipIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both; transform-origin: 50% 100%; }
+.parent-ring { animation: parentRingPulse 2.4s ease-out infinite; }
+.parent-float { animation: parentFloat 7s ease-in-out infinite; }
+
+/* Scroll reveal: content stays visible until JavaScript arms it. */
+.parent-reveal-armed {
+  opacity: 0;
+  transform: translate3d(0, 28px, 0);
+  transition: opacity 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.parent-reveal-armed.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.parent-card-sheen { position: relative; overflow: hidden; }
+.parent-card-sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, rgba(221, 214, 254, 0.14) 50%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform 0.9s ease;
+  pointer-events: none;
+}
+.parent-card-sheen:hover::after { transform: translateX(120%); }
+
+@media (prefers-reduced-motion: reduce) {
+  .parent-aurora, .parent-shimmer-text, .parent-marquee, .parent-ring, .parent-float, .parent-flip {
+    animation: none !important;
+  }
+  .parent-reveal-armed { opacity: 1; transform: none; transition: none; }
+  .parent-card-sheen::after { display: none; }
+}
