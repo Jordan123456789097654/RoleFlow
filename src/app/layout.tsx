@@ -5,6 +5,7 @@ import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import { Fraunces, Instrument_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import SupportSessionBanner from "@/components/SupportSessionBanner";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { isFeatureEnabled } from "@/lib/feature-flags";
@@ -92,6 +93,7 @@ export default async function RootLayout({
 }) {
   const user = await getCurrentUser();
   const host = requestHost();
+  const locked = headers().get("x-site-locked") === "1";
   const brand = await domainBrand(host);
   const onOwnDomain = !isPlatformHost(host);
   const adminEmailRequired = Boolean(user && requiresCompanyEmail(user) && !user.companyEmailVerified);
@@ -102,7 +104,11 @@ export default async function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
-      {onOwnDomain ? (
+      {locked ? (
+        <body className="flex min-h-screen flex-col bg-paper text-ink antialiased">
+          <main id="main" className="flex-1">{children}</main>
+        </body>
+      ) : onOwnDomain ? (
         <body
           className="flex min-h-screen flex-col bg-paper text-ink antialiased"
           style={brand?.portalAccentColor ? ({ "--accent": brand.portalAccentColor } as React.CSSProperties) : undefined}
@@ -123,6 +129,9 @@ export default async function RootLayout({
             <ModerationPunishmentBanner isBanned={user?.isBanned} />
             <BetaBanner />
             <ChangelogBroadcastModal />
+            {user?.supportSession && user.supportSession.expiresAt > 0 && (
+              <SupportSessionBanner username={user.username} expiresAt={user.supportSession.expiresAt} ticketRef={user.supportSession.ticketRef} />
+            )}
             <Navbar user={user} />
             <main id="main" className="flex-1"><RobloxLinkGate required={robloxLinkRequired}><AdminEmailGate required={adminEmailRequired}>{children}</AdminEmailGate></RobloxLinkGate></main>
             <Footer />

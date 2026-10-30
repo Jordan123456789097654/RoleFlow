@@ -1,5 +1,6 @@
 import { isFounderId } from "@/lib/roles";
-import { verifySessionValue } from "./session";
+import { parseSessionValue, verifySessionValue, SESSION_COOKIE_NAME } from "./session";
+import { SUPPORT_RETURN_COOKIE, SUPPORT_TICKET_COOKIE } from "./session-cookie";
 import { cookies } from "next/headers";
 import { prisma } from "./prisma";
 
@@ -17,6 +18,7 @@ export interface CurrentUser {
   isBanned: boolean;
   companyEmailVerified: boolean;
   hasCommunities: boolean;
+  supportSession: { expiresAt: number; ticketRef: string | null } | null;
 }
 
 /**
@@ -56,6 +58,12 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   const hasCommunities = guildCount > 0 || isSiteAdmin;
 
   return {
+    supportSession: cookieStore.get(SUPPORT_RETURN_COOKIE)?.value
+      ? {
+          expiresAt: (parseSessionValue(cookieStore.get(SESSION_COOKIE_NAME)?.value)?.expiresAtSec ?? 0) * 1000,
+          ticketRef: cookieStore.get(SUPPORT_TICKET_COOKIE)?.value ?? null,
+        }
+      : null,
     id: user.id,
     username: user.username,
     avatar: user.avatar,

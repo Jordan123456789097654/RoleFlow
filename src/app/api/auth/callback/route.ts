@@ -3,7 +3,7 @@ import { notifyNewDevice } from "@/lib/second-factor";
 import { validCustomReturn } from "@/lib/custom-domain";
 import { signBridgeToken } from "@/lib/custom-domain-auth";
 import { signSessionValue } from "@/lib/session";
-import { setSessionCookie, oauthRedirectUri } from "@/lib/session-cookie";
+import { setSessionCookie, oauthRedirectUri, clearSupportReturnCookie, clearSupportTicketCookie } from "@/lib/session-cookie";
 import { timingSafeEqual } from "crypto";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
@@ -115,6 +115,8 @@ export async function GET(request: Request) {
     setSessionCookie(response, signSessionValue(user.id, user.sessionVersion));
     response.cookies.set("rf_oauth_state", "", { path: "/", maxAge: 0 });
     response.cookies.set("rf_oauth_return", "", { path: "/", maxAge: 0 });
+    clearSupportReturnCookie(response);
+    clearSupportTicketCookie(response);
 
     return response;
   } catch (err) {

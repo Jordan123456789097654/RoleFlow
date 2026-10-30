@@ -1,8 +1,8 @@
 import { isFounderId } from "@/lib/roles";
 import { sendSecurityNoticeEmail } from "@/lib/email";
 import { recordAudit } from "@/lib/audit";
-import { signSessionValue } from "@/lib/session";
-import { setSessionCookie } from "@/lib/session-cookie";
+import { signSessionValue, SESSION_COOKIE_NAME } from "@/lib/session";
+import { setSessionCookie, setSupportReturnCookie, setSupportTicketCookie, SUPPORT_RETURN_COOKIE } from "@/lib/session-cookie";
 import { verifySessionValue } from "@/lib/session";
 import { findActiveBan } from "@/lib/bans";
 import { NextResponse } from "next/server";
@@ -33,10 +33,15 @@ export async function POST(request: Request) {
       );
     }
 
-    const { code } = await request.json();
+    const { code, ticketRef } = await request.json();
 
     if (!code || typeof code !== "string" || !code.trim()) {
       return NextResponse.json({ error: "Please provide a valid support access code." }, { status: 400 });
+    }
+    // Every session must be tied to a ticket, so it can be traced back to a request.
+    const ticket = typeof ticketRef === "string" ? ticketRef.trim() : "";
+    if (!/^[A-Za-z0-9#_\- ]{3,60}$/.test(ticket)) {
+      return NextResponse.json({ error: "Enter the ticket reference this session is for (3 to 60 letters, numbers, #, - or _)." }, { status: 400 });
     }
 
     const cleanCode = code.trim().toUpperCase();
@@ -84,13 +89,22 @@ export async function POST(request: Request) {
         message: "A RoleFlow support staff member opened a temporary diagnostic session on your account. If you didn't request support, contact us.",
       }).catch((e) => console.error("Support notice email failed:", e));
     }
-    await recordAudit({ actorId: callerId, action: "SUPPORT_SESSION_START", targetId: targetUser.id });
+    await recordAudit({
+      actorId: callerId,
+      action: "SUPPORT_SESSION_START",
+      targetId: targetUser.id,
+      details: JSON.stringify({ ticketRef: ticket }),
+    });
 
     // Calculate remaining seconds
     const remainingMs = targetUser.supportCodeExpiresAt
       ? targetUser.supportCodeExpiresAt.getTime() - now.getTime()
       : 600000;
     const remainingSeconds = Math.max(Math.floor(remainingMs / 1000), 60);
+
+    // Keep the staff member's own session so End session can restore it. Only the first one is kept.
+    const staffSession = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+    const alreadyStashed = cookieStore.get(SUPPORT_RETURN_COOKIE)?.value;
 
     // Create session response logging support staff in as the target member
     const response = NextResponse.json({
@@ -105,7 +119,11 @@ export async function POST(request: Request) {
     });
 
     // Set cookie valid for the remainder of the 10-minute code
-    setSessionCookie(response, signSessionValue(targetUser.id, targetUser.sessionVersion), remainingSeconds);
+    // The expiry is part of the signed value, so the session ends on time even if the cookie is copied.
+    const expiresAtSec = Math.floor(Date.now() / 1000) + remainingSeconds;
+    setSessionCookie(response, signSessionValue(targetUser.id, targetUser.sessionVersion, expiresAtSec), remainingSeconds);
+    if (staffSession && !alreadyStashed) setSupportReturnCookie(response, staffSession);
+    setSupportTicketCookie(response, ticket);
 
     return response;
   } catch (err: any) {

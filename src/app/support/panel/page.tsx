@@ -35,6 +35,7 @@ export default function SupportStaffPanelPage() {
   const [unauthorized, setUnauthorized] = useState(false);
   const [activeSessions, setActiveSessions] = useState<ActiveSessionUser[]>([]);
   const [codeQuery, setCodeQuery] = useState("");
+  const [ticketRef, setTicketRef] = useState("");
   const [loggingIn, setLoggingIn] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
@@ -167,6 +168,7 @@ export default function SupportStaffPanelPage() {
 
   const handleStartSession = async (codeToUse: string) => {
     if (!codeToUse.trim()) return;
+    if (!ticketRef.trim()) return setLoginError("Enter the ticket reference first.");
     setLoggingIn(true);
     setLoginError(null);
 
@@ -174,7 +176,7 @@ export default function SupportStaffPanelPage() {
       const res = await fetch("/api/support/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: codeToUse.trim() }),
+        body: JSON.stringify({ code: codeToUse.trim(), ticketRef: ticketRef.trim() }),
       });
 
       const data = await res.json();
@@ -294,6 +296,18 @@ export default function SupportStaffPanelPage() {
           Paste the temporary single-use code provided by the community lead or member in your Discord ticket.
         </p>
 
+        <div className="grid gap-3 sm:grid-cols-[1fr_2fr] pt-2">
+          <input
+            type="text"
+            placeholder="Ticket reference, e.g. #1042"
+            value={ticketRef}
+            onChange={(e) => setTicketRef(e.target.value)}
+            maxLength={60}
+            className="w-full px-4 py-3 rounded-xl bg-surface border border-line-strong text-sm text-ink placeholder-faint focus:outline-none focus:border-accent"
+          />
+          <p className="text-[11px] text-muted self-center">Required. Saved with the session in the audit log, so every session traces back to a request.</p>
+        </div>
+
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -315,9 +329,10 @@ export default function SupportStaffPanelPage() {
             disabled={loggingIn || !codeQuery.trim()}
             className="px-6 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold transition-all shadow-card shrink-0 disabled:bg-sunk disabled:text-faint disabled:border disabled:border-line disabled:shadow-none disabled:cursor-not-allowed"
           >
-            {loggingIn ? "Connecting..." : "Initiate Diagnostic Session"}
+            {loggingIn ? "Connecting..." : "Log in as member"}
           </button>
         </form>
+
 
         {loginError && (
           <p className="text-xs text-danger font-medium flex items-center gap-1.5 pt-1">

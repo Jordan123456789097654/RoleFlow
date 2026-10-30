@@ -17,6 +17,7 @@ interface NavbarProps {
     isSupportStaff?: boolean;
     siteRole?: string;
     hasCommunities?: boolean;
+    supportSession?: boolean;
   } | null;
 }
 
@@ -54,6 +55,17 @@ export function Navbar({ user }: NavbarProps) {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [router]);
+
+  /** Ends a support diagnostic session and returns the staff member to their own account (or signs out). */
+  async function endSupportSession() {
+    setProfileOpen(false);
+    setMobileMenuOpen(false);
+    try {
+      await fetch("/api/support/end-session", { method: "POST", credentials: "same-origin" });
+    } finally {
+      window.location.assign("/support/panel");
+    }
+  }
 
   /** Clears the session on the server, then reloads the public home page so no signed-in state remains. */
   async function logOut() {
@@ -186,6 +198,16 @@ export function Navbar({ user }: NavbarProps) {
                   <div className="py-1 text-[14px]">
                     <MenuLink href="/settings">Account settings</MenuLink>
                     <MenuLink href="/my-applications">My applications</MenuLink>
+                    {user.supportSession && (
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={endSupportSession}
+                        className="w-full rounded-sm px-3 py-2 text-left font-semibold text-ink transition-colors hover:bg-sunk"
+                      >
+                        End support session
+                      </button>
+                    )}
                     {user.hasCommunities && <MenuLink href="/dashboard">Community dashboard</MenuLink>}
 
                     {isStaff && (

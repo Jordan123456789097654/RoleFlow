@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { appOrigin, clearSessionCookie } from "@/lib/session-cookie";
+import { appOrigin, clearSessionCookie, clearSupportReturnCookie, clearSupportTicketCookie } from "@/lib/session-cookie";
 
 export const dynamic = "force-dynamic";
 
@@ -7,6 +7,8 @@ export const dynamic = "force-dynamic";
 function logout() {
   const response = NextResponse.redirect(new URL("/", appOrigin()), { status: 303 });
   clearSessionCookie(response);
+  clearSupportReturnCookie(response);
+  clearSupportTicketCookie(response);
   return response;
 }
 

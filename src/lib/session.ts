@@ -16,17 +16,18 @@ function hmac(payload: string, secret: string): string {
  * The sessionVersion must match the user's current value in the database,
  * so bumping it (password reset, ban) revokes every existing session.
  */
-export function signSessionValue(userId: string, sessionVersion: number): string {
+export function signSessionValue(userId: string, sessionVersion: number, expiresAtSec?: number): string {
   const secret = getSecret();
   if (!secret) {
     throw new Error("APP_SECRET must be set (at least 16 characters) to create sessions.");
   }
-  const payload = `${userId}.${sessionVersion}`;
+  // Support sessions carry an expiry inside the signed value, so a copied cookie stops working on time.
+  const payload = expiresAtSec ? `${userId}.${sessionVersion}.${expiresAtSec}` : `${userId}.${sessionVersion}`;
   return `${payload}.${hmac(payload, secret)}`;
 }
 
 /** Checks the signature only. Does not confirm the session is still valid. */
-export function parseSessionValue(raw: string | undefined | null): { userId: string; sessionVersion: number } | null {
+export function parseSessionValue(raw: string | undefined | null): { userId: string; sessionVersion: number; expiresAtSec?: number } | null {
   const secret = getSecret();
   if (!raw || !secret) return null;
 
@@ -40,12 +41,18 @@ export function parseSessionValue(raw: string | undefined | null): { userId: str
   const b = Buffer.from(expected);
   if (a.length !== b.length || !timingSafeEqual(a, b)) return null;
 
-  const versionDot = payload.lastIndexOf(".");
-  if (versionDot <= 0) return null;
-  const userId = payload.slice(0, versionDot);
-  const sessionVersion = Number(payload.slice(versionDot + 1));
+  const parts = payload.split(".");
+  if (parts.length !== 2 && parts.length !== 3) return null;
+  const userId = parts[0];
+  if (!userId) return null;
+  const sessionVersion = Number(parts[1]);
   if (!Number.isInteger(sessionVersion)) return null;
 
+  if (parts.length === 3) {
+    const expiresAtSec = Number(parts[2]);
+    if (!Number.isInteger(expiresAtSec) || Date.now() >= expiresAtSec * 1000) return null;
+    return { userId, sessionVersion, expiresAtSec };
+  }
   return { userId, sessionVersion };
 }
 
