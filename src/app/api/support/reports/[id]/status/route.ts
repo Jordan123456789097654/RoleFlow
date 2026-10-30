@@ -8,7 +8,7 @@ import { logReportEvent } from "@/lib/report-webhook";
 export const dynamic = "force-dynamic";
 
 /** Ticket handling status. Separate from the verification decision (verify, reject, needs changes). */
-export const TICKET_STATUSES: Record<string, string> = {
+const TICKET_STATUSES: Record<string, string> = {
   OPEN: "Open",
   IN_PROGRESS: "In progress",
   WAITING_ON_USER: "Waiting on user",
