@@ -1866,16 +1866,30 @@ export default function SiteAdminPage() {
                         </td>
 
                         <td className="py-3 px-4">
-                          <select
-                            value={item.status}
-                            onChange={(e) => handleUpdateFeedbackStatus(item.id, e.target.value)}
-                            className="bg-sunk border border-line rounded-lg px-2 py-1 text-xs text-ink"
-                          >
-                            <option value="OPEN">OPEN</option>
-                            <option value="UNDER_REVIEW">UNDER REVIEW</option>
-                            <option value="RESOLVED">RESOLVED</option>
-                            <option value="DISMISSED">DISMISSED</option>
-                          </select>
+                          <div className="flex flex-wrap gap-1.5">
+                            {[
+                              { value: "OPEN", label: "Open", active: "bg-sunk text-ink border-line" },
+                              { value: "UNDER_REVIEW", label: "Under review", active: "bg-amber-500 text-white border-amber-500" },
+                              { value: "RESOLVED", label: "Approve", active: "bg-emerald-600 text-white border-emerald-600" },
+                              { value: "DISMISSED", label: "Deny", active: "bg-rose-600 text-white border-rose-600" },
+                            ].map((opt) => {
+                              const isActive = item.status === opt.value;
+                              return (
+                                <button
+                                  key={opt.value}
+                                  type="button"
+                                  aria-pressed={isActive}
+                                  disabled={isActive}
+                                  onClick={() => handleUpdateFeedbackStatus(item.id, opt.value)}
+                                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all disabled:cursor-default ${
+                                    isActive ? opt.active : "bg-surface text-ink-2 border-line hover:bg-sunk"
+                                  }`}
+                                >
+                                  {opt.label}
+                                </button>
+                              );
+                            })}
+                          </div>
                         </td>
 
                         <td className="py-3 px-4 text-right">
