@@ -41,6 +41,8 @@ const EXACT: Record<string, Rule> = {
   "/api/licenses/redeem": { max: 10, windowMs: 15 * 60_000 },
   "/api/user/support/generate": { max: 10, windowMs: 60 * 60_000 },
   "/api/appeals": { max: 5, windowMs: 60 * 60_000 },
+  "/api/founder/bulk-email": { max: 60, windowMs: 15 * 60_000 },
+  "/api/unsubscribe": { max: 30, windowMs: 15 * 60_000 },
 };
 
 // Pattern limits for routes with dynamic segments. GET is limited too where the route calls a third party.

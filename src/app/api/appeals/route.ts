@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { parseSessionValue } from "@/lib/session";
+import { verifyToken } from "@/lib/signed-token";
 
 export const dynamic = "force-dynamic";
 
-/** Resolves the signed appeal token from the email link to a punishment. */
+/** Resolves the signed, expiring appeal token from the email link to a punishment. */
 async function fromToken(token: string | null) {
-  const parsed = parseSessionValue(token);
-  if (!parsed) return null;
-  return prisma.punishment.findUnique({ where: { id: parsed.userId } });
+  const data = verifyToken<{ p: string }>("appeal", token);
+  if (!data || typeof data.p !== "string") return null;
+  return prisma.punishment.findUnique({ where: { id: data.p } });
 }
 
 export async function GET(request: Request) {

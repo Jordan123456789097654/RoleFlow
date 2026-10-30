@@ -48,17 +48,37 @@ export async function GET() {
   return NextResponse.json(rows);
 }
 
-/** Close all open reports on a target: DISMISS (no action) or ACTION (acted on). */
+/**
+ * Decide on every open report for one target.
+ * APPROVE: the report was valid and action was taken (stored as ACTIONED).
+ * DENY:    the report was not valid, no action taken (stored as DISMISSED). A note of 10+ characters is required.
+ */
 export async function POST(request: Request) {
   const me = await requireAdmin();
   if (!me) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const { targetType, targetId, decision } = await request.json();
-  if (!["DISMISS", "ACTION"].includes(decision)) return NextResponse.json({ error: "Invalid decision" }, { status: 400 });
+  const body = await request.json().catch(() => ({}));
+  const targetType = String(body?.targetType ?? "");
+  const targetId = String(body?.targetId ?? "");
+  const rawDecision = String(body?.decision ?? "");
+  const decision = rawDecision === "ACTION" ? "APPROVE" : rawDecision === "DISMISS" ? "DENY" : rawDecision;
+  const note = String(body?.note ?? "").trim().slice(0, 1000);
+
+  if (!["GUILD", "POSITION"].includes(targetType) || !targetId) return NextResponse.json({ error: "Invalid target" }, { status: 400 });
+  if (decision !== "APPROVE" && decision !== "DENY") return NextResponse.json({ error: "Choose approve or deny." }, { status: 400 });
+  if (decision === "DENY" && note.length < 10) {
+    return NextResponse.json({ error: "Explain why the report is denied (at least 10 characters)." }, { status: 400 });
+  }
+
   const result = await prisma.contentReport.updateMany({
-    where: { targetType, targetId: String(targetId), status: "OPEN" },
-    data: { status: decision === "DISMISS" ? "DISMISSED" : "ACTIONED" },
+    where: { targetType, targetId, status: "OPEN" },
+    data: {
+      status: decision === "APPROVE" ? "ACTIONED" : "DISMISSED",
+      reviewedById: me.id,
+      reviewedAt: new Date(),
+      reviewNote: note || null,
+    },
   });
-  await recordAudit({ actorId: me.id, action: "REPORTS_CLOSE", targetId: String(targetId), details: { decision, count: result.count } });
+  await recordAudit({ actorId: me.id, action: decision === "APPROVE" ? "REPORTS_APPROVED" : "REPORTS_DENIED", targetId, details: { targetType, count: result.count, note } });
   return NextResponse.json({ success: true, closed: result.count });
 }

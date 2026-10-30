@@ -4,6 +4,7 @@ import { recordAudit } from "@/lib/audit";
 import { signSessionValue } from "@/lib/session";
 import { setSessionCookie } from "@/lib/session-cookie";
 import { verifySessionValue } from "@/lib/session";
+import { findActiveBan } from "@/lib/bans";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
@@ -55,6 +56,19 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "Invalid or expired support access code. Codes expire after 10 minutes." },
         { status: 401 }
+      );
+    }
+
+    // A banned or suspended account must not get a fresh session, even through a support code.
+    const ban = await findActiveBan({
+      discordId: targetUser.id,
+      robloxId: targetUser.robloxId,
+      robloxUsername: targetUser.robloxUsername,
+    });
+    if (ban || targetUser.isBanned) {
+      return NextResponse.json(
+        { error: "This account is banned or suspended, so a support session cannot be opened." },
+        { status: 403 }
       );
     }
 

@@ -1,39 +1,23 @@
-import { createHmac, timingSafeEqual } from "crypto";
 import { NextResponse } from "next/server";
 import { SESSION_COOKIE_NAME, signSessionValue } from "./session";
+import { signToken, verifyToken } from "./signed-token";
 
 const TTL_SECONDS = 120;
 
-function sign(payload: string): string {
-  const secret = process.env.APP_SECRET || "";
-  return createHmac("sha256", secret).update(`bridge:${payload}`).digest("base64url");
-}
+type BridgeData = { u: string; v: number; h: string };
 
 /** A short-lived token that lets a verified custom domain start a session. Bound to one host and expires quickly. */
 export function signBridgeToken(userId: string, sessionVersion: number, host: string): string {
-  const exp = Math.floor(Date.now() / 1000) + TTL_SECONDS;
-  const payload = `${userId}|${sessionVersion}|${host.toLowerCase()}|${exp}`;
-  return `${payload}|${sign(payload)}`;
+  return signToken("bridge", { u: userId, v: sessionVersion, h: host.toLowerCase() }, TTL_SECONDS);
 }
 
 /** Returns the session value to store on the custom domain, or null if the token is invalid, expired, or for another host. */
 export function redeemBridgeToken(token: string | null, host: string): string | null {
-  if (!token) return null;
-  const cut = token.lastIndexOf("|");
-  if (cut <= 0) return null;
-  const payload = token.slice(0, cut);
-  const sig = token.slice(cut + 1);
-  const expected = sign(payload);
-  const a = Buffer.from(sig);
-  const b = Buffer.from(expected);
-  if (a.length !== b.length || !timingSafeEqual(a, b)) return null;
-
-  const [userId, version, tokenHost, exp] = payload.split("|");
-  if (!userId || tokenHost !== host.toLowerCase()) return null;
-  if (Number(exp) < Math.floor(Date.now() / 1000)) return null;
-  const sessionVersion = Number(version);
-  if (!Number.isInteger(sessionVersion)) return null;
-  return signSessionValue(userId, sessionVersion);
+  const data = verifyToken<BridgeData>("bridge", token);
+  if (!data || typeof data.u !== "string" || !data.u) return null;
+  if (data.h !== host.toLowerCase()) return null;
+  if (!Number.isInteger(data.v)) return null;
+  return signSessionValue(data.u, data.v);
 }
 
 /** Session cookie for a custom domain: no Domain attribute, so the browser keeps it on that host only. */

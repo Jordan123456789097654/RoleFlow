@@ -419,13 +419,16 @@ model Punishment {
 }
 
 model ContentReport {
-  id         String   @id @default(cuid())
-  targetType String   // GUILD or POSITION
-  targetId   String
-  reporterId String
-  reason     String
-  status     String   @default("OPEN") // OPEN, DISMISSED, ACTIONED
-  createdAt  DateTime @default(now())
+  id           String    @id @default(cuid())
+  targetType   String    // GUILD or POSITION
+  targetId     String
+  reporterId   String
+  reason       String
+  status       String    @default("OPEN") // OPEN, DISMISSED (denied), ACTIONED (approved)
+  reviewedById String?
+  reviewedAt   DateTime?
+  reviewNote   String?
+  createdAt    DateTime  @default(now())
 
   @@unique([targetType, targetId, reporterId])
   @@index([targetType, targetId, status])
@@ -595,4 +598,40 @@ model PolicyNoticeLog {
   sentAt   DateTime @default(now())
 
   @@id([noticeId, email])
+}
+
+// Founder bulk email campaigns. Content is rebuilt from templateId + values at send time, so every batch matches the preview.
+model BulkCampaign {
+  id              String             @id @default(cuid())
+  name            String
+  templateId      String
+  values          String             // JSON of the template field values, validated on create
+  status          String             @default("DRAFT") // DRAFT, SENDING, COMPLETE
+  totalSent       Int                @default(0)
+  totalFailed     Int                @default(0)
+  createdById     String
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  sendLockedUntil DateTime?          // short lease so two clicks cannot send the same batch twice
+  sends           BulkCampaignSend[]
+
+  @@index([createdAt])
+}
+
+model BulkCampaignSend {
+  campaignId String
+  campaign   BulkCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  email      String
+  userId     String?
+  resendId   String?
+  sentAt     DateTime     @default(now())
+
+  @@id([campaignId, email])
+}
+
+// Addresses that opted out of bulk email. Checked before every campaign send. Keyed by lowercase address.
+model EmailOptOut {
+  email     String   @id
+  source    String   // UNSUBSCRIBE_LINK, ONE_CLICK, ADMIN
+  createdAt DateTime @default(now())
 }

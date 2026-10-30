@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import RemoveDataPanel from "@/components/settings/RemoveDataPanel";
 import {
   User,
   Shield,
@@ -1095,7 +1094,6 @@ export default function SettingsPage() {
           {activeTab === "danger-zone" && (
             <div className="space-y-6">
               <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-rose-500/30 bg-rose-500/10 space-y-6">
-                <RemoveDataPanel onDone={fetchProfile} />
                 <div>
                   <h3 className="text-lg font-bold text-danger">Danger Zone</h3>
                   <p className="text-xs text-muted mt-1">

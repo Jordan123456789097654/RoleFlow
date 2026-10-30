@@ -136,13 +136,22 @@ function ReportsQueue({ onDone }: { onDone: (ok: boolean, text: string) => void 
   };
   useEffect(() => { load(); }, []);
 
-  const close = async (targetType: string, targetId: string, decision: "DISMISS" | "ACTION") => {
+  const [notes, setNotes] = useState<Record<string, string>>({});
+
+  const close = async (targetType: string, targetId: string, decision: "APPROVE" | "DENY") => {
+    const key = `${targetType}:${targetId}`;
+    const note = notes[key] ?? "";
+    if (decision === "DENY" && note.trim().length < 10) {
+      onDone(false, "Write a reason of at least 10 characters before denying.");
+      return;
+    }
     const res = await fetch("/api/admin/reports", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ targetType, targetId, decision }),
+      body: JSON.stringify({ targetType, targetId, decision, note }),
     });
-    onDone(res.ok, res.ok ? "Reports closed." : "Could not close reports.");
+    const data = await res.json().catch(() => ({}));
+    onDone(res.ok, res.ok ? `Report ${decision === "APPROVE" ? "approved" : "denied"}.` : data.error || "Could not update the report.");
     if (res.ok) load();
   };
 
@@ -166,9 +175,15 @@ function ReportsQueue({ onDone }: { onDone: (ok: boolean, text: string) => void 
               <ul className="mt-2 list-disc pl-4 text-[11px] text-muted">
                 {r.reasons.map((x: string, i: number) => <li key={i}>{x}</li>)}
               </ul>
+              <input
+                className="mt-2 w-full rounded-lg border border-line bg-surface px-2 py-1.5 text-[11px] text-ink"
+                placeholder="Reason (required to deny; shown in the audit log)"
+                value={notes[`${r.targetType}:${r.targetId}`] ?? ""}
+                onChange={(e) => setNotes({ ...notes, [`${r.targetType}:${r.targetId}`]: e.target.value })}
+              />
               <div className="mt-2 flex gap-2">
-                <button onClick={() => close(r.targetType, r.targetId, "ACTION")} className={`${btn} bg-rose-600 hover:bg-rose-500 text-white`}>Mark actioned</button>
-                <button onClick={() => close(r.targetType, r.targetId, "DISMISS")} className={`${btn} bg-surface hover:bg-sunk text-ink-2`}>Dismiss</button>
+                <button onClick={() => close(r.targetType, r.targetId, "APPROVE")} className={`${btn} bg-rose-600 hover:bg-rose-500 text-white`}>Approve</button>
+                <button onClick={() => close(r.targetType, r.targetId, "DENY")} className={`${btn} bg-surface hover:bg-sunk text-ink-2`}>Deny</button>
               </div>
             </li>
           ))}

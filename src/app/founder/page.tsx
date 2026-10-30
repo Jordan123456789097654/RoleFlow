@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import PolicyNoticePanel from "@/components/founder/PolicyNoticePanel";
+import BulkEmailPanel from "@/components/founder/BulkEmailPanel";
+import EmergencyPanel from "@/components/founder/EmergencyPanel";
 
 type Card = { href: string; title: string; desc: string };
 type Section = { title: string; intro: string; cards: Card[] };
@@ -51,6 +53,10 @@ export default function FounderConsolePage() {
       </div>
 
       <PolicyNoticePanel />
+
+      <EmergencyPanel />
+
+      <BulkEmailPanel />
 
       <Link href="/founder/policies" className="glass-panel p-5 rounded-2xl space-y-1 transition-colors hover:border-accent block">
         <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">Policies with custom text</p>

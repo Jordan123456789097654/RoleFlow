@@ -1,7 +1,7 @@
 import { prisma } from "./prisma";
 import { recordAudit } from "./audit";
 import { sendModerationNoticeEmail, sendSecurityNoticeEmail } from "./email";
-import { signSessionValue } from "./session";
+import { signToken } from "./signed-token";
 import { platformOrigin } from "./platform-origin";
 import { syncBanFlag } from "./bans";
 
@@ -48,7 +48,8 @@ export async function punishUser(a: {
       expiresAt: expiresAt ? expiresAt.toISOString() : null,
     });
     if (a.action !== "WARNING") {
-      const token = signSessionValue(punishment.id, 0);
+      // Appeal links are purpose-bound and expire after 30 days.
+      const token = signToken("appeal", { p: punishment.id }, 30 * 86_400);
       await sendSecurityNoticeEmail({
         toEmail: user.email,
         username: user.username,

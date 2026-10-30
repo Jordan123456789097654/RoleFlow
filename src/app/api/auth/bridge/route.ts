@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { redeemBridgeToken, setHostSessionCookie } from "@/lib/custom-domain-auth";
 import { isPlatformHost } from "@/lib/custom-domain";
+import { safeRelativePath } from "@/lib/signed-token";
 
 export const dynamic = "force-dynamic";
 
@@ -16,9 +17,9 @@ export async function GET(request: Request) {
     return new NextResponse("This sign-in link has expired. Please sign in again.", { status: 400 });
   }
 
-  const next = url.searchParams.get("next") || "/";
-  const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/";
-  const res = NextResponse.redirect(new URL(safeNext, `https://${host}`));
+  const origin = `https://${host}`;
+  const safeNext = safeRelativePath(url.searchParams.get("next"), origin, "/");
+  const res = NextResponse.redirect(new URL(safeNext, origin));
   setHostSessionCookie(res, value);
   return res;
 }

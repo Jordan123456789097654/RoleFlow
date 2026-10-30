@@ -57,8 +57,20 @@ export async function verifySessionValue(raw: string | undefined | null): Promis
   const { prisma } = await import("./prisma");
   const user = await prisma.user.findUnique({
     where: { id: parsed.userId },
-    select: { sessionVersion: true },
+    select: { sessionVersion: true, isBanned: true, robloxId: true, robloxUsername: true },
   });
   if (!user || user.sessionVersion !== parsed.sessionVersion) return null;
+
+  // Every request re-checks bans. The isBanned flag is only a fast path: a banned account is confirmed
+  // against the real ban records, so a lapsed timed ban never locks someone out.
+  if (user.isBanned) {
+    const { findActiveBan } = await import("./bans");
+    const ban = await findActiveBan({
+      discordId: parsed.userId,
+      robloxId: user.robloxId,
+      robloxUsername: user.robloxUsername,
+    });
+    if (ban) return null;
+  }
   return parsed.userId;
 }

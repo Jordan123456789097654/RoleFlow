@@ -108,6 +108,50 @@ interface BlacklistEntry {
   createdAt: string;
 }
 
+type NavKey = "metrics" | "health" | "moderation" | "blacklist" | "accounts" | "staff" | "guilds" | "partnerships" | "flags" | "licenses" | "changelog" | "feedback";
+type NavItem = { key: NavKey; label: (c: { communities: number; staff: number; blacklist: number; changelog: number; feedback: number }) => string; founderOnly?: boolean };
+type NavGroup = { label: string; items: NavItem[] };
+
+const ADMIN_NAV: NavGroup[] = [
+  {
+    label: "Overview",
+    items: [
+      { key: "metrics", label: () => "Metrics" },
+      { key: "health", label: () => "System health" },
+    ],
+  },
+  {
+    label: "Safety",
+    items: [
+      { key: "moderation", label: () => "Reports & moderation" },
+      { key: "blacklist", label: (c) => `Global blacklist (${c.blacklist})` },
+    ],
+  },
+  {
+    label: "People",
+    items: [
+      { key: "accounts", label: () => "Accounts" },
+      { key: "staff", label: (c) => `Site staff & admins (${c.staff})` },
+    ],
+  },
+  {
+    label: "Communities",
+    items: [
+      { key: "guilds", label: (c) => `Communities (${c.communities})` },
+      { key: "partnerships", label: () => "Partnerships" },
+      { key: "flags", label: () => "Feature flags", founderOnly: true },
+      { key: "licenses", label: () => "License keys", founderOnly: true },
+    ],
+  },
+  {
+    label: "Platform",
+    items: [
+      { key: "changelog", label: (c) => `Broadcast updates (${c.changelog})` },
+      { key: "feedback", label: (c) => `Feedback & bugs (${c.feedback})` },
+    ],
+  },
+];
+
 export default function SiteAdminPage() {
   const [activeTab, setActiveTab] = useState<"guilds" | "staff" | "licenses" | "changelog" | "blacklist" | "feedback" | "moderation" | "health" | "metrics" | "accounts" | "flags" | "partnerships">("guilds");
   const [whoami, setWhoami] = useState<{ username: string; isFounder: boolean; isAdmin: boolean } | null>(null);
@@ -126,6 +170,13 @@ export default function SiteAdminPage() {
   const [updatingUserId, setUpdatingUserId] = useState<string | null>(null);
   const [badgeInputs, setBadgeInputs] = useState<Record<string, string>>({});
   const [message, setMessage] = useState<string | null>(null);
+  const counts = {
+    communities: guilds.length,
+    staff: users.filter((u) => u.isSupportStaff || u.isSiteAdmin || u.siteRole).length,
+    blacklist: blacklists.length,
+    changelog: changelogs.length,
+    feedback: feedbackList.length,
+  };
 
   // Maintenance Mode state
   const [maintenanceEnabled, setMaintenanceEnabled] = useState(false);
@@ -806,135 +857,42 @@ export default function SiteAdminPage() {
 </>
       )}
 
-      {/* Tabs */}
-      <div className="flex flex-wrap items-center gap-2 sm:gap-3 border-b border-line pb-3">
-        <button
-          onClick={() => setActiveTab("partnerships")}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
-            activeTab === "partnerships" ? "bg-purple-600 text-white shadow-card shadow-purple-600/30" : "text-muted hover:text-white hover:bg-sunk"
-          }`}
-        >
-          <span>Partnerships</span>
-        </button>
-        <button
-          onClick={() => setActiveTab("moderation")}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
-            activeTab === "moderation" ? "bg-purple-600 text-white shadow-card shadow-purple-600/30" : "text-muted hover:text-white hover:bg-sunk"
-          }`}
-        >
-          <span>Moderation</span>
-        </button>
-        <button
-          onClick={() => setActiveTab("accounts")}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
-            activeTab === "accounts" ? "bg-purple-600 text-white shadow-card shadow-purple-600/30" : "text-muted hover:text-white hover:bg-sunk"
-          }`}
-        >
-          <span>Accounts</span>
-        </button>
-        <button
-          onClick={() => setActiveTab("health")}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
-            activeTab === "health" ? "bg-purple-600 text-white shadow-card shadow-purple-600/30" : "text-muted hover:text-white hover:bg-sunk"
-          }`}
-        >
-          <span>Health</span>
-        </button>
-        <button
-          onClick={() => setActiveTab("metrics")}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
-            activeTab === "metrics" ? "bg-purple-600 text-white shadow-card shadow-purple-600/30" : "text-muted hover:text-white hover:bg-sunk"
-          }`}
-        >
-          <span>Metrics</span>
-        </button>
+      {/* Navigation, grouped by job. Tab keys are unchanged, so every panel below still works. */}
+      <nav aria-label="Admin sections" className="space-y-3 border-b border-line pb-4">
+        {ADMIN_NAV.map((group) => {
+          const items = group.items.filter((item) => !item.founderOnly || whoami?.isFounder);
+          if (items.length === 0) return null;
+          return (
+            <div key={group.label} className="flex flex-wrap items-center gap-2">
+              <span className="w-28 shrink-0 text-[10px] font-bold uppercase tracking-wider text-faint">{group.label}</span>
+              {items.map((item) => {
+                const active = activeTab === item.key;
+                const danger = item.key === "blacklist";
+                const cls = active
+                  ? danger ? "bg-rose-600 text-white shadow-card shadow-rose-600/30" : "bg-purple-600 text-white shadow-card shadow-purple-600/30"
+                  : danger ? "text-danger hover:bg-rose-500/10" : "text-muted hover:text-ink hover:bg-sunk";
+                return (
+                  <button
+                    key={item.key}
+                    onClick={() => setActiveTab(item.key)}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${cls}`}
+                  >
+                    <span>{item.label(counts)}</span>
+                  </button>
+                );
+              })}
+            </div>
+          );
+        })}
         {whoami?.isFounder && (
-          <>
-        <button
-            onClick={() => setActiveTab("flags")}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
-              activeTab === "flags" ? "bg-purple-600 text-white shadow-card shadow-purple-600/30" : "text-muted hover:text-white hover:bg-sunk"
-            }`}
-          >
-            <span>Feature Flags</span>
-          </button>
-            </>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="w-28 shrink-0 text-[10px] font-bold uppercase tracking-wider text-faint">Links</span>
+            <a href="/admin/audit" className="px-3 py-1.5 rounded-xl text-xs font-bold text-muted hover:text-ink hover:bg-sunk">Audit log</a>
+            <a href="/support/panel" className="px-3 py-1.5 rounded-xl text-xs font-bold text-muted hover:text-ink hover:bg-sunk">Support panel</a>
+            <a href="/founder" className="px-3 py-1.5 rounded-xl text-xs font-bold text-muted hover:text-ink hover:bg-sunk">Founder console</a>
+          </div>
         )}
-        {whoami?.isFounder && (
-          <a href="/admin/audit" className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold text-muted hover:text-ink hover:bg-sunk">
-            <span>Audit Log</span>
-          </a>
-        )}
-
-        <button
-          onClick={() => setActiveTab("guilds")}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
-            activeTab === "guilds"
-              ? "bg-purple-600 text-white shadow-card shadow-purple-600/30"
-              : "text-muted hover:text-ink hover:bg-sunk"
-          }`}
-        >
-          <BadgeCheck className="w-4 h-4" />
-          <span>Communities ({guilds.length})</span>
-        </button>
-        <button
-          onClick={() => setActiveTab("staff")}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
-            activeTab === "staff"
-              ? "bg-purple-600 text-white shadow-card shadow-purple-600/30"
-              : "text-muted hover:text-ink hover:bg-sunk"
-          }`}
-        >
-          <Users className="w-4 h-4" />
-          <span>Site Staff & Admins ({users.filter((u) => u.isSupportStaff || u.isSiteAdmin || u.siteRole).length})</span>
-        </button>
-        {whoami?.isFounder && (
-        <button
-          onClick={() => setActiveTab("licenses")}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
-            activeTab === "licenses"
-              ? "bg-purple-600 text-white shadow-card shadow-purple-600/30"
-              : "text-muted hover:text-ink hover:bg-sunk"
-          }`}
-        >
-          <Key className="w-4 h-4" />
-          <span>License Keys (Coming Soon)</span>
-        </button>
-        )}
-        <button
-          onClick={() => setActiveTab("changelog")}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
-            activeTab === "changelog"
-              ? "bg-purple-600 text-white shadow-card shadow-purple-600/30"
-              : "text-muted hover:text-ink hover:bg-sunk"
-          }`}
-        >
-          <Megaphone className="w-4 h-4" />
-          <span>Broadcast Update Logs ({changelogs.length})</span>
-        </button>
-        <button
-          onClick={() => setActiveTab("blacklist")}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
-            activeTab === "blacklist"
-              ? "bg-rose-600 text-white shadow-card shadow-rose-600/30"
-              : "text-danger hover:text-danger hover:bg-rose-500/10"
-          }`}
-        >
-          <Ban className="w-4 h-4" />
-          <span>Global Blacklist ({blacklists.length})</span>
-        </button>
-        <button
-          onClick={() => setActiveTab("feedback")}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
-            activeTab === "feedback"
-              ? "bg-purple-600 text-white shadow-card shadow-purple-600/30"
-              : "text-muted hover:text-ink hover:bg-sunk"
-          }`}
-        >
-          <Bug className="w-4 h-4" />
-          <span>Feedback & Bugs ({feedbackList.length})</span>
-        </button>
-      </div>
+      </nav>
 
       {/* TAB 1: COMMUNITIES */}
       {activeTab === "moderation" && <ModerationPanel />}

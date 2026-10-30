@@ -116,13 +116,16 @@ export async function DELETE(request: Request) {
     }
 
     const entry = await prisma.globalBlacklist.findUnique({ where: { id } });
-    if (entry && entry.targetType === "DISCORD_ID") {
-      await syncBanFlag(entry.targetValue);
-    }
+    if (!entry) return NextResponse.json({ error: "Entry not found" }, { status: 404 });
 
     await prisma.globalBlacklist.delete({
       where: { id },
     });
+
+    // Sync AFTER the delete, so the flag reflects the removal. Syncing before it kept users flagged as banned.
+    if (entry.targetType === "DISCORD_ID") {
+      await syncBanFlag(entry.targetValue);
+    }
 
     return NextResponse.json({ success: true });
   } catch (err) {
