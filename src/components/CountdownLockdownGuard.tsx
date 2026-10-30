@@ -20,6 +20,8 @@ export function CountdownLockdownGuard({ isStaffOrAdmin, children }: CountdownLo
   const [unlocked, setUnlocked] = useState<boolean>(false);
   // Staff see the countdown first, then choose to continue past it.
   const [staffBypassed, setStaffBypassed] = useState<boolean>(false);
+  // Staff-only preview of the unlock animation. Never sends launch emails or unlocks the site.
+  const [previewing, setPreviewing] = useState<boolean>(false);
   const pathname = usePathname();
   // The "why are you leaving" survey must stay reachable during the lockdown countdown.
   const alwaysOpen = pathname?.startsWith("/leaving/") ?? false;
@@ -102,6 +104,35 @@ export function CountdownLockdownGuard({ isStaffOrAdmin, children }: CountdownLo
     }, 4600);
   };
 
+  const playAnimationPreview = () => {
+    if (previewing) return;
+    setPreviewing(true);
+    setEarthquakeActive(true);
+    fireConfettiCannons();
+    setTimeout(() => {
+      setEarthquakeActive(false);
+      setVaultOpening(true);
+      fireSuperConfettiBurst();
+    }, 2200);
+    setTimeout(() => {
+      setVaultOpening(false);
+      setEarthquakeActive(false);
+      setPreviewing(false);
+    }, 4600);
+  };
+
+  const unlockLabel = targetTime
+    ? new Intl.DateTimeFormat("en-US", {
+        timeZone: "America/New_York",
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        timeZoneName: "short",
+      }).format(new Date(targetTime))
+    : null;
+
   const fireConfettiCannons = () => {
     try {
       // Left bottom cannon
@@ -145,7 +176,7 @@ export function CountdownLockdownGuard({ isStaffOrAdmin, children }: CountdownLo
             <div className="flex items-center gap-2">
               <Shield className="h-4 w-4 text-violet-400" />
               <span>
-                <strong>Countdown Lockdown Active (9:00 PM EDT)</strong> — Public visitors are restricted. Staff override active.
+                <strong>Countdown Lockdown Active</strong> — Public visitors are restricted. Staff override active.
               </span>
             </div>
             {timeLeft && (
@@ -231,7 +262,7 @@ export function CountdownLockdownGuard({ isStaffOrAdmin, children }: CountdownLo
                 </span>
               </h1>
               <p className="mt-4 text-sm sm:text-base text-slate-400 leading-relaxed">
-                RoleFlow is undergoing final cutover. The platform unlocks publicly today at <strong>9:00 PM EDT</strong>.
+                RoleFlow is undergoing final cutover. The platform unlocks publicly {unlockLabel ? <>on <strong>{unlockLabel}</strong></> : "soon"}.
               </p>
             </div>
 
@@ -244,7 +275,15 @@ export function CountdownLockdownGuard({ isStaffOrAdmin, children }: CountdownLo
                 >
                   <Shield className="h-4 w-4" /> Continue as staff
                 </button>
-                <p className="text-xs text-slate-500">Only staff and admins see this button. Public visitors are held here until the countdown ends.</p>
+                <button
+                  type="button"
+                  onClick={playAnimationPreview}
+                  disabled={previewing}
+                  className="ml-3 inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-slate-200 transition-all hover:bg-white/10 disabled:opacity-50"
+                >
+                  Preview unlock animation
+                </button>
+                <p className="text-xs text-slate-500">Only staff and admins see these buttons. Public visitors are held here until the countdown ends.</p>
               </div>
             )}
 

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { LockdownCountdownEditor } from "@/components/admin/LockdownCountdownEditor";
 import { Product, BlogPost } from "@/lib/parent-site";
 import { BLOG_TEMPLATES, BlogPostTemplate } from "@/lib/blog-templates";
 import {
@@ -246,6 +247,8 @@ export function ParentSiteAdminManager() {
           {message.text}
         </div>
       )}
+
+      <LockdownCountdownEditor />
 
       {/* Countdown Configuration */}
       <section className={card}>
