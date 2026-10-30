@@ -45,6 +45,7 @@ model User {
   loginDevices         LoginDevice[]
   emailRemovedAt       DateTime?     // Set when the user removes their email; blocks re-sync from Discord on sign-in
   savedProfile         String?       // JSON of answers the user chose to remember
+  discordLinked        Boolean       @default(true)
 }
 
 model PasswordResetToken {

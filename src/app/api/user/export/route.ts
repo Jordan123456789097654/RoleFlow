@@ -5,14 +5,25 @@ import { verifySessionValue, SESSION_COOKIE_NAME } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
-/** Downloads everything RoleFlow stores about the signed-in user (GDPR/privacy-policy export). */
+/** Downloads everything RoleFlow stores about the signed-in user across all products. */
 export async function GET() {
   const userId = await verifySessionValue(cookies().get(SESSION_COOKIE_NAME)?.value);
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const [user, applications, messages, reviews] = await Promise.all([
+  const [
+    user,
+    applications,
+    messages,
+    reviews,
+    communityReviews,
+    savedPositions,
+    drafts,
+    pollVotes,
+    feedbackReports,
+    contentReports,
+  ] = await Promise.all([
     prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -24,16 +35,38 @@ export async function GET() {
         robloxId: true,
         robloxUsername: true,
         plan: true,
+        isSiteAdmin: true,
         createdAt: true,
       },
     }),
-    prisma.application.findMany({ where: { userId } }),
+    prisma.application.findMany({
+      where: { userId },
+      include: { answers: true },
+    }),
     prisma.applicationMessage.findMany({ where: { senderId: userId } }),
     prisma.review.findMany({ where: { reviewerId: userId } }),
+    prisma.communityReview.findMany({ where: { userId } }),
+    prisma.savedPosition.findMany({ where: { userId } }),
+    prisma.applicationDraft.findMany({ where: { userId } }),
+    prisma.pollVote.findMany({ where: { userId } }),
+    prisma.feedbackReport.findMany({ where: { authorId: userId } }),
+    prisma.contentReport.findMany({ where: { reporterId: userId } }),
   ]);
 
   const body = JSON.stringify(
-    { exportedAt: new Date().toISOString(), user, applications, messages, reviews },
+    {
+      exportedAt: new Date().toISOString(),
+      user,
+      applications,
+      messages,
+      reviews,
+      communityReviews,
+      savedPositions,
+      drafts,
+      pollVotes,
+      feedbackReports,
+      contentReports,
+    },
     null,
     2
   );

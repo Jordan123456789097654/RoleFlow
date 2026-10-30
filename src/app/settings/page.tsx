@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { LoginMethodsManager } from "@/components/settings/LoginMethodsManager";
 import Link from "next/link";
 import {
   User,
@@ -488,7 +489,8 @@ export default function SettingsPage() {
             <div className="space-y-6">
               <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-line space-y-6">
                 <div>
-                  <h3 className="text-lg font-bold text-ink">Security & Active Sessions</h3>
+                  <div className="mb-8"><h3 className="text-lg font-bold text-ink mb-2">Login Methods & Credentials</h3><p className="text-xs text-muted mb-4">Manage your Discord and email/password sign-in methods. You can sign in using any active method across all RoleFlow products.</p><LoginMethodsManager /></div>
+<h3 className="text-lg font-bold text-ink">Security & Active Sessions</h3>
                   <p className="text-xs text-muted mt-1">
                     Manage session validity, cryptographic tokens, and authentication integrity.
                   </p>

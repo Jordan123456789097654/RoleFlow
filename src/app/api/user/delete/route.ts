@@ -4,14 +4,13 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { verifySessionValue, SESSION_COOKIE_NAME } from "@/lib/session";
-import { recordAudit } from "@/lib/audit";
 
 export const dynamic = "force-dynamic";
 
-
 /**
- * Permanently deletes the signed-in user's account. Applications, reviews and reset tokens
- * cascade. Requires { "confirm": "DELETE" } in the body to prevent accidental calls.
+ * Permanently deletes the signed-in user's account and purges everything across products,
+ * including user records, audit logs, support reports/logs, drafts, and data-removal logs.
+ * Requires { "confirm": "DELETE" } in the body.
  */
 export async function POST(request: Request) {
   const userId = await verifySessionValue(cookies().get(SESSION_COOKIE_NAME)?.value);
@@ -37,10 +36,37 @@ export async function POST(request: Request) {
     );
   }
 
-  await prisma.user.delete({ where: { id: userId } });
-  await recordAudit({ actorId: userId, action: "USER_SELF_DELETE", targetId: userId });
+  // Purge all records across products in a single database transaction
+  await prisma.$transaction([
+    // Delete non-cascading user records
+    prisma.savedPosition.deleteMany({ where: { userId } }),
+    prisma.applicationDraft.deleteMany({ where: { userId } }),
+    prisma.pollVote.deleteMany({ where: { userId } }),
+    prisma.contentReport.deleteMany({ where: { reporterId: userId } }),
+    prisma.feedbackReport.deleteMany({ where: { authorId: userId } }),
 
-  const response = NextResponse.json({ success: true, message: "Your account has been deleted." });
+    // Purge audit, data-removal, and support logs where user was actor or target
+    prisma.auditLog.deleteMany({
+      where: {
+        OR: [{ actorId: userId }, { targetId: userId }],
+      },
+    }),
+    prisma.dataRemovalLog.deleteMany({
+      where: {
+        OR: [{ subjectUserId: userId }, { actorId: userId }],
+      },
+    }),
+    prisma.supportReport.deleteMany({
+      where: {
+        OR: [{ subjectUserId: userId }, { authorId: userId }],
+      },
+    }),
+
+    // Finally delete user record (cascades applications, reviews, reset tokens, login devices)
+    prisma.user.delete({ where: { id: userId } }),
+  ]);
+
+  const response = NextResponse.json({ success: true, message: "Your account and all associated data have been permanently purged." });
   clearSessionCookie(response);
   return response;
 }
