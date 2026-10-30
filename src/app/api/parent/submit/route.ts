@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 const resendApiKey = process.env.RESEND_API_KEY || "";
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "RoleFlow <onboarding@resend.dev>";
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "RoleFlow <noreply@roleflow.site>";
 
 export async function POST(request: Request) {
   try {

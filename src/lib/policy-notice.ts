@@ -5,7 +5,7 @@ import { logger } from "@/lib/logger";
 import { platformOrigin } from "@/lib/platform-origin";
 import { POLICY_SLUGS } from "@/lib/policies";
 
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "RoleFlow <onboarding@resend.dev>";
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "RoleFlow <noreply@roleflow.site>";
 const BATCH_SIZE = 100; // Resend's batch endpoint accepts up to 100 messages per call
 
 const POLICY_LABELS: Record<string, string> = {

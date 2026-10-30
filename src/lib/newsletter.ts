@@ -96,7 +96,7 @@ export async function sendBlogPostEmailBlast({
   content: string[] | string;
 }): Promise<{ sent: number; eligible: number }> {
   const apiKey = process.env.RESEND_API_KEY?.trim();
-  const fromEmail = process.env.RESEND_FROM_EMAIL?.trim() || "RoleFlow <onboarding@resend.dev>";
+  const fromEmail = process.env.RESEND_FROM_EMAIL?.trim() || "RoleFlow <noreply@roleflow.site>";
   const postUrl = `https://roleflow.site/blog/${encodeURIComponent(slug)}`;
 
   // 1. Fetch opt-in subscribers from site submissions

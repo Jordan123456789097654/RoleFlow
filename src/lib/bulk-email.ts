@@ -4,7 +4,7 @@ import { logger } from "./logger";
 import { getTemplate, isTransactional, normalizeValues, renderEmail, templateAudience, TemplateInputError, type Audience, type RenderedEmail } from "./email-templates";
 import { optedOutSet, unsubscribeUrl } from "./unsubscribe";
 
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "RoleFlow <onboarding@resend.dev>";
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "RoleFlow <noreply@roleflow.site>";
 const RESEND_BATCH = 100; // Resend's batch endpoint accepts up to 100 messages per call
 export const LIVE_BATCH_LIMIT = 500; // one founder click sends at most this many
 const LOCK_MS = 5 * 60_000;

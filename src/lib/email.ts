@@ -7,8 +7,8 @@ import { platformOrigin } from "./platform-origin";
 const resendApiKey = process.env.RESEND_API_KEY || "";
 const resend = new Resend(resendApiKey);
 
-// Resend allows onboarding@resend.dev without custom domain verification
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "RoleFlow <onboarding@resend.dev>";
+// Resend allows noreply@roleflow.site without custom domain verification
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "RoleFlow <noreply@roleflow.site>";
 const APP_URL = platformOrigin();
 
 interface EmailResult {

@@ -17,7 +17,7 @@ export interface BroadcastResult {
  */
 export async function broadcastAllEmailsLaunchUpdate(): Promise<BroadcastResult> {
   const apiKey = process.env.RESEND_API_KEY?.trim();
-  const fromEmail = process.env.RESEND_FROM_EMAIL?.trim() || "RoleFlow <onboarding@resend.dev>";
+  const fromEmail = process.env.RESEND_FROM_EMAIL?.trim() || "RoleFlow <noreply@roleflow.site>";
 
   // Collect all distinct email addresses across all tables
   const emailSet = new Map<string, string>(); // lowercase -> display name
