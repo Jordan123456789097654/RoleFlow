@@ -1,11 +1,12 @@
 import type { NextResponse } from "next/server";
 import { SESSION_COOKIE_NAME } from "./session";
+import { DEFAULT_COOKIE_DOMAIN, PARENT_ORIGIN, DISCORD_CALLBACK_URL } from "./platform-hosts";
 
 const isProd = () => process.env.NODE_ENV === "production";
 
 function cookieDomain(): string | undefined {
   if (!isProd()) return undefined;
-  return process.env.COOKIE_DOMAIN || ".roleflow.site";
+  return process.env.COOKIE_DOMAIN || DEFAULT_COOKIE_DOMAIN;
 }
 
 /** One place that sets the session cookie, so every login path uses identical, secure flags. */
@@ -35,11 +36,11 @@ export function clearSessionCookie(res: NextResponse) {
 }
 
 export function appOrigin(): string {
-  return "https://roleflow.site";
+  return PARENT_ORIGIN;
 }
 
 export function oauthRedirectUri(): string {
-  return "https://roleflow.site/api/auth/callback";
+  return DISCORD_CALLBACK_URL;
 }
 
 /** Holds the staff member's own session while a diagnostic session is open, so End session can restore it. */

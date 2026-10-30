@@ -5,6 +5,7 @@ import { prisma } from "./prisma";
 import { sendSecurityNoticeEmail } from "./email";
 import { signSessionValue } from "./session";
 import { isSiteAdminUser } from "./roles";
+import { DEFAULT_COOKIE_DOMAIN } from "./platform-hosts";
 
 export const SESSION_COOKIE = "roleflow_user_id";
 export const PENDING_2FA_COOKIE = "roleflow_2fa_pending";
@@ -14,7 +15,7 @@ export function requiresSecondFactor(u: { id?: string; isSiteAdmin?: boolean | n
   return false;
 }
 
-const domainOpt = (host?: string) => ({ domain: ".roleflow.site" });
+const domainOpt = (host?: string) => ({ domain: DEFAULT_COOKIE_DOMAIN });
 
 export function setPendingCookie(res: NextResponse, userId: string, version: number, host: string) {
   res.cookies.set(PENDING_2FA_COOKIE, signSessionValue(userId, version), {

@@ -1,7 +1,8 @@
+import { PARENT_ORIGIN } from "@/lib/platform-hosts";
 import { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://roleflow.site";
+  const baseUrl = PARENT_ORIGIN;
   const now = new Date();
 
   return [

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { randomBytes } from "crypto";
 import { isPlatformHost, validCustomReturn } from "@/lib/custom-domain";
 import { platformOrigin } from "@/lib/platform-origin";
+import { DISCORD_CALLBACK_URL } from "@/lib/platform-hosts";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +15,7 @@ export async function GET(request: Request) {
   const host = (request.headers.get("x-forwarded-host") || request.headers.get("host") || "")
     .split(",")[0].trim().toLowerCase();
 
-  // On a community's custom domain, sign-in has to happen on roleflow.site (Discord's redirect is fixed there).
+  // On a community's custom domain, sign-in has to happen on the parent platform host (Discord's redirect is fixed there).
   // Send the user there and ask it to bring them back to this exact page afterwards.
   if (!isPlatformHost(host)) {
     let next = "/";
@@ -41,7 +42,7 @@ export async function GET(request: Request) {
   const state = randomBytes(24).toString("base64url");
   const params = new URLSearchParams({
     client_id: clientId,
-    redirect_uri: "https://roleflow.site/api/auth/callback",
+    redirect_uri: DISCORD_CALLBACK_URL,
     response_type: "code",
     scope: noEmail ? "identify guilds" : "identify email guilds",
     state,

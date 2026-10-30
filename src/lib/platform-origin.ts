@@ -1,8 +1,10 @@
-const FALLBACK = "https://roleflow.site";
+import { PARENT_ORIGIN } from "./platform-hosts";
+
+const FALLBACK = PARENT_ORIGIN;
 
 /**
  * The public origin of RoleFlow itself. Only an https address is accepted; anything else
- * (http, localhost, a typo) falls back to https://roleflow.site.
+ * (http, localhost, a typo) falls back to the canonical parent origin.
  */
 export function platformOrigin(): string {
   const raw = (process.env.NEXT_PUBLIC_APP_URL || "").trim().replace(/\/+$/, "");

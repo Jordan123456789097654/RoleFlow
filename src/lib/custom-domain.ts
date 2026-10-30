@@ -1,3 +1,4 @@
+import { isPlatformHostName, PARENT_HOST, platformHostNames } from "./platform-hosts";
 import { promises as dns } from "dns";
 import { prisma } from "./prisma";
 import { platformOrigin } from "./platform-origin";
@@ -156,7 +157,7 @@ export function isPlatformHost(host: string): boolean {
   } catch {
     /* keep default */
   }
-  return !h || h === own || h === "roleflow.site" || h === "www.roleflow.site" || h.endsWith(".vercel.app");
+  return isPlatformHostName(h);
 }
 
 /** Validates a URL a user wants to return to after login. Only verified custom domains over https pass. */

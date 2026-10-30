@@ -1,3 +1,4 @@
+import { PARENT_ORIGIN } from "@/lib/platform-hosts";
 import { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
@@ -14,6 +15,6 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    sitemap: "https://roleflow.site/sitemap.xml",
+    sitemap: PARENT_ORIGIN + "/sitemap.xml",
   };
 }

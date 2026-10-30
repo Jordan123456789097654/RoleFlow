@@ -1,3 +1,4 @@
+import { DISCORD_CALLBACK_URL } from "@/lib/platform-hosts";
 import { findActiveBan } from "@/lib/bans";
 import { notifyNewDevice } from "@/lib/second-factor";
 import { validCustomReturn } from "@/lib/custom-domain";
@@ -32,7 +33,7 @@ export async function GET(request: Request) {
   if (!clientId || !clientSecret) {
     return NextResponse.redirect(new URL("/?error=oauth_error", request.url));
   }
-  const redirectUri = "https://roleflow.site/api/auth/callback";
+  const redirectUri = DISCORD_CALLBACK_URL;
 
   try {
     // 1. Exchange authorization code for access token

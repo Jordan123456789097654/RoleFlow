@@ -1,3 +1,4 @@
+import { isPlatformHostName } from "@/lib/platform-hosts";
 import { NextRequest, NextResponse } from "next/server";
 import { platformOrigin } from "@/lib/platform-origin";
 
