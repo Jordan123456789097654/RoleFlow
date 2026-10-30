@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import confetti from "canvas-confetti";
+import { usePathname } from "next/navigation";
 import { Sparkles, Shield, Lock, ArrowRight, Zap } from "lucide-react";
 
 interface CountdownLockdownGuardProps {
@@ -17,6 +18,9 @@ export function CountdownLockdownGuard({ isStaffOrAdmin, children }: CountdownLo
   const [earthquakeActive, setEarthquakeActive] = useState<boolean>(false);
   const [vaultOpening, setVaultOpening] = useState<boolean>(false);
   const [unlocked, setUnlocked] = useState<boolean>(false);
+  const pathname = usePathname();
+  // The "why are you leaving" survey must stay reachable during the lockdown countdown.
+  const alwaysOpen = pathname?.startsWith("/leaving/") ?? false;
 
   useEffect(() => {
     async function fetchLockdown() {
@@ -155,7 +159,7 @@ export function CountdownLockdownGuard({ isStaffOrAdmin, children }: CountdownLo
   }
 
   // Not active or completely unlocked
-  if (!active || unlocked) {
+  if (!active || unlocked || alwaysOpen) {
     return <>{children}</>;
   }
 
