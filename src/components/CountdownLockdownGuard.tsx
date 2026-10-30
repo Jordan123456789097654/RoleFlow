@@ -4,6 +4,8 @@ import React, { useState, useEffect, useRef } from "react";
 import confetti from "canvas-confetti";
 import { usePathname } from "next/navigation";
 import { Sparkles, Shield, Lock, ArrowRight, Zap } from "lucide-react";
+import { CrackOverlay, ShockwaveRing } from "@/components/unveil/UnveilFx";
+import { UnveilIntro } from "@/components/unveil/UnveilIntro";
 
 interface CountdownLockdownGuardProps {
   isStaffOrAdmin: boolean;
@@ -16,7 +18,11 @@ export function CountdownLockdownGuard({ isStaffOrAdmin, children }: CountdownLo
   const [timeLeft, setTimeLeft] = useState<{ hours: number; minutes: number; seconds: number; totalSeconds: number } | null>(null);
   const [completed, setCompleted] = useState<boolean>(false);
   const [earthquakeActive, setEarthquakeActive] = useState<boolean>(false);
-  const [vaultOpening, setVaultOpening] = useState<boolean>(false);
+  // True while the screen breaks open. The lock card animates out and the site is revealed underneath.
+  const [tearing, setTearing] = useState<boolean>(false);
+  const [ringKey, setRingKey] = useState<number | null>(null);
+  // "real" for the launch, "preview" for staff. Set while the dark intro is playing.
+  const [introMode, setIntroMode] = useState<null | "real" | "preview">(null);
   const [unlocked, setUnlocked] = useState<boolean>(false);
   // Staff see the countdown first, then choose to continue past it.
   const [staffBypassed, setStaffBypassed] = useState<boolean>(false);
@@ -25,6 +31,11 @@ export function CountdownLockdownGuard({ isStaffOrAdmin, children }: CountdownLo
   const pathname = usePathname();
   // The "why are you leaving" survey must stay reachable during the lockdown countdown.
   const alwaysOpen = pathname?.startsWith("/leaving/") ?? false;
+  // ?clean=1 hides staff banners and controls, so a screen share shows only the public site.
+  const [clean, setClean] = useState<boolean>(false);
+  useEffect(() => {
+    setClean(new URLSearchParams(window.location.search).get("clean") === "1");
+  }, [pathname]);
 
   useEffect(() => {
     async function fetchLockdown() {
@@ -73,14 +84,38 @@ export function CountdownLockdownGuard({ isStaffOrAdmin, children }: CountdownLo
     return () => clearInterval(interval);
   }, [targetTime, active, completed]);
 
-  const triggerGrandUnlockSequence = () => {
-    // 1. PHASE 1: Earth Cracking & Screen Shaking (0s to 2.2s)
+  // Quake, then the screen breaks open, then the site is revealed.
+  const runQuakeAndReveal = (isPreview: boolean) => {
     setEarthquakeActive(true);
-
-    // Blast initial corner confetti cannons
     fireConfettiCannons();
+    setTimeout(() => {
+      setEarthquakeActive(false);
+      setTearing(true);
+      setRingKey(Date.now());
+      fireSuperConfettiBurst();
+    }, 2200);
+    setTimeout(() => {
+      setTearing(false);
+      setRingKey(null);
+      if (isPreview) {
+        setPreviewing(false);
+      } else {
+        setUnlocked(true);
+        setActive(false);
+      }
+    }, 3200);
+  };
 
-    // Trigger backend launch email dispatch
+  const handleIntroDone = () => {
+    const isPreview = introMode === "preview";
+    setIntroMode(null);
+    runQuakeAndReveal(isPreview);
+  };
+
+  // Real launch: the dark intro plays first, then the launch email goes out and the reveal runs.
+  const triggerGrandUnlockSequence = () => {
+    setIntroMode("real");
+    // Launch email dispatch, sent once the countdown has finished
     try {
       fetch("/api/launch/broadcast", {
         method: "POST",
@@ -89,36 +124,13 @@ export function CountdownLockdownGuard({ isStaffOrAdmin, children }: CountdownLo
       });
     } catch {}
 
-    // 2. PHASE 2: Vault Door Split & Energy Shockwave (at 2.2s)
-    setTimeout(() => {
-      setEarthquakeActive(false);
-      setVaultOpening(true);
-      fireSuperConfettiBurst();
-    }, 2200);
-
-    // 3. PHASE 3: Complete Reveal (at 4.6s)
-    setTimeout(() => {
-      setUnlocked(true);
-      setActive(false);
-      setVaultOpening(false);
-    }, 4600);
   };
 
+  // Staff preview: same intro and reveal, but no email and no unlock.
   const playAnimationPreview = () => {
     if (previewing) return;
     setPreviewing(true);
-    setEarthquakeActive(true);
-    fireConfettiCannons();
-    setTimeout(() => {
-      setEarthquakeActive(false);
-      setVaultOpening(true);
-      fireSuperConfettiBurst();
-    }, 2200);
-    setTimeout(() => {
-      setVaultOpening(false);
-      setEarthquakeActive(false);
-      setPreviewing(false);
-    }, 4600);
+    setIntroMode("preview");
   };
 
   const unlockLabel = targetTime
@@ -171,7 +183,7 @@ export function CountdownLockdownGuard({ isStaffOrAdmin, children }: CountdownLo
   if (isStaffOrAdmin && staffBypassed) {
     return (
       <>
-        {active && (
+        {active && !clean && (
           <div className="sticky top-0 z-50 flex items-center justify-between border-b border-violet-500/30 bg-[#160b2e] px-4 py-2 text-xs font-medium text-[#ddd6fe] backdrop-blur-md">
             <div className="flex items-center gap-2">
               <Shield className="h-4 w-4 text-violet-400" />
@@ -193,46 +205,26 @@ export function CountdownLockdownGuard({ isStaffOrAdmin, children }: CountdownLo
 
   // Not active or completely unlocked
   if (!active || unlocked || alwaysOpen) {
-    return <>{children}</>;
+    return unlocked ? <div className="unveil-reveal">{children}</div> : <>{children}</>;
   }
 
   return (
     <div className={`relative min-h-screen bg-[#07080c] text-slate-100 overflow-hidden ${earthquakeActive ? "animate-earthquake" : ""}`}>
-      {/* Underlying actual site being revealed through vault split */}
-      {(vaultOpening || earthquakeActive) && (
-        <div className="absolute inset-0 z-0 overflow-y-auto pointer-events-none opacity-90 transition-opacity duration-1000">
+      {introMode && <UnveilIntro onDone={handleIntroDone} />}
+      {/* The real site sits underneath and is revealed when the screen breaks open */}
+      {(tearing || earthquakeActive) && (
+        <div className="absolute inset-0 z-0 overflow-y-auto pointer-events-none">
           {children}
         </div>
       )}
 
-      {/* Vault Left Half Door */}
-      <div
-        className={`fixed inset-y-0 left-0 w-1/2 z-40 bg-[#08090f] border-r border-violet-500/40 shadow-2xl flex items-center justify-end pr-4 ${
-          vaultOpening ? "animate-vault-left" : ""
-        }`}
-      >
-        {/* Decorative mechanical seam */}
-        <div className="h-full w-2 bg-gradient-to-b from-transparent via-violet-500/40 to-transparent" />
-      </div>
-
-      {/* Vault Right Half Door */}
-      <div
-        className={`fixed inset-y-0 right-0 w-1/2 z-40 bg-[#08090f] border-l border-violet-500/40 shadow-2xl flex items-center justify-start pl-4 ${
-          vaultOpening ? "animate-vault-right" : ""
-        }`}
-      >
-        {/* Decorative mechanical seam */}
-        <div className="h-full w-2 bg-gradient-to-b from-transparent via-violet-500/40 to-transparent" />
-      </div>
-
-      {/* Earth-Crack Energy Shockwave Center Seam */}
-      {earthquakeActive && (
-        <div className="fixed inset-y-0 left-1/2 -translate-x-1/2 z-50 w-3 bg-gradient-to-b from-violet-400 via-white to-violet-500 shadow-[0_0_40px_rgba(255,255,255,0.9),0_0_80px_rgba(139,92,246,1)] animate-pulse" />
-      )}
+      {/* Shockwave ring at the moment the screen breaks */}
+      {ringKey !== null && <ShockwaveRing key={ringKey} />}
 
       {/* Restricted Lockdown Countdown Center Card */}
-      {!vaultOpening && (
-        <div className="relative z-50 flex min-h-screen flex-col items-center justify-center p-6 selection:bg-violet-600/40">
+      {(
+        <div className={`relative z-50 flex min-h-screen flex-col items-center justify-center p-6 selection:bg-violet-600/40 ${tearing ? "unveil-tear" : ""}`}>
+          {earthquakeActive && <CrackOverlay />}
           {/* Radial Glow Aura */}
           <div
             className={`pointer-events-none absolute -top-40 left-1/2 h-[650px] w-[850px] -translate-x-1/2 rounded-full transition-all duration-700 blur-[100px] ${
@@ -266,7 +258,7 @@ export function CountdownLockdownGuard({ isStaffOrAdmin, children }: CountdownLo
               </p>
             </div>
 
-            {isStaffOrAdmin && (
+            {isStaffOrAdmin && !clean && (
               <div className="space-y-2">
                 <button
                   type="button"

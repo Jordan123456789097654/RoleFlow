@@ -15,6 +15,7 @@ import { BetaBanner } from "@/components/BetaBanner";
 import { ModerationPunishmentBanner } from "@/components/ModerationPunishmentBanner";
 import { MaintenanceGuard } from "@/components/MaintenanceGuard";
 import { CountdownLockdownGuard } from "@/components/CountdownLockdownGuard";
+import { ParentTour } from "@/components/parent/ParentTour";
 import { DomainHeader, DomainFooter, type DomainBrand } from "@/components/domain/DomainChrome";
 import { getCurrentUser } from "@/lib/auth";
 import { isPlatformHost, guildForCustomDomain, normalizeDomain } from "@/lib/custom-domain";
@@ -149,6 +150,7 @@ export default async function RootLayout({
             <main id="main" className="flex-1">{children}</main>
             <ParentFooter />
           </CountdownLockdownGuard>
+          <ParentTour />
         </body>
       )}
     </html>

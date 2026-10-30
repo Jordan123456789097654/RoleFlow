@@ -293,3 +293,43 @@ p { text-wrap: pretty; }
   .parent-reveal-armed { opacity: 1; transform: none; transition: none; }
   .parent-card-sheen::after { display: none; }
 }
+
+/* ───────── Unveil: earthquake crack, shockwave, then reveal ───────── */
+@keyframes unveilCrack { to { stroke-dashoffset: 0; } }
+@keyframes unveilTear {
+  0% { transform: scale(1); opacity: 1; filter: blur(0); }
+  60% { transform: scale(1.03); opacity: 0.6; filter: blur(2px); }
+  100% { transform: scale(1.1); opacity: 0; filter: blur(8px); }
+}
+@keyframes unveilReveal {
+  from { opacity: 0; transform: scale(1.04); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes unveilRing {
+  from { transform: scale(0); opacity: 1; }
+  to { transform: scale(1); opacity: 0; }
+}
+.unveil-crack { stroke-dasharray: 1; stroke-dashoffset: 1; animation: unveilCrack 0.45s ease-out forwards; }
+.unveil-tear { animation: unveilTear 0.9s ease-in forwards; }
+.unveil-reveal { animation: unveilReveal 0.9s ease-out both; }
+.unveil-ring {
+  position: fixed; left: 50%; top: 50%;
+  width: 120vmax; height: 120vmax; margin-left: -60vmax; margin-top: -60vmax;
+  border-radius: 50%; border: 2px solid rgba(221, 214, 254, 0.85);
+  box-shadow: 0 0 60px rgba(139, 92, 246, 0.6);
+  animation: unveilRing 1s ease-out forwards; pointer-events: none; z-index: 60;
+}
+@media (prefers-reduced-motion: reduce) {
+  .unveil-crack, .unveil-tear, .unveil-reveal, .unveil-ring { animation: none !important; }
+  .unveil-crack { stroke-dashoffset: 0; }
+  .unveil-ring { display: none; }
+}
+
+/* ───────── Website tour highlight ───────── */
+.tour-highlight {
+  outline: 2px solid rgba(139, 92, 246, 0.9);
+  outline-offset: 10px;
+  border-radius: 16px;
+  box-shadow: 0 0 60px rgba(139, 92, 246, 0.35);
+  transition: outline-color 0.4s ease, box-shadow 0.4s ease;
+}

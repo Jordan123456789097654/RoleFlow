@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { validateParentSubmission } from "@/lib/parent-submission";
 import { Resend } from "resend";
 import { SUPPORT_EMAIL, STAFF_INBOX_EMAIL } from "@/lib/parent-site";
+import { buildStaffNotification } from "@/lib/parent-notification-email";
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +41,7 @@ export async function POST(request: Request) {
     }
 
     // Record submission in database
-    await prisma.siteSubmission.create({
+    const created = await prisma.siteSubmission.create({
       data: {
         kind,
         email,
@@ -52,8 +53,15 @@ export async function POST(request: Request) {
 
     // Send contact notification to staff team at staff@roleflow.site
     if (kind === "contact" || kind === "idea") {
-      const subject = kind === "idea" ? `[RoleFlow Product Suggestion] from ${name || email}` : `[RoleFlow Contact Inquiry] from ${name || email}`;
-      const textBody = `New ${kind} form submission received on roleflow.site:\n\nFrom: ${name || "Anonymous"} <${email}>\n\nMessage:\n${message || "(No message)"}\n`;
+      const notification = buildStaffNotification({
+        kind,
+        name: name || null,
+        email,
+        message: message || "",
+        interest: interest || null,
+        submissionId: created.id,
+        submittedAt: created.createdAt,
+      });
       const recipientEmail = kind === "contact" ? STAFF_INBOX_EMAIL : SUPPORT_EMAIL;
 
       if (resend) {
@@ -62,8 +70,9 @@ export async function POST(request: Request) {
             from: FROM_EMAIL,
             to: recipientEmail,
             replyTo: email,
-            subject,
-            text: textBody,
+            subject: notification.subject,
+            text: notification.text,
+            html: notification.html,
           });
         } catch (err) {
           console.error("Failed to forward contact submission email:", err);

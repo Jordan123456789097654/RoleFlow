@@ -46,7 +46,7 @@ export default async function ParentHomePage() {
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
 
       {/* Hero */}
-      <section className="relative mx-auto max-w-6xl px-5 pb-16 pt-16 text-center sm:px-8 sm:pt-24">
+      <section data-tour="hero" className="relative mx-auto max-w-6xl px-5 pb-16 pt-16 text-center sm:px-8 sm:pt-24">
         <Reveal>
           <div className="inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-[#1f0b4a]/60 px-4 py-1.5 text-xs font-semibold text-[#ddd6fe] shadow-[0_0_20px_rgba(90,42,162,0.35)] backdrop-blur-md">
             <Sparkles className="h-3.5 w-3.5 text-violet-400" />
@@ -144,7 +144,7 @@ export default async function ParentHomePage() {
       </section>
 
       {/* Products */}
-      <section className="relative border-t border-white/10 bg-[#07080c] py-20">
+      <section data-tour="products" className="relative border-t border-white/10 bg-[#07080c] py-20">
         <div className="mx-auto max-w-6xl px-5 sm:px-8">
           <Reveal className="text-center">
             <span className="font-mono text-xs uppercase tracking-widest text-violet-400">Product Lineup</span>
@@ -212,7 +212,7 @@ export default async function ParentHomePage() {
       </section>
 
       {/* Community roadmap */}
-      <section className="relative border-t border-white/10 bg-[#08090d] py-20">
+      <section data-tour="roadmap" className="relative border-t border-white/10 bg-[#08090d] py-20">
         <div className="mx-auto max-w-6xl px-5 sm:px-8">
           <Reveal>
             <div className="rounded-3xl border border-violet-500/30 bg-gradient-to-r from-[#130826] via-[#1f0b4a]/70 to-[#0e0f17] p-8 shadow-2xl sm:p-14">
@@ -237,7 +237,7 @@ export default async function ParentHomePage() {
       </section>
 
       {/* Principles */}
-      <section className="relative border-t border-white/10 bg-[#07080c] py-20">
+      <section data-tour="principles" className="relative border-t border-white/10 bg-[#07080c] py-20">
         <div className="mx-auto max-w-6xl px-5 sm:px-8">
           <Reveal className="text-center">
             <span className="font-mono text-xs uppercase tracking-widest text-violet-400">How we build</span>

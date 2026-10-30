@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Lock } from "lucide-react";
+import { UnveilPreview } from "@/components/unveil/UnveilPreview";
 
 type State = { active: boolean; targetDate: string | null; launchEmailsSent: boolean };
 
@@ -13,6 +14,7 @@ export function LockdownCountdownEditor() {
   const [active, setActive] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
+  const [showUnveil, setShowUnveil] = useState(false);
 
   useEffect(() => {
     fetch("/api/admin/lockdown")
@@ -114,6 +116,9 @@ export function LockdownCountdownEditor() {
           </p>
 
           <div className="flex flex-wrap gap-3">
+            <button type="button" onClick={() => setShowUnveil(true)} className="btn-ghost btn-sm">
+              Show unlock animation
+            </button>
             <button type="submit" disabled={saving} className="btn-primary btn-sm disabled:opacity-50">
               {saving ? "Saving..." : "Save lockdown"}
             </button>
@@ -131,6 +136,7 @@ export function LockdownCountdownEditor() {
           )}
         </form>
       )}
+      {showUnveil && <UnveilPreview onClose={() => setShowUnveil(false)} />}
     </section>
   );
 }
