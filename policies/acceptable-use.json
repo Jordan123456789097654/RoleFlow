@@ -1,8 +1,15 @@
 {
   "title": "Acceptable Use Policy",
-  "subtitle": "What is and is not allowed on RoleFlow",
-  "updated": "October 29, 2026",
+  "subtitle": "Unified moderation and acceptable use rules across all RoleFlow products",
+  "updated": "October 30, 2026",
   "sections": [
+    {
+      "title": "Unified Moderation Across Products",
+      "paragraphs": [
+        "RoleFlow operates a single, shared moderation team with consistent rules across the parent site, ApplyHub, and all future product subdomains.",
+        "Actions taken by the moderation team—such as suspensions, warnings, or blacklists—apply globally across the entire RoleFlow ecosystem. Attempting to bypass a moderation action in one product by accessing another product is strictly prohibited."
+      ]
+    },
     {
       "title": "Purpose and scope",
       "paragraphs": [

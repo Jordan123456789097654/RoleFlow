@@ -1,8 +1,16 @@
 {
   "title": "Privacy Policy",
-  "subtitle": "How RoleFlow collects, uses, and protects personal information",
-  "updated": "October 29, 2026",
+  "subtitle": "How RoleFlow and its product family collect, use, and protect personal information",
+  "updated": "October 30, 2026",
   "sections": [
+    {
+      "title": "Parent Platform and Products",
+      "paragraphs": [
+        "RoleFlow is the parent company providing a suite of community management tools. Each product within the family—including ApplyHub by RoleFlow (applyhub.roleflow.site) and upcoming tools such as Roster by RoleFlow—shares a single account identity.",
+        "Products within the RoleFlow family share only your username, Discord user ID, and unified authentication status. Data specific to an individual product (such as applications submitted through ApplyHub) stays isolated to that product workflows.",
+        "You have the right to request a full cross-product data export or permanent deletion of your account across all RoleFlow products via Settings at any time."
+      ]
+    },
     {
       "title": "Who we are",
       "paragraphs": [

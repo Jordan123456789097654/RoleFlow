@@ -1,8 +1,16 @@
 {
   "title": "Terms of Service",
-  "subtitle": "The agreement that governs your use of RoleFlow",
-  "updated": "October 29, 2026",
+  "subtitle": "The agreement that governs your use of RoleFlow and its family of products, including ApplyHub and Roster",
+  "updated": "October 30, 2026",
   "sections": [
+    {
+      "title": "RoleFlow Product Family",
+      "paragraphs": [
+        "RoleFlow operates as a parent company offering a family of dedicated community management, staff recruitment, and operations tools under a single account architecture.",
+        "Current and upcoming products include ApplyHub by RoleFlow (the community application platform available at applyhub.roleflow.site), Roster by RoleFlow (staff and member management for Roblox groups), and future products hosted on dedicated subdomains.",
+        "These Terms govern your access to the parent company website (roleflow.site) and all products and services offered within the RoleFlow family. Everything in the RoleFlow family is free forever, with no paid tiers, subscriptions, or seat limits."
+      ]
+    },
     {
       "title": "Agreement to these terms",
       "paragraphs": [

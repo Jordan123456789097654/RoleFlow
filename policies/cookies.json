@@ -1,7 +1,7 @@
 {
   "title": "Cookie Policy",
-  "subtitle": "The cookies and local storage RoleFlow uses",
-  "updated": "October 29, 2026",
+  "subtitle": "The essential cookies and local storage used across RoleFlow and its subdomains",
+  "updated": "October 30, 2026",
   "sections": [
     {
       "title": "Purpose of this policy",
@@ -25,7 +25,8 @@
         [
           "roleflow_user_id: keeps you signed in. It contains a signed value that the server checks on each request, so it cannot be changed without the server detecting it. It is marked httpOnly, which means page scripts cannot read it. It lasts 30 days, or until you sign out or your sessions are revoked, whichever comes first.",
           "roleflow_2fa_pending: holds the short-lived step between Discord sign-in and the two-factor check that site administrators must complete. It lasts up to ten minutes and is cleared as soon as the check completes."
-        ]
+        ],
+        "Cross-subdomain SSO: The roleflow_user_id cookie is scoped to the shared root domain (.roleflow.site) so you remain authenticated seamlessly between the parent company site and product subdomains such as applyhub.roleflow.site."
       ]
     },
     {
