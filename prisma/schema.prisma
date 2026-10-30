@@ -707,3 +707,16 @@ model PollVote {
   @@unique([pollId, userId])
   @@index([optionId])
 }
+
+model SiteSubmission {
+  id        String   @id @default(cuid())
+  kind      String   // contact, idea, notify, newsletter
+  email     String
+  name      String?
+  message   String?
+  interest  String?
+  createdAt DateTime @default(now())
+
+  @@index([kind, email])
+  @@index([createdAt])
+}
