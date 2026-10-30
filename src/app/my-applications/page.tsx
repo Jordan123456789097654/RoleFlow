@@ -31,7 +31,7 @@ export default async function MyApplicationsPage({
           Please log in with your Discord account via OAuth2 to view and track your submitted applications.
         </p>
         <a
-          href="/api/auth/login"
+          href="/login"
           className="btn-primary"
         >
           <span>Log in with Discord</span>

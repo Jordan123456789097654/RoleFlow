@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { randomBytes } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { authorizeGuild } from "@/lib/guild-access";
-import { isGuildPaid } from "@/lib/licensing";
 import {
   describeDomain,
   normalizeDomain,
@@ -31,10 +30,6 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   const access = await authorizeGuild(params.id, "manage");
   if (!access.ok) return access.response;
-
-  if (!(await isGuildPaid(params.id))) {
-    return NextResponse.json({ error: "Custom domains are part of a paid plan." }, { status: 402 });
-  }
 
   const body = await request.json().catch(() => null);
   const domain = normalizeDomain(body?.domain);

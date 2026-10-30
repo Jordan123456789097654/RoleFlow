@@ -38,7 +38,6 @@ const EXACT: Record<string, Rule> = {
   "/api/feedback": { max: 10, windowMs: 60 * 60_000 },
   "/api/applications/submit": { max: 15, windowMs: 60 * 60_000 },
   "/api/reports": { max: 10, windowMs: 60 * 60_000 },
-  "/api/licenses/redeem": { max: 10, windowMs: 15 * 60_000 },
   "/api/user/support/generate": { max: 10, windowMs: 60 * 60_000 },
   "/api/appeals": { max: 5, windowMs: 60 * 60_000 },
   "/api/founder/bulk-email": { max: 60, windowMs: 15 * 60_000 },
@@ -47,15 +46,15 @@ const EXACT: Record<string, Rule> = {
 
 // Pattern limits for routes with dynamic segments. GET is limited too where the route calls a third party.
 const PATTERNS: Array<{ re: RegExp; methods: string[]; rule: Rule }> = [
-  { re: /^\/api\/guilds\/[^/]+\/bot\/(verify|setup|test-embed|commands)$/, methods: ["POST"], rule: { max: 15, windowMs: 15 * 60_000 } },
   { re: /^\/api\/guilds\/[^/]+\/domain\/verify$/, methods: ["POST"], rule: { max: 10, windowMs: 15 * 60_000 } },
+  { re: /^\/api\/polls\/[^/]+\/vote$/, methods: ["POST"], rule: { max: 30, windowMs: 15 * 60_000 } },
   { re: /^\/api\/roblox\/user$/, methods: ["GET"], rule: { max: 30, windowMs: 60_000 } },
   { re: /^\/api\/link-preview$/, methods: ["GET"], rule: { max: 60, windowMs: 60_000 } },
 ];
 
 const MUTATING = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 // Endpoints called by Discord's servers, authenticated by Ed25519 signature instead of cookies.
-const SIGNED_WEBHOOKS = new Set(["/api/discord/interactions"]);
+const SIGNED_WEBHOOKS = new Set<string>();
 
 /**
  * Client IP. X-Forwarded-For can be forged by the client, but every trusted proxy APPENDS the address it saw,

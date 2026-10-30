@@ -662,7 +662,7 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
                 </p>
               </div>
               <a
-                href="/api/auth/login"
+                href="/login"
                 className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shrink-0 transition-all shadow-md shadow-purple-600/30"
               >
                 Log In with Discord
@@ -926,7 +926,7 @@ export default function ApplyPage({ params }: { params: { id: string } }) {
               </button>
             ) : (
               <a
-                href="/api/auth/login"
+                href="/login"
                 className="w-full sm:w-auto px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition-all shadow-card shadow-purple-600/30 flex items-center justify-center gap-2"
               >
                 <span>Connect with Discord to Apply</span>

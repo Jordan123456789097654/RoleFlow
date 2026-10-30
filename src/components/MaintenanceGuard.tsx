@@ -50,7 +50,7 @@ export function MaintenanceGuard({ isStaffOrAdmin, children }: MaintenanceGuardP
           </dl>
 
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <a href="/api/auth/login" className="btn-primary">Staff sign in</a>
+            <a href="/login" className="btn-primary">Staff sign in</a>
             <a href="https://discord.gg/tKPbCXbmr9" target="_blank" rel="noopener noreferrer" className="btn-ghost">
               Status on Discord ↗
             </a>

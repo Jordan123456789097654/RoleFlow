@@ -10,6 +10,7 @@ const OAUTH_RETURN_COOKIE = "rf_oauth_return";
 const PLATFORM = platformOrigin();
 
 export async function GET(request: Request) {
+  const noEmail = new URL(request.url).searchParams.get("noemail") === "1";
   const host = (request.headers.get("x-forwarded-host") || request.headers.get("host") || "")
     .split(",")[0].trim().toLowerCase();
 
@@ -29,7 +30,7 @@ export async function GET(request: Request) {
       }
     }
     const back = `https://${host}${next}`;
-    return NextResponse.redirect(`${PLATFORM}/api/auth/login?return=${encodeURIComponent(back)}`);
+    return NextResponse.redirect(`${PLATFORM}/api/auth/login?return=${encodeURIComponent(back)}${noEmail ? "&noemail=1" : ""}`);
   }
 
   const clientId = process.env.DISCORD_CLIENT_ID || "1565049592788025344";
@@ -42,7 +43,7 @@ export async function GET(request: Request) {
     client_id: clientId,
     redirect_uri: "https://roleflow.site/api/auth/callback",
     response_type: "code",
-    scope: "identify email guilds",
+    scope: noEmail ? "identify guilds" : "identify email guilds",
     state,
   });
 

@@ -6,6 +6,8 @@ import PolicyNoticePanel from "@/components/founder/PolicyNoticePanel";
 import BulkEmailPanel from "@/components/founder/BulkEmailPanel";
 import EmergencyPanel from "@/components/founder/EmergencyPanel";
 import DocsEditor from "@/components/founder/DocsEditor";
+import DocsPageEditor from "@/components/founder/DocsPageEditor";
+import PollsPanel from "@/components/founder/PollsPanel";
 
 type Card = { href: string; title: string; desc: string };
 type Section = { title: string; intro: string; cards: Card[] };
@@ -58,6 +60,8 @@ export default function FounderConsolePage() {
       <EmergencyPanel />
 
       <DocsEditor />
+      <DocsPageEditor />
+      <PollsPanel />
       <BulkEmailPanel />
 
       <Link href="/founder/policies" className="glass-panel p-5 rounded-2xl space-y-1 transition-colors hover:border-accent block">

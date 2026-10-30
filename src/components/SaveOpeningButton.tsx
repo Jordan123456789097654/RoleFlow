@@ -17,7 +17,7 @@ export function SaveOpeningButton({
 
   async function toggle() {
     if (!signedIn) {
-      window.location.href = "/api/auth/login";
+      window.location.href = "/login";
       return;
     }
     setBusy(true);

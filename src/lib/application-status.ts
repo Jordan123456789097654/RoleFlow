@@ -1,6 +1,4 @@
 import { prisma } from "./prisma";
-import { BotDispatcher } from "./bot-dispatcher";
-import { dispatchCommunityWebhook } from "./webhook-dispatcher";
 import { sendApplicationStatusEmail } from "./email";
 import { recordAudit } from "./audit";
 import { isSiteAdminUser } from "./roles";
@@ -102,23 +100,7 @@ export async function changeApplicationStatus(args: {
     }
   }
 
-  await BotDispatcher.handleStatusChange({
-    applicationId: application.id,
-    guildId: application.position.guildId,
-    applicantDiscordId: application.userId,
-    positionTitle: application.position.title,
-    newStatus: args.status,
-    previousStatus: application.status,
-    decisionNote: args.decisionNote ?? undefined,
-    reviewedByUsername: args.actorName,
-  });
 
-  await dispatchCommunityWebhook({
-    guildId: application.position.guildId,
-    event: "STATUS_UPDATE",
-    title: `Application ${args.status}: ${application.position.title}`,
-    description: `**Applicant:** ${application.user.username} (<@${application.userId}>)\n**Status:** \`${args.status}\`\n**Reviewed By:** ${args.actorName}${args.decisionNote ? `\n**Note:** ${args.decisionNote}` : ""}`,
-  });
 
   await recordAudit({
     actorId: args.actorId,

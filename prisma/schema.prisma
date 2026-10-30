@@ -645,3 +645,65 @@ model SiteDoc {
   updatedAt   DateTime @updatedAt
   updatedById String?
 }
+
+/// Editable public documentation shown at /docs. groupsJson holds the full structure (see src/lib/docs-content.ts).
+model DocsPage {
+  key         String   @id // always "public-docs"
+  groupsJson  String
+  updatedById String?
+  updatedAt   DateTime @updatedAt
+}
+
+/// Earlier versions of the public documentation, so a founder can restore one.
+model DocsPageRevision {
+  id         String   @id @default(cuid())
+  groupsJson String
+  editorId   String
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+/// Community polls, created by the founder. Options are fixed; "other" lets people write their own answer.
+model Poll {
+  id          String       @id @default(cuid())
+  question    String
+  description String?
+  status      String       @default("OPEN") // OPEN | CLOSED
+  allowOther  Boolean      @default(false)
+  otherLabel  String       @default("Something else")
+  closesAt    DateTime?
+  createdById String
+  createdAt   DateTime     @default(now())
+  options     PollOption[]
+  votes       PollVote[]
+
+  @@index([status, createdAt])
+}
+
+model PollOption {
+  id     String     @id @default(cuid())
+  pollId String
+  poll   Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  label  String
+  order  Int        @default(0)
+  votes  PollVote[]
+
+  @@index([pollId])
+}
+
+/// One vote per account per poll. Voters may change their vote until the poll closes.
+model PollVote {
+  id        String      @id @default(cuid())
+  pollId    String
+  poll      Poll        @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  userId    String
+  optionId  String?
+  option    PollOption? @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  otherText String?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@unique([pollId, userId])
+  @@index([optionId])
+}

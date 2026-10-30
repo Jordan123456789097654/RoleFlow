@@ -204,8 +204,8 @@ export function Navbar({ user }: NavbarProps) {
               )}
             </div>
           ) : (
-            <a href="/api/auth/login" className="btn-primary btn-sm">
-              Log in with Discord
+            <a href="/login" className="btn-primary btn-sm">
+              Log in
             </a>
           )}
 

@@ -59,7 +59,6 @@ type TabType =
   | "status"
   | "connected-apps"
   | "linked-accounts"
-  | "activation-keys"
   | "ai-controls"
   | "support"
   | "developer"
@@ -88,12 +87,6 @@ export default function SettingsPage() {
   const [staffCodeInput, setStaffCodeInput] = useState("");
   const [staffLoggingIn, setStaffLoggingIn] = useState(false);
   const [staffError, setStaffError] = useState<string | null>(null);
-
-  // Activation key state
-  const [activationKeyInput, setActivationKeyInput] = useState("");
-  const [redeemGuildId, setRedeemGuildId] = useState<string>("");
-  const [redeemingKey, setRedeemingKey] = useState(false);
-  const [activationMsg, setActivationMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   // AI Controls state
   const [aiScreening, setAiScreening] = useState(true);
@@ -206,45 +199,6 @@ export default function SettingsPage() {
     }
   };
 
-  const handleRedeemKey = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!activationKeyInput.trim()) return;
-    setRedeemingKey(true);
-    setActivationMsg(null);
-    try {
-      const res = await fetch("/api/licenses/redeem", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          key: activationKeyInput.trim(),
-          guildId: redeemGuildId || undefined,
-        }),
-      });
-
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setActivationMsg({
-          type: "success",
-          text: data.message || `License successfully activated! Plan upgraded to ${data.plan}.`,
-        });
-        setActivationKeyInput("");
-        fetchProfile();
-      } else {
-        setActivationMsg({
-          type: "error",
-          text: data.error || "Failed to redeem license key.",
-        });
-      }
-    } catch (err: any) {
-      setActivationMsg({
-        type: "error",
-        text: err.message || "An unexpected error occurred during redemption.",
-      });
-    } finally {
-      setRedeemingKey(false);
-    }
-  };
-
   const copySupportCode = () => {
     if (supportCode) {
       navigator.clipboard.writeText(supportCode);
@@ -280,7 +234,7 @@ export default function SettingsPage() {
           Sign in via Discord OAuth2 to configure your profile, linked Roblox studio accounts, and platform controls.
         </p>
         <a
-          href="/api/auth/login"
+          href="/login"
           className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold shadow-card shadow-violet-600/30 transition-all"
         >
           <span>Login with Discord</span>
@@ -396,17 +350,6 @@ export default function SettingsPage() {
               Platform & Features
             </p>
             <div className="space-y-1">
-              <button
-                onClick={() => setActiveTab("activation-keys")}
-                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                  activeTab === "activation-keys"
-                    ? "bg-purple-600 text-white shadow-card shadow-purple-600/30"
-                    : "text-muted hover:text-ink hover:bg-sunk"
-                }`}
-              >
-                <Key className="w-4 h-4" />
-                <span>Activation Keys</span>
-              </button>
               <button
                 onClick={() => setActiveTab("ai-controls")}
                 className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
@@ -529,7 +472,7 @@ export default function SettingsPage() {
                     </p>
                   </div>
                   <a
-                    href="/api/auth/login"
+                    href="/login"
                     className="flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold transition-all shadow-md shrink-0"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
@@ -761,43 +704,6 @@ export default function SettingsPage() {
             </div>
           )}
 
-          {/* TAB 6: ACTIVATION KEYS (COMING SOON) */}
-          {activeTab === "activation-keys" && (
-            <div className="space-y-6">
-              <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-line space-y-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-accent">
-                    <Key className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-lg font-bold text-ink">Activation Keys & Licenses</h3>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/20 text-gold border border-amber-500/30">
-                        COMING SOON
-                      </span>
-                    </div>
-                    <p className="text-xs text-muted mt-1">
-                      License key redemption and premium upgrades are currently disabled during the Open Beta.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="p-6 rounded-2xl bg-sunk border border-line space-y-3">
-                  <div className="flex items-center gap-3 text-gold">
-                    <Clock className="w-5 h-5 shrink-0" />
-                    <div>
-                      <h4 className="text-xs font-bold text-ink uppercase font-mono tracking-wider">
-                        Open Beta Free Tier Privilege
-                      </h4>
-                      <p className="text-xs text-muted mt-0.5 leading-relaxed">
-                        All community recruitment features, custom applications, and dashboard tools are 100% unlocked for everyone during the beta. Paid license redemption will launch after the beta period.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* TAB 7: AI CONTROLS */}
           {activeTab === "ai-controls" && (

@@ -1,6 +1,5 @@
 import { cleanHttpsUrl } from "@/lib/site-config";
 import { isFounderId } from "@/lib/roles";
-import { isGuildPaid } from "@/lib/licensing";
 import { encryptSecret } from "@/lib/crypto";
 import { sanitizeGuild } from "@/lib/sanitize";
 import { verifySessionValue } from "@/lib/session";
@@ -71,12 +70,6 @@ export async function PATCH(
       enableRobloxGroupCheck,
       robloxGroupId,
       robloxMinRank,
-      useCustomBot,
-      customBotToken,
-      logChannelId,
-      staffPingRoleId,
-      embedColor,
-      webhookUrl,
       portalTheme,
       portalLayout,
       portalAccentColor,
@@ -86,20 +79,12 @@ export async function PATCH(
       welcomeMessage,
       websiteUrl,
       discordInviteUrl,
-      customBotAppId,
-      customBotPublicKey,
       robloxMinAccountAgeDays,
       robloxCloudApiKey,
       robloxAcceptRankId,
       robloxRequiredBadgeId,
     } = body;
 
-    if (customBotAppId && !/^\d{17,20}$/.test(String(customBotAppId).trim())) {
-      return NextResponse.json({ error: "The bot application ID must be a Discord ID (17-20 digits)." }, { status: 400 });
-    }
-    if (customBotPublicKey && !/^[0-9a-fA-F]{64}$/.test(String(customBotPublicKey).trim())) {
-      return NextResponse.json({ error: "The bot public key must be 64 hex characters." }, { status: 400 });
-    }
 
     for (const [label, value] of [["Website", websiteUrl], ["Discord invite", discordInviteUrl]] as const) {
       if (value && !/^https:\/\/[^\s]+$/.test(String(value).trim())) {
@@ -110,27 +95,6 @@ export async function PATCH(
       return NextResponse.json({ error: "The welcome message must be 500 characters or fewer." }, { status: 400 });
     }
 
-    if (customBotAppId && String(customBotAppId).trim() === process.env.DISCORD_CLIENT_ID && !isSiteAdmin) {
-      return NextResponse.json({ error: "That is the RoleFlow application ID and cannot be used as a custom bot." }, { status: 400 });
-    }
-    if (customBotAppId) {
-      const taken = await prisma.guild.findFirst({
-        where: { customBotAppId: String(customBotAppId).trim(), NOT: { id: params.id } },
-        select: { id: true },
-      });
-      if (taken) {
-        return NextResponse.json({ error: "That bot application is already connected to another community." }, { status: 409 });
-      }
-    }
-    if (webhookUrl) {
-      try {
-        const u = new URL(String(webhookUrl).trim());
-        const okHost = ["discord.com", "discordapp.com"].includes(u.hostname);
-        if (u.protocol !== "https:" || !okHost || !u.pathname.startsWith("/api/webhooks/")) throw new Error("bad");
-      } catch {
-        return NextResponse.json({ error: "The webhook must be a https://discord.com/api/webhooks/... URL." }, { status: 400 });
-      }
-    }
 
     // Check slug uniqueness if changed
     if (vanitySlug && vanitySlug !== guild.vanitySlug) {
@@ -167,13 +131,6 @@ export async function PATCH(
         ...(robloxCloudApiKey === null ? { robloxCloudApiKey: null } : {}),
         ...(typeof enableBlindVoting === "boolean" ? { enableBlindVoting } : {}),
         ...(votePassThreshold !== undefined ? { votePassThreshold: Number(votePassThreshold) || 2 } : {}),
-        ...(typeof useCustomBot === "boolean" ? { useCustomBot } : {}),
-        ...(customBotToken !== undefined && customBotToken !== "" ? { customBotToken: encryptSecret(String(customBotToken).trim()) } : {}),
-        ...(customBotToken === null ? { customBotToken: null } : {}),
-        ...(logChannelId !== undefined ? { logChannelId: logChannelId?.trim() || null } : {}),
-        ...(staffPingRoleId !== undefined ? { staffPingRoleId: staffPingRoleId?.trim() || null } : {}),
-        ...(embedColor ? { embedColor: embedColor.trim() } : {}),
-        ...(webhookUrl !== undefined ? { webhookUrl: webhookUrl?.trim() || null } : {}),
         ...(portalTheme !== undefined ? { portalTheme: portalTheme?.trim() || "obsidian" } : {}),
         ...(["banner", "minimal", "cards"].includes(portalLayout) ? { portalLayout } : {}),
         ...(portalAccentColor !== undefined ? { portalAccentColor: portalAccentColor?.trim() || "#8B5CF6" } : {}),
@@ -183,8 +140,6 @@ export async function PATCH(
         ...(welcomeMessage !== undefined ? { welcomeMessage: String(welcomeMessage || "").trim() || null } : {}),
         ...(websiteUrl !== undefined ? { websiteUrl: String(websiteUrl || "").trim() || null } : {}),
         ...(discordInviteUrl !== undefined ? { discordInviteUrl: String(discordInviteUrl || "").trim() || null } : {}),
-        ...(customBotAppId !== undefined ? { customBotAppId: String(customBotAppId || "").trim() || null } : {}),
-        ...(customBotPublicKey !== undefined ? { customBotPublicKey: String(customBotPublicKey || "").trim() || null } : {}),
       },
     });
 

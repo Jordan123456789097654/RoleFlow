@@ -22,7 +22,7 @@ export const POLICY_DEFAULTS: Record<string, PolicyData> = {
   { title: "How we use information", paragraphs: [
     "To provide the Service: sign you in, show and route applications, send notifications, and run community features.",
     "To keep the Service secure: detect abuse, enforce our policies, prevent fraud, and investigate reports.",
-    "To run the business: manage licenses, provide support, measure aggregate usage such as weekly community counts, and improve the Service.",
+    "To run the business: provide support, measure aggregate usage such as weekly community counts, and improve the Service.",
     "To comply with law and respond to valid legal requests.",
   ]},
   { title: "Legal bases (EEA and UK)", paragraphs: [
@@ -122,10 +122,6 @@ export const POLICY_DEFAULTS: Record<string, PolicyData> = {
   { title: "Applications and applicant data", paragraphs: [
     "When you apply to a community, your answers and linked profile information are shared with that community's owner and staff so they can review your application. RoleFlow does not make hiring or acceptance decisions and is not a party to the relationship between you and a community.",
     "Communities are responsible for how they use applicant data. Report concerns to us using the Report button on a community page.",
-  ]},
-  { title: "Licenses and paid features", paragraphs: [
-    "Some features are available under a license. Licenses may be scoped to a single community or to an account, and they may have a duration. Terms of purchase, pricing, expiry, and refunds are set out in our Billing Policy.",
-    "We may turn licensing on or off. While licensing is off, paid features are available without charge. We will give notice before enabling licensing for features you currently use for free, and we will not remove data you have created as a result of a change to licensing.",
   ]},
   { title: "Your content", paragraphs: [
     "You keep ownership of content you submit, including community descriptions, position text, applications, messages, and reviews. You grant us a worldwide, non-exclusive, royalty-free license to host, store, copy, display, and transmit that content only as needed to operate and improve the Service and to show it to the people you intend to see it.",
@@ -239,7 +235,7 @@ export const POLICY_DEFAULTS: Record<string, PolicyData> = {
     "Do not impersonate another person, staff member, verified community, or RoleFlow itself. Do not claim a verified badge, partner status, or license you do not hold.",
   ]},
   { title: "Security and abuse of the platform", paragraphs: [
-    "Do not attempt to access accounts or data you are not authorized to access, probe or disrupt the Service, bypass rate limits, licensing limits, or access controls, scrape the Service at a rate that harms it, distribute malware, or abuse the Discord integration.",
+    "Do not attempt to access accounts or data you are not authorized to access, probe or disrupt the Service, bypass rate limits or access controls, scrape the Service at a rate that harms it, distribute malware, or abuse the Discord integration.",
     "Do not share your session cookies, two-factor recovery codes, or bot tokens with anyone.",
   ]},
   { title: "Intellectual property", paragraphs: [

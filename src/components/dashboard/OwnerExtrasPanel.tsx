@@ -11,8 +11,6 @@ export default function OwnerExtrasPanel({ guildId }: { guildId: string }) {
     welcomeMessage: "",
     websiteUrl: "",
     discordInviteUrl: "",
-    customBotAppId: "",
-    customBotPublicKey: "",
     robloxMinAccountAgeDays: 0,
     robloxCloudApiKey: "",
     robloxAcceptRankId: "",
@@ -33,8 +31,6 @@ export default function OwnerExtrasPanel({ guildId }: { guildId: string }) {
         welcomeMessage: g.welcomeMessage ?? "",
         websiteUrl: g.websiteUrl ?? "",
         discordInviteUrl: g.discordInviteUrl ?? "",
-        customBotAppId: g.customBotAppId ?? "",
-        customBotPublicKey: g.customBotPublicKey ?? "",
         robloxMinAccountAgeDays: g.robloxMinAccountAgeDays ?? 0,
         robloxCloudApiKey: "",
         robloxAcceptRankId: g.robloxAcceptRankId ?? "",
@@ -43,18 +39,6 @@ export default function OwnerExtrasPanel({ guildId }: { guildId: string }) {
       setLoaded(true);
     });
   }, [guildId]);
-
-  const [registering, setRegistering] = useState(false);
-  const [commandMsg, setCommandMsg] = useState<{ ok: boolean; text: string } | null>(null);
-
-  const registerCommandsNow = async () => {
-    setRegistering(true);
-    setCommandMsg(null);
-    const res = await fetch(`/api/guilds/${guildId}/bot/commands`, { method: "POST" });
-    const data = await res.json();
-    setRegistering(false);
-    setCommandMsg(res.ok ? { ok: true, text: `Registered ${data.count} commands for your bot. They can take up to an hour to appear in Discord.` } : { ok: false, text: data.error || "Registration failed." });
-  };
 
   const save = async () => {
     setSaving(true);
@@ -182,28 +166,6 @@ export default function OwnerExtrasPanel({ guildId }: { guildId: string }) {
               className={field}
             />
           </div>
-        </div>
-      </section>
-
-      <section className="rounded-2xl border border-line bg-surface/[0.02] p-5 space-y-3">
-        <div>
-          <h3 className="text-sm font-bold text-ink">Your own Discord bot</h3>
-          <p className="text-xs text-faint">If you use a custom bot, set its interactions endpoint in the Discord Developer Portal to <span className="font-mono text-ink-2">https://roleflow.site/api/discord/interactions</span>, then paste its application ID and public key here so Quick Accept and Quick Reject work.</p>
-        </div>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <input value={form.customBotAppId} onChange={(e) => setForm({ ...form, customBotAppId: e.target.value })} placeholder="Application ID" className={field} />
-          <input value={form.customBotPublicKey} onChange={(e) => setForm({ ...form, customBotPublicKey: e.target.value })} placeholder="Public key (64 hex characters)" className={field} />
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <button onClick={registerCommandsNow} disabled={registering} className="rounded-lg bg-purple-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-purple-500 disabled:opacity-50 transition-all shadow-sm">
-            {registering ? "Syncing..." : "⚡ Sync & Register Slash Commands"}
-          </button>
-          <span className="text-[11px] text-faint">Commands will appear instantly in your server with zero delay.</span>
-          {commandMsg && <span className={`text-xs font-medium ${commandMsg.ok ? "text-moss" : "text-danger"}`}>{commandMsg.text}</span>}
-        </div>
-        <div className="pt-2 text-[11px] text-muted space-y-1 bg-surface p-3 rounded-xl border border-line">
-          <span className="font-bold text-ink block">Supported Commands:</span>
-          <p className="font-mono text-[10px] text-ink-2">/help • /status • /openings • /apply • /ping • /portal • /pending • /stats • /lookup • /accept • /reject • /interview • /hold</p>
         </div>
       </section>
 

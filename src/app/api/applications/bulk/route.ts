@@ -3,8 +3,6 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
-import { BotDispatcher } from "@/lib/bot-dispatcher";
-import { dispatchCommunityWebhook } from "@/lib/webhook-dispatcher";
 import { sendApplicationStatusEmail } from "@/lib/email";
 import { decryptSecret } from "@/lib/crypto";
 import { setGroupMemberRank } from "@/lib/roblox";
@@ -97,15 +95,6 @@ export async function POST(request: Request) {
           }).catch((e) => console.warn("Batch status email error:", e));
         }
 
-        BotDispatcher.handleStatusChange({
-          applicationId: app.id,
-          guildId: app.position.guildId,
-          applicantDiscordId: app.userId,
-          positionTitle: app.position.title,
-          newStatus,
-          decisionNote: decisionNote || `Batch ${newStatus.toLowerCase()} by ${user.username}`,
-          reviewedByUsername: user.username,
-        }).catch((e) => console.warn("Bot batch dispatch err:", e));
 
         // Roblox Open Cloud Auto-Ranking on ACCEPTED
         if (newStatus === "ACCEPTED" && guild.robloxCloudApiKey && guild.robloxGroupId && guild.robloxAcceptRankId && app.user.robloxId) {
@@ -157,12 +146,6 @@ export async function POST(request: Request) {
         }
       }
 
-      await dispatchCommunityWebhook({
-        guildId,
-        event: "STATUS_UPDATE",
-        title: `Batch Application Action: ${apps.length} ${newStatus}`,
-        description: `**Reviewer:** ${user.username}\n**Affected Applicants:** ${apps.map((a) => a.user.username).join(", ")}`,
-      });
 
       return NextResponse.json({
         success: true,

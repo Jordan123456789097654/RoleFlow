@@ -63,7 +63,7 @@ export function CommunityReviewModal({
 
   if (!currentUser) {
     return (
-      <a href="/api/auth/login" className="btn-ghost">
+      <a href="/login" className="btn-ghost">
         Log in to review
       </a>
     );

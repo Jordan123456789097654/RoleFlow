@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { authorizeGuild } from "@/lib/guild-access";
-import { isGuildPaid, LIMITS } from "@/lib/licensing";
 import { recordAudit } from "@/lib/audit";
 
 export const dynamic = "force-dynamic";
@@ -16,16 +15,6 @@ export async function POST(_req: Request, { params }: { params: { id: string } }
 
   const access = await authorizeGuild(source.guildId, "manage");
   if (!access.ok) return access.response;
-
-  if (!(await isGuildPaid(source.guildId))) {
-    const openNow = await prisma.position.count({ where: { guildId: source.guildId, isOpen: true } });
-    if (openNow >= LIMITS.freeOpenPositions) {
-      return NextResponse.json(
-        { error: `Free communities can keep ${LIMITS.freeOpenPositions} open positions. Close one or redeem a license key.` },
-        { status: 402 }
-      );
-    }
-  }
 
   const copy = await prisma.position.create({
     data: {

@@ -89,7 +89,8 @@ export async function GET(request: Request) {
         discriminator: discordUser.discriminator !== "0" ? discordUser.discriminator : null,
         avatar: avatarUrl,
         // Respect a user's removal of their email: do not re-sync it from Discord.
-        email: existingEmail?.emailRemovedAt ? undefined : (discordUser.email || null),
+        // Only update the email when Discord sent one, so a no-email sign-in never clears a saved address.
+        ...(discordUser.email && !existingEmail?.emailRemovedAt ? { email: discordUser.email } : {}),
         ...(isSiteAdmin ? { isSiteAdmin: true } : {}),
       },
       create: {

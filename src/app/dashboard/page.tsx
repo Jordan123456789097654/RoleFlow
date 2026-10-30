@@ -132,7 +132,7 @@ export default function DashboardHubPage() {
           Connect with Discord to manage your community, review applicants, and configure bot automations.
         </p>
         <a
-          href="/api/auth/login"
+          href="/login"
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-medium text-sm transition-all shadow-card shadow-violet-600/30"
         >
           <span>Login with Discord</span>

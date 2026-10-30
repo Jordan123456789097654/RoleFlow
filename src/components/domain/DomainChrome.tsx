@@ -48,7 +48,7 @@ export function DomainHeader({
         {user ? (
           <span className="hidden truncate text-[13px] text-muted sm:inline">Signed in as {user.username}</span>
         ) : (
-          <a href="/api/auth/login" className="btn-primary btn-sm shrink-0">
+          <a href="/login" className="btn-primary btn-sm shrink-0">
             {site.buttonLabel}
           </a>
         )}

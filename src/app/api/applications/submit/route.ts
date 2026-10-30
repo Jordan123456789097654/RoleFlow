@@ -2,8 +2,6 @@ import { findActiveBan } from "@/lib/bans";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
-import { BotDispatcher } from "@/lib/bot-dispatcher";
-import { dispatchCommunityWebhook } from "@/lib/webhook-dispatcher";
 import { sendApplicationSubmissionReceipt } from "@/lib/email";
 import { logger } from "@/lib/logger";
 import { discordSafe } from "@/lib/sanitize";
@@ -309,23 +307,11 @@ export async function POST(request: Request) {
       },
     });
 
-    // 6. Trigger Discord alert embed via BotDispatcher
     const summaryAnswers = application.answers.map((a) => ({
       label: a.question.label,
       value: a.value,
     }));
 
-    // Fire and forget or await dispatch
-    await BotDispatcher.sendApplicationAlert({
-      applicationId: application.id,
-      guildId: position.guildId,
-      positionTitle: waitlisted ? `${position.title} (Waitlist)` : position.title,
-      applicantDiscordId: user.id,
-      applicantUsername: user.username,
-      applicantAvatar: user.avatar,
-      robloxUsername: robloxUsername || user.robloxUsername,
-      summaryAnswers,
-    });
 
     const applicantMention = user.id.startsWith("usr_") ? `**Applicant:** ${user.username} (Web Applicant)` : `**Applicant:** ${user.username} (<@${user.id}>)`;
 
@@ -340,17 +326,6 @@ export async function POST(request: Request) {
     }
 
     // Also dispatch to configured community Discord webhook
-    await dispatchCommunityWebhook({
-      guildId: position.guildId,
-      event: "SUBMISSION",
-      title: `New Application: ${position.title}`,
-      description: `**Applicant:** ${user.username} (<@${user.id}>)\n**Roblox:** ${discordSafe(robloxUsername || user.robloxUsername || "Unlinked", 40)}\n[Review on RoleFlow Dashboard](https://roleflow.site/dashboard/${position.guildId})`,
-      fields: summaryAnswers.slice(0, 3).map((a) => ({
-        name: a.label.slice(0, 250),
-        value: a.value.slice(0, 500) || "No answer",
-        inline: false,
-      })),
-    });
 
     logger.info("New candidate application submitted", {
       applicationId: application.id,

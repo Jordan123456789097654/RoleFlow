@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import LicensingToggle from "./LicensingToggle";
 
 const LABELS: Record<string, string> = {
   marketplace: "Template marketplace",
@@ -33,7 +32,6 @@ export default function FlagsPanel() {
 
   return (
     <div className="space-y-6">
-    <LicensingToggle />
     <section className="rounded-2xl border border-line bg-surface/[0.02] p-5 space-y-4">
       <div>
         <h3 className="text-sm font-bold text-ink">Feature flags</h3>

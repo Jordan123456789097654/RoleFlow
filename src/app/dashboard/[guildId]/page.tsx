@@ -9,7 +9,6 @@ import LinkPreview from "@/components/LinkPreview";
 
 import React, { useState, useEffect } from "react";
 import CustomDomainPanel from "@/components/CustomDomainPanel";
-import BotConsole from "@/components/dashboard/BotConsole";
 import PartnershipPanel from "@/components/PartnershipPanel";
 import Link from "next/link";
 import {
@@ -75,7 +74,6 @@ type SettingsSectionId =
   | "domain"
   | "access"
   | "blacklist"
-  | "notifications"
   | "data"
   | "plan";
 
@@ -85,9 +83,8 @@ const SETTINGS_SECTIONS = [
   { id: "domain" as const, label: "Custom Domain" },
   { id: "access" as const, label: "Access Rules" },
   { id: "blacklist" as const, label: "Blacklist" },
-  { id: "notifications" as const, label: "Notifications" },
   { id: "data" as const, label: "Data & Export" },
-  { id: "plan" as const, label: "Plan" },
+  { id: "plan" as const, label: "Partnerships" },
 ];
 
 interface GuildData {
@@ -220,8 +217,6 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
   const [newChatContent, setNewChatContent] = useState("");
   const [sendingChat, setSendingChat] = useState(false);
 
-  // Portal Themes & Webhooks
-  const [webhookUrlInput, setWebhookUrlInput] = useState("");
   const [portalThemeInput, setPortalThemeInput] = useState("obsidian");
   const [portalLayoutInput, setPortalLayoutInput] = useState("banner");
   const [portalAccentColorInput, setPortalAccentColorInput] = useState("#8B5CF6");
@@ -247,7 +242,6 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
 
   // Bot Settings state
   const [botTokenInput, setBotTokenInput] = useState("");
-  const [useCustomBotState, setUseCustomBotState] = useState(false);
   const [logChannelInput, setLogChannelInput] = useState("");
   const [staffPingRoleInput, setStaffPingRoleInput] = useState("");
   const [embedColorInput, setEmbedColorInput] = useState("#8B5CF6");
@@ -317,32 +311,6 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
   const [savingSettings, setSavingSettings] = useState(false);
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
 
-  // Bot Management states
-  const [verifyingBot, setVerifyingBot] = useState(false);
-  const [botVerifiedInfo, setBotVerifiedInfo] = useState<any | null>(null);
-  const [liveBot, setLiveBot] = useState<{ status: string; message?: string | null } | null>(null);
-  useEffect(() => {
-    let alive = true;
-    const load = async () => {
-      const res = await fetch(`/api/guilds/${params.guildId}/bot/status`, { cache: "no-store" });
-      if (alive && res.ok) setLiveBot(await res.json());
-    };
-    load();
-    const timer = setInterval(load, 30000);
-    return () => {
-      alive = false;
-      clearInterval(timer);
-    };
-  }, [params.guildId]);
-  const [settingUpBot, setSettingUpBot] = useState(false);
-  const [testingEmbed, setTestingEmbed] = useState(false);
-  const [botFeedbackMsg, setBotFeedbackMsg] = useState<{ text: string; error?: boolean } | null>(null);
-
-  // License Key Redemption states
-  const [guildLicenseInput, setGuildLicenseInput] = useState("");
-  const [redeemingGuildLicense, setRedeemingGuildLicense] = useState(false);
-  const [guildLicenseMsg, setGuildLicenseMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
-
   // Application Import state
   const [importModalOpen, setImportModalOpen] = useState(false);
   const [importRawText, setImportRawText] = useState("");
@@ -396,7 +364,6 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
         setRequireInGuildToggle(data.requireInGuild || false);
         setMinAccountAgeInput(data.minAccountAgeDays || 0);
 
-        setUseCustomBotState(data.useCustomBot || false);
         setBotTokenInput(""); // the saved token is never sent back to the browser
         setLogChannelInput(data.logChannelId || "");
         setStaffPingRoleInput(data.staffPingRoleId || "");
@@ -413,7 +380,6 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
         setRobloxCloudApiKeyInput("");
         setBlindVotingToggle(data.enableBlindVoting || false);
         setVotePassThresholdInput(data.votePassThreshold || 2);
-        setWebhookUrlInput(data.webhookUrl || "");
         setPortalThemeInput(data.portalTheme || "obsidian");
         setPortalLayoutInput(data.portalLayout || "banner");
         setPortalAccentColorInput(data.portalAccentColor || "#8B5CF6");
@@ -434,44 +400,6 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
     }
   }
 
-  const handleRedeemGuildLicense = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!guildLicenseInput.trim() || !guild) return;
-    setRedeemingGuildLicense(true);
-    setGuildLicenseMsg(null);
-    try {
-      const res = await fetch("/api/licenses/redeem", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          key: guildLicenseInput.trim(),
-          guildId: guild.id,
-        }),
-      });
-
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setGuildLicenseMsg({
-          type: "success",
-          text: data.message || `Upgraded to RoleFlow ${data.plan}!`,
-        });
-        setGuildLicenseInput("");
-        fetchGuildData();
-      } else {
-        setGuildLicenseMsg({
-          type: "error",
-          text: data.error || "Failed to redeem license key.",
-        });
-      }
-    } catch (err: any) {
-      setGuildLicenseMsg({
-        type: "error",
-        text: err.message || "An unexpected error occurred during redemption.",
-      });
-    } finally {
-      setRedeemingGuildLicense(false);
-    }
-  };
 
   const handleStatusChange = async (appId: string, newStatus: string) => {
     try {
@@ -891,12 +819,6 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           icon: iconInput,
           requireInGuild: requireInGuildToggle,
           minAccountAgeDays: Number(minAccountAgeInput),
-          useCustomBot: useCustomBotState,
-          // Only send a token when the owner typed a new one; empty means "keep the saved token".
-          ...(botTokenInput.trim() ? { customBotToken: botTokenInput.trim() } : {}),
-          logChannelId: logChannelInput,
-          staffPingRoleId: staffPingRoleInput,
-          embedColor: embedColorInput,
           cooldownDays: Number(cooldownInput),
           enableRobloxAuth: robloxAuthToggle,
           enableRobloxGroupCheck: robloxGroupCheckToggle,
@@ -908,7 +830,6 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           ...(robloxCloudApiKeyInput.trim() ? { robloxCloudApiKey: robloxCloudApiKeyInput.trim() } : {}),
           enableBlindVoting: blindVotingToggle,
           votePassThreshold: Number(votePassThresholdInput),
-          webhookUrl: webhookUrlInput,
           portalTheme: portalThemeInput,
           portalLayout: portalLayoutInput,
           portalAccentColor: portalAccentColorInput,
@@ -1199,77 +1120,8 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
     }
   };
 
-  const handleVerifyBot = async () => {
-    if (!botTokenInput.trim()) {
-      setBotFeedbackMsg({ text: "Please enter a bot token first.", error: true });
-      return;
-    }
-    setVerifyingBot(true);
-    setBotFeedbackMsg(null);
-    try {
-      const res = await fetch(`/api/guilds/${params.guildId}/bot/verify`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ botToken: botTokenInput.trim() }),
-      });
-      const data = await res.json();
-      if (res.ok && data.valid) {
-        setBotVerifiedInfo(data.bot);
-        setBotFeedbackMsg({ text: `Connected: ${data.bot.username}#${data.bot.discriminator}` });
-      } else {
-        setBotFeedbackMsg({ text: data.error || "Invalid bot token", error: true });
-      }
-    } catch (e: any) {
-      setBotFeedbackMsg({ text: e.message, error: true });
-    } finally {
-      setVerifyingBot(false);
-    }
-  };
 
-  const handleAutoSetupChannels = async () => {
-    setSettingUpBot(true);
-    setBotFeedbackMsg(null);
-    try {
-      const res = await fetch(`/api/guilds/${params.guildId}/bot/setup`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ botToken: botTokenInput.trim() || undefined }),
-      });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        if (data.logChannelId) setLogChannelInput(data.logChannelId);
-        if (data.staffRoleId) setStaffPingRoleInput(data.staffRoleId);
-        setBotFeedbackMsg({ text: "Channels (#applications-log) and Roles (@Staff Reviewer) created on Discord!" });
-        fetchGuildData();
-      } else {
-        setBotFeedbackMsg({ text: data.error || "Failed to set up server channels", error: true });
-      }
-    } catch (e: any) {
-      setBotFeedbackMsg({ text: e.message, error: true });
-    } finally {
-      setSettingUpBot(false);
-    }
-  };
 
-  const handleSendTestEmbed = async () => {
-    setTestingEmbed(true);
-    setBotFeedbackMsg(null);
-    try {
-      const res = await fetch(`/api/guilds/${params.guildId}/bot/test-embed`, {
-        method: "POST",
-      });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setBotFeedbackMsg({ text: "Test embed successfully sent to your Discord channel!" });
-      } else {
-        setBotFeedbackMsg({ text: data.error || "Failed sending test embed", error: true });
-      }
-    } catch (e: any) {
-      setBotFeedbackMsg({ text: e.message, error: true });
-    } finally {
-      setTestingEmbed(false);
-    }
-  };
 
   if (loading) {
     return (
@@ -1437,18 +1289,6 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
         >
           <Sliders className="w-3.5 h-3.5" />
           <span>Openings & Form</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab("bot")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors ${
-            activeTab === "bot"
-              ? "bg-purple-600 text-white shadow-md shadow-purple-600/30"
-              : "text-muted hover:text-ink hover:bg-sunk"
-          }`}
-        >
-          <Bot className="w-3.5 h-3.5" />
-          <span>Discord Bot</span>
         </button>
 
         <button
@@ -2520,254 +2360,6 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
         </div>
       )}
 
-      {/* TAB 3: DISCORD INTEGRATION & HOSTED BOT */}
-      {activeTab === "bot" && (
-        <div className="max-w-3xl space-y-6 animate-fadeIn">
-          <BotConsole guildId={params.guildId} />
-          {/* Active Bot System Notice */}
-          <div className="glass-panel rounded-2xl border border-purple-500/30 bg-accent-soft p-6 sm:p-8 space-y-4 shadow-card">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-start sm:items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-accent shrink-0">
-                  <Bot className="w-6 h-6" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-base font-bold text-ink">Discord Bot Dispatcher & Automation</h3>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-moss border border-emerald-500/30">
-                      LIVE & OPERATIONAL
-                    </span>
-                  </div>
-                  <p className="text-xs text-ink-2 mt-1 leading-relaxed">
-                    Custom Discord bot token hosting, 1-click server channel creators, slash commands, and automated embeds are fully active.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-4 rounded-xl bg-sunk border border-line space-y-2">
-              <div className="flex items-center gap-2 text-xs font-semibold text-moss">
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Discord Integration is 100% Optional for Communities</span>
-              </div>
-              <p className="text-[11px] text-muted leading-relaxed">
-                You can run your applications in pure Web-Only mode, or plug in your bot token below to dispatch real-time embeds, slash commands, and automatic role assignments.
-              </p>
-            </div>
-          </div>
-
-          <div className="glass-panel rounded-2xl border border-line p-6 sm:p-8 space-y-6">
-          <div>
-            <h2 className="text-base font-bold text-ink mb-1">
-              Discord Bot & Integration Mode
-            </h2>
-            <p className="text-xs text-muted">
-              Choose how your community wants to handle applications — pure web portal or automated via your own bot token.
-            </p>
-          </div>
-
-          {/* Mode Selector Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div
-              onClick={() => setUseCustomBotState(false)}
-              className={`p-4 rounded-xl cursor-pointer border transition-all ${
-                !useCustomBotState
-                  ? "bg-accent-soft border-purple-500 shadow-md shadow-purple-500/10"
-                  : "bg-surface/50 border-line hover:border-line-strong"
-              }`}
-            >
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold text-ink">Web-Only Mode</span>
-                {!useCustomBotState && <CheckCircle className="w-4 h-4 text-accent" />}
-              </div>
-              <p className="text-[11px] text-muted leading-relaxed">
-                No Discord bot needed! Staff review, interview, and manage applicants entirely through the RoleFlow web dashboard.
-              </p>
-            </div>
-
-            <div
-              onClick={() => setUseCustomBotState(true)}
-              className={`p-4 rounded-xl cursor-pointer border transition-all ${
-                useCustomBotState
-                  ? "bg-accent-soft border-purple-500 shadow-md shadow-purple-500/10"
-                  : "bg-surface/50 border-line hover:border-line-strong"
-              }`}
-            >
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold text-ink">Hosted Bot Automation</span>
-                {useCustomBotState && <CheckCircle className="w-4 h-4 text-accent" />}
-              </div>
-              <p className="text-[11px] text-muted leading-relaxed">
-                We host and dispatch your bot for you! Automatic staff channel embeds, role grants on accept, and applicant DMs.
-              </p>
-            </div>
-          </div>
-
-          {/* Token input & settings (if hosted bot enabled) */}
-          {useCustomBotState && (
-            <div className="space-y-4 pt-2">
-              <div className="space-y-1.5 p-4 rounded-xl bg-accent-soft border border-purple-500/20">
-                <div className="flex items-center justify-between">
-                  <label className="block text-xs font-bold text-ink flex items-center gap-1.5">
-                    <Key className="w-3.5 h-3.5 text-accent" />
-                    Your Discord Bot Token
-                  </label>
-                  <button
-                    type="button"
-                    onClick={handleVerifyBot}
-                    disabled={verifyingBot}
-                    className="text-[11px] text-accent hover:text-ink flex items-center gap-1 px-2.5 py-1 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 transition-colors"
-                  >
-                    <RefreshCw className={`w-3 h-3 ${verifyingBot ? "animate-spin" : ""}`} />
-                    <span>{verifyingBot ? "Verifying..." : "Verify Token"}</span>
-                  </button>
-                </div>
-                <input
-                  type="password"
-                  placeholder={guild?.hasCustomBotToken ? "Token saved. Paste a new one to replace it." : "Enter bot token from Discord Developer Portal..."}
-                  value={botTokenInput}
-                  onChange={(e) => setBotTokenInput(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-line text-xs text-ink placeholder-faint focus:outline-none focus:border-accent"
-                />
-                {liveBot?.status === "ONLINE" ? (
-                  <div className="flex items-center gap-2 mt-2 p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-moss text-xs">
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>
-                      Bot is online{botVerifiedInfo ? <> as <strong>{botVerifiedInfo.username}#{botVerifiedInfo.discriminator}</strong></> : ""}.
-                    </span>
-                  </div>
-                ) : liveBot?.status === "NOT_CONFIGURED" ? (
-                  <p className="text-[10px] text-muted">
-                    RoleFlow securely stores your token to dispatch embeds and grant roles on your server&apos;s behalf.
-                  </p>
-                ) : (
-                  <div className="flex items-start gap-2 mt-2 p-2 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs">
-                    <span>
-                      <strong>Bot is offline.</strong> {liveBot?.message || "Checking the bot's connection..."}
-                      {liveBot?.status === "ERROR" ? " Check the token and try again." : ""}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* 1-Click Server Setup Box */}
-              <div className="p-4 rounded-xl bg-surface/60 border border-line flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <div>
-                  <h4 className="text-xs font-bold text-ink flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-accent" />
-                    1-Click Discord Server Auto-Setup
-                  </h4>
-                  <p className="text-[11px] text-muted mt-0.5">
-                    Creates <strong>#applications-log</strong> and <strong>@Staff Reviewer</strong> role on your Discord server automatically.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleAutoSetupChannels}
-                  disabled={settingUpBot}
-                  className="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white text-xs font-semibold shrink-0 transition-all shadow-md shadow-purple-600/30 flex items-center gap-1.5"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>{settingUpBot ? "Creating..." : "Auto-Setup Server"}</span>
-                </button>
-              </div>
-
-              {botFeedbackMsg && (
-                <div
-                  className={`p-3 rounded-xl border text-xs flex items-center gap-2 ${
-                    botFeedbackMsg.error
-                      ? "bg-rose-500/10 border-rose-500/30 text-danger"
-                      : "bg-emerald-500/10 border-emerald-500/30 text-moss"
-                  }`}
-                >
-                  {botFeedbackMsg.error ? (
-                    <XCircle className="w-4 h-4 shrink-0" />
-                  ) : (
-                    <CheckCircle2 className="w-4 h-4 shrink-0" />
-                  )}
-                  <span>{botFeedbackMsg.text}</span>
-                </div>
-              )}
-
-              {/* Staff Log Channel ID */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <label className="block text-xs font-bold text-ink">
-                    Staff Alert Channel ID (#applications-log)
-                  </label>
-                  {logChannelInput && (
-                    <button
-                      type="button"
-                      onClick={handleSendTestEmbed}
-                      disabled={testingEmbed}
-                      className="text-[11px] text-accent hover:text-ink flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-violet-500/20 hover:bg-violet-500/30 transition-colors"
-                    >
-                      <Send className="w-3 h-3" />
-                      <span>{testingEmbed ? "Sending..." : "Send Test Embed"}</span>
-                    </button>
-                  )}
-                </div>
-                <input
-                  type="text"
-                  placeholder="e.g. 1565068094857154571"
-                  value={logChannelInput}
-                  onChange={(e) => setLogChannelInput(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-line text-xs text-ink placeholder-faint focus:outline-none focus:border-accent"
-                />
-              </div>
-
-              {/* Staff Ping Role */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-bold text-ink flex items-center gap-1.5">
-                  <Bell className="w-3.5 h-3.5 text-accent" />
-                  Staff Ping Role ID (Optional)
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. 1046538179399929957 (Pings this role on new applications)"
-                  value={staffPingRoleInput}
-                  onChange={(e) => setStaffPingRoleInput(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-line text-xs text-ink placeholder-faint focus:outline-none focus:border-accent"
-                />
-              </div>
-
-              {/* Custom Embed Color */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-bold text-ink flex items-center gap-1.5">
-                  <Palette className="w-3.5 h-3.5 text-accent" />
-                  Discord Embed Hex Color
-                </label>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="color"
-                    value={embedColorInput}
-                    onChange={(e) => setEmbedColorInput(e.target.value)}
-                    className="w-10 h-10 rounded-xl bg-transparent border border-line cursor-pointer"
-                  />
-                  <input
-                    type="text"
-                    value={embedColorInput}
-                    onChange={(e) => setEmbedColorInput(e.target.value)}
-                    placeholder="#8B5CF6"
-                    className="w-32 px-3 py-2 rounded-xl bg-surface border border-line text-xs text-ink font-mono focus:outline-none focus:border-accent"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          <button
-            onClick={handleSaveSettings}
-            disabled={savingSettings}
-            className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold flex items-center gap-2 shadow-card shadow-violet-600/30"
-          >
-            <Save className="w-3.5 h-3.5" />
-            <span>{savingSettings ? "Saving..." : "Save Integration Settings"}</span>
-          </button>
-        </div>
-        </div>
-      )}
-
       {/* TAB 4: COMMUNITY SETTINGS, GATING & POLICIES */}
       {activeTab === "settings" && (
         <div className="max-w-3xl space-y-6">
@@ -2788,36 +2380,6 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
           {settingsSection === "plan" && (
           <div className="space-y-6">
           <PartnershipPanel guildId={params.guildId} />
-
-          {/* License & Subscription Tier Card (Coming Soon) */}
-          <div className="glass-panel rounded-2xl border border-purple-500/30 bg-purple-500/10 p-6 sm:p-8 space-y-4 shadow-card">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-accent">
-                  <Key className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-bold text-ink">Community Subscription Tier</h3>
-                    <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/20 text-gold border border-amber-500/30">
-                      COMING SOON
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted mt-0.5">
-                    License keys and paid subscription tiers are currently in development. Full functionality is unlocked for all communities during Open Beta!
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-2 p-3.5 rounded-xl bg-sunk border border-line flex items-center justify-between text-xs text-muted">
-              <span className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-gold" />
-                RoleFlow Pro license keys will launch following the conclusion of the public beta.
-              </span>
-              <span className="font-semibold text-accent text-[11px]">Beta Access Active</span>
-            </div>
-          </div>
           </div>
           )}
 
@@ -2918,34 +2480,6 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                   className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-line text-xs text-ink focus:outline-none focus:border-accent"
                 />
               </div>
-            </div>
-          </div>
-          </div>
-          )}
-
-          {settingsSection === "notifications" && (
-          <div className="space-y-6">
-          {/* Discord Webhooks for Audit Logs */}
-          <div className="glass-panel rounded-2xl border border-line p-6 sm:p-8 space-y-4">
-            <h2 className="text-base font-bold text-ink mb-1 flex items-center gap-2">
-              <Bell className="w-4 h-4 text-accent" />
-              Discord Audit Log Webhook
-            </h2>
-            <p className="text-xs text-muted">
-              Receive instant Discord webhook embeds whenever an application is submitted, accepted, or rejected.
-            </p>
-
-            <div>
-              <label className="block text-xs font-medium text-ink-2 mb-1">
-                Discord Webhook URL
-              </label>
-              <input
-                type="text"
-                value={webhookUrlInput}
-                onChange={(e) => setWebhookUrlInput(e.target.value)}
-                placeholder="https://discord.com/api/webhooks/..."
-                className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-line text-xs text-ink font-mono focus:outline-none focus:border-accent"
-              />
             </div>
           </div>
           </div>
