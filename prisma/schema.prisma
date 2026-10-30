@@ -721,3 +721,20 @@ model SiteSubmission {
   @@index([kind, email])
   @@index([createdAt])
 }
+
+model CommunityIdea {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  authorName  String?
+  authorId    String?
+  category    String   @default("GENERAL") // GENERAL, ROBLOX, DISCORD, AUTOMATION
+  status      String   @default("UNDER_REVIEW") // UNDER_REVIEW, PLANNED, IN_PROGRESS, SHIPPED
+  upvotes     Int      @default(1)
+  voterIps    String?  // JSON array of voter IP hashes or IDs
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
+  @@index([upvotes])
+}

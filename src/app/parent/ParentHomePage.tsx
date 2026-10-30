@@ -3,25 +3,32 @@ import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { getDynamicProducts, getDynamicCountdown } from "@/lib/parent-site";
-import { ParentCountdownBanner } from "@/components/parent/ParentCountdownBanner";
 import { ParentNotifyForm } from "@/components/parent/ParentForms";
-import { ArrowRight, Search, ShieldCheck, Zap, Users, Sparkles, Layers, CheckCircle2 } from "lucide-react";
+import { ParentCountdownBanner } from "@/components/parent/ParentCountdownBanner";
+import { CommunityShowcaseCarousel, FeaturedStudio } from "@/components/parent/CommunityShowcaseCarousel";
+import { ArrowRight, Search, ShieldCheck, Zap, Users, Sparkles, Layers, CheckCircle2, ChevronRight } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
 export default async function ParentHomePage() {
-  const [communityCount, openCount, appCount, dynamicProducts, dynamicCountdown] = await Promise.all([
+  const [communityCount, openCount, appCount, dynamicProducts, dynamicCountdown, topCommunities] = await Promise.all([
     prisma.guild.count().catch(() => 0),
     prisma.position.count({ where: { isOpen: true } }).catch(() => 0),
     prisma.application.count().catch(() => 0),
     getDynamicProducts(),
     getDynamicCountdown(),
+    prisma.guild.findMany({
+      where: { isPaused: false },
+      select: { id: true, name: true, icon: true, vanitySlug: true, description: true, verifiedBadges: true },
+      take: 10,
+      orderBy: { memberCount: "desc" },
+    }).catch(() => [] as FeaturedStudio[]),
   ]);
 
   return (
     <div className="relative overflow-hidden bg-[#08090d] text-slate-100">
       {/* Dynamic Radial Glow Aura */}
-      <div className="pointer-events-none absolute -top-48 left-1/2 h-[750px] w-[1100px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(90,42,162,0.55)_0%,rgba(67,29,130,0.30)_35%,rgba(19,8,38,0.15)_65%,transparent_80%)] blur-[100px]" />
+      <div className="pointer-events-none absolute -top-48 left-1/2 h-[750px] w-[1100px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(90,42,162,0.60)_0%,rgba(67,29,130,0.35)_35%,rgba(19,8,38,0.20)_65%,transparent_80%)] blur-[100px]" />
 
       {/* Decorative Grid Mesh */}
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
@@ -31,6 +38,7 @@ export default async function ParentHomePage() {
         {dynamicCountdown.targetDate && (
           <ParentCountdownBanner targetDate={dynamicCountdown.targetDate} label={dynamicCountdown.label} />
         )}
+
         <div className="inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-[#1f0b4a]/60 px-4 py-1.5 text-xs font-semibold text-[#ddd6fe] shadow-[0_0_20px_rgba(90,42,162,0.35)] backdrop-blur-md">
           <Sparkles className="h-3.5 w-3.5 text-violet-400" />
           <span>The RoleFlow Product Family</span>
@@ -112,7 +120,10 @@ export default async function ParentHomePage() {
         </div>
       </section>
 
-      {/* Product Suite Showcase */}
+      {/* Community & Studio Showcase Carousel (#3) */}
+      <CommunityShowcaseCarousel communities={topCommunities} />
+
+      {/* Product Suite Showcase with Enlarged Logos */}
       <section className="relative border-t border-white/10 bg-[#07080c] py-20">
         <div className="mx-auto max-w-6xl px-5 sm:px-8">
           <div className="text-center">
@@ -135,11 +146,12 @@ export default async function ParentHomePage() {
                 >
                   <div className="space-y-6">
                     <div className="flex items-center justify-between">
-                      <div className="relative h-12 w-48">
+                      {/* Enlarged Header Logo in card */}
+                      <div className="relative h-16 w-56">
                         <img
                           src={prod.logoTransparent}
                           alt={prod.name}
-                          className="h-10 w-auto object-contain"
+                          className="h-14 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
                         />
                       </div>
                       <span
@@ -171,7 +183,7 @@ export default async function ParentHomePage() {
                     {isLive ? (
                       <a
                         href={prod.href}
-                        className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-5 py-2.5 text-xs font-semibold text-white transition-all hover:bg-violet-500"
+                        className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-5 py-2.5 text-xs font-semibold text-white shadow-md transition-all hover:bg-violet-500 hover:scale-[1.02]"
                       >
                         Launch Product &rarr;
                       </a>
@@ -189,8 +201,48 @@ export default async function ParentHomePage() {
         </div>
       </section>
 
-      {/* Why RoleFlow Section */}
+      {/* Community Roadmap Teaser Card (#1) */}
       <section className="relative border-t border-white/10 bg-[#08090d] py-20">
+        <div className="mx-auto max-w-6xl px-5 sm:px-8">
+          <div className="rounded-3xl border border-violet-500/30 bg-gradient-to-r from-[#130826] via-[#1f0b4a]/70 to-[#0e0f17] p-8 shadow-2xl sm:p-14">
+            <div className="grid gap-8 lg:grid-cols-12 lg:items-center">
+              <div className="space-y-4 lg:col-span-8">
+                <span className="font-mono text-xs uppercase tracking-widest text-[#ddd6fe]">
+                  Community-Driven Engineering
+                </span>
+                <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+                  You decide what RoleFlow builds next.
+                </h2>
+                <p className="text-sm text-slate-300 sm:text-base leading-relaxed">
+                  Browse real-time proposals, upvote features for Discord &amp; Roblox communities, and watch ideas transition directly to shipped tools.
+                </p>
+                <div className="pt-2">
+                  <Link
+                    href="/ideas"
+                    className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-6 py-3 text-xs font-bold text-white shadow-lg transition-all hover:bg-violet-500 hover:scale-[1.02]"
+                  >
+                    Open Community Roadmap &rarr;
+                  </Link>
+                </div>
+              </div>
+
+              <div className="lg:col-span-4 flex justify-center">
+                <div className="w-full max-w-xs space-y-3 rounded-2xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-md">
+                  <div className="flex items-center justify-between text-xs text-slate-400 font-mono">
+                    <span>TOP ROADMAP IDEA</span>
+                    <span className="text-emerald-400">42 votes</span>
+                  </div>
+                  <p className="text-sm font-bold text-white">Bot Automated Shift Logging</p>
+                  <p className="text-xs text-slate-400">Clock-in via Discord slash commands and automated Roblox group activity points.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Why RoleFlow Section */}
+      <section className="relative border-t border-white/10 bg-[#07080c] py-20">
         <div className="mx-auto max-w-6xl px-5 sm:px-8">
           <div className="text-center">
             <span className="font-mono text-xs uppercase tracking-widest text-violet-400">Core Architecture</span>

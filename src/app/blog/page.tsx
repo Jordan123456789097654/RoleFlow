@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { BLOG_POSTS } from "@/lib/parent-site";
+import { ArrowRight, Clock, Calendar } from "lucide-react";
 
 export const metadata = {
   title: "Blog & Updates | RoleFlow",
@@ -9,12 +10,12 @@ export const metadata = {
 
 export default function BlogPage() {
   return (
-    <div className="py-16 sm:py-24">
+    <div className="py-16 sm:py-24 bg-[#08090d] text-slate-100 min-h-screen">
       <div className="mx-auto max-w-4xl px-4 sm:px-6">
         {/* Header */}
         <div className="text-center">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-500/30 bg-violet-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-violet-300">
-            News &amp; Updates
+            News &amp; Architecture Notes
           </span>
           <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
             The RoleFlow Blog
@@ -24,17 +25,24 @@ export default function BlogPage() {
           </p>
         </div>
 
-        {/* Posts */}
+        {/* Posts List */}
         <div className="mt-16 space-y-8">
           {BLOG_POSTS.map((post) => (
-            <article
+            <Link
               key={post.slug}
-              className="group rounded-3xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-sm transition-all hover:border-violet-500/40 hover:bg-white/[0.05]"
+              href={`/blog/${post.slug}`}
+              className="group block rounded-3xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-sm transition-all hover:border-violet-500/50 hover:bg-white/[0.06] hover:scale-[1.01]"
             >
               <div className="flex items-center gap-3 text-xs font-medium text-slate-400">
-                <time>{post.date}</time>
+                <span className="flex items-center gap-1.5">
+                  <Calendar className="h-3.5 w-3.5 text-violet-400" />
+                  {post.date}
+                </span>
                 <span>&bull;</span>
-                <span>{post.readTime}</span>
+                <span className="flex items-center gap-1.5">
+                  <Clock className="h-3.5 w-3.5 text-violet-400" />
+                  {post.readTime}
+                </span>
               </div>
 
               <h2 className="mt-3 text-2xl font-bold text-white transition-colors group-hover:text-violet-300">
@@ -46,16 +54,16 @@ export default function BlogPage() {
               </p>
 
               <div className="mt-6 flex items-center justify-between">
-                <span className="inline-flex items-center text-sm font-semibold text-violet-400 group-hover:text-violet-300">
-                  Read full article &rarr;
+                <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-violet-400 group-hover:text-violet-300">
+                  Read full article <ArrowRight className="h-4 w-4" />
                 </span>
               </div>
-            </article>
+            </Link>
           ))}
         </div>
 
         {/* Newsletter Callout */}
-        <div className="mt-16 rounded-2xl border border-white/10 bg-gradient-to-r from-violet-950/40 via-purple-900/20 to-slate-900/40 p-8 text-center sm:p-12">
+        <div className="mt-16 rounded-3xl border border-violet-500/30 bg-gradient-to-r from-[#130826] via-[#1f0b4a]/60 to-[#08090d] p-8 text-center shadow-xl sm:p-12">
           <h3 className="text-xl font-bold text-white">Subscribe to monthly product notes</h3>
           <p className="mx-auto mt-2 max-w-md text-sm text-slate-300">
             One monthly email covering major platform updates, new tool releases, and community highlights. Opt-in only, one-click unsubscribe.
@@ -63,7 +71,7 @@ export default function BlogPage() {
           <div className="mt-6 flex justify-center">
             <Link
               href="/#newsletter"
-              className="rounded-xl bg-violet-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-500"
+              className="rounded-xl bg-violet-600 px-6 py-2.5 text-xs font-semibold text-white shadow-md transition-all hover:bg-violet-500 hover:scale-[1.02]"
             >
               Subscribe on Homepage &rarr;
             </Link>
