@@ -1,19 +1,15 @@
 import React from "react";
 import Link from "next/link";
-import Image from "next/image";
 
 export function ParentHeader() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#090a0f]/85 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
         <Link href="/" className="flex items-center gap-3">
-          <Image
+          <img
             src="/logo-pack/roleflow-lockup-dark-transparent.png"
             alt="RoleFlow"
-            width={140}
-            height={32}
             className="h-7 w-auto object-contain"
-            priority
           />
         </Link>
 
@@ -34,7 +30,7 @@ export function ParentHeader() {
           </Link>
           <a
             href="https://applyhub.roleflow.site"
-            className="rounded-xl bg-violet-600 px-4 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-violet-500"
+            className="rounded-xl bg-violet-600 px-4 py-1.5 text-xs font-semibold text-white shadow-[0_2px_12px_rgba(139,92,246,0.3)] transition-colors hover:bg-violet-500"
           >
             Open ApplyHub
           </a>
@@ -50,11 +46,9 @@ export function ParentFooter() {
       <div className="mx-auto max-w-6xl px-5 py-12 sm:px-8">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           <div className="space-y-3">
-            <Image
+            <img
               src="/logo-pack/roleflow-lockup-dark-transparent.png"
               alt="RoleFlow"
-              width={130}
-              height={30}
               className="h-6 w-auto object-contain opacity-90"
             />
             <p className="text-xs leading-relaxed text-slate-400">

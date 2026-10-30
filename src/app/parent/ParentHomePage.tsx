@@ -2,66 +2,86 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
-import { PRODUCTS, PARTNERS, TESTIMONIALS } from "@/lib/parent-site";
+import { PRODUCTS } from "@/lib/parent-site";
 import { ParentNotifyForm } from "@/components/parent/ParentForms";
+import { ArrowRight, Search, ShieldCheck, Zap, Users, Sparkles, Layers, CheckCircle2 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
 export default async function ParentHomePage() {
-  const [communityCount, openCount] = await Promise.all([
+  const [communityCount, openCount, appCount] = await Promise.all([
     prisma.guild.count().catch(() => 0),
     prisma.position.count({ where: { isOpen: true } }).catch(() => 0),
+    prisma.application.count().catch(() => 0),
   ]);
 
   return (
-    <div className="relative overflow-hidden">
-      {/* Glow Center Aura */}
-      <div className="pointer-events-none absolute -top-40 left-1/2 h-[550px] w-[900px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(90,42,162,0.35)_0%,rgba(67,29,130,0.15)_45%,transparent_70%)] blur-[90px]" />
+    <div className="relative overflow-hidden bg-[#08090d] text-slate-100">
+      {/* Dynamic Radial Glow Aura */}
+      <div className="pointer-events-none absolute -top-48 left-1/2 h-[750px] w-[1100px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(90,42,162,0.55)_0%,rgba(67,29,130,0.30)_35%,rgba(19,8,38,0.15)_65%,transparent_80%)] blur-[100px]" />
+
+      {/* Decorative Grid Mesh */}
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
 
       {/* Hero Section */}
-      <section className="relative mx-auto max-w-5xl px-5 pt-20 pb-16 text-center sm:px-8 sm:pt-28">
-        <div className="inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-950/40 px-3.5 py-1 text-xs font-semibold text-violet-300 backdrop-blur-md">
-          <span className="h-2 w-2 rounded-full bg-violet-400 animate-pulse" />
-          The RoleFlow Family of Products
+      <section className="relative mx-auto max-w-6xl px-5 pt-20 pb-20 text-center sm:px-8 sm:pt-28">
+        <div className="inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-[#1f0b4a]/60 px-4 py-1.5 text-xs font-semibold text-[#ddd6fe] shadow-[0_0_20px_rgba(90,42,162,0.35)] backdrop-blur-md">
+          <Sparkles className="h-3.5 w-3.5 text-violet-400" />
+          <span>The RoleFlow Product Family</span>
+          <span className="h-1.5 w-1.5 rounded-full bg-violet-400 animate-pulse" />
         </div>
 
-        <h1 className="mt-6 text-4xl font-black tracking-tight text-white sm:text-6xl sm:leading-[1.1]">
+        <h1 className="mt-8 text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl lg:leading-[1.1]">
           Tools built for the next generation of <br className="hidden sm:inline" />
-          <span className="bg-gradient-to-r from-white via-violet-300 to-indigo-300 bg-clip-text text-transparent">
-            Discord & Roblox communities.
+          <span className="bg-gradient-to-r from-white via-[#ddd6fe] to-[#8b5cf6] bg-clip-text text-transparent">
+            Discord &amp; Roblox communities.
           </span>
         </h1>
 
-        {/* Live Numbers */}
-        {(communityCount > 0 || openCount > 0) && (
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-xs font-medium text-slate-400">
-            {communityCount > 0 && (
-              <span className="rounded-lg border border-white/10 bg-white/5 px-3 py-1">
-                <strong className="text-white">{communityCount}</strong> Active Communities
-              </span>
-            )}
-            {openCount > 0 && (
-              <span className="rounded-lg border border-white/10 bg-white/5 px-3 py-1">
-                <strong className="text-emerald-400">{openCount}</strong> Open Positions Right Now
-              </span>
-            )}
-          </div>
-        )}
+        <p className="mx-auto mt-6 max-w-2xl text-base text-slate-300 sm:text-lg sm:leading-relaxed">
+          Manage recruitment, group rosters, and staff workflows from one place. One unified account across every tool we build. 100% free forever.
+        </p>
 
-        {/* Search Bar with "/" Hint */}
-        <div className="mx-auto mt-8 max-w-lg">
-          <form action="/browse" method="GET" className="relative flex items-center">
+        {/* Live Metrics Pill Strip */}
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-3 text-xs font-medium">
+          {communityCount > 0 && (
+            <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2 backdrop-blur-md">
+              <span className="h-2 w-2 rounded-full bg-emerald-400" />
+              <span className="text-white font-bold">{communityCount.toLocaleString()}</span>
+              <span className="text-slate-400">Communities</span>
+            </div>
+          )}
+          {openCount > 0 && (
+            <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2 backdrop-blur-md">
+              <span className="h-2 w-2 rounded-full bg-violet-400" />
+              <span className="text-white font-bold">{openCount.toLocaleString()}</span>
+              <span className="text-slate-400">Open Positions</span>
+            </div>
+          )}
+          {appCount > 0 && (
+            <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2 backdrop-blur-md">
+              <span className="h-2 w-2 rounded-full bg-indigo-400" />
+              <span className="text-white font-bold">{appCount.toLocaleString()}</span>
+              <span className="text-slate-400">Applications Handled</span>
+            </div>
+          )}
+        </div>
+
+        {/* Search Bar with "/" hint */}
+        <div className="mx-auto mt-10 max-w-xl">
+          <form action="https://applyhub.roleflow.site/browse" method="GET" className="relative flex items-center shadow-2xl">
+            <Search className="absolute left-4 h-4 w-4 text-slate-400" />
             <input
               type="text"
               name="q"
               placeholder="Search openings, groups, or studios..."
-              className="w-full rounded-2xl border border-white/15 bg-white/5 py-3 pl-4 pr-24 text-sm text-white placeholder-slate-400 backdrop-blur-md transition-all focus:border-violet-500 focus:bg-white/10 focus:outline-none"
+              className="w-full rounded-2xl border border-white/15 bg-white/[0.06] py-3.5 pl-11 pr-28 text-sm text-white placeholder-slate-400 backdrop-blur-md transition-all focus:border-[#8b5cf6] focus:bg-white/[0.1] focus:outline-none focus:ring-2 focus:ring-violet-500/30"
             />
-            <div className="absolute right-2 flex items-center gap-1.5">
-              <span className="hidden rounded bg-white/10 px-1.5 py-0.5 text-[10px] font-mono text-slate-400 sm:inline-block">/</span>
+            <div className="absolute right-2.5 flex items-center gap-2">
+              <span className="hidden rounded bg-white/10 px-2 py-0.5 text-[10px] font-mono text-slate-400 sm:inline-block">/</span>
               <button
                 type="submit"
-                className="rounded-xl bg-violet-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm transition-all hover:bg-violet-500"
+                className="rounded-xl bg-violet-600 px-4 py-2 text-xs font-semibold text-white shadow-md transition-all hover:bg-violet-500 hover:scale-[1.02]"
               >
                 Search
               </button>
@@ -69,131 +89,159 @@ export default async function ParentHomePage() {
           </form>
         </div>
 
-        {/* Action Buttons */}
+        {/* CTA Button Group */}
         <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
           <a
             href="https://applyhub.roleflow.site"
-            className="rounded-xl bg-violet-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-600/25 transition-all hover:bg-violet-500"
+            className="flex items-center gap-2 rounded-xl bg-violet-600 px-7 py-3 text-sm font-semibold text-white shadow-[0_4px_24px_rgba(139,92,246,0.35)] transition-all hover:bg-violet-500 hover:scale-[1.02]"
           >
-            Launch ApplyHub
+            Launch ApplyHub <ArrowRight className="h-4 w-4" />
           </a>
           <Link
             href="/products"
-            className="rounded-xl border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-slate-200 transition-colors hover:bg-white/10 hover:text-white"
+            className="rounded-xl border border-white/20 bg-white/5 px-7 py-3 text-sm font-semibold text-slate-200 transition-all hover:bg-white/10 hover:text-white"
           >
             Explore All Products
           </Link>
         </div>
       </section>
 
-      {/* The Story Section */}
-      <section className="border-t border-white/10 bg-[#07080c] py-16 sm:py-20">
-        <div className="mx-auto max-w-4xl px-5 sm:px-8">
+      {/* Product Suite Showcase */}
+      <section className="relative border-t border-white/10 bg-[#07080c] py-20">
+        <div className="mx-auto max-w-6xl px-5 sm:px-8">
           <div className="text-center">
-            <h2 className="font-mono text-xs uppercase tracking-widest text-violet-400">Our Story</h2>
-            <p className="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">
-              From one application tool to a complete ecosystem.
+            <span className="font-mono text-xs uppercase tracking-widest text-violet-400">Product Lineup</span>
+            <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+              One account. Every community tool.
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl text-sm text-slate-400">
+              Each RoleFlow tool is built from the ground up for speed, privacy, and seamless automation.
             </p>
           </div>
 
-          <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-3">
-            <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
-              <h3 className="text-base font-bold text-white">Where we started</h3>
-              <p className="mt-3 text-xs leading-relaxed text-slate-400">
-                RoleFlow started as an application platform. Discord and Roblox communities were collecting applications in DMs and spreadsheets, and it was chaos. We built one place where applicants apply once and staff review everything together.
+          <div className="mt-14 grid gap-8 md:grid-cols-2">
+            {PRODUCTS.map((prod) => {
+              const isLive = prod.badge === "Live";
+              return (
+                <div
+                  key={prod.id}
+                  className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-white/[0.02] p-8 backdrop-blur-md transition-all hover:border-violet-500/40 hover:bg-white/[0.04] sm:p-10"
+                >
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <div className="relative h-12 w-48">
+                        <img
+                          src={prod.logoTransparent}
+                          alt={prod.name}
+                          className="h-10 w-auto object-contain"
+                        />
+                      </div>
+                      <span
+                        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider ${
+                          isLive
+                            ? "border border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                            : "border border-amber-500/30 bg-amber-500/10 text-amber-400"
+                        }`}
+                      >
+                        <span className={`h-1.5 w-1.5 rounded-full ${isLive ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`} />
+                        {prod.badge}
+                      </span>
+                    </div>
+
+                    <div>
+                      <h3 className="text-2xl font-bold text-white group-hover:text-violet-300 transition-colors">
+                        {prod.name}
+                      </h3>
+                      <p className="mt-1 text-sm font-medium text-violet-400">
+                        {prod.tagline}
+                      </p>
+                      <p className="mt-3 text-sm leading-relaxed text-slate-300">
+                        {prod.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-8 pt-6 border-t border-white/10">
+                    {isLive ? (
+                      <a
+                        href={prod.href}
+                        className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-5 py-2.5 text-xs font-semibold text-white transition-all hover:bg-violet-500"
+                      >
+                        Launch Product &rarr;
+                      </a>
+                    ) : (
+                      <div className="space-y-2">
+                        <p className="text-xs font-medium text-slate-400">Be first to test Roster:</p>
+                        <ParentNotifyForm interest="roster" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Why RoleFlow Section */}
+      <section className="relative border-t border-white/10 bg-[#08090d] py-20">
+        <div className="mx-auto max-w-6xl px-5 sm:px-8">
+          <div className="text-center">
+            <span className="font-mono text-xs uppercase tracking-widest text-violet-400">Core Architecture</span>
+            <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+              Engineered for community leaders
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl text-sm text-slate-400">
+              Stop stitching together spreadsheets, bot commands, and webhooks. RoleFlow unites your tools.
+            </p>
+          </div>
+
+          <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 space-y-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10 text-violet-400 border border-violet-500/20">
+                <Users className="h-5 w-5" />
+              </div>
+              <h3 className="text-base font-bold text-white">Single Unified Identity</h3>
+              <p className="text-xs leading-relaxed text-slate-300">
+                Applicants and staff maintain one account across all RoleFlow products. Link Discord or email and sign in anywhere with zero friction.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
-              <h3 className="text-base font-bold text-white">Where we are now</h3>
-              <p className="mt-3 text-xs leading-relaxed text-slate-400">
-                That first tool is now called ApplyHub. We&apos;re growing it into a family of tools for running communities, under the RoleFlow name. Each one solves a real problem we heard from the people using it, and all of them share one account.
+            <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 space-y-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10 text-violet-400 border border-violet-500/20">
+                <Zap className="h-5 w-5" />
+              </div>
+              <h3 className="text-base font-bold text-white">Roblox &amp; Discord Automation</h3>
+              <p className="text-xs leading-relaxed text-slate-300">
+                Automate rank changes in your Roblox groups, assign Discord roles upon approval, and notify candidates instantly via bot or email.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
-              <h3 className="text-base font-bold text-white">Who it&apos;s for</h3>
-              <p className="mt-3 text-xs leading-relaxed text-slate-400">
-                Discord and Roblox communities, from studios and clans to creator networks, and the people who want to join them. Everything is free forever with no paywalls.
+            <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 space-y-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10 text-violet-400 border border-violet-500/20">
+                <ShieldCheck className="h-5 w-5" />
+              </div>
+              <h3 className="text-base font-bold text-white">100% Free Forever</h3>
+              <p className="text-xs leading-relaxed text-slate-300">
+                No subscription tiers, no per-seat billing, and no paywalled features. RoleFlow is committed to keeping essential management tools free.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Products Section */}
-      <section className="mx-auto max-w-5xl px-5 py-20 sm:px-8">
-        <div className="text-center">
-          <h2 className="font-mono text-xs uppercase tracking-widest text-violet-400">The Family</h2>
-          <p className="mt-2 text-3xl font-black tracking-tight text-white">Products by RoleFlow</p>
-          <p className="mx-auto mt-3 max-w-lg text-xs text-slate-400">
-            One single account powers all RoleFlow tools. Sign in once, link your Discord, and operate your entire group.
+      {/* Newsletter Signup Banner */}
+      <section id="newsletter" className="relative border-t border-white/10 bg-gradient-to-b from-[#130826] to-[#08090d] py-20 text-center">
+        <div className="mx-auto max-w-xl px-5 sm:px-8">
+          <span className="font-mono text-xs uppercase tracking-widest text-[#ddd6fe]">Monthly Brief</span>
+          <h2 className="mt-3 text-3xl font-extrabold text-white sm:text-4xl">
+            Stay in the loop with RoleFlow
+          </h2>
+          <p className="mt-3 text-sm text-slate-300">
+            One monthly recap of feature releases, new product rollouts, and community spotlights. Opt-in only, one-click unsubscribe.
           </p>
-        </div>
 
-        <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2">
-          {PRODUCTS.map((prod) => (
-            <div
-              key={prod.id}
-              className="flex flex-col justify-between rounded-2xl border border-white/15 bg-gradient-to-b from-white/[0.05] to-transparent p-7 transition-all hover:border-violet-500/40"
-            >
-              <div>
-                <div className="flex items-center justify-between">
-                  <span
-                    className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                      prod.badge === "Live"
-                        ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                        : "bg-violet-500/20 text-violet-300 border border-violet-500/30"
-                    }`}
-                  >
-                    {prod.badge}
-                  </span>
-                  <span className="font-mono text-[10px] text-slate-500">Free forever</span>
-                </div>
-
-                <div className="mt-6 flex h-14 items-center">
-                  <Image
-                    src={prod.logoTransparent}
-                    alt={prod.name}
-                    width={220}
-                    height={50}
-                    className="max-h-12 w-auto object-contain"
-                  />
-                </div>
-
-                <h3 className="mt-5 text-xl font-bold text-white">{prod.name}</h3>
-                <p className="mt-1 text-xs font-medium text-violet-300">{prod.tagline}</p>
-                <p className="mt-3 text-xs leading-relaxed text-slate-400">{prod.description}</p>
-              </div>
-
-              <div className="mt-8 border-t border-white/10 pt-5">
-                {prod.badge === "Live" ? (
-                  <a
-                    href={prod.href}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-white transition-colors hover:text-violet-400"
-                  >
-                    Open Product Portal →
-                  </a>
-                ) : (
-                  <div className="space-y-2">
-                    <p className="text-[11px] text-slate-400">Get notified when Roster opens for beta testers:</p>
-                    <ParentNotifyForm interest={prod.id} />
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Newsletter Signup */}
-      <section className="border-t border-white/10 bg-[#08090d] py-16">
-        <div className="mx-auto max-w-xl px-5 text-center sm:px-8">
-          <h2 className="text-xl font-bold text-white">Monthly RoleFlow Newsletter</h2>
-          <p className="mt-2 text-xs leading-relaxed text-slate-400">
-            One concise email a month with new product releases, platform changes, and community highlights. Opt-in only with 1-click unsubscribe.
-          </p>
-          <div className="mt-6">
+          <div className="mx-auto mt-8 max-w-md">
             <ParentNotifyForm isNewsletter />
           </div>
         </div>
