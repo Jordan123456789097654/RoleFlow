@@ -241,6 +241,14 @@ export async function discardDraft(campaignId: string) {
 
 const EMAIL_RE = /^[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{2,24}$/;
 
+/** Distribution lists that forward to staff, from STAFF_SHARED_ADDRESSES (comma separated). */
+export function sharedStaffAddresses(): string[] {
+  return (process.env.STAFF_SHARED_ADDRESSES || "")
+    .split(",")
+    .map((a) => a.trim().toLowerCase())
+    .filter(Boolean);
+}
+
 /**
  * Sends one copy of a template to one address, outside any campaign. Respects opt-outs.
  * Staff-only templates only go to a verified staff company address.
@@ -258,8 +266,16 @@ export async function sendSingle(input: { templateId: string; values: Record<str
     where: { AND: [{ companyEmail: { equals: email, mode: "insensitive" } }, STAFF_WHERE] },
     select: { username: true },
   });
-  if (templateAudience(tpl) === "staff" && !staffMatch) {
+  // Shared staff distribution lists (a group that forwards to every staff member) are allowed here.
+  // They must be listed in STAFF_SHARED_ADDRESSES. Each send to one is recorded in the audit log.
+  const sharedStaffAddress = sharedStaffAddresses().includes(email);
+  if (templateAudience(tpl) === "staff" && !staffMatch && !sharedStaffAddress) {
     throw new BulkError("Staff-only templates can only be sent to a verified staff company address.");
+  }
+  if (sharedStaffAddress && !staffMatch) {
+    await prisma.auditLog.create({
+      data: { actorId: input.actorId, action: "SHARED_STAFF_SEND", targetId: email, details: JSON.stringify({ templateId: tpl.id }) },
+    });
   }
 
   const account = await prisma.user.findFirst({

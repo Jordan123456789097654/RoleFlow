@@ -1727,6 +1727,30 @@ const T: Template[] = [
       cta: { label: v.ctaLabel, url: v.ctaUrl },
     }),
   },
+  {
+    id: "unscheduled-maintenance",
+    name: "Unscheduled maintenance",
+    category: "Operations",
+    description: "Tell people RoleFlow is paused for unplanned maintenance and will show the maintenance screen until it is finished.",
+    fields: [
+      text("reason", "What we are fixing", "a problem with our servers", { required: true }),
+      body("We need to pause RoleFlow for unscheduled maintenance to deal with {REASON}. While we work on it, the site will show a maintenance screen, and you will not be able to sign in, apply, or manage your community."),
+      text("expected", "Expected back", "Within the next few hours"),
+      bullets("Applications you already submitted are safe\nNothing you have saved will be lost\nWe will update the status page as we go"),
+      ...ctaFields("Check the status page", DEFAULT_ORIGIN),
+    ],
+    build: (v) => ({
+      subject: "RoleFlow is paused for unscheduled maintenance",
+      preheader: "The site is temporarily unavailable",
+      heading: "RoleFlow is temporarily paused",
+      paragraphs: splitParas(v.body.split("{REASON}").join(v.reason)),
+      sections: [
+        { title: "Expected back", paragraphs: [v.expected] },
+        { title: "What to know", bullets: splitLines(v.bullets) },
+      ],
+      cta: { label: v.ctaLabel, url: v.ctaUrl },
+    }),
+  },
 ];
 
 export const TEMPLATES: Template[] = T;
