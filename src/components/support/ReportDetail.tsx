@@ -22,6 +22,7 @@ const CHECKS = [
 
 const STATUS_STYLE: Record<string, string> = {
   PENDING_REVIEW: "bg-amber-500/15 text-amber-600",
+  WITHDRAWN: "bg-zinc-500/15 text-zinc-600",
   VERIFIED: "bg-emerald-500/15 text-emerald-600",
   REJECTED: "bg-rose-500/15 text-rose-600",
   NEEDS_CHANGES: "bg-sky-500/15 text-sky-600",
@@ -109,6 +110,13 @@ export default function ReportDetail({ id, templates, canReviewHint = false, onC
     call(`/api/support/reports/${report.id}/status`, { status: value, note: statusNote }, "Ticket status updated.").then((r) => {
       if (r) setStatusNote("");
     });
+  }
+
+  const [withdrawNote, setWithdrawNote] = useState("");
+
+  function withdraw() {
+    call(`/api/support/reports/${report.id}/withdraw`, { reason: withdrawNote }, "Report withdrawn from review.");
+    setWithdrawNote("");
   }
 
   function decide(decision: "VERIFIED" | "REJECTED" | "NEEDS_CHANGES") {
@@ -251,6 +259,20 @@ export default function ReportDetail({ id, templates, canReviewHint = false, onC
           </div>
           <textarea rows={2} className={input} placeholder="Reason for redacting (at least 10 characters)" value={redactReason} onChange={(e) => setRedactReason(e.target.value)} />
           <button className={`${ghost} text-danger`} disabled={busy || picked.length === 0 || redactReason.trim().length < 10} onClick={redact}>Redact selected answers</button>
+        </div>
+      )}
+
+      {report.reviewStatus === "PENDING_REVIEW" && (isAuthor || viewerIsAdmin) && (
+        <div className="space-y-2 p-3 rounded-xl bg-sunk">
+          <h5 className="text-[11px] font-bold text-muted uppercase tracking-wide">Move out of pending review</h5>
+          <p className="text-[11px] text-muted">{isAuthor ? "You filed this report, so you cannot review it. You can withdraw it instead." : "Withdraw this report if it should not go to review."}</p>
+          <input
+            className="w-full px-3 py-2 rounded-xl bg-surface border border-line text-xs text-ink placeholder-faint focus:outline-none focus:border-accent"
+            placeholder="Reason for withdrawing (at least 10 characters)"
+            value={withdrawNote}
+            onChange={(e) => setWithdrawNote(e.target.value)}
+          />
+          <button className={`${ghost} text-danger`} disabled={busy || withdrawNote.trim().length < 10} onClick={withdraw}>Withdraw from review</button>
         </div>
       )}
 

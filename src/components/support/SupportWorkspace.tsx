@@ -272,7 +272,7 @@ function ReportList({ mine = false }: { mine?: boolean }) {
   );
 }
 
-function UserLookup() {
+export function UserLookup() {
   const [q, setQ] = useState("");
   const [results, setResults] = useState<any[]>([]);
   const [selected, setSelected] = useState<any | null>(null);
@@ -301,7 +301,7 @@ function UserLookup() {
     <div className="space-y-6">
       <div className={panel}>
         <div className="flex gap-3">
-          <input className={input} placeholder="Discord ID, username, email, or Roblox username" value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => e.key === "Enter" && search()} />
+          <input className={input} placeholder="Discord user ID (exact), username, email, or Roblox username" value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => e.key === "Enter" && search()} />
           <button className={btn} onClick={search}>Search</button>
         </div>
         {error && <p className="text-xs text-danger">{error}</p>}
@@ -318,6 +318,52 @@ function UserLookup() {
       </div>
 
       {selected && <UserDetail data={selected} onChanged={() => open(selected.user.id)} />}
+    </div>
+  );
+}
+
+function EditAccount({ user, onChanged }: { user: any; onChanged: () => void }) {
+  const [field, setField] = useState<"username" | "email" | "unlinkRoblox">("username");
+  const [value, setValue] = useState("");
+  const [reason, setReason] = useState("");
+  const [ticketRef, setTicketRef] = useState("");
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const needsValue = field !== "unlinkRoblox";
+
+  async function save() {
+    setMsg(null);
+    try {
+      await api(`/api/support/users/${user.id}/edit`, {
+        method: "POST",
+        body: JSON.stringify({ field, value, reason, ticketRef }),
+      });
+      setMsg({ ok: true, text: "Saved, logged, and the member was notified." });
+      setValue("");
+      setReason("");
+      onChanged();
+    } catch (e: any) {
+      setMsg({ ok: false, text: e.message });
+    }
+  }
+
+  return (
+    <div className={panel}>
+      <h4 className="text-xs font-bold text-ink">Edit account</h4>
+      <p className="text-[11px] text-muted">Every edit needs a reason, is written to the audit log, and sends the member a security notice.</p>
+      <div className="grid sm:grid-cols-2 gap-2">
+        <select className={input} value={field} onChange={(e) => { setField(e.target.value as any); setValue(""); setMsg(null); }}>
+          <option value="username">Change username</option>
+          <option value="email">Change login email</option>
+          <option value="unlinkRoblox">Unlink Roblox account</option>
+        </select>
+        {needsValue && (
+          <input className={input} placeholder={field === "email" ? "New email address" : "New username"} value={value} onChange={(e) => setValue(e.target.value)} />
+        )}
+      </div>
+      <input className={input} placeholder="Ticket reference (optional)" value={ticketRef} onChange={(e) => setTicketRef(e.target.value)} />
+      <textarea rows={3} className={input} placeholder="Reason (at least 10 characters). Recorded in the audit log." value={reason} onChange={(e) => setReason(e.target.value)} />
+      <button className={btn} disabled={reason.trim().length < 10 || (needsValue && !value.trim())} onClick={save}>Save change</button>
+      {msg && <p className={`text-xs ${msg.ok ? "text-emerald-500" : "text-danger"}`}>{msg.text}</p>}
     </div>
   );
 }
@@ -371,6 +417,8 @@ function UserDetail({ data, onChanged }: { data: any; onChanged: () => void }) {
           <Row k="Applications" v={String(applications.length)} />
         </dl>
       </div>
+
+      <EditAccount user={user} onChanged={onChanged} />
 
       <div className={panel}>
         <h4 className="text-xs font-bold text-ink">Actions</h4>

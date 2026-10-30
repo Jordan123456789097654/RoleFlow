@@ -19,7 +19,7 @@ import {
   RefreshCw,
   Mail,
 } from "lucide-react";
-import SupportWorkspace from "@/components/support/SupportWorkspace";
+import SupportWorkspace, { UserLookup } from "@/components/support/SupportWorkspace";
 
 interface ActiveSessionUser {
   id: string;
@@ -476,6 +476,15 @@ export default function SupportStaffPanelPage() {
           </div>
         </div>
       </div>
+      {/* SECTION: MEMBER LOOKUP AND DATA REMOVAL */}
+      <section id="members" className="pt-8 space-y-4 scroll-mt-24">
+        <div>
+          <h2 className="text-xl font-bold text-ink">Member lookup and data removal</h2>
+          <p className="text-xs text-muted mt-1">Enter a member's Discord user ID to open their account. From there you can remove specific data or delete records, each with a reason that is logged.</p>
+        </div>
+        <UserLookup />
+      </section>
+
       {/* SECTION 4: REPORTS AND REVIEW */}
       <section id="reports" className="pt-8 space-y-4 scroll-mt-24">
         <div>

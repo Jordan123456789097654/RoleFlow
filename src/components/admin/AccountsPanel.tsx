@@ -66,6 +66,9 @@ export default function AccountsPanel() {
             <Block title={`Communities owned (${account.guilds.length})`}>
               {account.guilds.map((g: any) => <Row key={g.id} left={g.name} right={g.isPaused ? "PAUSED" : new Date(g.createdAt).toLocaleDateString()} />)}
             </Block>
+            {account.guilds.map((g: any) => (
+              <TransferOwner key={g.id} guild={g} onDone={() => { setMessage(`Ownership of ${g.name} moved.`); open(account.user.id); }} />
+            ))}
             <Block title={`Recent applications (${account.applications.length})`}>
               {account.applications.map((a: any) => <Row key={a.id} left={`${a.position.title} · ${a.position.guild.name}`} right={a.status} />)}
             </Block>
@@ -81,6 +84,37 @@ export default function AccountsPanel() {
           </>
         )}
       </section>
+    </div>
+  );
+}
+
+function TransferOwner({ guild, onDone }: { guild: { id: string; name: string }; onDone: () => void }) {
+  const [newOwnerId, setNewOwnerId] = useState("");
+  const [reason, setReason] = useState("");
+  const [error, setError] = useState<string | null>(null);
+
+  const transfer = async () => {
+    setError(null);
+    if (!confirm(`Move ownership of ${guild.name} to ${newOwnerId.trim()}? The old and new owners will be notified.`)) return;
+    const res = await fetch(`/api/admin/guilds/${guild.id}/owner`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ newOwnerId: newOwnerId.trim(), reason }),
+    });
+    const data = await res.json();
+    if (!res.ok) { setError(data.error || "Transfer failed"); return; }
+    setNewOwnerId("");
+    setReason("");
+    onDone();
+  };
+
+  return (
+    <div className="space-y-2 rounded-xl bg-sunk p-3">
+      <div className="text-xs font-semibold text-ink-2">Transfer ownership of {guild.name}</div>
+      <input value={newOwnerId} onChange={(e) => setNewOwnerId(e.target.value)} placeholder="New owner's Discord user ID" className={input} />
+      <input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Reason (at least 10 characters)" className={input} />
+      <button onClick={transfer} disabled={!newOwnerId.trim() || reason.trim().length < 10} className="rounded-lg bg-purple-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-purple-500 disabled:opacity-40">Transfer ownership</button>
+      {error && <p className="text-xs text-rose-500">{error}</p>}
     </div>
   );
 }
