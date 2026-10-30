@@ -4,8 +4,26 @@ import { logger } from "./logger";
 import { logEvent } from "./health";
 import { platformOrigin } from "./platform-origin";
 
-const resendApiKey = process.env.RESEND_API_KEY || "";
-const resend = new Resend(resendApiKey);
+// Lazy, safe client proxy so module evaluation during Next.js build never throws Missing API key
+const resendProxy = {
+  emails: {
+    send: async (payload: any) => {
+      const key = process.env.RESEND_API_KEY;
+      if (!key) {
+        logger.warn("RESEND_API_KEY is not configured, skipping email dispatch");
+        return { data: { id: "skipped_no_api_key" }, error: null };
+      }
+      try {
+        const client = new Resend(key);
+        return await client.emails.send(payload);
+      } catch (err: any) {
+        logger.error("Resend client execution failed", { err: err?.message });
+        return { data: null, error: err };
+      }
+    }
+  }
+};
+const resend = resendProxy;
 
 // Resend allows noreply@roleflow.site without custom domain verification
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "RoleFlow <noreply@roleflow.site>";
