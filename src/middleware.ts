@@ -136,8 +136,8 @@ async function lookupHost(host: string, position?: string): Promise<HostInfo> {
   return info;
 }
 
-// While SITE_LOCKDOWN=true, only these paths still work: the coming-soon page, scheduled jobs, and Discord's interactions endpoint.
-const LOCKDOWN_ALLOW = [/^\/coming-soon$/, /^\/api\/cron\//, /^\/api\/discord\/interactions/];
+// While SITE_LOCKDOWN=true, only the coming-soon page works. Every API route, including cron jobs and Discord interactions, returns 503.
+const LOCKDOWN_ALLOW = [/^\/coming-soon$/];
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
