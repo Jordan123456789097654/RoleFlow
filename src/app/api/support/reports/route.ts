@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { recordAudit } from "@/lib/audit";
 import { getSupportCaller } from "@/lib/staff-access";
-import { getTemplate, validateReport, REMOVAL_ITEM_LABELS } from "@/lib/support-reports";
+import { getTemplate, validateReport, REMOVAL_ITEM_LABELS, REPORT_TEMPLATES, canUseTemplate } from "@/lib/support-reports";
 import { logReportEvent, postReportNotice } from "@/lib/report-webhook";
 
 export const dynamic = "force-dynamic";
@@ -15,6 +15,7 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
   const tpl = getTemplate(String(body?.reportType ?? ""));
   if (!tpl) return NextResponse.json({ error: "Unknown report type." }, { status: 400 });
+  if (!canUseTemplate(tpl, caller)) return NextResponse.json({ error: "You do not have access to this report type." }, { status: 403 });
 
   const result = validateReport(tpl, body);
   if (typeof result === "string") return NextResponse.json({ error: result }, { status: 400 });
@@ -83,7 +84,8 @@ export async function GET(request: Request) {
   const type = searchParams.get("type");
   const q = searchParams.get("q")?.trim();
   const where: any = {};
-  if (type) where.reportType = type;
+  const allowedIds = REPORT_TEMPLATES.filter((t) => canUseTemplate(t, caller)).map((t) => t.id);
+  where.reportType = type ? (allowedIds.includes(type) ? type : "__none__") : { in: allowedIds };
   if (searchParams.get("mine") === "1") where.authorId = caller.id;
   if (q) {
     where.OR = [

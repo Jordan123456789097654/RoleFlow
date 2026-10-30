@@ -537,6 +537,8 @@ model SupportReport {
   summary         String
   createdAt       DateTime @default(now())
 
+  redactedFields  String?  // JSON list of answer keys that were redacted
+  parentReportId  String?  // the report this one follows up on
   reviewStatus    String   @default("PENDING_REVIEW") // PENDING_REVIEW, VERIFIED, REJECTED, NEEDS_CHANGES
   reviewChecklist String?  // JSON array of the checks the reviewer ticked when verifying
   reviewedById    String?
@@ -545,6 +547,7 @@ model SupportReport {
   reviewNote      String?
   updatedAt       DateTime @updatedAt
 
+  @@index([parentReportId])
   @@index([authorId, createdAt])
   @@index([reportType, createdAt])
   @@index([ticketRef])

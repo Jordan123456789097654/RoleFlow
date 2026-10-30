@@ -182,6 +182,8 @@ export function Navbar({ user }: NavbarProps) {
                         <div className="my-1.5 border-t border-line" />
                         <div className="px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-faint">Internal tools</div>
                         {user.isSupportStaff && <MenuLink href="/support/panel">Support panel</MenuLink>}
+                        {(user.isSupportStaff || user.isSiteAdmin) && <MenuLink href="/support/panel#reports">Reports and review</MenuLink>}
+                        {user.siteRole === "FOUNDER" && <MenuLink href="/founder">Founder console</MenuLink>}
                         {user.isSiteAdmin && <MenuLink href="/admin">Admin console</MenuLink>}
                       </>
                     )}
@@ -243,6 +245,12 @@ export function Navbar({ user }: NavbarProps) {
                 )}
                 {user?.isSiteAdmin && (
                   <Link href="/admin" className="border-b border-line py-3.5 font-display text-[22px] text-ink">Admin console</Link>
+                )}
+                {(user?.isSupportStaff || user?.isSiteAdmin) && (
+                  <Link href="/support/panel#reports" className="border-b border-line py-3.5 font-display text-[22px] text-ink">Reports and review</Link>
+                )}
+                {user?.siteRole === "FOUNDER" && (
+                  <Link href="/founder" className="border-b border-line py-3.5 font-display text-[22px] text-ink">Founder console</Link>
                 )}
               </div>
             )}

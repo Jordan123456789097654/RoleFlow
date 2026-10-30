@@ -1,3 +1,4 @@
+import { cleanHttpsUrl } from "@/lib/site-config";
 import { isFounderId } from "@/lib/roles";
 import { isGuildPaid } from "@/lib/licensing";
 import { encryptSecret } from "@/lib/crypto";
@@ -48,6 +49,12 @@ export async function PATCH(
     }
 
     const body = await request.json();
+    // Reject images that cannot be shown. Saving them silently would make the logo revert to the default.
+    for (const [label, v] of [["Logo", icon], ["Banner", banner]] as const) {
+      if (v !== undefined && v !== null && v !== "" && cleanHttpsUrl(v) === undefined) {
+        return NextResponse.json({ error: `${label} must be a full https:// link to an image.` }, { status: 400 });
+      }
+    }
     const {
       name,
       vanitySlug,
@@ -144,8 +151,8 @@ export async function PATCH(
         ...(vanitySlug !== undefined ? { vanitySlug: vanitySlug?.trim() || null } : {}),
         ...(description !== undefined ? { description: description?.trim() || null } : {}),
         ...(tags !== undefined ? { tags: tags?.trim() || null } : {}),
-        ...(icon !== undefined ? { icon: icon?.trim() || null } : {}),
-        ...(banner !== undefined ? { banner: banner?.trim() || null } : {}),
+        ...(icon !== undefined ? { icon: cleanHttpsUrl(icon) ?? null } : {}),
+        ...(banner !== undefined ? { banner: cleanHttpsUrl(banner) ?? null } : {}),
         ...(typeof requireInGuild === "boolean" ? { requireInGuild } : {}),
         ...(minAccountAgeDays !== undefined ? { minAccountAgeDays: Number(minAccountAgeDays) || 0 } : {}),
         ...(cooldownDays !== undefined ? { cooldownDays: Number(cooldownDays) } : {}),

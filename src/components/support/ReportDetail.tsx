@@ -7,8 +7,10 @@ type Template = { id: string; label: string; fields: Field[]; ticket: boolean; s
 type Report = {
   id: string; reportType: string; ticketRef: string | null; subjectUsername: string | null; subjectUserId: string | null;
   authorId: string; authorName: string | null; fieldsJson: string; summary: string; createdAt: string;
-  reviewStatus: string; reviewChecklist: string | null; reviewedByName: string | null; reviewedAt: string | null; reviewNote: string | null;
+  reviewStatus: string; reviewedByName: string | null; reviewedAt: string | null; reviewNote: string | null;
+  redactedFields: string | null; parentReportId: string | null;
 };
+type Brief = { id: string; reportType: string; summary: string; authorName: string | null; createdAt: string; reviewStatus: string };
 type Event = { id: string; action: string; actorName: string | null; note: string | null; createdAt: string };
 
 const CHECKS = [
@@ -26,24 +28,31 @@ const STATUS_STYLE: Record<string, string> = {
 
 const input = "w-full px-3 py-2 rounded-xl bg-surface border border-line text-xs text-ink focus:outline-none focus:border-accent";
 const btn = "px-4 py-2 rounded-xl bg-accent text-white text-xs font-semibold disabled:opacity-40";
-const ghost = "px-3 py-1.5 rounded-lg bg-surface border border-line text-xs font-semibold text-ink-2 hover:bg-sunk";
+const ghost = "px-3 py-1.5 rounded-lg bg-surface border border-line text-xs font-semibold text-ink-2 hover:bg-sunk disabled:opacity-40";
 
 function fmt(d: string | null | undefined) {
   return d ? new Date(d).toLocaleString() : "-";
 }
 
-/** Full record of one report: every answer, the review status, and the complete history. Reviewers see decision controls. */
+/** Full record of one report: answers, review status, history, links, and (for administrators) redaction and review. */
 export default function ReportDetail({ id, templates, canReviewHint = false, onChanged }: { id: string; templates: Template[]; canReviewHint?: boolean; onChanged?: () => void }) {
-  const [data, setData] = useState<{ report: Report; events: Event[]; viewerId: string; viewerIsAdmin: boolean } | null>(null);
+  const [trail, setTrail] = useState<string[]>([id]);
+  const activeId = trail[trail.length - 1];
+  const [data, setData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [checks, setChecks] = useState<boolean[]>([false, false, false]);
   const [note, setNote] = useState("");
+  const [picked, setPicked] = useState<string[]>([]);
+  const [redactReason, setRedactReason] = useState("");
+  const [linkQuery, setLinkQuery] = useState("");
+  const [linkResults, setLinkResults] = useState<Brief[]>([]);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
 
-  async function load() {
+  async function load(reportId = activeId) {
+    setError(null);
     try {
-      const res = await fetch(`/api/support/reports/${id}`);
+      const res = await fetch(`/api/support/reports/${reportId}`);
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Could not load report");
       setData(json);
@@ -52,33 +61,33 @@ export default function ReportDetail({ id, templates, canReviewHint = false, onC
     }
   }
 
-  useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [id]);
+  useEffect(() => { load(activeId); setPicked([]); setMsg(null); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [activeId]);
 
   if (error) return <p className="text-xs text-danger">{error}</p>;
   if (!data) return <p className="text-xs text-muted">Loading report...</p>;
 
-  const { report, events, viewerId, viewerIsAdmin } = data;
+  const { report, events, parent, children, viewerId, viewerIsAdmin } = data as {
+    report: Report; events: Event[]; parent: Brief | null; children: Brief[]; viewerId: string; viewerIsAdmin: boolean;
+  };
   const tpl = templates.find((t) => t.id === report.reportType);
   const answers = JSON.parse(report.fieldsJson || "{}") as Record<string, any>;
+  const redacted = JSON.parse(report.redactedFields || "[]") as string[];
   const isAuthor = viewerId === report.authorId;
   const canReview = (viewerIsAdmin || canReviewHint) && !isAuthor && report.reviewStatus === "PENDING_REVIEW";
+  const redactable = (tpl?.fields ?? []).filter((f) => ["text", "textarea", "select"].includes(f.kind) && !redacted.includes(f.key));
+  const canLink = isAuthor || viewerIsAdmin;
 
-  async function decide(decision: "VERIFIED" | "REJECTED" | "NEEDS_CHANGES") {
+  async function call(url: string, body: unknown, okText: string) {
     setBusy(true);
     setMsg(null);
     try {
-      const res = await fetch(`/api/support/reports/${report.id}/review`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ decision, note, checklist: checks }),
-      });
+      const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Could not record the decision");
-      setMsg({ ok: true, text: "Decision recorded and posted to the reports channel." });
-      setNote("");
-      setChecks([false, false, false]);
-      await load();
+      if (!res.ok) throw new Error(json.error || "Something went wrong");
+      setMsg({ ok: true, text: okText });
+      await load(activeId);
       onChanged?.();
+      return json;
     } catch (e: any) {
       setMsg({ ok: false, text: e.message });
     } finally {
@@ -86,8 +95,39 @@ export default function ReportDetail({ id, templates, canReviewHint = false, onC
     }
   }
 
+  function decide(decision: "VERIFIED" | "REJECTED" | "NEEDS_CHANGES") {
+    call(`/api/support/reports/${report.id}/review`, { decision, note, checklist: checks }, "Decision recorded and posted to the reports channel.").then((r) => {
+      if (r) { setNote(""); setChecks([false, false, false]); }
+    });
+  }
+
+  function redact() {
+    if (!window.confirm(`Permanently remove ${picked.length} answer(s)? The values cannot be recovered afterwards.`)) return;
+    call(`/api/support/reports/${report.id}/redact`, { fields: picked, reason: redactReason }, "Answers redacted. The history records who did it and why.").then((r) => {
+      if (r) { setPicked([]); setRedactReason(""); }
+    });
+  }
+
+  async function searchLinks(q: string) {
+    setLinkQuery(q);
+    if (q.trim().length < 2) return setLinkResults([]);
+    const res = await fetch(`/api/support/reports?q=${encodeURIComponent(q.trim())}`);
+    const json = await res.json();
+    if (res.ok) setLinkResults((json.reports as Brief[]).filter((r) => r.id !== report.id).slice(0, 8));
+  }
+
+  function link(parentId: string | null) {
+    call(`/api/support/reports/${report.id}/link`, { parentId }, parentId ? "Linked." : "Link removed.").then((r) => {
+      if (r) { setLinkQuery(""); setLinkResults([]); }
+    });
+  }
+
   return (
     <div className="space-y-5 pt-3">
+      {trail.length > 1 && (
+        <button className={ghost} onClick={() => setTrail(trail.slice(0, -1))}>Back</button>
+      )}
+
       <div className="flex flex-wrap items-center gap-2">
         <span className={`px-2.5 py-1 rounded-lg text-[11px] font-bold ${STATUS_STYLE[report.reviewStatus] ?? ""}`}>
           {report.reviewStatus.replace(/_/g, " ").toLowerCase()}
@@ -106,6 +146,7 @@ export default function ReportDetail({ id, templates, canReviewHint = false, onC
 
       <div className="space-y-2">
         <h5 className="text-[11px] font-bold text-muted uppercase tracking-wide">Answers</h5>
+        {redacted.length > 0 && <p className="text-[11px] text-amber-600">{redacted.length} answer(s) redacted.</p>}
         <dl className="grid sm:grid-cols-2 gap-2 text-[11px]">
           {(tpl?.fields ?? Object.keys(answers).map((k) => ({ key: k, label: k, kind: "text" }))).map((f) => {
             const v = answers[f.key];
@@ -119,6 +160,54 @@ export default function ReportDetail({ id, templates, canReviewHint = false, onC
         <div className="p-3 rounded-xl bg-sunk text-[11px] space-y-1">
           <p className="text-ink-2"><span className="font-semibold">Reviewed by</span> {report.reviewedByName ?? "-"} on {fmt(report.reviewedAt)}</p>
           {report.reviewNote && <p className="text-ink-2"><span className="font-semibold">Note</span> {report.reviewNote}</p>}
+        </div>
+      )}
+
+      <div className="space-y-2">
+        <h5 className="text-[11px] font-bold text-muted uppercase tracking-wide">Linked reports</h5>
+        {parent && (
+          <div className="flex items-center justify-between gap-2 p-2 rounded-lg bg-sunk text-[11px]">
+            <span className="text-ink-2">Follows up on: <span className="font-semibold">{parent.summary || parent.reportType}</span> · {fmt(parent.createdAt)}</span>
+            <span className="flex gap-2">
+              <button className={ghost} onClick={() => setTrail([...trail, parent.id])}>Open</button>
+              {canLink && <button className={ghost} disabled={busy} onClick={() => link(null)}>Unlink</button>}
+            </span>
+          </div>
+        )}
+        {children.map((c) => (
+          <div key={c.id} className="flex items-center justify-between gap-2 p-2 rounded-lg bg-sunk text-[11px]">
+            <span className="text-ink-2">Follow-up: <span className="font-semibold">{c.summary || c.reportType}</span> · {fmt(c.createdAt)}</span>
+            <button className={ghost} onClick={() => setTrail([...trail, c.id])}>Open</button>
+          </div>
+        ))}
+        {!parent && children.length === 0 && <p className="text-[11px] text-faint">Not linked to any report.</p>}
+        {canLink && (
+          <div className="space-y-2">
+            <input className={input} placeholder="Search a report to link to (ticket, user, or summary)" value={linkQuery} onChange={(e) => searchLinks(e.target.value)} />
+            {linkResults.map((r) => (
+              <button key={r.id} className="w-full text-left p-2 rounded-lg bg-surface border border-line text-[11px]" disabled={busy} onClick={() => link(r.id)}>
+                <span className="font-semibold text-ink">{r.summary || r.reportType}</span>
+                <span className="text-muted"> · {r.authorName ?? "unknown"} · {fmt(r.createdAt)}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {viewerIsAdmin && redactable.length > 0 && (
+        <div className="p-4 rounded-xl bg-sunk space-y-3">
+          <p className="text-xs font-bold text-ink">Redact answers</p>
+          <p className="text-[11px] text-muted">Removes the values permanently. Use this for verification codes, personal details that should not be kept, or anything filed by mistake. The history keeps the field name and your reason, not the value.</p>
+          <div className="grid sm:grid-cols-2 gap-2">
+            {redactable.map((f) => (
+              <label key={f.key} className="flex items-center gap-2 text-[11px] text-ink-2">
+                <input type="checkbox" checked={picked.includes(f.key)} onChange={(e) => setPicked(e.target.checked ? [...picked, f.key] : picked.filter((k) => k !== f.key))} />
+                {f.label}
+              </label>
+            ))}
+          </div>
+          <textarea rows={2} className={input} placeholder="Reason for redacting (at least 10 characters)" value={redactReason} onChange={(e) => setRedactReason(e.target.value)} />
+          <button className={`${ghost} text-danger`} disabled={busy || picked.length === 0 || redactReason.trim().length < 10} onClick={redact}>Redact selected answers</button>
         </div>
       )}
 
@@ -140,10 +229,10 @@ export default function ReportDetail({ id, templates, canReviewHint = false, onC
             <button className={ghost} disabled={busy || note.trim().length < 10} onClick={() => decide("NEEDS_CHANGES")}>Needs changes</button>
             <button className={`${ghost} text-danger`} disabled={busy || note.trim().length < 10} onClick={() => decide("REJECTED")}>Reject</button>
           </div>
-          {msg && <p className={`text-xs ${msg.ok ? "text-emerald-500" : "text-danger"}`}>{msg.text}</p>}
         </div>
       )}
-      {!canReview && msg && <p className={`text-xs ${msg.ok ? "text-emerald-500" : "text-danger"}`}>{msg.text}</p>}
+
+      {msg && <p className={`text-xs ${msg.ok ? "text-emerald-500" : "text-danger"}`}>{msg.text}</p>}
 
       <div className="space-y-2">
         <h5 className="text-[11px] font-bold text-muted uppercase tracking-wide">History</h5>
@@ -170,7 +259,7 @@ function Row({ k, v, wide }: { k: string; v: string; wide?: boolean }) {
   );
 }
 
-/** Administrator queue: every report waiting for a decision, oldest first. */
+/** Administrator queue: reports waiting for a decision, oldest first. */
 export function ReviewQueue({ templates }: { templates: Template[] }) {
   const [reports, setReports] = useState<any[]>([]);
   const [status, setStatus] = useState("PENDING_REVIEW");

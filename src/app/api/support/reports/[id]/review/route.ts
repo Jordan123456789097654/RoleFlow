@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { recordAudit } from "@/lib/audit";
 import { getAdminCaller } from "@/lib/staff-access";
 import { logReportEvent, postReportNotice } from "@/lib/report-webhook";
+import { getTemplate, canUseTemplate } from "@/lib/support-reports";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +32,8 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
   const report = await prisma.supportReport.findUnique({ where: { id: params.id } });
   if (!report) return NextResponse.json({ error: "Report not found" }, { status: 404 });
+  const tpl = getTemplate(report.reportType);
+  if (tpl && !canUseTemplate(tpl, caller)) return NextResponse.json({ error: "You do not have access to this report." }, { status: 403 });
   if (report.authorId === caller.id) return NextResponse.json({ error: "You cannot review a report you filed." }, { status: 403 });
   if (report.reviewStatus !== "PENDING_REVIEW") return NextResponse.json({ error: "This report has already been reviewed." }, { status: 409 });
 

@@ -5,7 +5,7 @@ import ReportDetail, { ReviewQueue } from "@/components/support/ReportDetail";
 
 type Field = { key: string; label: string; kind: "text" | "textarea" | "select" | "checkbox" | "multi"; required?: boolean; options?: string[]; help?: string };
 type Template = { id: string; label: string; group: string; description: string; ticket: boolean; subject: boolean; fields: Field[] };
-type Tab = "file" | "mine" | "lookup" | "removals" | "all" | "review";
+export type Tab = "file" | "mine" | "lookup" | "removals" | "all" | "review";
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "file", label: "File a report" },
@@ -47,8 +47,8 @@ function fmt(d: string | Date | null | undefined) {
   return d ? new Date(d).toLocaleString() : "-";
 }
 
-export default function SupportWorkspace() {
-  const [tab, setTab] = useState<Tab>("file");
+export default function SupportWorkspace({ initialTab }: { initialTab?: Tab } = {}) {
+  const [tab, setTab] = useState<Tab>(initialTab ?? "file");
   const [forbidden, setForbidden] = useState(false);
 
   useEffect(() => {

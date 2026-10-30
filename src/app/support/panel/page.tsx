@@ -19,6 +19,7 @@ import {
   RefreshCw,
   Mail,
 } from "lucide-react";
+import SupportWorkspace from "@/components/support/SupportWorkspace";
 
 interface ActiveSessionUser {
   id: string;
@@ -475,6 +476,14 @@ export default function SupportStaffPanelPage() {
           </div>
         </div>
       </div>
+      {/* SECTION 4: REPORTS AND REVIEW */}
+      <section id="reports" className="pt-8 space-y-4 scroll-mt-24">
+        <div>
+          <h2 className="text-xl font-bold text-ink">Reports and review</h2>
+          <p className="text-xs text-muted mt-1">File reports for tickets you handle in Discord, look up accounts, and log data removals. Administrators review reports from the review queue tab.</p>
+        </div>
+        <SupportWorkspace />
+      </section>
     </div>
   );
 }

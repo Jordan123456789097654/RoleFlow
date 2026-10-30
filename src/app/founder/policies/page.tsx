@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 
 type Section = { title: string; paragraphs: (string | string[])[] };
 type Policy = { slug: string; title: string; subtitle: string; updated: string; sections: Section[]; customised: boolean; customisedAt: string | null };
@@ -122,7 +123,8 @@ export default function FounderPoliciesPage() {
   return (
     <div className="page-wrap py-12 sm:py-16 space-y-8">
       <div>
-        <p className="eyebrow mb-3">Founder</p>
+        <Link href="/founder" className="text-[13px] text-muted hover:text-ink">← Founder Master Command Console</Link>
+        <p className="eyebrow mb-3 mt-4">Founder</p>
         <h1 className="display-md">Policy editor</h1>
         <p className="mt-3 text-sm text-muted max-w-2xl">Changes go live on the public page as soon as you save. Every save keeps the previous version so you can restore it.</p>
       </div>

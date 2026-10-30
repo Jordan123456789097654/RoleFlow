@@ -2902,6 +2902,8 @@ export default function DashboardPage({ params }: { params: { guildId: string } 
                   placeholder="https://..."
                   className="w-full px-3.5 py-2.5 rounded-xl bg-surface border border-line text-xs text-ink focus:outline-none focus:border-accent"
                 />
+                <p className="mt-1.5 text-[11px] text-faint">Must be a full https:// link to an image (PNG, JPG, GIF, or WebP).</p>
+                <button type="button" onClick={handleSaveSettings} disabled={savingSettings} className="mt-2 px-3 py-1.5 rounded-lg bg-accent text-white text-xs font-semibold disabled:opacity-40">{savingSettings ? "Saving..." : "Save logo"}</button>
               </div>
 
               <div>
