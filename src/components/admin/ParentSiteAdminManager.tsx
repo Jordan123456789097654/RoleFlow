@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import { Product } from "@/lib/parent-site";
 import { Plus, Trash2, Edit3, Save, RefreshCw, Clock, Sparkles } from "lucide-react";
 
+const card = "rounded-2xl border border-line bg-surface p-5";
+
 export function ParentSiteAdminManager() {
   const [products, setProducts] = useState<Product[]>([]);
   const [countdown, setCountdown] = useState<{ targetDate: string | null; label: string | null }>({
@@ -121,13 +123,13 @@ export function ParentSiteAdminManager() {
   }
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-6">
       {message && (
         <div
           className={`rounded-xl border p-4 text-xs font-semibold ${
             message.ok
-              ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
-              : "border-rose-500/30 bg-rose-500/10 text-rose-400"
+              ? "border-emerald-500/30 bg-emerald-500/10 text-moss"
+              : "border-rose-500/30 bg-rose-500/10 text-danger"
           }`}
         >
           {message.text}
@@ -135,16 +137,16 @@ export function ParentSiteAdminManager() {
       )}
 
       {/* Countdown Configuration */}
-      <section className="rounded-3xl border border-line bg-surface/50 p-6 sm:p-8">
+      <section className={card}>
         <div className="flex items-center gap-3">
-          <Clock className="h-5 w-5 text-violet-400" />
-          <h3 className="text-lg font-bold text-ink">Product Launch Countdown</h3>
+          <Clock className="h-5 w-5 text-accent" />
+          <h3 className="text-sm font-bold text-ink">Product Launch Countdown</h3>
         </div>
         <p className="mt-1 text-xs text-muted">
           Displays an optional live ticking banner on the parent company homepage.
         </p>
 
-        <form onSubmit={handleSaveCountdown} className="mt-6 grid gap-4 sm:grid-cols-2">
+        <form onSubmit={handleSaveCountdown} className="mt-5 grid gap-4 sm:grid-cols-2">
           <div>
             <label className="block text-xs font-medium text-ink mb-1">Banner Label</label>
             <input
@@ -152,25 +154,25 @@ export function ParentSiteAdminManager() {
               value={countdown.label || ""}
               onChange={(e) => setCountdown({ ...countdown, label: e.target.value })}
               placeholder="e.g. Next Product Early Access"
-              className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-violet-500 focus:outline-none"
+              className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-ink mb-1">Target Date &amp; Time (ISO or local)</label>
+            <label className="block text-xs font-medium text-ink mb-1">Target Date &amp; Time (Local or ISO)</label>
             <input
               type="datetime-local"
               value={countdown.targetDate ? countdown.targetDate.slice(0, 16) : ""}
               onChange={(e) => setCountdown({ ...countdown, targetDate: e.target.value ? new Date(e.target.value).toISOString() : null })}
-              className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-violet-500 focus:outline-none"
+              className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none"
             />
           </div>
 
-          <div className="flex items-center gap-2 sm:col-span-2 pt-2">
+          <div className="flex items-center gap-2 sm:col-span-2 pt-1">
             <button
               type="submit"
               disabled={saving}
-              className="rounded-xl bg-violet-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-violet-500 disabled:opacity-50"
+              className="rounded-xl bg-purple-600 px-4 py-2 text-xs font-bold text-white shadow-card shadow-purple-600/30 transition-colors hover:bg-purple-500 disabled:opacity-50"
             >
               {saving ? "Saving..." : "Save Countdown"}
             </button>
@@ -195,12 +197,12 @@ export function ParentSiteAdminManager() {
       </section>
 
       {/* Product Catalog Management */}
-      <section className="rounded-3xl border border-line bg-surface/50 p-6 sm:p-8">
+      <section className={card}>
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-3">
-              <Sparkles className="h-5 w-5 text-violet-400" />
-              <h3 className="text-lg font-bold text-ink">Products Lineup</h3>
+              <Sparkles className="h-5 w-5 text-accent" />
+              <h3 className="text-sm font-bold text-ink">Products Lineup</h3>
             </div>
             <p className="mt-1 text-xs text-muted">
               Add, edit badges, or remove products shown on the parent homepage and products showcase.
@@ -211,7 +213,7 @@ export function ParentSiteAdminManager() {
             <button
               type="button"
               onClick={() => setShowAddModal(true)}
-              className="flex items-center gap-1.5 rounded-xl bg-violet-600 px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-violet-500"
+              className="flex items-center gap-1.5 rounded-xl bg-purple-600 px-3.5 py-2 text-xs font-bold text-white shadow-card shadow-purple-600/30 transition-colors hover:bg-purple-500"
             >
               <Plus className="h-3.5 w-3.5" /> Add Product
             </button>
@@ -234,11 +236,11 @@ export function ParentSiteAdminManager() {
         </div>
 
         {/* Product Cards List */}
-        <div className="mt-6 space-y-4">
+        <div className="mt-5 space-y-3">
           {products.map((p, idx) => (
             <div
               key={p.id}
-              className="flex flex-col gap-4 rounded-2xl border border-line bg-paper p-5 sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-4 rounded-xl border border-line bg-paper p-4 sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="space-y-1">
                 <div className="flex items-center gap-2.5">
@@ -246,16 +248,16 @@ export function ParentSiteAdminManager() {
                   <span
                     className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${
                       p.badge === "Live"
-                        ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                        : "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                        ? "bg-moss/20 text-moss border border-moss/30"
+                        : "bg-gold/20 text-gold border border-gold/30"
                     }`}
                   >
                     {p.badge}
                   </span>
                 </div>
-                <p className="text-xs text-violet-600 font-medium">{p.tagline}</p>
+                <p className="text-xs text-accent font-medium">{p.tagline}</p>
                 <p className="text-xs text-muted max-w-xl">{p.description}</p>
-                <p className="font-mono text-[10px] text-slate-400">URL: {p.href}</p>
+                <p className="font-mono text-[10px] text-faint">URL: {p.href}</p>
               </div>
 
               <div className="flex items-center gap-2 shrink-0">
@@ -267,7 +269,7 @@ export function ParentSiteAdminManager() {
                     updated[idx] = { ...p, badge: nextBadge };
                     handleSaveProducts(updated);
                   }}
-                  className="rounded-xl border border-line bg-surface px-3 py-1.5 text-xs font-medium text-ink hover:border-violet-500"
+                  className="rounded-xl border border-line bg-surface px-3 py-1.5 text-xs font-medium text-ink hover:border-accent"
                 >
                   Toggle Badge
                 </button>
@@ -289,7 +291,7 @@ export function ParentSiteAdminManager() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
           <form
             onSubmit={handleAddProduct}
-            className="w-full max-w-lg rounded-3xl border border-line bg-surface p-6 shadow-2xl space-y-4"
+            className="w-full max-w-lg rounded-2xl border border-line bg-surface p-6 shadow-2xl space-y-4"
           >
             <h4 className="text-base font-bold text-ink">Add New RoleFlow Product</h4>
 
@@ -302,7 +304,7 @@ export function ParentSiteAdminManager() {
                   placeholder="e.g. auditflow"
                   value={newProd.id}
                   onChange={(e) => setNewProd({ ...newProd, id: e.target.value.toLowerCase().replace(/\s+/g, "-") })}
-                  className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-violet-500 focus:outline-none"
+                  className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none"
                 />
               </div>
 
@@ -314,7 +316,7 @@ export function ParentSiteAdminManager() {
                   placeholder="e.g. AuditFlow by RoleFlow"
                   value={newProd.name}
                   onChange={(e) => setNewProd({ ...newProd, name: e.target.value })}
-                  className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-violet-500 focus:outline-none"
+                  className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none"
                 />
               </div>
             </div>
@@ -327,7 +329,7 @@ export function ParentSiteAdminManager() {
                 placeholder="e.g. Real-time staff logs and moderation telemetry."
                 value={newProd.tagline}
                 onChange={(e) => setNewProd({ ...newProd, tagline: e.target.value })}
-                className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-violet-500 focus:outline-none"
+                className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none"
               />
             </div>
 
@@ -339,7 +341,7 @@ export function ParentSiteAdminManager() {
                 placeholder="Describe what the product does for Roblox groups and Discord servers..."
                 value={newProd.description}
                 onChange={(e) => setNewProd({ ...newProd, description: e.target.value })}
-                className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-violet-500 focus:outline-none"
+                className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none"
               />
             </div>
 
@@ -352,7 +354,7 @@ export function ParentSiteAdminManager() {
                   placeholder="https://auditflow.roleflow.site"
                   value={newProd.href}
                   onChange={(e) => setNewProd({ ...newProd, href: e.target.value })}
-                  className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-violet-500 focus:outline-none"
+                  className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none"
                 />
               </div>
 
@@ -361,7 +363,7 @@ export function ParentSiteAdminManager() {
                 <select
                   value={newProd.badge}
                   onChange={(e) => setNewProd({ ...newProd, badge: e.target.value as any })}
-                  className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-violet-500 focus:outline-none"
+                  className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none"
                 >
                   <option value="Live">Live</option>
                   <option value="Coming soon">Coming soon</option>
@@ -369,7 +371,7 @@ export function ParentSiteAdminManager() {
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-4">
+            <div className="flex justify-end gap-2 pt-3 border-t border-line">
               <button
                 type="button"
                 onClick={() => setShowAddModal(false)}
@@ -380,7 +382,7 @@ export function ParentSiteAdminManager() {
               <button
                 type="submit"
                 disabled={saving}
-                className="rounded-xl bg-violet-600 px-4 py-2 text-xs font-semibold text-white hover:bg-violet-500 disabled:opacity-50"
+                className="rounded-xl bg-purple-600 px-4 py-2 text-xs font-bold text-white shadow-card shadow-purple-600/30 hover:bg-purple-500 disabled:opacity-50"
               >
                 Save Product
               </button>
