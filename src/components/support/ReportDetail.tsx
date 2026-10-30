@@ -9,6 +9,7 @@ type Report = {
   authorId: string; authorName: string | null; fieldsJson: string; summary: string; createdAt: string;
   reviewStatus: string; reviewedByName: string | null; reviewedAt: string | null; reviewNote: string | null;
   redactedFields: string | null; parentReportId: string | null;
+  workflowStatus?: string;
 };
 type Brief = { id: string; reportType: string; summary: string; authorName: string | null; createdAt: string; reviewStatus: string };
 type Event = { id: string; action: string; actorName: string | null; note: string | null; createdAt: string };
