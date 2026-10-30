@@ -738,3 +738,15 @@ model CommunityIdea {
   @@index([status])
   @@index([upvotes])
 }
+
+model ParentBlogPost {
+  slug      String   @id
+  title     String
+  excerpt   String
+  content   String   // JSON string array of paragraphs or markdown
+  author    String   @default("RoleFlow Team")
+  readTime  String   @default("3 min read")
+  date      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

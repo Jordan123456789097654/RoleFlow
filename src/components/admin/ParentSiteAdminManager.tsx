@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Product } from "@/lib/parent-site";
-import { Plus, Trash2, Edit3, Save, RefreshCw, Clock, Sparkles } from "lucide-react";
+import { Product, BlogPost } from "@/lib/parent-site";
+import { Plus, Trash2, Edit3, Save, RefreshCw, Clock, Sparkles, BookOpen, ExternalLink, Check } from "lucide-react";
 
 const card = "rounded-2xl border border-line bg-surface p-5";
 
@@ -12,22 +12,32 @@ export function ParentSiteAdminManager() {
     targetDate: null,
     label: null,
   });
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
 
-  // New product form
-  const [newProd, setNewProd] = useState<Product>({
-    id: "",
-    name: "",
-    tagline: "",
-    description: "",
-    href: "",
-    badge: "Coming soon",
-    logoSolid: "/logo-pack/roster-by-roleflow-solid.png",
-    logoTransparent: "/logo-pack/roster-by-roleflow-transparent.png",
+  // Edit / Add product state
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [isNewProduct, setIsNewProduct] = useState(false);
+
+  // Edit / Add blog post state
+  const [showBlogModal, setShowBlogModal] = useState(false);
+  const [blogForm, setBlogForm] = useState<{
+    slug: string;
+    title: string;
+    excerpt: string;
+    author: string;
+    readTime: string;
+    content: string;
+  }>({
+    slug: "",
+    title: "",
+    excerpt: "",
+    author: "RoleFlow Engineering",
+    readTime: "3 min read",
+    content: "",
   });
-  const [showAddModal, setShowAddModal] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -36,6 +46,7 @@ export function ParentSiteAdminManager() {
         const data = await res.json();
         setProducts(data.products || []);
         setCountdown(data.countdown || { targetDate: null, label: null });
+        setBlogPosts(data.blogPosts || []);
       }
     } catch {
       // ignore
@@ -60,7 +71,8 @@ export function ParentSiteAdminManager() {
       const data = await res.json();
       if (res.ok) {
         setProducts(updated);
-        setMessage({ ok: true, text: "Products saved successfully!" });
+        setEditingProduct(null);
+        setMessage({ ok: true, text: "Products lineup saved successfully!" });
       } else {
         setMessage({ ok: false, text: data.error || "Failed to save." });
       }
@@ -69,6 +81,24 @@ export function ParentSiteAdminManager() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleProductSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingProduct) return;
+    let updated: Product[];
+    if (isNewProduct) {
+      updated = [...products, editingProduct];
+    } else {
+      updated = products.map((p) => (p.id === editingProduct.id ? editingProduct : p));
+    }
+    handleSaveProducts(updated);
+  };
+
+  const handleDeleteProduct = (id: string) => {
+    if (!confirm("Are you sure you want to remove this product?")) return;
+    const updated = products.filter((p) => p.id !== id);
+    handleSaveProducts(updated);
   };
 
   const handleSaveCountdown = async (e: React.FormEvent) => {
@@ -94,28 +124,49 @@ export function ParentSiteAdminManager() {
     }
   };
 
-  const handleAddProduct = (e: React.FormEvent) => {
+  const handleSaveBlogPost = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newProd.name || !newProd.id) return;
-    const updated = [...products, newProd];
-    handleSaveProducts(updated);
-    setShowAddModal(false);
-    setNewProd({
-      id: "",
-      name: "",
-      tagline: "",
-      description: "",
-      href: "",
-      badge: "Coming soon",
-      logoSolid: "/logo-pack/roster-by-roleflow-solid.png",
-      logoTransparent: "/logo-pack/roster-by-roleflow-transparent.png",
-    });
+    setSaving(true);
+    setMessage(null);
+    try {
+      const res = await fetch("/api/admin/parent-site", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "save_blog_post",
+          ...blogForm,
+          content: blogForm.content.split("\n\n").filter(Boolean),
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setShowBlogModal(false);
+        setBlogForm({ slug: "", title: "", excerpt: "", author: "RoleFlow Engineering", readTime: "3 min read", content: "" });
+        setMessage({ ok: true, text: "Blog post published successfully!" });
+        fetchData();
+      } else {
+        setMessage({ ok: false, text: data.error || "Failed to publish post." });
+      }
+    } catch {
+      setMessage({ ok: false, text: "Network error publishing post." });
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleDeleteProduct = (id: string) => {
-    if (!confirm("Are you sure you want to remove this product?")) return;
-    const updated = products.filter((p) => p.id !== id);
-    handleSaveProducts(updated);
+  const handleDeleteBlogPost = async (slug: string) => {
+    if (!confirm(`Are you sure you want to delete post "${slug}"?`)) return;
+    try {
+      const res = await fetch("/api/admin/parent-site", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "delete_blog_post", slug }),
+      });
+      if (res.ok) {
+        setMessage({ ok: true, text: "Blog post deleted." });
+        fetchData();
+      }
+    } catch {}
   };
 
   if (loading) {
@@ -196,7 +247,7 @@ export function ParentSiteAdminManager() {
         </form>
       </section>
 
-      {/* Product Catalog Management */}
+      {/* Product Catalog Management & Editing */}
       <section className={card}>
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
@@ -205,14 +256,26 @@ export function ParentSiteAdminManager() {
               <h3 className="text-sm font-bold text-ink">Products Lineup</h3>
             </div>
             <p className="mt-1 text-xs text-muted">
-              Add, edit badges, or remove products shown on the parent homepage and products showcase.
+              Add new products, edit descriptions &amp; badges, or update logos.
             </p>
           </div>
 
           <div className="flex gap-2">
             <button
               type="button"
-              onClick={() => setShowAddModal(true)}
+              onClick={() => {
+                setIsNewProduct(true);
+                setEditingProduct({
+                  id: "",
+                  name: "",
+                  tagline: "",
+                  description: "",
+                  href: "",
+                  badge: "Coming soon",
+                  logoSolid: "/logo-pack/roster-by-roleflow-solid.png",
+                  logoTransparent: "/logo-pack/roster-by-roleflow-transparent.png",
+                });
+              }}
               className="flex items-center gap-1.5 rounded-xl bg-purple-600 px-3.5 py-2 text-xs font-bold text-white shadow-card shadow-purple-600/30 transition-colors hover:bg-purple-500"
             >
               <Plus className="h-3.5 w-3.5" /> Add Product
@@ -264,6 +327,16 @@ export function ParentSiteAdminManager() {
                 <button
                   type="button"
                   onClick={() => {
+                    setIsNewProduct(false);
+                    setEditingProduct({ ...p });
+                  }}
+                  className="rounded-xl border border-line bg-surface px-3 py-1.5 text-xs font-medium text-ink hover:border-accent flex items-center gap-1"
+                >
+                  <Edit3 className="h-3.5 w-3.5" /> Edit
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
                     const nextBadge = p.badge === "Live" ? "Coming soon" : "Live";
                     const updated = [...products];
                     updated[idx] = { ...p, badge: nextBadge };
@@ -286,14 +359,16 @@ export function ParentSiteAdminManager() {
         </div>
       </section>
 
-      {/* Add Product Modal */}
-      {showAddModal && (
+      {/* Edit / Add Product Modal */}
+      {editingProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
           <form
-            onSubmit={handleAddProduct}
+            onSubmit={handleProductSubmit}
             className="w-full max-w-lg rounded-2xl border border-line bg-surface p-6 shadow-2xl space-y-4"
           >
-            <h4 className="text-base font-bold text-ink">Add New RoleFlow Product</h4>
+            <h4 className="text-base font-bold text-ink">
+              {isNewProduct ? "Add New Product" : `Edit "${editingProduct.name}"`}
+            </h4>
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
@@ -301,10 +376,11 @@ export function ParentSiteAdminManager() {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. auditflow"
-                  value={newProd.id}
-                  onChange={(e) => setNewProd({ ...newProd, id: e.target.value.toLowerCase().replace(/\s+/g, "-") })}
-                  className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none"
+                  disabled={!isNewProduct}
+                  placeholder="e.g. roster"
+                  value={editingProduct.id}
+                  onChange={(e) => setEditingProduct({ ...editingProduct, id: e.target.value.toLowerCase().replace(/\s+/g, "-") })}
+                  className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none disabled:opacity-50"
                 />
               </div>
 
@@ -313,9 +389,9 @@ export function ParentSiteAdminManager() {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. AuditFlow by RoleFlow"
-                  value={newProd.name}
-                  onChange={(e) => setNewProd({ ...newProd, name: e.target.value })}
+                  placeholder="e.g. Roster by RoleFlow"
+                  value={editingProduct.name}
+                  onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })}
                   className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none"
                 />
               </div>
@@ -326,9 +402,9 @@ export function ParentSiteAdminManager() {
               <input
                 type="text"
                 required
-                placeholder="e.g. Real-time staff logs and moderation telemetry."
-                value={newProd.tagline}
-                onChange={(e) => setNewProd({ ...newProd, tagline: e.target.value })}
+                placeholder="e.g. Staff and member management for Roblox groups."
+                value={editingProduct.tagline}
+                onChange={(e) => setEditingProduct({ ...editingProduct, tagline: e.target.value })}
                 className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none"
               />
             </div>
@@ -338,9 +414,9 @@ export function ParentSiteAdminManager() {
               <textarea
                 required
                 rows={3}
-                placeholder="Describe what the product does for Roblox groups and Discord servers..."
-                value={newProd.description}
-                onChange={(e) => setNewProd({ ...newProd, description: e.target.value })}
+                placeholder="Describe what the product does..."
+                value={editingProduct.description}
+                onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })}
                 className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none"
               />
             </div>
@@ -351,9 +427,9 @@ export function ParentSiteAdminManager() {
                 <input
                   type="text"
                   required
-                  placeholder="https://auditflow.roleflow.site"
-                  value={newProd.href}
-                  onChange={(e) => setNewProd({ ...newProd, href: e.target.value })}
+                  placeholder="https://roster.roleflow.site"
+                  value={editingProduct.href}
+                  onChange={(e) => setEditingProduct({ ...editingProduct, href: e.target.value })}
                   className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none"
                 />
               </div>
@@ -361,8 +437,8 @@ export function ParentSiteAdminManager() {
               <div>
                 <label className="block text-xs font-medium text-ink mb-1">Badge Status</label>
                 <select
-                  value={newProd.badge}
-                  onChange={(e) => setNewProd({ ...newProd, badge: e.target.value as any })}
+                  value={editingProduct.badge}
+                  onChange={(e) => setEditingProduct({ ...editingProduct, badge: e.target.value as any })}
                   className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none"
                 >
                   <option value="Live">Live</option>
@@ -371,10 +447,20 @@ export function ParentSiteAdminManager() {
               </div>
             </div>
 
+            <div>
+              <label className="block text-xs font-medium text-ink mb-1">Transparent Logo Asset URL</label>
+              <input
+                type="text"
+                value={editingProduct.logoTransparent}
+                onChange={(e) => setEditingProduct({ ...editingProduct, logoTransparent: e.target.value })}
+                className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none font-mono"
+              />
+            </div>
+
             <div className="flex justify-end gap-2 pt-3 border-t border-line">
               <button
                 type="button"
-                onClick={() => setShowAddModal(false)}
+                onClick={() => setEditingProduct(null)}
                 className="rounded-xl border border-line bg-paper px-4 py-2 text-xs font-medium text-ink hover:bg-surface"
               >
                 Cancel
@@ -384,7 +470,167 @@ export function ParentSiteAdminManager() {
                 disabled={saving}
                 className="rounded-xl bg-purple-600 px-4 py-2 text-xs font-bold text-white shadow-card shadow-purple-600/30 hover:bg-purple-500 disabled:opacity-50"
               >
-                Save Product
+                {saving ? "Saving..." : "Save Product"}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Blog & Announcements Management */}
+      <section className={card}>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-3">
+              <BookOpen className="h-5 w-5 text-accent" />
+              <h3 className="text-sm font-bold text-ink">Blog &amp; Announcements</h3>
+            </div>
+            <p className="mt-1 text-xs text-muted">
+              Publish news, architecture deep-dives, and community notes directly to <code className="font-mono">/blog</code>.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setShowBlogModal(true)}
+            className="flex items-center gap-1.5 rounded-xl bg-purple-600 px-3.5 py-2 text-xs font-bold text-white shadow-card shadow-purple-600/30 transition-colors hover:bg-purple-500"
+          >
+            <Plus className="h-3.5 w-3.5" /> New Post
+          </button>
+        </div>
+
+        {/* Existing Posts */}
+        <div className="mt-5 space-y-3">
+          {blogPosts.map((post) => (
+            <div
+              key={post.slug}
+              className="flex flex-col gap-3 rounded-xl border border-line bg-paper p-4 sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div>
+                <p className="text-sm font-bold text-ink">{post.title}</p>
+                <p className="text-xs text-muted">{post.excerpt}</p>
+                <div className="mt-1 flex items-center gap-2 font-mono text-[10px] text-faint">
+                  <span>Slug: /blog/{post.slug}</span>
+                  <span>&bull;</span>
+                  <span>{post.readTime}</span>
+                  <span>&bull;</span>
+                  <span>{post.date}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <a
+                  href={`/blog/${post.slug}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-xl border border-line bg-surface p-2 text-xs text-ink hover:border-accent"
+                  title="View published article"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteBlogPost(post.slug)}
+                  className="rounded-xl border border-line bg-surface p-2 text-xs text-danger hover:bg-danger/10"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* New Blog Post Modal */}
+      {showBlogModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <form
+            onSubmit={handleSaveBlogPost}
+            className="w-full max-w-xl rounded-2xl border border-line bg-surface p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
+          >
+            <h4 className="text-base font-bold text-ink">Publish New Blog Post</h4>
+
+            <div>
+              <label className="block text-xs font-medium text-ink mb-1">Post Title</label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. Launching Roster Early Access"
+                value={blogForm.title}
+                onChange={(e) => {
+                  const t = e.target.value;
+                  setBlogForm({
+                    ...blogForm,
+                    title: t,
+                    slug: blogForm.slug || t.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""),
+                  });
+                }}
+                className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none"
+              />
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label className="block text-xs font-medium text-ink mb-1">URL Slug</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="launching-roster-early-access"
+                  value={blogForm.slug}
+                  onChange={(e) => setBlogForm({ ...blogForm, slug: e.target.value })}
+                  className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-ink mb-1">Author Name</label>
+                <input
+                  type="text"
+                  placeholder="RoleFlow Engineering"
+                  value={blogForm.author}
+                  onChange={(e) => setBlogForm({ ...blogForm, author: e.target.value })}
+                  className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-ink mb-1">Short Excerpt</label>
+              <input
+                type="text"
+                placeholder="Brief summary displayed on social cards and post lists..."
+                value={blogForm.excerpt}
+                onChange={(e) => setBlogForm({ ...blogForm, excerpt: e.target.value })}
+                className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-ink mb-1">Article Content (Separate paragraphs with double Enter)</label>
+              <textarea
+                required
+                rows={8}
+                placeholder="Write your article paragraphs here..."
+                value={blogForm.content}
+                onChange={(e) => setBlogForm({ ...blogForm, content: e.target.value })}
+                className="w-full rounded-xl border border-line bg-paper px-3 py-2 text-xs text-ink focus:border-accent focus:outline-none"
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-line">
+              <button
+                type="button"
+                onClick={() => setShowBlogModal(false)}
+                className="rounded-xl border border-line bg-paper px-4 py-2 text-xs font-medium text-ink hover:bg-surface"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={saving}
+                className="rounded-xl bg-purple-600 px-4 py-2 text-xs font-bold text-white shadow-card shadow-purple-600/30 hover:bg-purple-500 disabled:opacity-50"
+              >
+                {saving ? "Publishing..." : "Publish Article"}
               </button>
             </div>
           </form>

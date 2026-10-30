@@ -60,11 +60,10 @@ export const DEFAULT_PRODUCTS: Product[] = [
 ];
 
 export const PRODUCTS = DEFAULT_PRODUCTS;
-
 export const PARTNERS: Partner[] = [];
 export const TESTIMONIALS: Testimonial[] = [];
 
-export const BLOG_POSTS: BlogPost[] = [
+export const DEFAULT_BLOG_POSTS: BlogPost[] = [
   {
     slug: "introducing-roleflow-family",
     title: "Introducing the RoleFlow Product Family",
@@ -95,6 +94,39 @@ export const BLOG_POSTS: BlogPost[] = [
     ],
   },
 ];
+
+export const BLOG_POSTS = DEFAULT_BLOG_POSTS;
+
+/** Fetch dynamic blog posts from Database with fallback to defaults */
+export async function getDynamicBlogPosts(): Promise<BlogPost[]> {
+  try {
+    const rows = await prisma.parentBlogPost.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+    if (rows && rows.length > 0) {
+      return rows.map((r) => {
+        let content: string[] = [];
+        try {
+          content = JSON.parse(r.content);
+        } catch {
+          content = [r.content];
+        }
+        return {
+          slug: r.slug,
+          title: r.title,
+          excerpt: r.excerpt,
+          author: r.author,
+          readTime: r.readTime,
+          date: r.date,
+          content,
+        };
+      });
+    }
+  } catch {
+    // fallback
+  }
+  return DEFAULT_BLOG_POSTS;
+}
 
 /** Fetch dynamic products from SystemSetting or fallback to defaults */
 export async function getDynamicProducts(): Promise<Product[]> {

@@ -77,7 +77,7 @@ async function domainBrand(host: string): Promise<DomainBrand | null> {
 
 const THEME_SCRIPT = `
   try {
-    var theme = localStorage.getItem('rf_theme');
+    var theme = localStorage.getItem('rf_theme') || 'dark';
     if (theme === 'dark') {
       document.documentElement.classList.remove('light');
       document.documentElement.classList.add('dark');
