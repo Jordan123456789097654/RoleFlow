@@ -4,17 +4,7 @@ import { platformOrigin } from "@/lib/platform-origin";
 
 // ---- custom domains ----
 const PLATFORM_ORIGIN = platformOrigin();
-const PLATFORM_HOSTS = new Set([
-  "roleflow.site",
-  "www.roleflow.site",
-  (() => {
-    try {
-      return new URL(PLATFORM_ORIGIN).hostname;
-    } catch {
-      return "roleflow.site";
-    }
-  })(),
-]);
+
 
 function requestHost(req: NextRequest): string {
   return (req.headers.get("x-forwarded-host") || req.headers.get("host") || "")
@@ -25,7 +15,7 @@ function requestHost(req: NextRequest): string {
 }
 
 function isPlatformHost(host: string): boolean {
-  return !host || PLATFORM_HOSTS.has(host) || host.endsWith(".vercel.app");
+  return !host || isPlatformHostName(host);
 }
 
 type Rule = { max: number; windowMs: number };
