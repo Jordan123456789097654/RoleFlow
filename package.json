@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev -p 3000",
     "dev:all": "concurrently \"npm run dev\" \"npm run bot\"",
-    "build": "npx tsx scripts/prepare-prod.ts && prisma generate && next build",
+    "build": "npx tsx scripts/prepare-prod.ts && prisma generate && npx tsx scripts/sync-policies.ts && next build",
     "postinstall": "prisma generate",
     "start": "next start -p 3000",
     "bot": "tsx scripts/bot-daemon.ts",
@@ -15,7 +15,9 @@
     "test": "tsx --test src/lib/*.test.ts",
     "discord:register": "tsx scripts/register-discord-commands.ts",
     "review:communities": "tsx scripts/review-communities.ts",
-    "security:encrypt-tokens": "tsx scripts/encrypt-bot-tokens.ts"
+    "security:encrypt-tokens": "tsx scripts/encrypt-bot-tokens.ts",
+    "policies:sync": "tsx scripts/sync-policies.ts",
+    "policy:notice": "python3 scripts/send_policy_update_email.py"
   },
   "dependencies": {
     "@prisma/client": "^5.21.1",

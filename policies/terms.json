@@ -1,0 +1,212 @@
+{
+  "title": "Terms of Service",
+  "subtitle": "The agreement that governs your use of RoleFlow",
+  "updated": "October 29, 2026",
+  "sections": [
+    {
+      "title": "Agreement to these terms",
+      "paragraphs": [
+        "These Terms of Service form a binding agreement between you and RoleFlow (\"RoleFlow\", \"we\", \"us\") for use of the RoleFlow website, applications, Discord integration, community features, and related services (together, the \"Service\"). By creating an account, signing in, or otherwise using the Service, you agree to these Terms and to the policies they incorporate: our Privacy Policy, Acceptable Use Policy, Cookie Policy, Billing Policy, and Community Guidelines.",
+        "These Terms are meant to be read as a whole. Where a specific policy addresses a topic in more detail, that policy applies to that topic. If a policy conflicts with these Terms, these Terms control unless the policy states otherwise.",
+        "If you do not agree to these Terms, do not use the Service. If you use the Service on behalf of a community, company, or other organization, you confirm that you have authority to bind that organization to these Terms, and in that case \"you\" refers to the organization as well as to you personally.",
+        "These Terms apply whether you use RoleFlow as an applicant, a community owner, a staff member, or a site administrator. Some sections apply more to one role than another, and the sections on community owners and applicant data are examples of this."
+      ]
+    },
+    {
+      "title": "Definitions",
+      "paragraphs": [
+        "\"Community\" means a Discord server or group that uses RoleFlow to publish positions, receive applications, or organize its review process.",
+        "\"Owner\" means a person who holds ownership of a Community on RoleFlow. \"Staff\" means a person who holds a role or permission within a Community or on the platform.",
+        "\"Applicant\" means a person who submits an application to a Community through the Service.",
+        "\"Content\" means anything you submit, post, upload, or store through the Service, including text, links, images, portfolio items, applications, messages, reviews, notes, and Community descriptions.",
+        "\"Site administrator\" means a person with platform-wide permissions for operating and moderating RoleFlow."
+      ]
+    },
+    {
+      "title": "Eligibility",
+      "paragraphs": [
+        "You must be at least 13 years old, or the higher minimum age required by Discord in your country if that is greater, to use the Service. You must also be able to form a binding contract under the law where you live. If you are a minor who is old enough to use the Service under local law, a parent or guardian should be aware of your activity on RoleFlow.",
+        "If you use the Service on behalf of an organization, you must be an adult who is authorized to act for it. Using the Service in that capacity does not extend the age requirement to the organization's other members.",
+        "If we learn that an account belongs to someone below the minimum age, we will close the account. Where we are able to, we will also delete the personal information associated with that account, in line with our Privacy Policy.",
+        "If you are prohibited from using the Service under these Terms, or if we have previously banned your account and the ban has not been lifted, you may not create a new account to get around that restriction."
+      ]
+    },
+    {
+      "title": "Accounts and sign-in",
+      "paragraphs": [
+        "You sign in to RoleFlow with your Discord account through Discord's OAuth sign-in flow. RoleFlow receives the profile information that Discord shares with us under the permissions you grant, which typically includes your username, display name, avatar, and email address if you have allowed it. We do not receive your Discord password.",
+        "You must provide accurate information when you sign in and when you complete your profile or any application. You must not impersonate another person, use another person's account, or represent yourself as affiliated with a Community when you are not.",
+        "Each account is for one person. You may not share your account, sell or transfer it, or let someone else act through it, except where a Community's internal processes make it clear that a staff member is acting in that role.",
+        "If we need to verify your identity to protect your account or to respond to a request, we may ask you to confirm information only you would know, or to sign in again."
+      ]
+    },
+    {
+      "title": "Account security",
+      "paragraphs": [
+        "You are responsible for all activity that takes place on your account, and for keeping your Discord account and any linked service account secure. Use a strong, unique password, and enable Discord's two-factor authentication.",
+        "Site staff and administrators must enable two-factor authentication before they can use administrative tools. Recovery codes for two-factor authentication are your responsibility to store safely.",
+        "If you believe your account has been compromised, sign out of all sessions where possible, change your passwords, and notify us promptly at support@roleflow.site. We may suspend the account while we investigate.",
+        "We may sign you out of the Service, or require you to sign in again, if we detect unusual activity or if a security setting changes."
+      ]
+    },
+    {
+      "title": "Communities and owner responsibilities",
+      "paragraphs": [
+        "A Community owner is responsible for the positions, application questions, Applicant communications, staff access, review processes, and decisions made within that Community. Owners must comply with these Terms, our Community Guidelines, and applicable law, including employment, anti-discrimination, consumer, and data protection law where those laws apply to them.",
+        "Owners decide who receives staff access and what each staff member can do. Owners should review staff access regularly, and should remove access when a person no longer needs it.",
+        "Owners must not use the Service to collect Applicant information for purposes they have not disclosed to Applicants, to discriminate unlawfully against Applicants, or to request payment, identity documents, or financial details as a condition of applying, unless the request is lawful and clearly explained.",
+        "RoleFlow is a tool that Communities use. It does not supervise, approve, or endorse any Community's hiring, recruitment, or membership decisions, and we are not responsible for those decisions."
+      ]
+    },
+    {
+      "title": "Staff and permissions",
+      "paragraphs": [
+        "Staff members act on behalf of the Community that appointed them and must follow these Terms, the Community Guidelines, and any internal rules the Community sets. Staff must not use their access for personal purposes unrelated to the Community's review process.",
+        "Owners are responsible for the actions of their staff within RoleFlow, including reviews, notes, status changes, and messages sent through the platform. Staff who receive access to Applicant information must keep it confidential and use it only for the purpose for which it was shared.",
+        "If a staff member leaves a Community or no longer needs access, the Community's owner should remove that access promptly."
+      ]
+    },
+    {
+      "title": "Applications and applicant data",
+      "paragraphs": [
+        "When you apply to a Community, your answers, uploaded links, portfolio items, and linked Discord and Roblox details are shared with that Community's owner and staff so they can review your application. RoleFlow does not make hiring or acceptance decisions, and RoleFlow is not a party to the relationship between you and a Community.",
+        "Communities are responsible for how they use Applicant data, including how long they keep it and whether they share it further. You can find out more about how a Community handles your information by asking the Community directly, and by reading the Privacy Policy section on communities as separate controllers.",
+        "You may withdraw an application from its application page. Withdrawing an application does not necessarily remove the copies a Community has already received or exported, so ask the Community directly if you want those removed.",
+        "If you have a concern about how a Community has handled your application, you can report it to us using the Report button on the Community's page. We review reports against our Community Guidelines, but we do not decide whether a Community's hiring decision was correct."
+      ]
+    },
+    {
+      "title": "Licenses and paid features",
+      "paragraphs": [
+        "Some features of the Service are available under a license. Licenses may be scoped to a single Community or to an account, and they may have a set duration. The terms of purchase, pricing, renewal, expiry, and refunds are set out in our Billing Policy, which forms part of these Terms.",
+        "We may turn licensing on or off for any feature. While licensing is off for a feature, that feature is available without charge. Before we enable licensing for a feature you are currently using for free, we will give you notice.",
+        "A change to licensing will not cause us to delete the data you have created. If a paid feature stops being available because a license has ended, you will still be able to access your data as described in the Billing Policy and our data export tools.",
+        "If you believe a charge was made in error, contact support@roleflow.site with the details of the transaction. The Billing Policy describes how refund requests are handled."
+      ]
+    },
+    {
+      "title": "Your content",
+      "paragraphs": [
+        "You keep ownership of the Content you submit to RoleFlow, including Community descriptions, position text, application answers, messages, reviews, and images. These Terms do not transfer ownership of your Content to us.",
+        "You grant RoleFlow a worldwide, non-exclusive, royalty-free license to host, store, copy, transmit, display, and back up your Content. This license is limited to what is needed to operate and improve the Service and to show your Content to the people you intend to see it. For example, a Community you apply to can see your application, and your Community's positions are visible to the people who view that Community.",
+        "The license ends when you delete the Content or your account, except for copies kept in backups and for records we must retain, as described in our Privacy Policy.",
+        "You are responsible for making sure that your Content is accurate, lawful, and that you have the rights needed to submit it. You represent that your Content does not infringe anyone else's rights."
+      ]
+    },
+    {
+      "title": "Content we may remove",
+      "paragraphs": [
+        "We may remove, hide, or restrict any Content that we reasonably believe violates these Terms, the Acceptable Use Policy, or the Community Guidelines, or that we are required to remove by law.",
+        "Where practical, we will tell you when we remove or restrict your Content and why, and we will give you a way to appeal under the process described in the Moderation, punishments, and appeals section.",
+        "We are not obliged to monitor all Content, but we may review Content when we receive a report, when we investigate a security or abuse concern, or when we are required to do so."
+      ]
+    },
+    {
+      "title": "Acceptable use",
+      "paragraphs": [
+        "You must use the Service in line with our Acceptable Use Policy, which forms part of these Terms. A violation of the Acceptable Use Policy is a violation of these Terms.",
+        "Among other things, you may not use the Service to run scams or phishing campaigns, impersonate another person or organization, harass or threaten anyone, send spam, discriminate unlawfully, collect data about people without authorization, or try to interfere with the platform or other people's use of it.",
+        "You may not attempt to access accounts, data, or systems you are not authorized to use. You may not reverse engineer the Service, circumvent rate limits, or use automated tools to scrape or harvest data from the Service without our written permission."
+      ]
+    },
+    {
+      "title": "Third-party services",
+      "paragraphs": [
+        "RoleFlow relies on third-party services, including Discord for sign-in and bot delivery, Roblox for account linking and profile information, our email provider, and our hosting and database providers. Those services are governed by their own terms and privacy policies, which apply to your use of them.",
+        "We are not responsible for the availability of third-party services, for changes they make, or for how they handle information they hold. We will tell you when a change by a third party materially affects the Service you use.",
+        "Community pages may link to third-party sites, including Discord servers and websites run by Communities. We do not control those sites and do not endorse them. Use caution when sharing personal information with anyone outside RoleFlow. Never send money, bank details, or identity documents to someone you have met only through an application."
+      ]
+    },
+    {
+      "title": "Beta status and changes to the Service",
+      "paragraphs": [
+        "RoleFlow is in beta. Features may change, be removed, or be unavailable, and the Service may contain bugs, errors, or interruptions. Beta features are provided to help us improve the Service and may not work as they would in a finished product.",
+        "We may modify, suspend, or discontinue any part of the Service at any time. Where a change materially reduces functionality you rely on, we will give reasonable notice where it is practical to do so.",
+        "We will try to give at least 14 days' notice of changes to these Terms or to paid features, as described in the Changes to these Terms section and the Licenses and paid features section."
+      ]
+    },
+    {
+      "title": "Service availability and maintenance",
+      "paragraphs": [
+        "We work to keep the Service available, but we do not promise that it will be uninterrupted, timely, secure, or error-free. We may perform scheduled or emergency maintenance, during which some or all features may be unavailable.",
+        "We may suspend or limit parts of the Service where needed for security, legal compliance, or to protect other users. We will try to keep these interruptions short and to tell you about them where we reasonably can.",
+        "Data backups are made as described in the Privacy Policy. Backups are not a guarantee that any particular data can be restored, and you should keep your own copies of anything that is important to you by using the export tools in Settings."
+      ]
+    },
+    {
+      "title": "Moderation, punishments, and appeals",
+      "paragraphs": [
+        "We may remove Content, pause Communities, restrict features, suspend or ban accounts, and take other action to enforce these Terms and our policies. Our approach is described in the Community Guidelines.",
+        "Where practical, we will tell you the reason for any action we take and give you a way to appeal, as described in the Community Guidelines. A signed appeal link is sent with the notice where one is available, and appeals are reviewed by site administrators.",
+        "Bans and suspensions end your active sessions. A banned or suspended account may not be used to access the Service, and you may not create a new account to avoid a restriction.",
+        "We may take emergency action without prior notice where we believe it is necessary to prevent harm to people, to protect the Service, or to comply with the law. Where we do so, we will explain the action and provide an appeal route as soon as we reasonably can."
+      ]
+    },
+    {
+      "title": "Suspension and termination",
+      "paragraphs": [
+        "You may stop using the Service at any time and delete your account from Settings, subject to the restrictions in the Deleting your account section of the Privacy Policy and the Community ownership rule below.",
+        "We may suspend or terminate your access if you breach these Terms, if we reasonably believe you are using the Service unlawfully or to harm others, or if we are required to do so by law or to protect the security of the Service.",
+        "If you own a Community, you must transfer or delete it before you can delete your account. A Community cannot be left without an owner.",
+        "When your access ends, the sections of these Terms that by their nature should survive will continue to apply. This includes your Content licence for backups and retained records, the Disclaimers, the Limitation of liability, the Indemnity, and the Disputes and governing law sections."
+      ]
+    },
+    {
+      "title": "Feedback",
+      "paragraphs": [
+        "If you send us suggestions, ideas, or feedback about the Service, you agree that we may use them without paying you or owing you any other obligation. You are not required to send feedback.",
+        "We will not treat feedback as confidential unless we agree to do so in writing. Please do not send us information you consider confidential or sensitive through feedback channels."
+      ]
+    },
+    {
+      "title": "Disclaimers",
+      "paragraphs": [
+        "The Service is provided on an \"as is\" and \"as available\" basis. To the fullest extent permitted by law, we disclaim all warranties of any kind, whether express or implied, including warranties of merchantability, fitness for a particular purpose, and non-infringement.",
+        "We do not guarantee that a Community will accept your application, that a position will remain open, that any Community's hiring process is fair or lawful, or that any person you meet through the Service is who they say they are. Those matters are between you and the Community or person concerned.",
+        "Some jurisdictions do not allow the exclusion of certain implied warranties, so some of these exclusions may not apply to you."
+      ]
+    },
+    {
+      "title": "Limitation of liability",
+      "paragraphs": [
+        "To the fullest extent permitted by applicable law, RoleFlow and its operators will not be liable for indirect, incidental, special, consequential, exemplary, or punitive damages, or for lost profits, lost opportunities, lost goodwill, or lost data, arising from or related to the Service.",
+        "Our total liability for any claim relating to the Service will not exceed the amount you paid us for the Service in the twelve months before the claim.",
+        "Some jurisdictions do not allow certain limitations of liability, so some of these limits may not apply to you. Nothing in these Terms limits liability that cannot be limited under applicable law, including liability for fraud, or for death or personal injury caused by negligence."
+      ]
+    },
+    {
+      "title": "Indemnity",
+      "paragraphs": [
+        "You agree to defend and indemnify RoleFlow against claims, losses, and reasonable legal costs arising from your Content, your use of the Service in breach of these Terms, or your violation of anyone else's rights.",
+        "This obligation does not apply to the extent a claim is caused by our own wrongful conduct."
+      ]
+    },
+    {
+      "title": "Disputes and governing law",
+      "paragraphs": [
+        "Before starting formal proceedings, please contact us at support@roleflow.site so we can try to resolve the issue informally. Any formal dispute will be brought before a competent court, unless applicable consumer protection law gives you the right to bring a claim where you live."
+      ]
+    },
+    {
+      "title": "Changes to these Terms",
+      "paragraphs": [
+        "We may update these Terms from time to time. For material changes, we will give at least 14 days' notice in the Service or by email before the changes take effect.",
+        "Continued use of the Service after the effective date means you accept the updated Terms. If you do not agree to them, you should stop using the Service and may delete your account."
+      ]
+    },
+    {
+      "title": "General terms",
+      "paragraphs": [
+        "These Terms, together with the policies they incorporate, are the entire agreement between you and RoleFlow about the Service, and they replace any earlier understanding on the same subject.",
+        "If a provision is found to be unenforceable, the rest of these Terms remain in effect. Our failure to enforce a provision is not a waiver of it.",
+        "You may not assign these Terms without our written consent. We may assign them to a successor that takes over the Service, and we will notify you if that happens."
+      ]
+    },
+    {
+      "title": "Contact",
+      "paragraphs": [
+        "Questions about these Terms: support@roleflow.site. For community support or appeals, visit our official community server at https://discord.gg/tKPbCXbmr9."
+      ]
+    }
+  ]
+}

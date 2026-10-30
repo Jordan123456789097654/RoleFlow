@@ -1,0 +1,121 @@
+{
+  "title": "Cookie Policy",
+  "subtitle": "The cookies and local storage RoleFlow uses",
+  "updated": "October 29, 2026",
+  "sections": [
+    {
+      "title": "Purpose of this policy",
+      "paragraphs": [
+        "This Cookie Policy explains which cookies and local storage items RoleFlow uses, why we use them, how long they last, and how you can control them. It should be read together with our Privacy Policy, which explains how we handle personal information more generally.",
+        "We keep our use of cookies and local storage to what is needed to run the Service. We do not use advertising cookies, and we do not use cookies to track you across other websites."
+      ]
+    },
+    {
+      "title": "What cookies and local storage are",
+      "paragraphs": [
+        "A cookie is a small file that a website asks your browser to store. Your browser sends the cookie back to the website on later requests, which lets the website recognize you or remember something between visits.",
+        "Local storage is a similar mechanism. It lets a website keep data in your browser, and that data stays there until it is cleared. Unlike cookies, local storage data is not sent to the server with each request.",
+        "Both can be used to identify a browser or a session, so we treat them with the same care as other personal information."
+      ]
+    },
+    {
+      "title": "Cookies we set",
+      "paragraphs": [
+        "We set two cookies. Both are essential to the operation of the Service.",
+        [
+          "roleflow_user_id: keeps you signed in. It contains a signed value that the server checks on each request, so it cannot be changed without the server detecting it. It is marked httpOnly, which means page scripts cannot read it. It lasts 30 days, or until you sign out or your sessions are revoked, whichever comes first.",
+          "roleflow_2fa_pending: holds the short-lived step between Discord sign-in and the two-factor check that site administrators must complete. It lasts up to ten minutes and is cleared as soon as the check completes."
+        ]
+      ]
+    },
+    {
+      "title": "Local storage items",
+      "paragraphs": [
+        "We use local storage for two purposes. Both are stored only in your browser and both are removable.",
+        [
+          "Application drafts: saved in your browser so that an unsubmitted application is not lost if you close the tab. Drafts stay on the device where they were written and are not synced across your devices by this feature.",
+          "Staff overview timestamp: a record of when you last visited each community dashboard, so the overview can show what has changed since then. It contains only the time of your visit."
+        ]
+      ]
+    },
+    {
+      "title": "Why we use each item",
+      "paragraphs": [
+        "roleflow_user_id is needed to keep you signed in across page visits. Without it, every page would require you to sign in again. It is the only cookie that identifies your signed-in session.",
+        "roleflow_2fa_pending is needed to complete two-factor authentication for site administrators. It exists only between the Discord sign-in step and the second-factor check, and it is removed when that check is complete or when it expires.",
+        "Application drafts in local storage let you return to an unsubmitted application on the same device without losing your answers. Server-side copies of drafts are separate and can be removed in Settings, as described in our Privacy Policy.",
+        "The staff overview timestamp lets the overview highlight what has changed since your last visit. It does not contain your name or other personal details."
+      ]
+    },
+    {
+      "title": "How long they last",
+      "paragraphs": [
+        "The sign-in cookie lasts up to 30 days, unless you sign out, your sessions are revoked, or the cookie is cleared sooner by your browser. Signing out removes it immediately.",
+        "The two-factor cookie lasts ten minutes at most and is removed when the check completes.",
+        "Local storage items remain in your browser until you clear them or until the Service removes them. Application drafts and the staff overview timestamp are kept in the same way."
+      ]
+    },
+    {
+      "title": "Cookies and tools we do not use",
+      "paragraphs": [
+        "We do not set advertising cookies or cross-site tracking cookies. We do not use fingerprinting techniques to identify your browser.",
+        "We do not currently use analytics cookies. If we add analytics or any other cookie that is not strictly necessary, we will update this policy first, explain what the new item does, and ask for your consent where the law requires it. You will be able to refuse non-essential cookies without losing access to the core Service."
+      ]
+    },
+    {
+      "title": "Consent",
+      "paragraphs": [
+        "The cookies and local storage items described in this policy are strictly necessary to provide the Service you asked for, so we do not ask for consent before setting them. Without them, you could not stay signed in, complete two-factor authentication, or keep your application drafts.",
+        "Where we rely on consent for any future cookie, you can withdraw it at any time in the same way you gave it, and withdrawing consent will not affect the lawfulness of anything we did before you withdrew it."
+      ]
+    },
+    {
+      "title": "Managing cookies and local storage in your browser",
+      "paragraphs": [
+        "Every major browser lets you view, block, and delete cookies and local storage. These settings are usually found under privacy or site settings, and you can often clear data for a single site without affecting others.",
+        "Clearing RoleFlow's cookies will sign you out. Clearing local storage removes saved application drafts and the staff overview timestamp in that browser. It does not delete anything from your account. If you want server-side copies of drafts removed, use the Remove specific data panel in Settings.",
+        "If you block the essential cookies, you will not be able to stay signed in, and you will need to sign in again on each visit. Blocking local storage will prevent drafts from being saved on that device."
+      ]
+    },
+    {
+      "title": "Private and incognito browsing",
+      "paragraphs": [
+        "Many browsers offer private or incognito windows. Cookies and local storage set in those windows are usually removed when the window is closed. Sign-in will not persist in a private window unless you sign in again there.",
+        "Using a private window does not change what RoleFlow stores on our servers, such as your account record and any applications you submitted."
+      ]
+    },
+    {
+      "title": "Third-party sites and embedded content",
+      "paragraphs": [
+        "When you sign in with Discord, Discord may set its own cookies on its sign-in pages. Those cookies are governed by Discord's own policies, and we do not control them.",
+        "Community pages may embed Discord's public server widget. When the widget loads, Discord may set its own cookies. Those cookies are also governed by Discord's policies.",
+        "Links to Roblox, Discord, community websites, and other external sites take you away from RoleFlow. Their cookie practices apply once you are on their sites, and you should review their policies."
+      ]
+    },
+    {
+      "title": "Hosting and server logs",
+      "paragraphs": [
+        "Our hosting provider receives technical information when you use the Service, such as IP addresses, request times, and the pages requested. This information is used to deliver the Service, keep it secure, and diagnose faults.",
+        "Server-side logs are not used to set advertising or cross-site tracking cookies. How long logs are kept and how we handle them is described in our Privacy Policy."
+      ]
+    },
+    {
+      "title": "Do Not Track and similar signals",
+      "paragraphs": [
+        "Some browsers send a Do Not Track signal. Because we do not use cookies for advertising or cross-site tracking, we do not respond to that signal differently. Our practices are described in full on this page and in our Privacy Policy, so you can see exactly what we do."
+      ]
+    },
+    {
+      "title": "Changes to this policy",
+      "paragraphs": [
+        "We will update this policy when our use of cookies or local storage changes. We will post the updated version here and update the date at the top of the page. If a change affects cookies that require consent, we will ask for consent before we set them."
+      ]
+    },
+    {
+      "title": "Contact",
+      "paragraphs": [
+        "Questions about cookies or local storage: support@roleflow.site. For community support, visit our official community server at https://discord.gg/tKPbCXbmr9."
+      ]
+    }
+  ]
+}

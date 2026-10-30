@@ -1,0 +1,266 @@
+{
+  "title": "Privacy Policy",
+  "subtitle": "How RoleFlow collects, uses, and protects personal information",
+  "updated": "October 29, 2026",
+  "sections": [
+    {
+      "title": "Who we are",
+      "paragraphs": [
+        "RoleFlow is operated by the RoleFlow Project Team, referred to in this policy as \"RoleFlow\", \"we\", or \"us\". RoleFlow provides a platform that communities use to receive, organize, and review applications from people who want to join them.",
+        "For privacy questions, requests, and data inquiries, email support@roleflow.site. You can also reach our official community on Discord at https://discord.gg/tKPbCXbmr9. Please use email for formal privacy requests so that there is a written record of them. The Discord community is useful for general questions, but it is not the channel for verifying identity or handling a formal request."
+      ]
+    },
+    {
+      "title": "Definitions",
+      "paragraphs": [
+        "To make this policy easier to read, a few terms are used throughout with specific meanings.",
+        "Community means a Discord server or group that uses RoleFlow to receive applications. A community has one or more owners and may have staff members with defined permissions.",
+        "Applicant means a person who submits an application to a community through RoleFlow.",
+        "Staff means people who hold a role within a community, such as reviewers, and people who hold a permission on the platform itself.",
+        "Site administrator means a person with elevated permissions across the RoleFlow platform. The Platform Founder is the account that holds the highest level of platform control.",
+        "Personal information means any information that identifies you or could reasonably be linked to you. Where this policy says \"information\", it generally means personal information."
+      ]
+    },
+    {
+      "title": "How the Service works",
+      "paragraphs": [
+        "Understanding the flow of information helps explain the rest of this policy. A typical use of RoleFlow looks like this. You sign in with your Discord account. You may link a Roblox account if a community asks for one. You then find a community and submit an application, which can include answers to questions the community has set, links you choose to share, and portfolio items. The application is delivered to that community, where its owners and staff can read it, add reviews and internal notes, and update its status. You can see the status history of your own application.",
+        "Because the community receives and holds your application, the community has its own role in your information, which is discussed in Section 9. RoleFlow is the platform that makes the exchange possible and stores the information on the community's behalf."
+      ]
+    },
+    {
+      "title": "Information we collect",
+      "paragraphs": [
+        "We collect information in four main ways: information you give us directly, information we receive from Discord or Roblox when you connect those accounts, information generated when you use the Service, and information about the technical operation of the Service.",
+        "Account information from Discord",
+        "When you sign in with Discord, we store your Discord user ID, your username, your display name, your avatar, and your email address if you grant that permission. The Discord user ID is the stable identifier we use to recognize your account, so it is kept even if your username changes.",
+        "Roblox information, if you link an account",
+        "If you choose to link a Roblox account, we store your Roblox user ID, your Roblox username, your avatar, and your account age. Linking is optional on most of the Service, but some communities require a linked Roblox account before you can apply to them. Those requirements are set by each community, not by RoleFlow.",
+        "Application information you provide",
+        "When you apply to a community, we store the answers you give to its questions, any links you upload, the portfolio items you attach, and the history of your application's status. A status history records each change, such as an application moving from submitted to under review, so that you and the community can see how it progressed.",
+        "Community and staff information",
+        "Staff who use RoleFlow generate information too. This includes messages exchanged about applications, reviews and votes on applicants, internal notes, staff permissions, and the community settings they configure. Internal notes and reviews are visible to the community's owners and staff, and are generally not visible to the applicant. Where a note is about you, it is still personal information about you, and you can ask for it through the process in Section 17.",
+        "Security and account records",
+        "To keep accounts safe, we keep some records that are specific to security. These include login device records: a hash of your browser's user-agent string, the dates the device was first and last seen, and the browser name. The hash lets us recognize a returning device without storing the full string. We also keep these records to send new-device alerts. Site administrators must use two-factor authentication. For those accounts we store the two-factor secret in encrypted form and recovery codes in hashed form, so the codes themselves cannot be read back. We also keep audit log entries that record privileged actions, such as changes to permissions or moderation decisions.",
+        "Technical information",
+        "The Service produces operational records. These include error and delivery records, which help us diagnose why a notification or page failed. We use IP-address-based rate limit counters to slow down abusive traffic. These counters are held briefly in memory and are not used to build a profile of you. Our hosting provider also keeps standard request logs as part of running its infrastructure.",
+        "Cookies and local storage",
+        "We use cookies and browser local storage to keep you signed in and to make the Service work. Our Cookie Policy describes each of them in more detail.",
+        "A summary table",
+        "The table below summarizes the main categories, who they relate to, and why they exist.",
+        "Category: Discord account details. Who it relates to: Everyone who signs in; Main purpose: Identifying the account and showing the profile",
+        "Category: Roblox details. Who it relates to: People who link Roblox; Main purpose: Verifying the account and showing it to communities",
+        "Category: Application content. Who it relates to: Applicants; Main purpose: Delivering applications to communities",
+        "Category: Reviews, notes, settings. Who it relates to: Community staff and owners; Main purpose: Running the review process",
+        "Category: Device and security records. Who it relates to: Everyone who signs in; Main purpose: Protecting accounts and alerting you to new devices",
+        "Category: 2FA secrets and recovery codes. Who it relates to: Site administrators; Main purpose: Protecting privileged accounts",
+        "Category: Audit logs. Who it relates to: Anyone who performs privileged actions; Main purpose: Accountability and security",
+        "Category: Error and request logs. Who it relates to: Everyone using the Service; Main purpose: Keeping the Service running"
+      ]
+    },
+    {
+      "title": "How we use information",
+      "paragraphs": [
+        "We use information for three broad purposes.",
+        "To provide the Service. This includes signing you in, showing and routing applications to the right community, sending notifications, and running community features such as reviews and status updates. Without these uses, the Service could not do what it is for.",
+        "To keep the Service secure. We use information to detect abuse, enforce our rules, prevent fraud, and investigate reports. For example, if many accounts submit the same application within minutes, that pattern may indicate spam, and we may use the device and rate limit records to look into it. Our Community Guidelines describe the rules we enforce.",
+        "To run the business. This includes managing licenses, providing support, improving the Service, and measuring aggregate usage such as weekly community counts. Aggregate measures describe how the Service is used as a whole and are not used to single out individuals. Where possible, we prefer aggregate data over identifiable data for these purposes.",
+        "We also use information to comply with the law and to respond to valid legal requests. We only disclose information in response to a legal request that we consider valid, and where the request is broader than necessary we will seek to narrow it."
+      ]
+    },
+    {
+      "title": "Legal bases (EEA and UK)",
+      "paragraphs": [
+        "If the General Data Protection Regulation (GDPR) or the UK GDPR applies to our processing, the law requires us to identify a legal basis for each purpose. We rely on the following.",
+        "Performance of a contract. When you ask us to provide the Service, for example by submitting an application or signing in, we process the information needed to deliver what you asked for.",
+        "Legitimate interests. We rely on our legitimate interests in keeping the Service secure, preventing abuse, producing aggregate analytics, and running the business. We weigh these interests against your rights and freedoms. Where your rights would outweigh our interest, we will not rely on this basis. You can object to processing based on legitimate interests, as described in Section 16.",
+        "Consent. Some features are optional, including linking a Roblox account and receiving email notifications. We rely on your consent for these. You can withdraw consent at any time, and withdrawing it does not affect the lawfulness of processing carried out before you withdrew.",
+        "Legal obligation. Where a law requires us to keep or disclose certain information, we process it on that basis."
+      ]
+    },
+    {
+      "title": "Who sees your information",
+      "paragraphs": [
+        "Information on RoleFlow is visible to different people for different reasons. Being clear about this helps you decide what to share.",
+        "Community owners and staff can see the applications and applicant information submitted to their community. This includes linked Discord and Roblox details and any reviews and notes that staff add. Staff within a community can see what their role allows, and owners can set those permissions.",
+        "Site administrators and the Platform Founder can see account, moderation, and audit information needed to operate the platform. This access is limited to what is needed for that work and is governed by the rules in our Community Guidelines. Access to privileged records is logged.",
+        "Service providers process information on our behalf under contract. Discord handles sign-in and bot delivery, and it is based in the United States. Resend handles transactional email, such as status and security emails, and it is based in the United States. We also use hosting and PostgreSQL cloud database infrastructure, which stores the platform's data.",
+        "Other people you choose to share with. If you share a link or a portfolio item, the people who can see it depend on how it was shared. Anything you post publicly on Discord, or in a community, is visible according to that platform's and that community's rules.",
+        "We do not sell your personal information. We do not use advertising cookies, and we do not share personal information for cross-context behavioral advertising."
+      ]
+    },
+    {
+      "title": "Data we receive from Discord and Roblox",
+      "paragraphs": [
+        "Discord",
+        "When you sign in with Discord, we receive the profile details that Discord makes available to us under the permissions you grant. These typically include your username, display name, avatar, and email address if you allow it. Each time you sign in, we refresh the username, display name, avatar, and email address from Discord. The exception is an email address you have removed from your RoleFlow account, which is not copied back in; Section 11 explains this.",
+        "We do not receive your Discord password. We do not receive your messages, and we do not receive your friends list.",
+        "Roblox",
+        "If you link a Roblox account, we receive your public Roblox user ID, username, avatar, and account age. We use this to confirm that the account exists and to display it to the communities you apply to. We do not receive your Roblox password, because Roblox handles its own sign-in. Roblox's privacy policy applies to the information Roblox holds about you."
+      ]
+    },
+    {
+      "title": "Communities as separate controllers",
+      "paragraphs": [
+        "Each community that receives your application decides how long it keeps the information you submitted and what it does with it. RoleFlow stores that information on the community's behalf and follows the community's instructions when handling it. However, once a community holds your application, the community is responsible for its own copies, exports, and retention decisions.",
+        "In practical terms, this means a community may keep your application after you ask RoleFlow to remove it, if the community has exported it or has its own record. If you want a community to delete your application or stop holding your information, ask the community directly. You can also withdraw your application from its application page. If a community does not respond to a reasonable request, you can contact us at support@roleflow.site and we will help as far as we are able.",
+        "Your data export includes the applications you submitted and the messages you sent, so you can see what each community holds. It does not include copies a community has exported on its own, because we do not control those copies."
+      ]
+    },
+    {
+      "title": "Automated processing",
+      "paragraphs": [
+        "RoleFlow provides tools that help community staff organize their work. These include sorting applications, assigning reviewers, flagging items for a second opinion, and showing open workload. These tools make it easier for people to manage large numbers of applications.",
+        "These tools do not make hiring or acceptance decisions. Decisions about applications are made by community owners and staff, who are responsible for them. If you believe a decision about your application was unfair, your first step is to raise it with the community.",
+        "We do not use fully automated means to make decisions about you that have legal or similarly significant effects. If that changes, we will tell you in advance, explain what the process involves, and explain how you can ask for a human review."
+      ]
+    },
+    {
+      "title": "Removing specific information",
+      "paragraphs": [
+        "You do not have to delete your entire account to remove particular information. In Settings, open the Danger Zone and use the Remove specific data panel. From there you can remove:",
+        [
+          "the email address stored on your RoleFlow account",
+          "your verified company email",
+          "your Roblox link",
+          "your saved profile answers",
+          "server-side copies of unsubmitted application drafts",
+          "the browser records we keep for new-device alerts"
+        ],
+        "Removing an item takes effect in our active systems straight away. Copies that exist in database backups are removed as those backups expire, as described in Section 14.",
+        "Removing your email address",
+        "When you remove your email address, we also turn off email notifications, because there is no longer an address to send them to. We record the removal so that signing in with Discord does not copy the address back onto your account. Without that record, the next sign-in would silently restore the address you had removed.",
+        "We do not currently offer a way to restore an email address you have removed. If you want status emails again, you will need to contact support, who can help you set up notifications again.",
+        "Removing your Roblox link",
+        "Removing your Roblox link clears your Roblox ID, username, and avatar. Some communities require applicants to link a Roblox account before they can apply. If you remove the link, you may need to link it again before applying to those communities.",
+        "Your past applications keep the Roblox details that were attached when you submitted them. Those details form part of the application the community received, so they are not removed from the application record. If you want a past application's Roblox details removed, you can ask the community or contact us, as described in Section 9.",
+        "Removing saved answers and drafts",
+        "Saved profile answers are the reusable responses you store on your profile. Removing them does not affect applications you have already submitted, because those applications hold their own copies of the answers you gave at the time. Server-side drafts are unsubmitted applications stored so you can return to them later. Removing a draft deletes it from our systems and does not affect any application you have submitted.",
+        "Removing browser records",
+        "The browser records we keep for new-device alerts are the device records described in Section 4.5. Removing them means you may receive a new-device alert the next time you sign in from a device we previously recognized. This is intended, because it is the alert working as designed."
+      ]
+    },
+    {
+      "title": "Deleting your account",
+      "paragraphs": [
+        "You can delete your account from Settings, in the Danger Zone, by typing DELETE to confirm. Deletion is permanent and cannot be reversed.",
+        "Before you delete your account, export your data using the download option in Settings. Once the account is gone, the export will no longer be available, so you will not be able to recover a copy from us.",
+        "When deletion is blocked",
+        "Deletion is blocked in two situations.",
+        "First, if you own one or more communities on RoleFlow, you must transfer or delete those communities before deleting your account. A community cannot be left without an owner, because owners are responsible for its applications and staff.",
+        "Second, the Platform Founder account cannot be deleted through the Settings page.",
+        "What is removed",
+        "When your account is deleted, we remove:",
+        [
+          "your profile record",
+          "the applications you submitted",
+          "the messages and answers attached to those applications",
+          "your login device records",
+          "your saved drafts",
+          "the review records you created as a staff member"
+        ],
+        "The communities you applied to lose access to your applications at that point, because the applications are removed along with your account. A community's own copies, as described in Section 9, are not affected by our deletion.",
+        "What is kept",
+        "Some information is kept after deletion, for specific reasons.",
+        "Audit log entries that record privileged actions remain for security and accountability. These entries may still refer to your user ID, so that the record of what happened remains accurate. Punishment, ban, and safety records are kept for as long as needed to enforce our policies and to prevent people removed for serious violations from returning. We keep only what those purposes require, and we limit who can access it."
+      ]
+    },
+    {
+      "title": "Retention",
+      "paragraphs": [
+        "We keep account information for as long as your account exists. Applications remain with the community that received them, subject to that community's own retention practices, as set out in Section 9.",
+        "When you delete your account, we delete your profile and the applications you submitted, as described in Section 12. Some records are kept for longer where the law requires it, for security, or to resolve disputes. These include audit log entries and punishment records, as described above.",
+        "Where a retention period is not stated in this policy, we keep information only as long as it is needed for the purpose it was collected for."
+      ]
+    },
+    {
+      "title": "Backups",
+      "paragraphs": [
+        "Our database is backed up by our hosting and database providers so that we can recover from failures. When you remove information or delete your account, we remove it from our active systems immediately.",
+        "Backup copies are then overwritten or expire on the provider's regular schedule. During that period, backup copies remain under the same security controls as live data, and they are not used for any other purpose.",
+        "This means that deleted information may still exist in backups for a limited time. We are open about this so that you can make an informed decision before you delete something."
+      ]
+    },
+    {
+      "title": "Security",
+      "paragraphs": [
+        "We take the protection of information seriously and use a range of measures. Information is encrypted in transit between your browser and our servers. Session cookies are signed, and each is checked against a version number stored for your account. This means that we can revoke your sessions, for example if you sign out everywhere or if we detect a compromise.",
+        "Site administrators must use two-factor authentication. Access to the platform is controlled by roles, so people see only what their role requires. Privileged actions are recorded in audit logs, which helps us detect misuse and hold people accountable.",
+        "No system is perfectly secure. You play an important part in protecting your account. Use a strong, unique password for any linked service, and enable two-factor authentication on your Discord account. If you believe your account has been compromised, sign out of all sessions, change your passwords, and contact support@roleflow.site."
+      ]
+    },
+    {
+      "title": "Your rights",
+      "paragraphs": [
+        "Depending on where you live, you may have some or all of the following rights:",
+        [
+          "Access: to know what personal information we hold about you and to receive a copy.",
+          "Correction: to have inaccurate information corrected.",
+          "Deletion: to have your information deleted, subject to the exceptions described in this policy.",
+          "Export: to receive your information in a portable format.",
+          "Objection and restriction: to object to certain processing, including processing based on legitimate interests, or to ask us to restrict it.",
+          "Withdrawal of consent: to withdraw consent at any time where we rely on it.",
+          "Complaint: to lodge a complaint with a supervisory authority."
+        ],
+        "These rights are not absolute. For example, we may need to keep certain records to comply with the law or to protect security, and we will explain when that applies."
+      ]
+    },
+    {
+      "title": "How to exercise your rights",
+      "paragraphs": [
+        "The fastest way to act on your rights is in Settings. You can download a copy of your data, remove specific information, or delete your account at any time. These options do not require you to contact us.",
+        "For requests that Settings cannot handle, email support@roleflow.site. Examples include a request for information we hold that does not appear in your export, a correction to information you cannot edit yourself, or a question about how we have used your information. Where possible, send the request from the email address on your account, which helps us match the request to you.",
+        "Before we act on a request, we may ask you to confirm your identity. This is usually done by answering questions only you would know, or by signing in again. This protects your information from being disclosed to someone pretending to be you.",
+        "We aim to respond within 30 days. If a request is complex or we receive many of them, we may need longer, and we will tell you if so.",
+        "We generally do not charge a fee for these requests. If a request is clearly unfounded or repeated excessively, we may refuse it or charge a reasonable fee. In either case we will explain why."
+      ]
+    },
+    {
+      "title": "California residents",
+      "paragraphs": [
+        "California residents have additional rights under the California Consumer Privacy Act as amended by the California Privacy Rights Act (CCPA/CPRA). These include the right to know what personal information we collect, use, and disclose, and the right to request deletion of personal information we have collected.",
+        "We do not sell personal information. We do not share personal information for cross-context behavioral advertising. You may exercise your rights through the methods described in Section 17. We will not discriminate against you for exercising these rights."
+      ]
+    },
+    {
+      "title": "Children",
+      "paragraphs": [
+        "The Service is not directed to children under 13, or to the higher minimum age that applies in your country. We do not knowingly collect personal information from children below that age.",
+        "If you believe a child has provided information to us, contact support@roleflow.site. We will investigate and delete the information if we confirm it was provided by a child below the applicable age. Parents and guardians who have concerns are welcome to contact us the same way."
+      ]
+    },
+    {
+      "title": "International transfers",
+      "paragraphs": [
+        "We may process information in countries other than the one where you live, including the United States, where Discord and Resend are based. When information is transferred from the EEA or UK to a country without an equivalent level of protection, we rely on appropriate safeguards, such as standard contractual clauses. We also use end-to-end transport encryption to protect information while it moves between systems."
+      ]
+    },
+    {
+      "title": "Cookies",
+      "paragraphs": [
+        "We use cookies and local storage to keep you signed in, remember preferences, and make the Service work properly. Our Cookie Policy describes each one, its purpose, and how long it lasts, and it explains how you can manage them. Blocking some cookies may prevent parts of the Service from working."
+      ]
+    },
+    {
+      "title": "Complaints",
+      "paragraphs": [
+        "If you have a concern about how we handle your information, please contact us first at support@roleflow.site so that we can try to resolve it. We take concerns seriously and would rather fix a problem directly.",
+        "If you are not satisfied with our response, you have the right to lodge a complaint with the data protection authority in the country where you live or work, or in the country where the alleged problem occurred. Residents of the EEA and UK can find their authority through their national regulator's website."
+      ]
+    },
+    {
+      "title": "Changes to this policy",
+      "paragraphs": [
+        "We will post changes to this policy here and update the date at the top. For material changes, we will give at least 14 days' notice before they take effect. Where the law requires it, we will seek your consent again before applying the changes to information we already hold about you.",
+        "We encourage you to review this policy periodically. Continuing to use the Service after changes take effect means you accept the updated policy, to the extent the law allows."
+      ]
+    },
+    {
+      "title": "Contact",
+      "paragraphs": [
+        "For privacy questions and requests, email support@roleflow.site.",
+        "For general questions and community discussion, visit our official community Discord desk at https://discord.gg/tKPbCXbmr9. For formal privacy requests, please use email so there is a written record."
+      ]
+    }
+  ]
+}
