@@ -18,6 +18,8 @@ export function CountdownLockdownGuard({ isStaffOrAdmin, children }: CountdownLo
   const [earthquakeActive, setEarthquakeActive] = useState<boolean>(false);
   const [vaultOpening, setVaultOpening] = useState<boolean>(false);
   const [unlocked, setUnlocked] = useState<boolean>(false);
+  // Staff see the countdown first, then choose to continue past it.
+  const [staffBypassed, setStaffBypassed] = useState<boolean>(false);
   const pathname = usePathname();
   // The "why are you leaving" survey must stay reachable during the lockdown countdown.
   const alwaysOpen = pathname?.startsWith("/leaving/") ?? false;
@@ -134,8 +136,8 @@ export function CountdownLockdownGuard({ isStaffOrAdmin, children }: CountdownLo
 
   const isFinalFive = timeLeft !== null && timeLeft.totalSeconds > 0 && timeLeft.totalSeconds <= 5;
 
-  // Staff or admin bypass
-  if (isStaffOrAdmin) {
+  // Staff or admin who chose to bypass the countdown
+  if (isStaffOrAdmin && staffBypassed) {
     return (
       <>
         {active && (
@@ -232,6 +234,19 @@ export function CountdownLockdownGuard({ isStaffOrAdmin, children }: CountdownLo
                 RoleFlow is undergoing final cutover. The platform unlocks publicly today at <strong>9:00 PM EDT</strong>.
               </p>
             </div>
+
+            {isStaffOrAdmin && (
+              <div className="space-y-2">
+                <button
+                  type="button"
+                  onClick={() => setStaffBypassed(true)}
+                  className="inline-flex items-center gap-2 rounded-xl border border-violet-400/40 bg-violet-600 px-6 py-3 text-sm font-semibold text-white shadow-[0_4px_24px_rgba(139,92,246,0.35)] transition-all hover:bg-violet-500"
+                >
+                  <Shield className="h-4 w-4" /> Continue as staff
+                </button>
+                <p className="text-xs text-slate-500">Only staff and admins see this button. Public visitors are held here until the countdown ends.</p>
+              </div>
+            )}
 
             {/* Countdown Clock with 5-Second Heartbeat Pulse (#6) */}
             <div className="grid grid-cols-3 gap-4 max-w-md mx-auto">
