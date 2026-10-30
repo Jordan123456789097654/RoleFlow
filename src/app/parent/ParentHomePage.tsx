@@ -2,17 +2,20 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
-import { PRODUCTS } from "@/lib/parent-site";
+import { getDynamicProducts, getDynamicCountdown } from "@/lib/parent-site";
+import { ParentCountdownBanner } from "@/components/parent/ParentCountdownBanner";
 import { ParentNotifyForm } from "@/components/parent/ParentForms";
 import { ArrowRight, Search, ShieldCheck, Zap, Users, Sparkles, Layers, CheckCircle2 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
 export default async function ParentHomePage() {
-  const [communityCount, openCount, appCount] = await Promise.all([
+  const [communityCount, openCount, appCount, dynamicProducts, dynamicCountdown] = await Promise.all([
     prisma.guild.count().catch(() => 0),
     prisma.position.count({ where: { isOpen: true } }).catch(() => 0),
     prisma.application.count().catch(() => 0),
+    getDynamicProducts(),
+    getDynamicCountdown(),
   ]);
 
   return (
@@ -25,6 +28,9 @@ export default async function ParentHomePage() {
 
       {/* Hero Section */}
       <section className="relative mx-auto max-w-6xl px-5 pt-20 pb-20 text-center sm:px-8 sm:pt-28">
+        {dynamicCountdown.targetDate && (
+          <ParentCountdownBanner targetDate={dynamicCountdown.targetDate} label={dynamicCountdown.label} />
+        )}
         <div className="inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-[#1f0b4a]/60 px-4 py-1.5 text-xs font-semibold text-[#ddd6fe] shadow-[0_0_20px_rgba(90,42,162,0.35)] backdrop-blur-md">
           <Sparkles className="h-3.5 w-3.5 text-violet-400" />
           <span>The RoleFlow Product Family</span>
@@ -120,7 +126,7 @@ export default async function ParentHomePage() {
           </div>
 
           <div className="mt-14 grid gap-8 md:grid-cols-2">
-            {PRODUCTS.map((prod) => {
+            {dynamicProducts.map((prod) => {
               const isLive = prod.badge === "Live";
               return (
                 <div

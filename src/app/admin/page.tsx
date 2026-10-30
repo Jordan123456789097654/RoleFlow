@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { ParentSiteAdminManager } from "@/components/admin/ParentSiteAdminManager";
 import { PartnershipReview } from "@/components/admin/PartnershipReview";
 import Link from "next/link";
 import ModerationPanel from "@/components/admin/ModerationPanel";
@@ -91,7 +92,7 @@ interface BlacklistEntry {
   createdAt: string;
 }
 
-type NavKey = "metrics" | "health" | "moderation" | "blacklist" | "accounts" | "staff" | "guilds" | "partnerships" | "flags" | "changelog" | "feedback";
+type NavKey = "metrics" | "health" | "moderation" | "blacklist" | "accounts" | "staff" | "guilds" | "partnerships" | "flags" | "changelog" | "feedback" | "parent-site";
 type NavItem = { key: NavKey; label: (c: { communities: number; staff: number; blacklist: number; changelog: number; feedback: number }) => string; founderOnly?: boolean };
 type NavGroup = { label: string; items: NavItem[] };
 
@@ -101,6 +102,7 @@ const ADMIN_NAV: NavGroup[] = [
     items: [
       { key: "metrics", label: () => "Metrics" },
       { key: "health", label: () => "System health" },
+        { key: "parent-site", label: () => "Parent Site & Products" },
     ],
   },
   {
@@ -135,7 +137,7 @@ const ADMIN_NAV: NavGroup[] = [
 ];
 
 export default function SiteAdminPage() {
-  const [activeTab, setActiveTab] = useState<"guilds" | "staff" | "changelog" | "blacklist" | "feedback" | "moderation" | "health" | "metrics" | "accounts" | "flags" | "partnerships">("guilds");
+  const [activeTab, setActiveTab] = useState<"guilds" | "staff" | "changelog" | "blacklist" | "feedback" | "moderation" | "health" | "metrics" | "accounts" | "flags" | "partnerships" | "parent-site">("guilds");
   const [whoami, setWhoami] = useState<{ username: string; isFounder: boolean; isAdmin: boolean } | null>(null);
   const [guilds, setGuilds] = useState<AdminGuild[]>([]);
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -770,6 +772,7 @@ export default function SiteAdminPage() {
       </nav>
 
       {/* TAB 1: COMMUNITIES */}
+      {activeTab === "parent-site" && <ParentSiteAdminManager />}
       {activeTab === "moderation" && <ModerationPanel />}
       {activeTab === "accounts" && <AccountsPanel />}
       {activeTab === "health" && <HealthPanel />}

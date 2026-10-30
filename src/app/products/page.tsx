@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { PRODUCTS } from "@/lib/parent-site";
+import { getDynamicProducts } from "@/lib/parent-site";
 import { ParentNotifyForm } from "@/components/parent/ParentForms";
 
 export const metadata = {
@@ -9,7 +9,10 @@ export const metadata = {
   description: "Explore the family of products built for community management and recruitment.",
 };
 
-export default function ProductsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function ProductsPage() {
+  const products = await getDynamicProducts();
   return (
     <div className="py-16 sm:py-24">
       <div className="mx-auto max-w-5xl px-4 sm:px-6">
@@ -28,7 +31,7 @@ export default function ProductsPage() {
 
         {/* Product Cards */}
         <div className="mt-16 space-y-12">
-          {PRODUCTS.map((prod) => {
+          {products.map((prod) => {
             const isLive = prod.badge === "Live";
             return (
               <div

@@ -48,7 +48,7 @@ export function RobloxLinkGate({ required, children }: { required: boolean; chil
         <p className="eyebrow mb-4">One step left</p>
         <h1 className="display-md">Link your Roblox account</h1>
         <p className="mt-4 text-[14px] leading-relaxed text-muted">
-          RoleFlow needs a Roblox account on every profile to verify applicants and staff. Enter your Roblox username
+          ApplyHub by RoleFlow needs a Roblox account on every profile to verify applicants and staff. Enter your Roblox username
           below. This is required to keep using the site.
         </p>
 

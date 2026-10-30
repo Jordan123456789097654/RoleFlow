@@ -57,7 +57,7 @@ const FEATURES = [
       <div className="mt-4 rounded-lg border border-line bg-surface/70 p-3 text-xs">
         <div className="flex items-center gap-2 mb-2">
           <div className="h-4 w-4 rounded-full bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 flex items-center justify-center font-bold text-[9px]">B</div>
-          <span className="font-semibold text-ink text-[11px]">RoleFlow App Bot</span>
+          <span className="font-semibold text-ink text-[11px]">ApplyHub Bot</span>
           <span className="rounded bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 px-1 py-0.2 text-[9px]">BOT</span>
         </div>
         <div className="border-l-2 border-indigo-500 pl-2 text-ink-2 text-[11px]">
@@ -154,7 +154,7 @@ export default async function HomePage() {
               <span className="italic text-accent">finally in order.</span>
             </h1>
             <p className="lede mt-7 max-w-xl">
-              RoleFlow is where Discord and Roblox communities post openings, collect applications once, and review candidates together, without the chaos of channels and DMs.
+              ApplyHub by RoleFlow is where Discord and Roblox communities post openings, collect applications once, and review candidates together, without the chaos of channels and DMs.
             </p>
 
             <form action="/browse" method="GET" className="mt-10 flex max-w-xl flex-col gap-2 sm:flex-row">

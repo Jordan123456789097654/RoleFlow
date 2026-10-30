@@ -1,3 +1,5 @@
+import { prisma } from "./prisma";
+
 export interface Product {
   id: string;
   name: string;
@@ -32,7 +34,7 @@ export interface BlogPost {
 
 export const SUPPORT_EMAIL = "support@roleflow.site";
 
-export const PRODUCTS: Product[] = [
+export const DEFAULT_PRODUCTS: Product[] = [
   {
     id: "applyhub",
     name: "ApplyHub by RoleFlow",
@@ -55,10 +57,9 @@ export const PRODUCTS: Product[] = [
   },
 ];
 
-/** Approved partners list. Kept empty until approved partners are confirmed by the owner. */
-export const PARTNERS: Partner[] = [];
+export const PRODUCTS = DEFAULT_PRODUCTS;
 
-/** Approved testimonials list. Kept empty until approved quotes are provided by the owner. */
+export const PARTNERS: Partner[] = [];
 export const TESTIMONIALS: Testimonial[] = [];
 
 export const BLOG_POSTS: BlogPost[] = [
@@ -71,5 +72,35 @@ export const BLOG_POSTS: BlogPost[] = [
   },
 ];
 
-/** Optional product countdown target set by staff (null until staff sets it) */
-export const COUNTDOWN_TARGET: Date | null = null;
+/** Fetch dynamic products from SystemSetting or fallback to defaults */
+export async function getDynamicProducts(): Promise<Product[]> {
+  try {
+    const row = await prisma.systemSetting.findUnique({
+      where: { key: "parent_products" },
+    });
+    if (row?.value) {
+      const parsed = JSON.parse(row.value);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+    }
+  } catch {
+    // fallback
+  }
+  return DEFAULT_PRODUCTS;
+}
+
+/** Fetch dynamic countdown target */
+export async function getDynamicCountdown(): Promise<{ targetDate: string | null; label: string | null }> {
+  try {
+    const row = await prisma.systemSetting.findUnique({
+      where: { key: "parent_countdown" },
+    });
+    if (row?.value) {
+      return JSON.parse(row.value);
+    }
+  } catch {
+    // fallback
+  }
+  return { targetDate: null, label: null };
+}
