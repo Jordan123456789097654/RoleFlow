@@ -46,6 +46,10 @@ model User {
   emailRemovedAt       DateTime?     // Set when the user removes their email; blocks re-sync from Discord on sign-in
   savedProfile         String?       // JSON of answers the user chose to remember
   discordLinked        Boolean       @default(true)
+  rosterGroupsOwned    RosterGroup[]
+  rosterMemberships    RosterMembership[]
+  rosterActionsLogged  RosterAction[]
+  rosterAuditEntries   RosterAuditEntry[]
 }
 
 model PasswordResetToken {
@@ -763,4 +767,180 @@ model DepartureSurvey {
   submittedAt DateTime?
 
   @@index([expiresAt])
+}
+
+
+// ==========================================
+// Roster by RoleFlow Models (Unreleased)
+// ==========================================
+
+model RosterGroup {
+  id              String             @id @default(cuid())
+  robloxGroupId   String             @unique
+  name            String
+  description     String?
+  iconUrl         String?
+  ownerUserId     String
+  owner           User               @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  archivedAt      DateTime?
+  
+  memberships     RosterMembership[]
+  staffRecords    RosterStaff[]
+  teams           RosterTeam[]
+  actions         RosterAction[]
+  auditEntries    RosterAuditEntry[]
+  trainings       RosterTraining[]
+  shifts          RosterShift[]
+  rankCache       RosterRankCache[]
+
+  @@index([ownerUserId])
+  @@index([robloxGroupId])
+}
+
+model RosterMembership {
+  id            String      @id @default(cuid())
+  groupId       String
+  group         RosterGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  userId        String?
+  user          User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  robloxUserId  String
+  username      String
+  role          String      @default("STAFF") // OWNER, MANAGER, MODERATOR, STAFF
+  teamIds       String      @default("[]")
+  status        String      @default("ACTIVE") // ACTIVE, INACTIVE, ON_LEAVE
+  joinedAt      DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@unique([groupId, robloxUserId])
+  @@index([groupId, role])
+  @@index([groupId, status])
+  @@index([userId])
+}
+
+model RosterStaff {
+  id                  String      @id @default(cuid())
+  groupId             String
+  group               RosterGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  robloxUserId        String
+  rank                String
+  status              String      @default("ACTIVE") // ACTIVE, INACTIVE, SUSPENDED
+  notes               String?
+  joinedAt            DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  sourceApplicationId String?
+
+  @@unique([groupId, robloxUserId])
+  @@index([groupId, status])
+  @@index([groupId, rank])
+}
+
+model RosterTeam {
+  id        String      @id @default(cuid())
+  groupId   String
+  group     RosterGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  name      String
+  createdAt DateTime    @default(now())
+
+  @@unique([groupId, name])
+  @@index([groupId])
+}
+
+model RosterAction {
+  id                 String      @id @default(cuid())
+  groupId            String
+  group              RosterGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  targetRobloxUserId String
+  actorUserId        String
+  actor              User        @relation(fields: [actorUserId], references: [id], onDelete: Cascade)
+  type               String
+  reason             String
+  durationMinutes    Int?
+  createdAt          DateTime    @default(now())
+  editedAt           DateTime?
+  deletedAt          DateTime?
+
+  @@index([groupId, targetRobloxUserId])
+  @@index([groupId, actorUserId])
+  @@index([groupId, type])
+  @@index([groupId, createdAt])
+}
+
+model RosterAuditEntry {
+  id          String      @id @default(cuid())
+  groupId     String
+  group       RosterGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  actorUserId String
+  actor       User        @relation(fields: [actorUserId], references: [id], onDelete: Cascade)
+  event       String
+  detail      String
+  createdAt   DateTime    @default(now())
+
+  @@index([groupId, createdAt])
+  @@index([groupId, event])
+}
+
+model RosterTraining {
+  id          String                     @id @default(cuid())
+  groupId     String
+  group       RosterGroup                @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  title       String
+  startsAt    DateTime
+  completedAt DateTime?
+  createdBy   String
+  createdAt   DateTime                   @default(now())
+  attendance  RosterTrainingAttendance[]
+
+  @@index([groupId, startsAt])
+}
+
+model RosterTrainingAttendance {
+  id           String         @id @default(cuid())
+  trainingId   String
+  training     RosterTraining @relation(fields: [trainingId], references: [id], onDelete: Cascade)
+  robloxUserId String
+  completed    Boolean        @default(false)
+  updatedAt    DateTime       @updatedAt
+
+  @@unique([trainingId, robloxUserId])
+  @@index([trainingId])
+}
+
+model RosterShift {
+  id         String                  @id @default(cuid())
+  groupId    String
+  group      RosterGroup             @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  teamId     String?
+  startsAt   DateTime
+  endsAt     DateTime
+  closedAt   DateTime?
+  createdAt  DateTime                @default(now())
+  attendance RosterShiftAttendance[]
+
+  @@index([groupId, startsAt])
+}
+
+model RosterShiftAttendance {
+  id           String      @id @default(cuid())
+  shiftId      String
+  shift        RosterShift @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  robloxUserId String
+  joinedAt     DateTime    @default(now())
+
+  @@unique([shiftId, robloxUserId])
+  @@index([shiftId])
+}
+
+model RosterRankCache {
+  id           String      @id @default(cuid())
+  groupId      String
+  group        RosterGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  robloxUserId String
+  rank         String
+  rankId       Int
+  fetchedAt    DateTime    @default(now())
+
+  @@unique([groupId, robloxUserId])
+  @@index([groupId, fetchedAt])
 }
