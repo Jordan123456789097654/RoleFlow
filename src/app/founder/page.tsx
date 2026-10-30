@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import PolicyNoticePanel from "@/components/founder/PolicyNoticePanel";
 
 type Card = { href: string; title: string; desc: string };
 type Section = { title: string; intro: string; cards: Card[] };
@@ -48,6 +49,8 @@ export default function FounderConsolePage() {
         <h1 className="display-md">Founder Master Command Console</h1>
         <p className="mt-3 text-sm text-muted max-w-2xl">Founder-only tools. For day-to-day administration, use the admin console. For reports, use the support panel.</p>
       </div>
+
+      <PolicyNoticePanel />
 
       <Link href="/founder/policies" className="glass-panel p-5 rounded-2xl space-y-1 transition-colors hover:border-accent block">
         <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">Policies with custom text</p>

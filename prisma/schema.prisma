@@ -585,3 +585,14 @@ model SupportReportEvent {
 
   @@index([reportId, createdAt])
 }
+
+/// One row per address that was sent a policy update notice. Used so a notice is never sent twice to the same address.
+model PolicyNoticeLog {
+  noticeId String
+  email    String
+  userId   String?
+  resendId String?
+  sentAt   DateTime @default(now())
+
+  @@id([noticeId, email])
+}
