@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import RemoveDataPanel from "@/components/settings/RemoveDataPanel";
 import {
   User,
   Shield,
@@ -1094,6 +1095,7 @@ export default function SettingsPage() {
           {activeTab === "danger-zone" && (
             <div className="space-y-6">
               <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-rose-500/30 bg-rose-500/10 space-y-6">
+                <RemoveDataPanel onDone={fetchProfile} />
                 <div>
                   <h3 className="text-lg font-bold text-danger">Danger Zone</h3>
                   <p className="text-xs text-muted mt-1">
@@ -1159,8 +1161,18 @@ export default function SettingsPage() {
                       />
                       <button
                         disabled={dangerConfirm !== "DELETE"}
-                        onClick={() => {
-                          alert("To finalize account deletion, please contact support in the Discord server.");
+                        onClick={async () => {
+                          const res = await fetch("/api/user/delete", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ confirm: "DELETE" }),
+                          });
+                          const data = await res.json().catch(() => ({}));
+                          if (!res.ok) {
+                            alert(data.error || "Could not delete your account.");
+                            return;
+                          }
+                          window.location.href = "/";
                         }}
                         className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 disabled:opacity-40 disabled:hover:bg-rose-600 text-white text-xs font-bold transition-all shadow-md shrink-0"
                       >

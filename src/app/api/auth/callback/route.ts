@@ -81,13 +81,15 @@ export async function GET(request: Request) {
     }
 
     // 3. Upsert User in database
+    const existingEmail = await prisma.user.findUnique({ where: { id: discordUser.id }, select: { emailRemovedAt: true } });
     const user = await prisma.user.upsert({
       where: { id: discordUser.id },
       update: {
         username: discordUser.global_name || discordUser.username,
         discriminator: discordUser.discriminator !== "0" ? discordUser.discriminator : null,
         avatar: avatarUrl,
-        email: discordUser.email || null,
+        // Respect a user's removal of their email: do not re-sync it from Discord.
+        email: existingEmail?.emailRemovedAt ? undefined : (discordUser.email || null),
         ...(isSiteAdmin ? { isSiteAdmin: true } : {}),
       },
       create: {

@@ -43,6 +43,7 @@ model User {
   totpEnabled          Boolean       @default(false)
   totpRecoveryCodes    String?       // JSON array of bcrypt-hashed one-time recovery codes
   loginDevices         LoginDevice[]
+  emailRemovedAt       DateTime?     // Set when the user removes their email; blocks re-sync from Discord on sign-in
   savedProfile         String?       // JSON of answers the user chose to remember
 }
 
@@ -499,11 +500,85 @@ model BotOutbox {
   @@index([guildId])
 }
 
+model PolicyDocument {
+  slug         String   @id // privacy, terms, acceptable-use, community-guidelines, cookies
+  title        String
+  subtitle     String
+  updated      String
+  sectionsJson String
+  updatedById  String
+  updatedAt    DateTime @updatedAt
+}
 
+model PolicyRevision {
+  id           String   @id @default(cuid())
+  slug         String
+  title        String
+  subtitle     String
+  updated      String
+  sectionsJson String
+  editorId     String
+  createdAt    DateTime @default(now())
 
+  @@index([slug, createdAt])
+}
 
+/// Reports filed by support staff on the website after they handle a ticket in Discord.
+/// The website never sees the ticket itself; staff type the ticket reference in.
+model SupportReport {
+  id              String   @id @default(cuid())
+  reportType      String   // template id, e.g. DATA_REMOVAL, TICKET_RESOLUTION
+  ticketRef       String?  // ticket reference typed in by staff from the Discord bot
+  subjectUsername String?
+  subjectUserId   String?
+  authorId        String
+  authorName      String?
+  fieldsJson      String   // answers to the template's questions
+  summary         String
+  createdAt       DateTime @default(now())
 
+  reviewStatus    String   @default("PENDING_REVIEW") // PENDING_REVIEW, VERIFIED, REJECTED, NEEDS_CHANGES
+  reviewChecklist String?  // JSON array of the checks the reviewer ticked when verifying
+  reviewedById    String?
+  reviewedByName  String?
+  reviewedAt      DateTime?
+  reviewNote      String?
+  updatedAt       DateTime @updatedAt
 
+  @@index([authorId, createdAt])
+  @@index([reportType, createdAt])
+  @@index([ticketRef])
+  @@index([subjectUserId])
+}
 
+/// One row per piece of personal data removed by support or an admin, or recorded after a removal done elsewhere.
+model DataRemovalLog {
+  id              String   @id @default(cuid())
+  subjectUserId   String
+  subjectUsername String?
+  item            String   // email, companyEmail, robloxLink, savedProfile, applicationDrafts, loginDevices, applicationMessages, account
+  method          String   // SUPPORT_MANUAL, ADMIN_MANUAL, RECORDED_ONLY
+  reason          String
+  ticketRef       String?
+  actorId         String
+  actorName       String?
+  reportId        String?
+  createdAt       DateTime @default(now())
 
+  @@index([subjectUserId])
+  @@index([createdAt])
+}
 
+/// Full history of a report: filed, verified, rejected, and so on.
+model SupportReportEvent {
+  id        String   @id @default(cuid())
+  reportId  String
+  actorId   String
+  actorName String?
+  action    String   // CREATED, VERIFIED, REJECTED, NEEDS_CHANGES
+  note      String?
+  details   String?  // JSON snapshot relevant to the event
+  createdAt DateTime @default(now())
+
+  @@index([reportId, createdAt])
+}
