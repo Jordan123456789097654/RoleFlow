@@ -106,6 +106,42 @@ p { text-wrap: pretty; }
 
 ::selection { background: var(--accent-soft); color: var(--ink); }
 
+@keyframes earthQuake {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  10% { transform: translate(-3px, -2px) rotate(-0.5deg); }
+  20% { transform: translate(3px, 2px) rotate(0.5deg); }
+  30% { transform: translate(-4px, 3px) rotate(-0.7deg); }
+  40% { transform: translate(4px, -3px) rotate(0.6deg); }
+  50% { transform: translate(-5px, -2px) rotate(-0.8deg); }
+  60% { transform: translate(5px, 3px) rotate(0.7deg); }
+  70% { transform: translate(-3px, 4px) rotate(-0.5deg); }
+  80% { transform: translate(4px, -2px) rotate(0.4deg); }
+  90% { transform: translate(-2px, -3px) rotate(-0.2deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+.animate-earthquake {
+  animation: earthQuake 0.15s infinite;
+}
+
+@keyframes vaultLeft {
+  0% { transform: translateX(0); opacity: 1; }
+  100% { transform: translateX(-105%); opacity: 0.9; }
+}
+
+@keyframes vaultRight {
+  0% { transform: translateX(0); opacity: 1; }
+  100% { transform: translateX(105%); opacity: 0.9; }
+}
+
+.animate-vault-left {
+  animation: vaultLeft 1.4s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+}
+
+.animate-vault-right {
+  animation: vaultRight 1.4s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+}
+
 @layer components {
   /* ---------- Layout ---------- */
   .page-wrap { @apply mx-auto w-full max-w-6xl px-5 sm:px-8; }
