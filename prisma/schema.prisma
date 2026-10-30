@@ -548,8 +548,10 @@ model SupportReport {
   reviewedByName  String?
   reviewedAt      DateTime?
   reviewNote      String?
+  workflowStatus  String   @default("OPEN") // OPEN, IN_PROGRESS, WAITING_ON_USER, RESOLVED, CLOSED (ticket handling)
   updatedAt       DateTime @updatedAt
 
+  @@index([workflowStatus])
   @@index([parentReportId])
   @@index([authorId, createdAt])
   @@index([reportType, createdAt])

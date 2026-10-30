@@ -24,6 +24,10 @@ const SUPPORT_ACTIONS = [
   { id: "removeSavedProfile", label: "Remove saved profile answers" },
   { id: "removeDrafts", label: "Remove server drafts" },
   { id: "removeLoginDevices", label: "Remove recorded devices" },
+  { id: "deleteApplications", label: "Delete applications submitted" },
+  { id: "deleteReviews", label: "Delete reviews written" },
+  { id: "deleteSavedPositions", label: "Delete saved positions" },
+  { id: "deleteFeedback", label: "Delete feedback filed" },
 ];
 const ADMIN_ACTIONS = [
   { id: "removeApplicationMessages", label: "Remove messages sent on applications" },

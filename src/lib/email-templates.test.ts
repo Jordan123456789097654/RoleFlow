@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { TEMPLATES, CATEGORIES, getTemplate, renderEmail, TemplateInputError, isSafeUrl } from "./email-templates";
+import { TEMPLATES, CATEGORIES, getTemplate, renderEmail, buildTemplate, TemplateInputError, isSafeUrl } from "./email-templates";
 
 function valuesFor(tplId: string): Record<string, string> {
   const tpl = getTemplate(tplId)!;
@@ -8,7 +8,7 @@ function valuesFor(tplId: string): Record<string, string> {
 }
 
 test("there are at least 20 templates with unique ids and known categories", () => {
-  assert.ok(TEMPLATES.length >= 20, `only ${TEMPLATES.length} templates`);
+  assert.ok(TEMPLATES.length >= 35, `only ${TEMPLATES.length} templates`);
   const ids = TEMPLATES.map((t) => t.id);
   assert.equal(new Set(ids).size, ids.length, "duplicate template id");
   for (const t of TEMPLATES) assert.ok((CATEGORIES as readonly string[]).includes(t.category), t.id);
@@ -68,4 +68,26 @@ test("bullets render as list items", () => {
   const out = renderEmail(t, { version: "May", bullets: "First thing\nSecond thing", body: "Here it is.", ctaLabel: "Go", ctaUrl: "https://roleflow.site" }, null);
   assert.ok(out.html.includes("<li>First thing</li>"));
   assert.ok(out.text.includes("  - Second thing"));
+});
+
+test("field keys are unique within each template", () => {
+  for (const t of TEMPLATES) {
+    const keys = t.fields.map((f) => f.key);
+    assert.equal(new Set(keys).size, keys.length, `${t.id} has duplicate field keys`);
+  }
+});
+
+test("templates have detailed sections, not just a paragraph", () => {
+  for (const t of TEMPLATES) {
+    const sections = buildTemplate(t, valuesFor(t.id)).sections ?? [];
+    assert.ok(sections.length >= 2, `${t.id} has fewer than 2 sections`);
+  }
+});
+
+test("section titles and bullets appear in the rendered HTML", () => {
+  const t = getTemplate("pricing-change")!;
+  const out = renderEmail(t, valuesFor("pricing-change"), "Ada");
+  assert.ok(out.html.includes("<h2"));
+  assert.ok(out.html.includes("When it takes effect"));
+  assert.ok(out.text.includes("WHEN IT TAKES EFFECT"));
 });

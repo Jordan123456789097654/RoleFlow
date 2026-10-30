@@ -15,6 +15,10 @@ const SUPPORT_ACTIONS: Record<string, { item?: string; label: string }> = {
   removeSavedProfile: { item: "savedProfile", label: "Remove saved profile answers" },
   removeDrafts: { item: "applicationDrafts", label: "Remove server drafts" },
   removeLoginDevices: { item: "loginDevices", label: "Remove recorded devices" },
+  deleteApplications: { item: "applications", label: "Delete applications this user submitted" },
+  deleteReviews: { item: "reviews", label: "Delete reviews this user wrote" },
+  deleteSavedPositions: { item: "savedPositions", label: "Delete saved positions" },
+  deleteFeedback: { item: "feedback", label: "Delete feedback this user filed" },
 };
 const ADMIN_ACTIONS: Record<string, { item?: string; label: string }> = {
   removeApplicationMessages: { item: "applicationMessages", label: "Remove messages sent on applications" },
@@ -44,6 +48,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
   if (target.id === caller.id && isAdmin) return NextResponse.json({ error: "Use Settings to change your own account." }, { status: 400 });
 
   const def = isSupport ? SUPPORT_ACTIONS[action] : ADMIN_ACTIONS[action];
+  let removed: number | null = null;
 
   switch (action) {
     case "revokeSessions":
@@ -70,6 +75,30 @@ export async function POST(request: Request, { params }: { params: { id: string 
     case "removeLoginDevices":
       await prisma.loginDevice.deleteMany({ where: { userId: target.id } });
       break;
+    case "deleteApplications": {
+      // Deleting an application also removes its answers, reviews, and messages (cascade).
+      const r = await prisma.application.deleteMany({ where: { userId: target.id } });
+      removed = r.count;
+      break;
+    }
+    case "deleteReviews": {
+      const [a, b] = await Promise.all([
+        prisma.review.deleteMany({ where: { reviewerId: target.id } }),
+        prisma.communityReview.deleteMany({ where: { userId: target.id } }),
+      ]);
+      removed = a.count + b.count;
+      break;
+    }
+    case "deleteSavedPositions": {
+      const r = await prisma.savedPosition.deleteMany({ where: { userId: target.id } });
+      removed = r.count;
+      break;
+    }
+    case "deleteFeedback": {
+      const r = await prisma.feedbackReport.deleteMany({ where: { authorId: target.id } });
+      removed = r.count;
+      break;
+    }
     case "removeApplicationMessages":
       await prisma.applicationMessage.deleteMany({ where: { senderId: target.id } });
       break;
@@ -109,5 +138,5 @@ export async function POST(request: Request, { params }: { params: { id: string 
     targetId: target.id,
     details: { reason, ticketRef, label: def.label },
   });
-  return NextResponse.json({ success: true, action: def.label });
+  return NextResponse.json({ success: true, action: def.label, removed });
 }

@@ -42,6 +42,7 @@ export default function ReportDetail({ id, templates, canReviewHint = false, onC
   const [error, setError] = useState<string | null>(null);
   const [checks, setChecks] = useState<boolean[]>([false, false, false]);
   const [note, setNote] = useState("");
+  const [statusNote, setStatusNote] = useState("");
   const [picked, setPicked] = useState<string[]>([]);
   const [redactReason, setRedactReason] = useState("");
   const [linkQuery, setLinkQuery] = useState("");
@@ -95,6 +96,20 @@ export default function ReportDetail({ id, templates, canReviewHint = false, onC
     }
   }
 
+  const TICKET_STATES: { value: string; label: string; active: string }[] = [
+    { value: "OPEN", label: "Open", active: "bg-sunk text-ink border-line" },
+    { value: "IN_PROGRESS", label: "In progress", active: "bg-sky-600 text-white border-sky-600" },
+    { value: "WAITING_ON_USER", label: "Waiting on user", active: "bg-amber-500 text-white border-amber-500" },
+    { value: "RESOLVED", label: "Resolved", active: "bg-emerald-600 text-white border-emerald-600" },
+    { value: "CLOSED", label: "Closed", active: "bg-zinc-600 text-white border-zinc-600" },
+  ];
+
+  function setTicketStatus(value: string) {
+    call(`/api/support/reports/${report.id}/status`, { status: value, note: statusNote }, "Ticket status updated.").then((r) => {
+      if (r) setStatusNote("");
+    });
+  }
+
   function decide(decision: "VERIFIED" | "REJECTED" | "NEEDS_CHANGES") {
     call(`/api/support/reports/${report.id}/review`, { decision, note, checklist: checks }, "Decision recorded and posted to the reports channel.").then((r) => {
       if (r) { setNote(""); setChecks([false, false, false]); }
@@ -143,6 +158,33 @@ export default function ReportDetail({ id, templates, canReviewHint = false, onC
         <Row k="User" v={report.subjectUsername ?? "none"} />
         <Row k="Linked account" v={report.subjectUserId ?? "not matched"} />
       </dl>
+
+      <div className="space-y-2 p-3 rounded-xl bg-sunk">
+        <h5 className="text-[11px] font-bold text-muted uppercase tracking-wide">Ticket status</h5>
+        <div className="flex flex-wrap gap-1.5">
+          {TICKET_STATES.map((s) => {
+            const isActive = (report.workflowStatus ?? "OPEN") === s.value;
+            return (
+              <button
+                key={s.value}
+                type="button"
+                aria-pressed={isActive}
+                disabled={busy || isActive}
+                onClick={() => setTicketStatus(s.value)}
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all disabled:cursor-default ${isActive ? s.active : "bg-surface text-ink-2 border-line hover:bg-sunk"}`}
+              >
+                {s.label}
+              </button>
+            );
+          })}
+        </div>
+        <input
+          className="w-full px-3 py-2 rounded-xl bg-surface border border-line text-xs text-ink placeholder-faint focus:outline-none focus:border-accent"
+          placeholder="Optional note for the history (what changed and why)"
+          value={statusNote}
+          onChange={(e) => setStatusNote(e.target.value)}
+        />
+      </div>
 
       <div className="space-y-2">
         <h5 className="text-[11px] font-bold text-muted uppercase tracking-wide">Answers</h5>

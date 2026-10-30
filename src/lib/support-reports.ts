@@ -408,6 +408,10 @@ export const REMOVAL_ITEM_LABELS: Record<string, string> = {
   loginDevices: "Recorded devices",
   applicationMessages: "Messages the user sent on applications",
   account: "Whole account (deleted)",
+  applications: "Applications submitted (deleted)",
+  reviews: "Reviews written (deleted)",
+  savedPositions: "Saved positions (deleted)",
+  feedback: "Feedback filed (deleted)",
 };
 
 /** Whether a caller may use a template. Founder-only and admin-only types are checked on the server. */
