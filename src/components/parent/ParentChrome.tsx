@@ -24,6 +24,21 @@ export function ParentHeader() {
 
         <div className="flex items-center gap-3">
           <ParentMobileNav />
+          <div className="hidden items-center gap-2 lg:flex">
+            <a
+              href="https://roster.roleflow.site"
+              className="rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-300 transition-colors hover:bg-white/10 hover:text-white"
+            >
+              Roster
+            </a>
+            <a
+              href="https://rankhub.roleflow.site"
+              className="flex items-center gap-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-300 transition-colors hover:bg-emerald-500/20"
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              RankHub
+            </a>
+          </div>
           <Link
             href="/settings"
             className="hidden rounded-xl border border-white/15 bg-white/5 px-3.5 py-1.5 text-xs font-semibold text-slate-200 transition-colors hover:bg-white/10 hover:text-white sm:inline-block"
@@ -62,7 +77,8 @@ export function ParentFooter() {
             <h4 className="font-mono text-xs font-semibold uppercase tracking-wider text-slate-200">Products</h4>
             <ul className="mt-3 space-y-2 text-xs">
               <li><a href="https://applyhub.roleflow.site" className="hover:text-white">ApplyHub by RoleFlow</a></li>
-              <li><Link href="https://roster.roleflow.site" className="hover:text-white">Roster by RoleFlow</Link></li>
+              <li><a href="https://roster.roleflow.site" className="hover:text-white">Roster by RoleFlow</a></li>
+              <li><a href="https://rankhub.roleflow.site" className="hover:text-white text-emerald-400 font-medium">RankHub by RoleFlow</a></li>
               <li><Link href="/ideas" className="hover:text-white">Vote on next tool</Link></li>
             </ul>
           </div>

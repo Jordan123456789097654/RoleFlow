@@ -12,6 +12,10 @@ export const APPLICATIONS_ORIGIN = `https://${APPLICATIONS_HOST}`;
 export const ROSTER_HOST = process.env.NEXT_PUBLIC_ROSTER_HOST || "roster.roleflow.site";
 export const ROSTER_ORIGIN = `https://${ROSTER_HOST}`;
 
+/** The RankHub platform host. Reads from env if provided, falls back to rankhub.roleflow.site */
+export const RANKHUB_HOST = process.env.NEXT_PUBLIC_RANKHUB_HOST || "rankhub.roleflow.site";
+export const RANKHUB_ORIGIN = `https://${RANKHUB_HOST}`;
+
 /**
  * The fixed Discord OAuth callback URL configured in the Discord Developer Portal.
  * DO NOT CHANGE THIS URL as it is registered with Discord.
@@ -31,6 +35,7 @@ export function platformHostNames(): string[] {
   hosts.add(`www.${PARENT_HOST}`.toLowerCase());
   hosts.add(APPLICATIONS_HOST.toLowerCase());
   hosts.add(ROSTER_HOST.toLowerCase());
+  hosts.add(RANKHUB_HOST.toLowerCase());
 
   const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "").trim();
   if (appUrl) {
@@ -98,4 +103,11 @@ export function isRosterHost(host: string | null | undefined): boolean {
   if (!host) return false;
   const normalized = host.split(":")[0].replace(/\.+$/, "").trim().toLowerCase();
   return normalized === ROSTER_HOST.toLowerCase();
+}
+
+/** Checks whether a host is the RankHub product host */
+export function isRankHubHost(host: string | null | undefined): boolean {
+  if (!host) return false;
+  const normalized = host.split(":")[0].replace(/\.+$/, "").trim().toLowerCase();
+  return normalized === RANKHUB_HOST.toLowerCase();
 }

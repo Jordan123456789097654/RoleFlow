@@ -50,6 +50,8 @@ model User {
   rosterMemberships    RosterMembership[]
   rosterActionsLogged  RosterAction[]
   rosterAuditEntries   RosterAuditEntry[]
+  rankHubConfigsCreated RankHubGroupConfig[]
+  rankHubBatchesCreated RankHubBatch[]
 }
 
 model PasswordResetToken {
@@ -150,6 +152,7 @@ model Guild {
   cannedResponses            CannedResponse[]
   staffTeam                  GuildStaff[]
   reviews                    CommunityReview[]
+  rankHubConfig              RankHubGroupConfig?
   createdAt                  DateTime         @default(now())
 }
 
@@ -795,6 +798,7 @@ model RosterGroup {
   shifts          RosterShift[]
   rankCache       RosterRankCache[]
   notices         RosterNotice[]
+  rankHubConfig   RankHubGroupConfig?
 
   @@index([ownerUserId])
   @@index([robloxGroupId])
@@ -1004,5 +1008,94 @@ model RobloxVerificationSafeword {
   @@index([discordUserId])
   @@index([expiresAt])
 }
+
+// ==========================================
+// RankHub by RoleFlow Models
+// ==========================================
+
+model RankHubGroupConfig {
+  groupId                String       @id // RosterGroup ID or Guild ID
+  robloxGroupId          String       @unique
+  authType               String       @default("OPEN_CLOUD") // OPEN_CLOUD | COOKIE
+  openCloudKeyEncrypted  String?      @db.Text
+  cookieEncrypted        String?      @db.Text
+  rankCeiling            Int          @default(254) // Highest rank number ranker is permitted to assign/touch
+  protectedRoles         Json         @default("[]") // Array of role IDs or rank numbers that cannot be modified
+  autoRankApplyHubEnabled Boolean     @default(false)
+  allowDemotions         Boolean      @default(false)
+  lastHealthCheck        DateTime?
+  healthStatus           String       @default("HEALTHY") // HEALTHY | WARNING | ERROR | UNCONFIGURED
+  createdBy              String?
+  creator                User?        @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+  guild                  Guild?       @relation(fields: [groupId], references: [id], onDelete: Cascade, map: "RankHubGroupConfig_guildId_fkey")
+  rosterGroup            RosterGroup? @relation(fields: [groupId], references: [id], onDelete: Cascade, map: "RankHubGroupConfig_rosterGroupId_fkey")
+  rules                  RankHubRule[]
+  logs                   RankHubLog[]
+  batches                RankHubBatch[]
+  createdAt              DateTime     @default(now())
+  updatedAt              DateTime     @updatedAt
+
+  @@index([robloxGroupId])
+  @@index([createdBy])
+}
+
+model RankHubRule {
+  id             String             @id @default(cuid())
+  groupId        String
+  config         RankHubGroupConfig @relation(fields: [groupId], references: [groupId], onDelete: Cascade)
+  triggerType    String             // APPLYHUB_ACCEPTED | ROSTER_SHIFTS | MANUAL
+  sourceId       String?            // positionId, shiftCount threshold, etc.
+  targetRankId   Int                // Rank number (1-255)
+  targetRankName String
+  priority       Int                @default(0)
+  active         Boolean            @default(true)
+  createdAt      DateTime           @default(now())
+
+  @@index([groupId, active])
+  @@index([triggerType])
+}
+
+model RankHubLog {
+  id                   String             @id @default(cuid())
+  groupId              String
+  config               RankHubGroupConfig @relation(fields: [groupId], references: [groupId], onDelete: Cascade)
+  targetRobloxId       String
+  targetRobloxUsername String?
+  previousRankId       Int?
+  previousRankName     String?
+  newRankId            Int
+  newRankName          String?
+  source               String             // APPLYHUB | MANUAL_WEB | BATCH | AUTO_RULE
+  executorId           String?            // Discord User ID / System
+  executorUsername     String?
+  status               String             // SUCCESS | FAILED | SIMULATED
+  errorMessage         String?            @db.Text
+  rollbackOfId         String?            // If this rank change is rolling back a previous RankHubLog
+  createdAt            DateTime           @default(now())
+
+  @@index([groupId, createdAt])
+  @@index([targetRobloxId])
+  @@index([status])
+  @@index([rollbackOfId])
+}
+
+model RankHubBatch {
+  id           String             @id @default(cuid())
+  groupId      String
+  config       RankHubGroupConfig @relation(fields: [groupId], references: [groupId], onDelete: Cascade)
+  title        String
+  totalTargets Int                @default(0)
+  successCount Int                @default(0)
+  failCount    Int                @default(0)
+  status       String             @default("PENDING") // PENDING | RUNNING | COMPLETED | FAILED | ROLLED_BACK
+  createdBy    String?
+  creator      User?              @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+  createdAt    DateTime           @default(now())
+  completedAt  DateTime?
+
+  @@index([groupId, status])
+  @@index([createdBy])
+}
+
 
 

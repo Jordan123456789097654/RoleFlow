@@ -1,4 +1,4 @@
-import { isPlatformHostName, isParentHost, isRosterHost, APPLICATIONS_ORIGIN } from "@/lib/platform-hosts";
+import { isPlatformHostName, isParentHost, isRosterHost, isRankHubHost, APPLICATIONS_ORIGIN } from "@/lib/platform-hosts";
 import { NextRequest, NextResponse } from "next/server";
 import { platformOrigin } from "@/lib/platform-origin";
 
@@ -138,6 +138,15 @@ export async function middleware(req: NextRequest) {
     if (pathname === "/") {
       const url = req.nextUrl.clone();
       url.pathname = "/roster";
+      return NextResponse.rewrite(url);
+    }
+  }
+
+  // RankHub subdomain routing (rankhub.roleflow.site)
+  if (isRankHubHost(host)) {
+    if (pathname === "/") {
+      const url = req.nextUrl.clone();
+      url.pathname = "/rankhub";
       return NextResponse.rewrite(url);
     }
   }

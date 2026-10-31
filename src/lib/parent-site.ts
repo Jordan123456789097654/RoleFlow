@@ -58,6 +58,16 @@ export const DEFAULT_PRODUCTS: Product[] = [
     logoSolid: "/logo-pack/roster-by-roleflow-solid.png",
     logoTransparent: "/logo-pack/roster-by-roleflow-transparent.png",
   },
+  {
+    id: "rankhub",
+    name: "RankHub",
+    tagline: "High-speed Roblox group rank automation and dry-run engine.",
+    description: "Automated Roblox group ranking via Open Cloud API or secure bot credentials.",
+    href: "https://rankhub.roleflow.site",
+    badge: "Live",
+    logoSolid: "/brand/rankhub-logo.png",
+    logoTransparent: "/brand/rankhub-logo.png",
+  },
 ];
 
 export const PRODUCTS = DEFAULT_PRODUCTS;
