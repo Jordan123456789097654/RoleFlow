@@ -13,6 +13,8 @@ import {
   Server,
   Lock,
   ExternalLink,
+  Camera,
+  ShieldAlert,
 } from "lucide-react";
 
 import { RankHubHero } from "@/components/rankhub/RankHubHero";
@@ -21,12 +23,14 @@ import { RankHubLadder } from "@/components/rankhub/RankHubLadder";
 import { RankHubBatchQueue } from "@/components/rankhub/RankHubBatchQueue";
 import { RankHubApplyHubRules } from "@/components/rankhub/RankHubApplyHubRules";
 import { RankHubAuditLog } from "@/components/rankhub/RankHubAuditLog";
+import { RankHubSnapshots } from "@/components/rankhub/RankHubSnapshots";
+import { RankHubSecurity } from "@/components/rankhub/RankHubSecurity";
 
 import type { GroupCredentialState, RankLadderRole } from "@/lib/rankhub-types";
 
 export default function RankHubPage() {
   const [isCredentialModalOpen, setIsCredentialModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"batch" | "ladder" | "applyhub" | "audit">("batch");
+  const [activeTab, setActiveTab] = useState<"batch" | "ladder" | "applyhub" | "audit" | "snapshots" | "security">("batch");
 
   // Credential State
   const [credentialState, setCredentialState] = useState<GroupCredentialState>({
@@ -183,6 +187,38 @@ export default function RankHubPage() {
             <History className="h-4 w-4" />
             <span>Immutable Audit Log</span>
           </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("snapshots")}
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all ${
+              activeTab === "snapshots"
+                ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 shadow-sm"
+                : "text-slate-400 hover:bg-white/5 hover:text-white border border-transparent"
+            }`}
+          >
+            <Camera className="h-4 w-4" />
+            <span>Rank Backups</span>
+            <span className="rounded bg-indigo-500/20 px-1.5 py-0.5 font-mono text-[10px] text-indigo-300">
+              1-Click Restore
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("security")}
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all ${
+              activeTab === "security"
+                ? "bg-rose-500/20 text-rose-300 border border-rose-500/40 shadow-sm"
+                : "text-slate-400 hover:bg-white/5 hover:text-white border border-transparent"
+            }`}
+          >
+            <ShieldAlert className="h-4 w-4" />
+            <span>Anti-Nuke / Anti-Rogue</span>
+            <span className="rounded bg-rose-500/20 px-1.5 py-0.5 font-mono text-[10px] text-rose-300">
+              Sentinel
+            </span>
+          </button>
         </div>
 
         {/* Tab View Contents */}
@@ -214,6 +250,14 @@ export default function RankHubPage() {
           )}
 
           {activeTab === "audit" && <RankHubAuditLog />}
+
+          {activeTab === "snapshots" && (
+            <RankHubSnapshots groupId={credentialState.groupId} />
+          )}
+
+          {activeTab === "security" && (
+            <RankHubSecurity groupId={credentialState.groupId} />
+          )}
         </section>
       </main>
 

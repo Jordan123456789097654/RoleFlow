@@ -1097,5 +1097,33 @@ model RankHubBatch {
   @@index([createdBy])
 }
 
+model RankHubSnapshot {
+  id           String   @id @default(cuid())
+  groupId      String
+  title        String
+  memberCount  Int      @default(0)
+  snapshotData Json     // Array of { robloxUserId, username, roleId, rank, roleName }
+  createdAt    DateTime @default(now())
+  createdBy    String?
+
+  @@index([groupId, createdAt])
+}
+
+model RankHubSecurityConfig {
+  id                    String    @id @default(cuid())
+  groupId               String    @unique
+  antiNukeEnabled       Boolean   @default(true)
+  maxDemotionsPerMinute Int       @default(3)
+  lockOnBreach          Boolean   @default(true)
+  notifyWebhookUrl      String?
+  status                String    @default("NORMAL") // NORMAL, LOCKED
+  lockedAt              DateTime?
+  lockedReason          String?   @db.Text
+  updatedAt             DateTime  @updatedAt
+
+  @@index([groupId, status])
+}
+
+
 
 
