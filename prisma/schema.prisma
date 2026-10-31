@@ -794,6 +794,7 @@ model RosterGroup {
   trainings       RosterTraining[]
   shifts          RosterShift[]
   rankCache       RosterRankCache[]
+  notices         RosterNotice[]
 
   @@index([ownerUserId])
   @@index([robloxGroupId])
@@ -943,4 +944,17 @@ model RosterRankCache {
 
   @@unique([groupId, robloxUserId])
   @@index([groupId, fetchedAt])
+}
+
+model RosterNotice {
+  id          String      @id @default(cuid())
+  groupId     String
+  group       RosterGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  authorUserId String
+  title       String
+  content     String      @db.Text
+  targetTeamId String?     // null = entire group
+  createdAt   DateTime    @default(now())
+
+  @@index([groupId, createdAt])
 }

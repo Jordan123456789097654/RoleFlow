@@ -17,12 +17,14 @@ import {
   FileText,
   FileCheck,
   AlertTriangle,
+  Bell,
 } from "lucide-react";
 import type { StaffDirectoryItem } from "@/lib/roster-directory";
 import { StaffRecordModal } from "./StaffRecordModal";
 import { AcceptedApplicantsModal } from "./AcceptedApplicantsModal";
 import { ModerationLogModal } from "./ModerationLogModal";
 import { TrainingAndShiftsModal } from "./TrainingAndShiftsModal";
+import { GroupNoticesModal } from "./GroupNoticesModal";
 
 type Props = {
   initialStaff: StaffDirectoryItem[];
@@ -54,6 +56,7 @@ export function RosterDirectoryView({
   const [showAcceptedModal, setShowAcceptedModal] = useState(false);
   const [showModLogModal, setShowModLogModal] = useState(false);
   const [showActivityModal, setShowActivityModal] = useState(false);
+  const [showNoticesModal, setShowNoticesModal] = useState(false);
 
   const canImportApplicants = currentUserRole === "OWNER" || currentUserRole === "MANAGER";
 
@@ -140,6 +143,15 @@ export function RosterDirectoryView({
 
         {/* Controls and Role Pill */}
         <div className="flex items-center gap-2.5 flex-wrap">
+          <button
+            type="button"
+            onClick={() => setShowNoticesModal(true)}
+            className="px-3.5 py-1.5 rounded-full border border-white/10 hover:border-amber-500/40 bg-white/5 hover:bg-amber-950/40 text-slate-200 hover:text-white text-xs font-semibold inline-flex items-center gap-1.5 transition-colors"
+          >
+            <Bell className="w-3.5 h-3.5 text-amber-400" />
+            <span>Notices</span>
+          </button>
+
           <button
             type="button"
             onClick={() => setShowActivityModal(true)}
@@ -493,6 +505,16 @@ export function RosterDirectoryView({
           }))}
           currentUserRole={currentUserRole}
           onClose={() => setShowActivityModal(false)}
+        />
+      )}
+
+      {/* Group Notices Modal (Workflow 4.8) */}
+      {showNoticesModal && (
+        <GroupNoticesModal
+          groupId={group.id}
+          teams={teams}
+          currentUserRole={currentUserRole}
+          onClose={() => setShowNoticesModal(false)}
         />
       )}
     </div>
