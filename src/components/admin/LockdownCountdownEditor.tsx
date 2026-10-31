@@ -15,6 +15,33 @@ export function LockdownCountdownEditor() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const [showUnveil, setShowUnveil] = useState(false);
+  const [broadcastingDelay, setBroadcastingDelay] = useState(false);
+
+  const handleBroadcastDelay = async () => {
+    if (!confirm("Broadcast launch delay to Sunday, November 1st at 6:00 PM EDT to all registered and company emails from noreply@roleflow.site?")) {
+      return;
+    }
+    setBroadcastingDelay(true);
+    setMessage(null);
+    try {
+      const res = await fetch("/api/admin/broadcast-delay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to broadcast delay update");
+      setMessage({ ok: true, text: data.message });
+      // Refresh local input
+      if (data.newTargetIso) {
+        setLocal(toLocalInput(data.newTargetIso));
+        setActive(true);
+      }
+    } catch (err: any) {
+      setMessage({ ok: false, text: err.message });
+    } finally {
+      setBroadcastingDelay(false);
+    }
+  };
 
   useEffect(() => {
     fetch("/api/admin/lockdown")
@@ -116,6 +143,14 @@ export function LockdownCountdownEditor() {
           </p>
 
           <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={handleBroadcastDelay}
+              disabled={broadcastingDelay || saving}
+              className="btn-danger btn-sm disabled:opacity-50 inline-flex items-center gap-1.5"
+            >
+              <span>{broadcastingDelay ? "Broadcasting..." : "Broadcast Launch Delay (Nov 1, 6PM EDT)"}</span>
+            </button>
             <button type="button" onClick={() => setShowUnveil(true)} className="btn-ghost btn-sm">
               Show unlock animation
             </button>
