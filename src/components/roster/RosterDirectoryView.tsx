@@ -15,9 +15,11 @@ import {
   AlertCircle,
   ExternalLink,
   FileText,
+  FileCheck,
 } from "lucide-react";
 import type { StaffDirectoryItem } from "@/lib/roster-directory";
 import { StaffRecordModal } from "./StaffRecordModal";
+import { AcceptedApplicantsModal } from "./AcceptedApplicantsModal";
 
 type Props = {
   initialStaff: StaffDirectoryItem[];
@@ -46,6 +48,9 @@ export function RosterDirectoryView({
   const [sortBy, setSortBy] = useState<"name" | "rank" | "lastActivity" | "joinedAt">("rank");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [inspectRobloxUserId, setInspectRobloxUserId] = useState<string | null>(null);
+  const [showAcceptedModal, setShowAcceptedModal] = useState(false);
+
+  const canImportApplicants = currentUserRole === "OWNER" || currentUserRole === "MANAGER";
 
   // Client-side instant filtering for rapid responsiveness
   const filteredStaff = useMemo(() => {
@@ -128,10 +133,23 @@ export function RosterDirectoryView({
           </div>
         </div>
 
-        {/* Current User Role Pill */}
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-violet-500/30 bg-violet-950/40 text-violet-300 text-xs font-mono">
-          <Shield className="w-3.5 h-3.5" />
-          <span>Role: {currentUserRole || "Staff"}</span>
+        {/* Controls and Role Pill */}
+        <div className="flex items-center gap-3">
+          {canImportApplicants && (
+            <button
+              type="button"
+              onClick={() => setShowAcceptedModal(true)}
+              className="px-3.5 py-1.5 rounded-full border border-violet-500/40 bg-violet-600/20 hover:bg-violet-600/30 text-white text-xs font-semibold inline-flex items-center gap-1.5 shadow-lg transition-colors"
+            >
+              <FileCheck className="w-3.5 h-3.5 text-violet-300" />
+              <span>Import Applicants</span>
+            </button>
+          )}
+
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-violet-500/30 bg-violet-950/40 text-violet-300 text-xs font-mono">
+            <Shield className="w-3.5 h-3.5" />
+            <span>Role: {currentUserRole || "Staff"}</span>
+          </div>
         </div>
       </div>
 
@@ -409,7 +427,19 @@ export function RosterDirectoryView({
           availableTeams={teams}
           onClose={() => setInspectRobloxUserId(null)}
           onStaffUpdated={() => {
-            // Trigger lightweight page refresh
+            window.location.reload();
+          }}
+        />
+      )}
+
+      {/* Accepted ApplyHub Applicants Modal */}
+      {showAcceptedModal && (
+        <AcceptedApplicantsModal
+          groupId={group.id}
+          availableTeams={teams}
+          availableRanks={availableRanks}
+          onClose={() => setShowAcceptedModal(false)}
+          onImportComplete={() => {
             window.location.reload();
           }}
         />
