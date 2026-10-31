@@ -17,8 +17,8 @@ export default async function RosterPage({
 }) {
   const user = await getCurrentUser();
 
-  // Strict check: if flag is off and user is not allowlisted, render standard 404
-  if (!canAccessRoster({ userId: user?.id })) {
+  // Strict check: if flag is off and user is not allowlisted/admin, render standard 404
+  if (!canAccessRoster(user ? { userId: user.id, isSiteAdmin: user.isSiteAdmin, siteRole: user.siteRole } : null)) {
     notFound();
   }
 

@@ -6,9 +6,13 @@
  * When false, any user not present in ROSTER_ALLOWLIST_USER_IDS is refused with a 404.
  */
 
+import { isFounderId } from "./roles";
+
 export interface RosterAccessInput {
   userId?: string | null;
   discordId?: string | null;
+  isSiteAdmin?: boolean | null;
+  siteRole?: string | null;
 }
 
 export function isRosterGloballyEnabled(): boolean {
@@ -28,7 +32,8 @@ export function rosterAllowlistUserIds(): Set<string> {
  * Checks whether a given user has access to Roster.
  * Returns true if:
  * 1. ROSTER_ENABLED is "true"
- * 2. OR user's RoleFlow userId or discordId matches any entry in ROSTER_ALLOWLIST_USER_IDS
+ * 2. OR user is a site owner/founder/admin (via isFounderId or isSiteAdmin)
+ * 3. OR user's RoleFlow userId or discordId matches any entry in ROSTER_ALLOWLIST_USER_IDS
  */
 export function canAccessRoster(user?: RosterAccessInput | null): boolean {
   if (isRosterGloballyEnabled()) {
@@ -37,6 +42,14 @@ export function canAccessRoster(user?: RosterAccessInput | null): boolean {
 
   if (!user) {
     return false;
+  }
+
+  // Automatic access for site founders, site admins, and owners
+  if (user.isSiteAdmin || user.siteRole === "FOUNDER" || user.siteRole === "ADMIN") {
+    return true;
+  }
+  if (isFounderId(user.userId) || isFounderId(user.discordId)) {
+    return true;
   }
 
   const allowlist = rosterAllowlistUserIds();
