@@ -18,6 +18,8 @@ import {
   FileCheck,
   AlertTriangle,
   Bell,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
 import type { StaffDirectoryItem } from "@/lib/roster-directory";
 import { StaffRecordModal } from "./StaffRecordModal";
@@ -25,6 +27,7 @@ import { AcceptedApplicantsModal } from "./AcceptedApplicantsModal";
 import { ModerationLogModal } from "./ModerationLogModal";
 import { TrainingAndShiftsModal } from "./TrainingAndShiftsModal";
 import { GroupNoticesModal } from "./GroupNoticesModal";
+import { RankConfirmationModal } from "./RankConfirmationModal";
 
 type Props = {
   initialStaff: StaffDirectoryItem[];
@@ -57,7 +60,12 @@ export function RosterDirectoryView({
   const [showModLogModal, setShowModLogModal] = useState(false);
   const [showActivityModal, setShowActivityModal] = useState(false);
   const [showNoticesModal, setShowNoticesModal] = useState(false);
+  const [rankModalTarget, setRankModalTarget] = useState<{
+    staff: StaffDirectoryItem;
+    action: "PROMOTE" | "DEMOTE";
+  } | null>(null);
 
+  const canManageRanking = currentUserRole === "OWNER" || currentUserRole === "MANAGER";
   const canImportApplicants = currentUserRole === "OWNER" || currentUserRole === "MANAGER";
 
   // Client-side instant filtering for rapid responsiveness
@@ -428,6 +436,27 @@ export function RosterDirectoryView({
                 </div>
 
                 <div className="flex items-center gap-1.5">
+                  {canManageRanking && (
+                    <div className="flex items-center bg-black/40 rounded-lg p-0.5 border border-white/5 mr-1">
+                      <button
+                        type="button"
+                        onClick={() => setRankModalTarget({ staff, action: "PROMOTE" })}
+                        className="p-1.5 rounded hover:bg-emerald-500/20 text-emerald-400 hover:text-emerald-300 transition-colors"
+                        title="Promote in Roblox (RankHub)"
+                      >
+                        <ChevronUp className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setRankModalTarget({ staff, action: "DEMOTE" })}
+                        className="p-1.5 rounded hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 transition-colors"
+                        title="Demote in Roblox (RankHub)"
+                      >
+                        <ChevronDown className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+
                   <button
                     type="button"
                     onClick={() => setInspectRobloxUserId(staff.robloxUserId)}
@@ -515,6 +544,29 @@ export function RosterDirectoryView({
           teams={teams}
           currentUserRole={currentUserRole}
           onClose={() => setShowNoticesModal(false)}
+        />
+      )}
+
+      {/* RankHub Quick Promote/Demote Modal */}
+      {rankModalTarget && (
+        <RankConfirmationModal
+          isOpen={true}
+          groupId={group.id}
+          targetRobloxId={rankModalTarget.staff.robloxUserId}
+          targetRobloxUsername={rankModalTarget.staff.username}
+          action={rankModalTarget.action}
+          currentRankName={rankModalTarget.staff.rank}
+          currentRankId={0}
+          availableRoles={availableRanks.map((name, idx) => ({
+            id: idx + 1,
+            name,
+            rank: (idx + 1) * 10,
+          }))}
+          onClose={() => setRankModalTarget(null)}
+          onSuccess={() => {
+            setRankModalTarget(null);
+            window.location.reload();
+          }}
         />
       )}
     </div>
