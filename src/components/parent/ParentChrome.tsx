@@ -62,7 +62,7 @@ export function ParentFooter() {
             <h4 className="font-mono text-xs font-semibold uppercase tracking-wider text-slate-200">Products</h4>
             <ul className="mt-3 space-y-2 text-xs">
               <li><a href="https://applyhub.roleflow.site" className="hover:text-white">ApplyHub by RoleFlow</a></li>
-              <li><Link href="/products#roster" className="hover:text-white">Roster by RoleFlow (Soon)</Link></li>
+              <li><Link href="https://roster.roleflow.site" className="hover:text-white">Roster by RoleFlow</Link></li>
               <li><Link href="/ideas" className="hover:text-white">Vote on next tool</Link></li>
             </ul>
           </div>

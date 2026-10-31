@@ -2,8 +2,16 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { canAccessRoster, isRosterGloballyEnabled, rosterAllowlistUserIds } from "./roster-access";
 
-test("Roster access control: flag off returns false for normal users and anonymous visitors", () => {
+test("Roster access control: flag default (or not false) returns true for everyone", () => {
   delete process.env.ROSTER_ENABLED;
+  assert.equal(isRosterGloballyEnabled(), true);
+  assert.equal(canAccessRoster(null), true);
+  assert.equal(canAccessRoster(undefined), true);
+  assert.equal(canAccessRoster({ userId: "any_user" }), true);
+});
+
+test("Roster access control: explicit ROSTER_ENABLED=false restricts unlisted users", () => {
+  process.env.ROSTER_ENABLED = "false";
   process.env.ROSTER_ALLOWLIST_USER_IDS = "user_owner_123,1046538179399929957";
 
   assert.equal(isRosterGloballyEnabled(), false);

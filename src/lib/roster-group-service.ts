@@ -6,6 +6,8 @@ export interface ConnectGroupInput {
   userId: string;
   userRobloxId: string;
   robloxGroupId: string | number;
+  userRobloxUsername?: string | null;
+  isSiteAdmin?: boolean | null;
 }
 
 export interface PreviewGroupResult {
@@ -42,12 +44,27 @@ export async function previewRobloxGroup(
     };
   }
 
-  // 2. Verify user's rank in group (minimum rank 200 or group owner required to manage)
+  // 2. Verify user's rank in group (minimum rank 200, group owner, or site admin bypass)
   const userRank = await client.getUserGroupRank(input.userRobloxId, gId);
-  const isOwner = group.owner?.id === Number(input.userRobloxId);
-  const isManager = userRank >= 200 || isOwner;
+
+  // Group owner checks: owner.userId or owner.id
+  const ownerId = group.owner?.userId ?? group.owner?.id;
+  const isOwnerById = ownerId !== undefined && ownerId !== null && Number(ownerId) === Number(input.userRobloxId);
+
+  // Owner username check (case-insensitive fallback)
+  const ownerUsername = group.owner?.username || "";
+  const isOwnerByUsername =
+    Boolean(ownerUsername && input.userRobloxUsername) &&
+    ownerUsername.toLowerCase() === (input.userRobloxUsername || "").toLowerCase();
+
+  const isOwner = isOwnerById || isOwnerByUsername;
+  const isSiteAdmin = Boolean(input.isSiteAdmin);
+  const isManager = userRank >= 200 || isOwner || isSiteAdmin;
 
   if (!isManager) {
+    const accountNotice = input.userRobloxUsername
+      ? `Your linked Roblox account (@${input.userRobloxUsername} / ID ${input.userRobloxId})`
+      : `Your linked Roblox account (ID ${input.userRobloxId})`;
     return {
       eligible: false,
       userRank,
@@ -55,7 +72,7 @@ export async function previewRobloxGroup(
       memberCount: group.memberCount,
       roles: [],
       membersPreview: [],
-      error: "You do not have management permissions (Rank >= 200 or Owner required) in this Roblox group.",
+      error: `${accountNotice} does not have management permissions (Rank >= 200 or Owner required) in this Roblox group. Current rank: ${userRank}.`,
     };
   }
 

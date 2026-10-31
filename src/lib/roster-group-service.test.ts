@@ -59,6 +59,36 @@ test("previewRobloxGroup: verifies manager authority and returns full preview wi
   assert.match(resMember.error || "", /Rank >= 200/);
 });
 
+test("previewRobloxGroup: recognizes owner with userId or username even if rank is low", async () => {
+  const fake = new FakeRobloxGroupsClient();
+  fake.groups.set(14910342, {
+    id: 14910342,
+    name: "[WPS] Willowbrook Primary School",
+    description: "Primary school",
+    owner: { userId: 10434324980, username: "JordanDanielsGames" },
+    memberCount: 30,
+  });
+  fake.roles.set(14910342, [
+    { id: 1, name: "Member", rank: 1 },
+    { id: 784461015, name: "Governing Body", rank: 20 },
+  ]);
+  fake.members.set(14910342, []);
+  fake.userRanks.set("10434324980_14910342", 20);
+
+  const res = await previewRobloxGroup(
+    {
+      userId: "u_owner",
+      userRobloxId: "10434324980",
+      userRobloxUsername: "JordanDanielsGames",
+      robloxGroupId: "14910342",
+    },
+    fake
+  );
+
+  assert.equal(res.eligible, true);
+  assert.equal(res.groupName, "[WPS] Willowbrook Primary School");
+});
+
 test("previewRobloxGroup: handles non-existent group cleanly", async () => {
   const fake = new FakeRobloxGroupsClient();
   const res = await previewRobloxGroup(

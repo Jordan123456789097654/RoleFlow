@@ -1,9 +1,8 @@
 /**
  * Single source of truth for Roster access control and feature flag status.
  *
- * Status: UNRELEASED.
- * Default: ROSTER_ENABLED=false
- * When false, any user not present in ROSTER_ALLOWLIST_USER_IDS is refused with a 404.
+ * Status: PUBLIC PRODUCTION.
+ * Default: ROSTER_ENABLED=true (respects process.env.ROSTER_ENABLED !== "false")
  */
 
 import { isFounderId } from "./roles";
@@ -16,7 +15,7 @@ export interface RosterAccessInput {
 }
 
 export function isRosterGloballyEnabled(): boolean {
-  return process.env.ROSTER_ENABLED === "true";
+  return process.env.ROSTER_ENABLED !== "false";
 }
 
 export function rosterAllowlistUserIds(): Set<string> {

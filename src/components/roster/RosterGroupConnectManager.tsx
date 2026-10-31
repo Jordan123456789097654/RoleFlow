@@ -1,11 +1,21 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Shield, Sparkles, Plus, Users, ArrowRight, Check, AlertCircle, RefreshCw, ExternalLink } from "lucide-react";
+import Link from "next/link";
+
+interface CurrentUserInfo {
+  id: string;
+  username: string;
+  robloxId: string | null;
+  robloxUsername: string | null;
+  isSiteAdmin?: boolean;
+}
 
 export function RosterGroupConnectManager() {
   const [groupIdInput, setGroupIdInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [userInfo, setUserInfo] = useState<CurrentUserInfo | null>(null);
   const [preview, setPreview] = useState<{
     groupName: string;
     memberCount: number;
@@ -16,6 +26,17 @@ export function RosterGroupConnectManager() {
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/roster/connect")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.user) {
+          setUserInfo(data.user);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const handlePreview = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,6 +79,9 @@ export function RosterGroupConnectManager() {
         setSuccess(`Group "${preview?.groupName}" connected successfully to Roster!`);
         setPreview(null);
         setGroupIdInput("");
+        setTimeout(() => {
+          window.location.reload();
+        }, 1200);
       } else {
         setError(data.error || "Failed to connect group.");
       }
@@ -77,18 +101,64 @@ export function RosterGroupConnectManager() {
           </div>
           <div>
             <h3 className="font-bold text-sm text-white">Connect a Roblox Group</h3>
-            <p className="text-xs text-slate-400">Workflow 4.1: Inspect, verify management rank, and confirm import.</p>
+            <p className="text-xs text-slate-400">Inspect, verify ownership or management rank, and confirm import.</p>
           </div>
         </div>
-        <span className="font-mono text-[10px] uppercase tracking-wider text-amber-400 border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 rounded-full">
-          Stage 3 Live
+        <span className="font-mono text-[10px] uppercase tracking-wider text-emerald-400 border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+          Live
         </span>
       </div>
+
+      {/* Linked Roblox Account Status Card */}
+      {userInfo && (
+        <div className="p-3 rounded-xl border border-white/10 bg-white/[0.03] flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {userInfo.robloxId ? (
+              <img
+                src={`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userInfo.robloxId}&size=48x48&format=Png&isCircular=true`}
+                alt="Roblox Avatar"
+                className="w-8 h-8 rounded-full border border-violet-500/30 bg-violet-950/40"
+              />
+            ) : (
+              <div className="w-8 h-8 rounded-full border border-amber-500/30 bg-amber-500/10 flex items-center justify-center text-amber-400 text-xs">
+                ?
+              </div>
+            )}
+            <div>
+              <div className="text-xs font-semibold text-white flex items-center gap-1.5">
+                <span>Linked Roblox:</span>
+                {userInfo.robloxUsername ? (
+                  <span className="text-violet-300">@{userInfo.robloxUsername}</span>
+                ) : userInfo.robloxId ? (
+                  <span className="text-violet-300 font-mono">ID {userInfo.robloxId}</span>
+                ) : (
+                  <span className="text-amber-400">Not linked</span>
+                )}
+                {userInfo.isSiteAdmin && (
+                  <span className="text-[10px] font-mono px-1.5 py-0.2 bg-violet-500/20 text-violet-300 border border-violet-500/30 rounded">
+                    ADMIN
+                  </span>
+                )}
+              </div>
+              <p className="text-[11px] text-slate-400 font-mono">
+                {userInfo.robloxId ? `Roblox ID: ${userInfo.robloxId}` : "Link your Roblox account to manage groups"}
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/settings"
+            className="text-[11px] font-semibold text-violet-400 hover:text-violet-300 transition-colors flex items-center gap-1"
+          >
+            <span>Change</span>
+            <ExternalLink className="w-3 h-3" />
+          </Link>
+        </div>
+      )}
 
       {error && (
         <div className="p-3.5 rounded-xl border border-rose-500/30 bg-rose-500/10 text-xs text-rose-300 flex items-start gap-2">
           <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 text-rose-400" />
-          <span>{error}</span>
+          <span className="leading-relaxed">{error}</span>
         </div>
       )}
 
@@ -106,7 +176,7 @@ export function RosterGroupConnectManager() {
             <input
               type="text"
               required
-              placeholder="e.g. 12345678"
+              placeholder="e.g. 14910342"
               value={groupIdInput}
               onChange={(e) => setGroupIdInput(e.target.value)}
               className="w-full rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none font-mono"
@@ -121,7 +191,7 @@ export function RosterGroupConnectManager() {
             </button>
           </div>
           <p className="text-[11px] text-slate-500 mt-1.5">
-            Roster connects via official Roblox APIs. Your linked account must have Manager (Rank &ge; 200) or Owner authority.
+            Roster connects via official Roblox APIs. Your linked account must have Group Owner or Manager (Rank &ge; 200) authority.
           </p>
         </div>
       </form>

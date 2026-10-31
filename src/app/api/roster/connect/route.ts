@@ -1,14 +1,32 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { canAccessRoster } from "@/lib/roster-access";
+import { isSiteAdminUser } from "@/lib/roles";
 import { previewRobloxGroup, confirmConnectRobloxGroup } from "@/lib/roster-group-service";
 
 export const dynamic = "force-dynamic";
 
+export async function GET() {
+  const user = await getCurrentUser();
+  if (!user) {
+    return NextResponse.json({ authenticated: false }, { status: 401 });
+  }
+  return NextResponse.json({
+    authenticated: true,
+    user: {
+      id: user.id,
+      username: user.username,
+      robloxId: user.robloxId || null,
+      robloxUsername: user.robloxUsername || null,
+      isSiteAdmin: isSiteAdminUser(user),
+    },
+  });
+}
+
 export async function POST(request: Request) {
   // 1. Strict access check (Feature flag + Owner allowlist)
   const user = await getCurrentUser();
-  if (!canAccessRoster({ userId: user?.id })) {
+  if (!canAccessRoster({ userId: user?.id, isSiteAdmin: user?.isSiteAdmin, siteRole: user?.siteRole })) {
     return NextResponse.json({ error: "Not Found" }, { status: 404 });
   }
 
@@ -29,6 +47,8 @@ export async function POST(request: Request) {
   const input = {
     userId: user.id,
     userRobloxId: user.robloxId,
+    userRobloxUsername: user.robloxUsername,
+    isSiteAdmin: isSiteAdminUser(user),
     robloxGroupId,
   };
 

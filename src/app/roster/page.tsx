@@ -162,15 +162,15 @@ export default async function RosterPage({
             <span className="text-white/20">|</span>
             <div className="flex items-center gap-2">
               <span className="font-bold text-sm text-white tracking-tight">Roster by RoleFlow</span>
-              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                STAGE 4 &bull; UNRELEASED
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-violet-500/20 text-violet-300 border border-violet-500/30">
+                PRODUCTION
               </span>
             </div>
           </div>
 
           <div className="flex items-center gap-2 text-xs text-slate-400 font-mono">
             <Shield className="w-3.5 h-3.5 text-violet-400" />
-            <span>Allowlist: {user?.username || user?.id || "Authorized Preview"}</span>
+            <span>{user?.username || "RoleFlow Member"}</span>
           </div>
         </div>
       </header>
@@ -231,7 +231,7 @@ export default async function RosterPage({
           <div className="max-w-4xl mx-auto space-y-8 text-center py-6">
             <div className="inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-950/60 px-4 py-1.5 text-xs font-semibold text-[#ddd6fe] shadow-[0_0_20px_rgba(90,42,162,0.35)] backdrop-blur-md">
               <Sparkles className="h-3.5 w-3.5 text-violet-400" />
-              <span>Stage 4: Staff Directory &amp; Group Import</span>
+              <span>Staff Directory &amp; Group Import</span>
             </div>
 
             <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight">
@@ -282,7 +282,7 @@ export default async function RosterPage({
 
       {/* Footer */}
       <footer className="relative z-10 border-t border-white/10 py-6 text-center text-xs text-slate-500 font-mono">
-        Roster by RoleFlow &bull; Stage 4 Directory &bull; Confidential &amp; Unreleased
+        Roster by RoleFlow &bull; Staff &amp; Operations Management
       </footer>
     </div>
   );

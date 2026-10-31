@@ -5,8 +5,10 @@ export interface RobloxGroupDetail {
   name: string;
   description: string;
   owner: {
-    id: number;
+    id?: number;
+    userId?: number;
     username?: string;
+    displayName?: string;
     hasVerifiedBadge?: boolean;
   } | null;
   memberCount: number;
