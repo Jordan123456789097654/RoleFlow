@@ -16,10 +16,12 @@ import {
   ExternalLink,
   FileText,
   FileCheck,
+  AlertTriangle,
 } from "lucide-react";
 import type { StaffDirectoryItem } from "@/lib/roster-directory";
 import { StaffRecordModal } from "./StaffRecordModal";
 import { AcceptedApplicantsModal } from "./AcceptedApplicantsModal";
+import { ModerationLogModal } from "./ModerationLogModal";
 
 type Props = {
   initialStaff: StaffDirectoryItem[];
@@ -49,6 +51,7 @@ export function RosterDirectoryView({
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [inspectRobloxUserId, setInspectRobloxUserId] = useState<string | null>(null);
   const [showAcceptedModal, setShowAcceptedModal] = useState(false);
+  const [showModLogModal, setShowModLogModal] = useState(false);
 
   const canImportApplicants = currentUserRole === "OWNER" || currentUserRole === "MANAGER";
 
@@ -134,7 +137,16 @@ export function RosterDirectoryView({
         </div>
 
         {/* Controls and Role Pill */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <button
+            type="button"
+            onClick={() => setShowModLogModal(true)}
+            className="px-3.5 py-1.5 rounded-full border border-white/10 hover:border-indigo-500/40 bg-white/5 hover:bg-indigo-950/40 text-slate-200 hover:text-white text-xs font-semibold inline-flex items-center gap-1.5 transition-colors"
+          >
+            <AlertTriangle className="w-3.5 h-3.5 text-indigo-400" />
+            <span>Moderation Log</span>
+          </button>
+
           {canImportApplicants && (
             <button
               type="button"
@@ -442,6 +454,20 @@ export function RosterDirectoryView({
           onImportComplete={() => {
             window.location.reload();
           }}
+        />
+      )}
+
+      {/* Moderation Log Modal (Workflow 4.5) */}
+      {showModLogModal && (
+        <ModerationLogModal
+          groupId={group.id}
+          robloxGroupId={group.robloxGroupId}
+          currentUserRole={currentUserRole}
+          staffList={initialStaff.map((s) => ({
+            robloxUserId: s.robloxUserId,
+            username: s.username,
+          }))}
+          onClose={() => setShowModLogModal(false)}
         />
       )}
     </div>
