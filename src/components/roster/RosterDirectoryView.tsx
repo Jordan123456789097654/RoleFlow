@@ -22,6 +22,7 @@ import type { StaffDirectoryItem } from "@/lib/roster-directory";
 import { StaffRecordModal } from "./StaffRecordModal";
 import { AcceptedApplicantsModal } from "./AcceptedApplicantsModal";
 import { ModerationLogModal } from "./ModerationLogModal";
+import { TrainingAndShiftsModal } from "./TrainingAndShiftsModal";
 
 type Props = {
   initialStaff: StaffDirectoryItem[];
@@ -52,6 +53,7 @@ export function RosterDirectoryView({
   const [inspectRobloxUserId, setInspectRobloxUserId] = useState<string | null>(null);
   const [showAcceptedModal, setShowAcceptedModal] = useState(false);
   const [showModLogModal, setShowModLogModal] = useState(false);
+  const [showActivityModal, setShowActivityModal] = useState(false);
 
   const canImportApplicants = currentUserRole === "OWNER" || currentUserRole === "MANAGER";
 
@@ -138,6 +140,15 @@ export function RosterDirectoryView({
 
         {/* Controls and Role Pill */}
         <div className="flex items-center gap-2.5 flex-wrap">
+          <button
+            type="button"
+            onClick={() => setShowActivityModal(true)}
+            className="px-3.5 py-1.5 rounded-full border border-white/10 hover:border-emerald-500/40 bg-white/5 hover:bg-emerald-950/40 text-slate-200 hover:text-white text-xs font-semibold inline-flex items-center gap-1.5 transition-colors"
+          >
+            <Clock className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Activity &amp; Shifts</span>
+          </button>
+
           <button
             type="button"
             onClick={() => setShowModLogModal(true)}
@@ -468,6 +479,20 @@ export function RosterDirectoryView({
             username: s.username,
           }))}
           onClose={() => setShowModLogModal(false)}
+        />
+      )}
+
+      {/* Shifts & Activity Overview Modal (Workflows 4.6 & 4.7) */}
+      {showActivityModal && (
+        <TrainingAndShiftsModal
+          groupId={group.id}
+          teams={teams}
+          staffList={initialStaff.map((s) => ({
+            robloxUserId: s.robloxUserId,
+            username: s.username,
+          }))}
+          currentUserRole={currentUserRole}
+          onClose={() => setShowActivityModal(false)}
         />
       )}
     </div>
