@@ -7,8 +7,8 @@ type Stop = { href: string; selector: string; label: string; title: string; capt
 
 /** Every stop is a section on a page. Right arrow moves down the list, changing page when needed. */
 export const TOUR_STEPS: Stop[] = [
-  { href: "/", selector: '[data-tour="hero"]', label: "Home", title: "RoleFlow", caption: "One account for every Discord and Roblox community tool. ApplyHub is live today, and Roster is coming soon." },
-  { href: "/", selector: '[data-tour="products"]', label: "Products", title: "Our products", caption: "ApplyHub takes applications, lets staff vote with blind quorum, and automates Roblox group promotions and Discord roles. Roster, our staff tool for Roblox groups, is coming soon." },
+  { href: "/", selector: '[data-tour="hero"]', label: "Home", title: "RoleFlow", caption: "One account for every Discord and Roblox community tool. ApplyHub, Roster, and RankHub are all live today." },
+  { href: "/", selector: '[data-tour="products"]', label: "Products", title: "Our products", caption: "ApplyHub manages applications, Roster tracks community staff and shifts, and RankHub automates high-speed Roblox group ranking." },
   { href: "/", selector: '[data-tour="roadmap"]', label: "Roadmap", title: "You decide what we build", caption: "Suggest a feature for your community, then vote on the ideas other communities have posted." },
   { href: "/", selector: '[data-tour="principles"]', label: "Principles", title: "Engineered for community leaders", caption: "One identity across every tool, Roblox and Discord automation, and free forever with no paywalled features." },
   { href: "/", selector: "#newsletter", label: "Newsletter", title: "Stay in the loop", caption: "A monthly brief of releases and new products. Opt-in only, with one-click unsubscribe." },
