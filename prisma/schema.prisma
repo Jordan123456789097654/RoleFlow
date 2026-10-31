@@ -958,3 +958,51 @@ model RosterNotice {
 
   @@index([groupId, createdAt])
 }
+
+model ModmailThread {
+  id            String           @id @default(cuid())
+  discordUserId String
+  staffThreadId String           @unique
+  status        String           @default("OPEN") // OPEN, CLOSED
+  closedBy      String?
+  createdAt     DateTime         @default(now())
+  closedAt      DateTime?
+  messages      ModmailMessage[]
+
+  @@index([discordUserId, status])
+}
+
+model ModmailMessage {
+  id        String        @id @default(cuid())
+  threadId  String
+  thread    ModmailThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  direction String        // INBOUND (from member), OUTBOUND (from staff)
+  authorId  String
+  content   String        @db.Text
+  createdAt DateTime      @default(now())
+
+  @@index([threadId])
+}
+
+model ModmailBlock {
+  id            String   @id @default(cuid())
+  discordUserId String   @unique
+  blockedBy     String
+  reason        String?
+  createdAt     DateTime @default(now())
+}
+
+model RobloxVerificationSafeword {
+  id             String   @id @default(cuid())
+  discordUserId  String
+  robloxUserId   String
+  robloxUsername String
+  safeword       String
+  expiresAt      DateTime
+  createdAt      DateTime @default(now())
+
+  @@index([discordUserId])
+  @@index([expiresAt])
+}
+
+
