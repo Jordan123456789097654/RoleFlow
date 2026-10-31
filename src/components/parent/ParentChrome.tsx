@@ -24,33 +24,12 @@ export function ParentHeader() {
 
         <div className="flex items-center gap-3">
           <ParentMobileNav />
-          <div className="hidden items-center gap-2 lg:flex">
-            <a
-              href="https://roster.roleflow.site"
-              className="rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-300 transition-colors hover:bg-white/10 hover:text-white"
-            >
-              Roster
-            </a>
-            <a
-              href="https://rankhub.roleflow.site"
-              className="flex items-center gap-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-300 transition-colors hover:bg-emerald-500/20"
-            >
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              RankHub
-            </a>
-          </div>
           <Link
             href="/settings"
-            className="hidden rounded-xl border border-white/15 bg-white/5 px-3.5 py-1.5 text-xs font-semibold text-slate-200 transition-colors hover:bg-white/10 hover:text-white sm:inline-block"
+            className="rounded-xl border border-white/15 bg-white/5 px-3.5 py-1.5 text-xs font-semibold text-slate-200 transition-colors hover:bg-white/10 hover:text-white"
           >
             Account
           </Link>
-          <a
-            href="https://applyhub.roleflow.site"
-            className="rounded-xl bg-violet-600 px-4 py-1.5 text-xs font-semibold text-white shadow-[0_2px_12px_rgba(139,92,246,0.3)] transition-colors hover:bg-violet-500"
-          >
-            Open ApplyHub
-          </a>
         </div>
       </div>
     </header>
