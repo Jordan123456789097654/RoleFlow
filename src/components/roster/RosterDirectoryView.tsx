@@ -14,8 +14,10 @@ import {
   UserCheck,
   AlertCircle,
   ExternalLink,
+  FileText,
 } from "lucide-react";
 import type { StaffDirectoryItem } from "@/lib/roster-directory";
+import { StaffRecordModal } from "./StaffRecordModal";
 
 type Props = {
   initialStaff: StaffDirectoryItem[];
@@ -43,6 +45,7 @@ export function RosterDirectoryView({
   const [selectedStatus, setSelectedStatus] = useState("ALL");
   const [sortBy, setSortBy] = useState<"name" | "rank" | "lastActivity" | "joinedAt">("rank");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [inspectRobloxUserId, setInspectRobloxUserId] = useState<string | null>(null);
 
   // Client-side instant filtering for rapid responsiveness
   const filteredStaff = useMemo(() => {
@@ -371,19 +374,45 @@ export function RosterDirectoryView({
                   </div>
                 </div>
 
-                <a
-                  href={`https://www.roblox.com/users/${staff.robloxUserId}/profile`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="p-2 rounded-lg bg-white/5 hover:bg-violet-600/20 text-slate-400 hover:text-white transition-colors"
-                  title="View Roblox Profile"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                </a>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setInspectRobloxUserId(staff.robloxUserId)}
+                    className="px-3 py-1.5 rounded-lg bg-violet-600/20 hover:bg-violet-600/30 text-violet-300 hover:text-white border border-violet-500/30 transition-colors inline-flex items-center gap-1.5 font-medium text-xs"
+                    title="View Full Staff Dossier"
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>Dossier</span>
+                  </button>
+
+                  <a
+                    href={`https://www.roblox.com/users/${staff.robloxUserId}/profile`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="p-2 rounded-lg bg-white/5 hover:bg-violet-600/20 text-slate-400 hover:text-white transition-colors"
+                    title="View Roblox Profile"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
+                </div>
               </div>
             </div>
           ))}
         </div>
+      )}
+
+      {/* Staff Dossier Modal */}
+      {inspectRobloxUserId && (
+        <StaffRecordModal
+          groupId={group.id}
+          robloxUserId={inspectRobloxUserId}
+          availableTeams={teams}
+          onClose={() => setInspectRobloxUserId(null)}
+          onStaffUpdated={() => {
+            // Trigger lightweight page refresh
+            window.location.reload();
+          }}
+        />
       )}
     </div>
   );
