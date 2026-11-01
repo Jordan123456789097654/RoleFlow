@@ -81,7 +81,7 @@ export default async function ParentHomePage() {
         )}
 
         <Reveal delay={260}>
-          <form action="https://applyhub.roleflow.site/browse" method="GET" className="relative mx-auto mt-10 flex max-w-xl items-center shadow-2xl">
+          <form data-tour="search" action="https://applyhub.roleflow.site/browse" method="GET" className="relative mx-auto mt-10 flex max-w-xl items-center shadow-2xl">
             <Search className="absolute left-4 h-4 w-4 text-slate-400" aria-hidden="true" />
             <label htmlFor="parent-search" className="sr-only">Search openings, groups, or studios</label>
             <input
@@ -128,7 +128,7 @@ export default async function ParentHomePage() {
       </section>
 
       {/* Ticker */}
-      <section aria-label="RoleFlow highlights" className="relative overflow-hidden border-y border-white/10 bg-[#07080c] py-4">
+      <section data-tour="ticker" aria-label="RoleFlow highlights" className="relative overflow-hidden border-y border-white/10 bg-[#07080c] py-4">
         <div className="parent-marquee">
           {[0, 1].map((copy) => (
             <ul key={copy} className="flex shrink-0 items-center" aria-hidden={copy === 1 ? "true" : undefined}>
@@ -159,7 +159,7 @@ export default async function ParentHomePage() {
               const isLive = prod.badge === "Live";
               return (
                 <Reveal key={prod.id} delay={index * 120}>
-                  <div className="parent-card-sheen group relative flex h-full flex-col justify-between rounded-3xl border border-white/10 bg-white/[0.02] p-8 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-violet-500/40 hover:bg-white/[0.04] sm:p-10">
+                  <div data-tour={`product-${prod.id}`} className="parent-card-sheen group relative flex h-full flex-col justify-between rounded-3xl border border-white/10 bg-white/[0.02] p-8 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-violet-500/40 hover:bg-white/[0.04] sm:p-10">
                     <div className="space-y-6">
                       <div className="flex items-center justify-between">
                         <div className="relative h-16 w-56">
@@ -268,7 +268,7 @@ export default async function ParentHomePage() {
               const Icon = item.icon;
               return (
                 <Reveal key={item.title} delay={index * 120}>
-                  <div className="h-full space-y-3 rounded-2xl border border-white/10 bg-white/[0.02] p-6 transition-colors duration-300 hover:border-violet-500/30">
+                  <div data-tour={`principle-${index}`} className="h-full space-y-3 rounded-2xl border border-white/10 bg-white/[0.02] p-6 transition-colors duration-300 hover:border-violet-500/30">
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-violet-500/20 bg-violet-500/10 text-violet-400">
                       <Icon className="h-5 w-5" />
                     </div>

@@ -325,13 +325,19 @@ p { text-wrap: pretty; }
   .unveil-ring { display: none; }
 }
 
-/* ───────── Website tour highlight ───────── */
-.tour-highlight {
-  outline: 2px solid rgba(139, 92, 246, 0.9);
-  outline-offset: 10px;
-  border-radius: 16px;
-  box-shadow: 0 0 60px rgba(139, 92, 246, 0.35);
-  transition: outline-color 0.4s ease, box-shadow 0.4s ease;
+/* ───────── Website tour ───────── */
+@keyframes tourSpotPulse {
+  0%, 100% { box-shadow: 0 0 0 9999px rgba(5, 4, 9, 0.72), inset 0 0 0 2px rgba(167, 139, 250, 0.9), 0 0 38px rgba(139, 92, 246, 0.45); }
+  50% { box-shadow: 0 0 0 9999px rgba(5, 4, 9, 0.72), inset 0 0 0 2px rgba(232, 121, 249, 0.95), 0 0 70px rgba(139, 92, 246, 0.75); }
+}
+.tour-spot { transition: opacity 0.45s ease; animation: tourSpotPulse 2.6s ease-in-out infinite; }
+@keyframes tourRise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.tour-rise { animation: tourRise 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@keyframes tourDwell { from { width: 0; } to { width: 100%; } }
+.tour-dwell { animation-name: tourDwell; animation-timing-function: linear; animation-fill-mode: both; }
+@media (prefers-reduced-motion: reduce) {
+  .tour-spot { animation: none; box-shadow: 0 0 0 9999px rgba(5, 4, 9, 0.72), inset 0 0 0 2px rgba(167, 139, 250, 0.9); }
+  .tour-rise { animation: none; }
 }
 
 /* ───────── Opening intro (UnveilIntro) ───────── */
@@ -354,17 +360,46 @@ p { text-wrap: pretty; }
   animation: unveilGridDrift 12s linear infinite;
   mask-image: radial-gradient(circle at center, black 10%, transparent 70%);
 }
+/* Registered so the glow colour can ease from act to act instead of snapping. */
+@property --u-a { syntax: "<color>"; inherits: true; initial-value: rgb(139 92 246); }
+@property --u-b { syntax: "<color>"; inherits: true; initial-value: rgb(217 70 239); }
+@keyframes unveilGlowBreathe {
+  0%, 100% { opacity: 0.28; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 0.55; transform: translate(-50%, -50%) scale(1.12); }
+}
 .unveil-glow {
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.55) 0%, rgba(217, 70, 239, 0.25) 35%, transparent 70%);
+  --u-a: rgb(139 92 246);
+  --u-b: rgb(217 70 239);
+  background: radial-gradient(circle, var(--u-a) 0%, var(--u-b) 35%, transparent 70%);
   filter: blur(40px);
-  animation: unveilGlowPulse 6s ease-in-out infinite;
+  transition: --u-a 1.8s ease, --u-b 1.8s ease;
+  animation: unveilGlowBreathe 6s ease-in-out infinite;
 }
 .unveil-particle { animation-name: unveilParticleRise; animation-iteration-count: infinite; animation-timing-function: linear; }
 .unveil-scan {
   background-image: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.6) 0px, rgba(255, 255, 255, 0.6) 1px, transparent 1px, transparent 3px);
   animation: unveilScanMove 0.4s steps(2) infinite;
 }
+@keyframes unveilFlash { 0% { opacity: 0.95; } 100% { opacity: 0; } }
+.unveil-flash {
+  position: absolute; inset: 0; pointer-events: none; z-index: 5;
+  background: radial-gradient(circle at center, #ffffff 0%, rgba(221, 214, 254, 0.8) 30%, transparent 70%);
+  animation: unveilFlash 1.2s ease-out forwards;
+}
+@keyframes unveilGlitch {
+  0%, 100% { filter: none; transform: none; }
+  8% { filter: drop-shadow(3px 0 0 rgba(34, 211, 238, 0.85)) drop-shadow(-3px 0 0 rgba(244, 114, 182, 0.85)); transform: translate(-3px, 1px) skewX(-6deg); }
+  16% { filter: none; transform: translate(2px, -1px); }
+  28% { filter: drop-shadow(-5px 0 0 rgba(34, 211, 238, 0.85)) drop-shadow(5px 0 0 rgba(244, 114, 182, 0.85)); transform: translate(4px, 0) skewX(7deg); }
+  36% { filter: none; transform: none; }
+  60% { filter: drop-shadow(2px 0 0 rgba(34, 211, 238, 0.7)) drop-shadow(-2px 0 0 rgba(244, 114, 182, 0.7)); transform: translate(-1px, 0); }
+  66% { filter: none; transform: none; }
+}
+.unveil-glitch { display: inline-block; animation: unveilGlitch 1.1s steps(1, end) 2; }
+@keyframes unveilActIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+.unveil-act-label { animation: unveilActIn 0.9s ease-out both; }
 @media (prefers-reduced-motion: reduce) {
-  .unveil-grid, .unveil-glow, .unveil-particle, .unveil-scan { animation: none !important; }
+  .unveil-grid, .unveil-glow, .unveil-particle, .unveil-scan, .unveil-glitch, .unveil-act-label { animation: none !important; }
+  .unveil-flash { display: none; }
   .unveil-particle { display: none; }
 }

@@ -1,47 +1,60 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { ACTS, BEATS, FADE_MS, SETTLE_MS, TOTAL_MS, charMs, holdMs } from "@/components/unveil/unveil-beats";
 
 type Stage = "typing" | "hold" | "fade";
-type Beat = { text: string; className: string; hold: number; speed: number };
 
-/** Opening sequence: a terminal boot, a mission statement, then the big RoleFlow v2 reveal. */
-const BEATS: Beat[] = [
-  { text: "> boot roleflow.core", className: "font-mono text-sm text-emerald-400 sm:text-base", hold: 500, speed: 35 },
-  { text: "> loading applyhub ........ ok", className: "font-mono text-sm text-slate-400 sm:text-base", hold: 300, speed: 22 },
-  { text: "> loading roster .......... ok", className: "font-mono text-sm text-slate-400 sm:text-base", hold: 300, speed: 22 },
-  { text: "> loading rankhub ......... ok", className: "font-mono text-sm text-slate-400 sm:text-base", hold: 300, speed: 22 },
-  { text: "> syncing communities ..... ok", className: "font-mono text-sm text-slate-400 sm:text-base", hold: 300, speed: 22 },
-  { text: "> cutover status: READY", className: "font-mono text-sm font-bold text-emerald-300 sm:text-base", hold: 900, speed: 40 },
-  { text: "Every community deserves better tools.", className: "font-serif text-2xl italic text-slate-300 sm:text-4xl", hold: 1800, speed: 55 },
-  { text: "Hundreds of hours of applications.", className: "font-sans text-lg text-slate-400 sm:text-2xl", hold: 1300, speed: 40 },
-  { text: "Hundreds of hours of rank changes.", className: "font-sans text-lg text-slate-400 sm:text-2xl", hold: 1300, speed: 40 },
-  { text: "Hundreds of hours of staff shifts.", className: "font-sans text-lg text-slate-400 sm:text-2xl", hold: 1300, speed: 40 },
-  { text: "So we rebuilt all of it.", className: "font-sans text-xl font-semibold text-white sm:text-3xl", hold: 1500, speed: 45 },
-  { text: "Introducing", className: "font-mono text-4xl font-bold tracking-[0.18em] text-white sm:text-6xl", hold: 1400, speed: 70 },
-  { text: "the next", className: "font-serif text-2xl italic text-slate-400 sm:text-3xl", hold: 900, speed: 160 },
-  { text: "RoleFlow v2", className: "parent-shimmer-text bg-gradient-to-r from-violet-400 via-fuchsia-300 to-white bg-clip-text text-6xl font-black tracking-tight text-transparent sm:text-8xl", hold: 2000, speed: 90 },
-  { text: "Faster. Simpler. Free forever.", className: "font-sans text-xl font-semibold tracking-wide text-white sm:text-3xl", hold: 1600, speed: 45 },
-  { text: "One account. Every community tool.", className: "font-sans text-lg font-medium text-violet-300 sm:text-2xl", hold: 1500, speed: 40 },
-  { text: "ApplyHub  ·  Roster  ·  RankHub", className: "font-mono text-base tracking-[0.3em] text-fuchsia-300 sm:text-xl", hold: 1600, speed: 50 },
-  { text: "Built with you, for you.", className: "font-serif text-2xl italic text-slate-200 sm:text-4xl", hold: 1500, speed: 60 },
-  { text: "Ready when you are.", className: "font-serif text-3xl italic text-slate-100 sm:text-5xl", hold: 1400, speed: 110 },
-];
-
-const FADE_MS = 500;
-const TOTAL_MS = BEATS.reduce((sum, b) => sum + b.text.length * b.speed + b.hold + FADE_MS, 0);
 // Deterministic particle layout so server and client markup agree.
-const PARTICLES = Array.from({ length: 40 }, (_, i) => ({
+const PARTICLES = Array.from({ length: 56 }, (_, i) => ({
   left: (i * 37) % 100,
   delay: (i * 0.37) % 6,
   duration: 6 + ((i * 1.3) % 6),
   size: 1 + (i % 3),
 }));
 
+/** One line of the boot log. "ok" glows green, READY is bold, the first line is the command. */
+function TermLine({ line }: { line: string }) {
+  if (line.includes("READY")) return <div className="font-bold text-emerald-300">{line}</div>;
+  if (line.includes("boot roleflow")) return <div className="text-emerald-400">{line}</div>;
+  if (line.includes("...") && line.endsWith("ok")) {
+    return (
+      <div className="text-slate-400">
+        {line.slice(0, -2)}
+        <span className="font-bold text-emerald-400">ok</span>
+      </div>
+    );
+  }
+  return <div className="text-slate-400">{line}</div>;
+}
+
 /**
- * Full-screen cinematic intro. A boot log, a mission statement, then the RoleFlow v2 reveal.
- * Types each line, holds it, fades it out, then moves on. Calls onDone after the last line.
- * A skip button ends it early. Reduced-motion users get a short pause instead.
+ * Boot log. Lines that have not been typed yet are rendered invisible so the block keeps its
+ * final height and the text does not slide up the screen as new lines arrive.
+ */
+function TerminalBlock({ full, typed }: { full: string; typed: string }) {
+  const fullLines = full.split("\n");
+  const typedLines = typed.split("\n");
+  return (
+    <div className="mx-auto w-[min(92vw,34rem)] whitespace-pre text-left font-mono text-xs leading-relaxed sm:text-base">
+      {fullLines.map((line, i) =>
+        i < typedLines.length ? (
+          <TermLine key={i} line={typedLines[i]} />
+        ) : (
+          <div key={i} className="invisible">
+            {line}
+          </div>
+        ),
+      )}
+    </div>
+  );
+}
+
+/**
+ * Full-screen cinematic launch intro. Five acts (boot, the problem, the rebuild, the promise, the
+ * reveal) played as typed lines on a living background. The words and pacing live in
+ * unveil-beats.ts. Calls onDone after the last line. Skip button or Escape ends it early.
+ * Reduced-motion users get a short pause instead.
  */
 export function UnveilIntro({ onDone }: { onDone: () => void }) {
   const [beat, setBeat] = useState(0);
@@ -58,6 +71,15 @@ export function UnveilIntro({ onDone }: { onDone: () => void }) {
     return () => clearInterval(id);
   }, []);
 
+  // Escape skips.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") doneRef.current();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) {
@@ -70,10 +92,10 @@ export function UnveilIntro({ onDone }: { onDone: () => void }) {
     if (stage === "typing") {
       t =
         typed < current.text.length
-          ? setTimeout(() => setTyped(typed + 1), current.speed)
-          : setTimeout(() => setStage("hold"), 200);
+          ? setTimeout(() => setTyped(typed + 1), charMs(current))
+          : setTimeout(() => setStage("hold"), SETTLE_MS);
     } else if (stage === "hold") {
-      t = setTimeout(() => setStage("fade"), current.hold);
+      t = setTimeout(() => setStage("fade"), holdMs(current));
     } else {
       t = setTimeout(() => {
         if (beat < BEATS.length - 1) {
@@ -89,14 +111,27 @@ export function UnveilIntro({ onDone }: { onDone: () => void }) {
   }, [beat, typed, stage]);
 
   const current = BEATS[beat];
+  const act = ACTS[current.act];
   const progress = Math.min(100, (elapsed / TOTAL_MS) * 100);
+  const typedText = current.text.slice(0, typed);
+  const finished = stage !== "typing";
+  const kind = current.kind ?? "text";
 
   return (
-    <div className="fixed inset-0 z-[80] overflow-hidden bg-[#050409]">
+    <div
+      className="fixed inset-0 z-[80] overflow-hidden bg-[#050409]"
+      role="dialog"
+      aria-modal="true"
+      aria-label="RoleFlow v2 launch intro"
+    >
       {/* Drifting grid */}
       <div aria-hidden="true" className="unveil-grid pointer-events-none absolute inset-[-50%] opacity-40" />
-      {/* Violet and fuchsia glow that breathes behind the text */}
-      <div aria-hidden="true" className="unveil-glow pointer-events-none absolute left-1/2 top-1/2 h-[70vmax] w-[70vmax] -translate-x-1/2 -translate-y-1/2 rounded-full" />
+      {/* Glow that breathes behind the text. Its colour eases from act to act. */}
+      <div
+        aria-hidden="true"
+        className="unveil-glow pointer-events-none absolute left-1/2 top-1/2 h-[70vmax] w-[70vmax] -translate-x-1/2 -translate-y-1/2 rounded-full"
+        style={{ ["--u-a" as string]: act.glowA, ["--u-b" as string]: act.glowB }}
+      />
       {/* Rising particles */}
       {PARTICLES.map((p, i) => (
         <span
@@ -114,6 +149,23 @@ export function UnveilIntro({ onDone }: { onDone: () => void }) {
       ))}
       {/* Scanlines */}
       <div aria-hidden="true" className="unveil-scan pointer-events-none absolute inset-0 opacity-[0.07]" />
+      {/* Vignette */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{ background: "radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.65) 100%)" }}
+      />
+      {/* Screen flash on big moments */}
+      {current.fx === "flash" && <div key={`flash-${beat}`} aria-hidden="true" className="unveil-flash" />}
+
+      {/* Act label */}
+      <p
+        key={current.act}
+        aria-hidden="true"
+        className="unveil-act-label absolute left-5 top-5 font-mono text-[11px] uppercase tracking-[0.3em] text-slate-500 sm:text-xs"
+      >
+        {String(current.act).padStart(2, "0")} · {act.name}
+      </p>
 
       {/* Skip */}
       <button
@@ -130,16 +182,52 @@ export function UnveilIntro({ onDone }: { onDone: () => void }) {
           className={`max-w-4xl px-6 text-center transition-opacity ${stage === "fade" ? "opacity-0" : "opacity-100"}`}
           style={{ transitionDuration: `${FADE_MS}ms` }}
         >
-          <span className={current.className}>{current.text.slice(0, typed)}</span>
-          {stage === "typing" && (
-            <span aria-hidden="true" className="ml-1 inline-block w-[0.08em] animate-pulse bg-violet-400 align-middle" style={{ height: "0.9em" }} />
-          )}
+          {/* Screen readers get the finished line once, not every keystroke. */}
+          <p className="sr-only" aria-live="polite">
+            {[current.text.replace(/\n/g, ". "), current.sub].filter(Boolean).join(" ")}
+          </p>
+
+          <div aria-hidden="true">
+            {kind === "terminal" ? (
+              <TerminalBlock full={current.text} typed={typedText} />
+            ) : (
+              <>
+                <span className={`${current.className} ${current.fx === "glitch" && finished ? "unveil-glitch" : ""}`}>{typedText}</span>
+                {stage === "typing" && (
+                  <span className="ml-1 inline-block w-[0.08em] animate-pulse bg-violet-400 align-middle" style={{ height: "0.9em" }} />
+                )}
+              </>
+            )}
+
+            {current.sub && (
+              <p
+                className={`mt-5 transition-all duration-700 ${finished ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"} ${current.subClassName ?? ""}`}
+              >
+                {current.sub}
+              </p>
+            )}
+          </div>
         </div>
+      </div>
+
+      {/* Act pips */}
+      <div aria-hidden="true" className="absolute inset-x-0 bottom-7 flex items-center justify-center gap-2">
+        {ACTS.map((a, i) => (
+          <span
+            key={a.name}
+            className={`h-1.5 rounded-full transition-all duration-700 ${
+              i === current.act ? "w-8 bg-violet-400" : i < current.act ? "w-3 bg-violet-400/50" : "w-3 bg-white/15"
+            }`}
+          />
+        ))}
       </div>
 
       {/* Progress bar */}
       <div className="absolute inset-x-0 bottom-0 h-1 bg-white/5">
-        <div className="h-full bg-gradient-to-r from-violet-500 via-fuchsia-400 to-white transition-[width] duration-100" style={{ width: `${progress}%` }} />
+        <div
+          className="h-full bg-gradient-to-r from-violet-500 via-fuchsia-400 to-white transition-[width] duration-100"
+          style={{ width: `${progress}%` }}
+        />
       </div>
       <p aria-hidden="true" className="absolute bottom-4 right-5 font-mono text-[10px] uppercase tracking-widest text-slate-600">
         {String(beat + 1).padStart(2, "0")} / {String(BEATS.length).padStart(2, "0")}
