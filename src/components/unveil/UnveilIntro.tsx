@@ -65,8 +65,8 @@ function TerminalBlock({ full, typed }: { full: string; typed: string }) {
 }
 
 /**
- * Full-screen cinematic launch intro. Ten acts (boot, the problem, the rebuild, a full act each for
- * ApplyHub, Roster and RankHub, better together, the promise, built with you, the reveal) played as typed lines on a living background. The words and pacing live in
+ * Full-screen cinematic launch intro. Eight acts (boot, the problem, the rebuild, a full act each for
+ * ApplyHub, Roster and RankHub, better together, the reveal) played as typed lines on a living background. The words and pacing live in
  * unveil-beats.ts. Calls onDone after the last line. Skip button or Escape ends it early.
  * Reduced-motion users get a short pause instead.
  */
