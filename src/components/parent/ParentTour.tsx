@@ -12,11 +12,11 @@ export const TOUR_STEPS: Stop[] = [
   { href: "/", selector: '[data-tour="roadmap"]', label: "Roadmap", title: "You decide what we build", caption: "Suggest a feature for your community, then vote on the ideas other communities have posted." },
   { href: "/", selector: '[data-tour="principles"]', label: "Principles", title: "Engineered for community leaders", caption: "One identity across every tool, Roblox and Discord automation, and free forever with no paywalled features." },
   { href: "/", selector: "#newsletter", label: "Newsletter", title: "Stay in the loop", caption: "A monthly brief of releases and new products. Opt-in only, with one-click unsubscribe." },
-  { href: "/products", selector: "main h1", label: "Products page", title: "The full lineup", caption: "Every product in one place, with its launch status and how to get started." },
-  { href: "/ideas", selector: "main h1", label: "Roadmap page", title: "Suggest and vote", caption: "Post an idea for your community, or vote on the ideas other people have posted." },
-  { href: "/blog", selector: "main h1", label: "Updates", title: "Updates and changelog", caption: "Product news, release notes, and engineering posts, all in one place." },
-  { href: "/about", selector: "main h1", label: "Our story", title: "Where RoleFlow started", caption: "RoleFlow started as one application tool. Now it is a family of tools under one account, and it stays free forever." },
-  { href: "/contact", selector: "main h1", label: "Contact", title: "Get in touch", caption: "Questions, support, and partnerships go to support@roleflow.site. We read every message." },
+  { href: "/products", selector: "h1", label: "Products page", title: "The full lineup", caption: "Every product in one place, with its launch status and how to get started." },
+  { href: "/ideas", selector: "h1", label: "Roadmap page", title: "Suggest and vote", caption: "Post an idea for your community, or vote on the ideas other people have posted." },
+  { href: "/blog", selector: "h1", label: "Updates", title: "Updates and changelog", caption: "Product news, release notes, and engineering posts, all in one place." },
+  { href: "/about", selector: "h1", label: "Our story", title: "Where RoleFlow started", caption: "RoleFlow started as one application tool. Now it is a family of tools under one account, and it stays free forever." },
+  { href: "/contact", selector: "h1", label: "Contact", title: "Get in touch", caption: "Questions, support, and partnerships go to support@roleflow.site. We read every message." },
 ];
 
 function isTypingTarget(target: EventTarget | null): boolean {

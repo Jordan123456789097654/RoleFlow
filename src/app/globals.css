@@ -333,3 +333,38 @@ p { text-wrap: pretty; }
   box-shadow: 0 0 60px rgba(139, 92, 246, 0.35);
   transition: outline-color 0.4s ease, box-shadow 0.4s ease;
 }
+
+/* ───────── Opening intro (UnveilIntro) ───────── */
+@keyframes unveilGridDrift { to { transform: translate(60px, 60px); } }
+@keyframes unveilGlowPulse {
+  0%, 100% { opacity: 0.45; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 0.85; transform: translate(-50%, -50%) scale(1.12); }
+}
+@keyframes unveilParticleRise {
+  0% { transform: translateY(0); opacity: 0; }
+  10% { opacity: 0.9; }
+  100% { transform: translateY(-110vh); opacity: 0; }
+}
+@keyframes unveilScanMove { from { background-position: 0 0; } to { background-position: 0 6px; } }
+.unveil-grid {
+  background-image:
+    linear-gradient(rgba(139, 92, 246, 0.35) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 92, 246, 0.35) 1px, transparent 1px);
+  background-size: 60px 60px;
+  animation: unveilGridDrift 12s linear infinite;
+  mask-image: radial-gradient(circle at center, black 10%, transparent 70%);
+}
+.unveil-glow {
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.55) 0%, rgba(217, 70, 239, 0.25) 35%, transparent 70%);
+  filter: blur(40px);
+  animation: unveilGlowPulse 6s ease-in-out infinite;
+}
+.unveil-particle { animation-name: unveilParticleRise; animation-iteration-count: infinite; animation-timing-function: linear; }
+.unveil-scan {
+  background-image: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.6) 0px, rgba(255, 255, 255, 0.6) 1px, transparent 1px, transparent 3px);
+  animation: unveilScanMove 0.4s steps(2) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .unveil-grid, .unveil-glow, .unveil-particle, .unveil-scan { animation: none !important; }
+  .unveil-particle { display: none; }
+}
