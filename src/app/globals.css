@@ -294,35 +294,53 @@ p { text-wrap: pretty; }
   .parent-card-sheen::after { display: none; }
 }
 
-/* ───────── Unveil: earthquake crack, shockwave, then reveal ───────── */
-@keyframes unveilCrack { to { stroke-dashoffset: 0; } }
-@keyframes unveilTear {
-  0% { transform: scale(1); opacity: 1; filter: blur(0); }
-  60% { transform: scale(1.03); opacity: 0.6; filter: blur(2px); }
-  100% { transform: scale(1.1); opacity: 0; filter: blur(8px); }
+/* ───────── Unveil finale: three shutters come online, then lift away to reveal the site ───────── */
+/* Durations match HOLD_MS and LIFT_MS in UnveilFx.tsx. */
+@keyframes unveilBarFill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes unveilLiveOn {
+  0%   { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
-@keyframes unveilReveal {
-  from { opacity: 0; transform: scale(1.04); }
-  to { opacity: 1; transform: scale(1); }
+@keyframes unveilShutterLift {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-104%); }
 }
-@keyframes unveilRing {
-  from { transform: scale(0); opacity: 1; }
-  to { transform: scale(1); opacity: 0; }
+@keyframes unveilSiteIn {
+  from { transform: scale(1.06); opacity: 0.4; }
+  to   { transform: scale(1); opacity: 1; }
 }
-.unveil-crack { stroke-dasharray: 1; stroke-dashoffset: 1; animation: unveilCrack 0.45s ease-out forwards; }
-.unveil-tear { animation: unveilTear 0.9s ease-in forwards; }
-.unveil-reveal { animation: unveilReveal 0.9s ease-out both; }
-.unveil-ring {
-  position: fixed; left: 50%; top: 50%;
-  width: 120vmax; height: 120vmax; margin-left: -60vmax; margin-top: -60vmax;
-  border-radius: 50%; border: 2px solid rgba(221, 214, 254, 0.85);
-  box-shadow: 0 0 60px rgba(139, 92, 246, 0.6);
-  animation: unveilRing 1s ease-out forwards; pointer-events: none; z-index: 60;
+@keyframes unveilTag {
+  0%   { opacity: 0; transform: translateY(8px); }
+  20%  { opacity: 1; transform: translateY(0); }
+  75%  { opacity: 1; }
+  100% { opacity: 0; }
 }
+.unveil-shutter {
+  position: absolute; top: 0; bottom: 0; z-index: 2;
+  background:
+    radial-gradient(ellipse at 50% 100%, rgb(var(--c) / 0.28), transparent 65%),
+    linear-gradient(180deg, #0a0812 0%, #07060c 100%);
+  border-right: 1px solid rgb(var(--c) / 0.25);
+  box-shadow: 0 6px 40px rgb(var(--c) / 0.55);
+}
+.unveil-shutter::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px;
+  background: rgb(var(--c)); box-shadow: 0 0 24px 4px rgb(var(--c) / 0.8);
+}
+.unveil-shutter-lift { animation: unveilShutterLift 1.1s cubic-bezier(0.7, 0, 0.2, 1) calc(var(--i) * 0.22s) forwards; }
+.unveil-bar {
+  height: 3px; width: 60%; border-radius: 9999px; background: rgb(var(--c)); transform-origin: left;
+  transform: scaleX(0); box-shadow: 0 0 14px rgb(var(--c) / 0.8);
+  animation: unveilBarFill 0.7s ease-out calc(var(--i) * 0.3s + 0.15s) forwards;
+}
+.unveil-live { opacity: 0; animation: unveilLiveOn 0.35s ease-out calc(var(--i) * 0.3s + 0.8s) forwards; }
+.unveil-site { opacity: 0.4; transform: scale(1.06); }
+.unveil-site-in { animation: unveilSiteIn 1.6s cubic-bezier(0.2, 0.7, 0.2, 1) 0.2s forwards; }
+.unveil-tag { z-index: 3; opacity: 0; text-shadow: 0 2px 18px rgba(0, 0, 0, 0.85); animation: unveilTag 1.7s ease-out 0.9s forwards; }
 @media (prefers-reduced-motion: reduce) {
-  .unveil-crack, .unveil-tear, .unveil-reveal, .unveil-ring { animation: none !important; }
-  .unveil-crack { stroke-dashoffset: 0; }
-  .unveil-ring { display: none; }
+  .unveil-shutter-lift, .unveil-bar, .unveil-live, .unveil-site-in, .unveil-tag { animation: none !important; }
+  .unveil-bar { transform: scaleX(1); }
+  .unveil-live { opacity: 1; }
 }
 
 /* ───────── Website tour ───────── */

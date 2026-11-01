@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import confetti from "canvas-confetti";
 import { usePathname } from "next/navigation";
 import { Sparkles, Shield, Lock, ArrowRight, Zap } from "lucide-react";
-import { CrackOverlay, ShockwaveRing } from "@/components/unveil/UnveilFx";
+import { UnveilFinale } from "@/components/unveil/UnveilFx";
 import { UnveilIntro } from "@/components/unveil/UnveilIntro";
 
 interface CountdownLockdownGuardProps {
@@ -17,10 +16,8 @@ export function CountdownLockdownGuard({ isStaffOrAdmin, children }: CountdownLo
   const [active, setActive] = useState<boolean>(false);
   const [timeLeft, setTimeLeft] = useState<{ hours: number; minutes: number; seconds: number; totalSeconds: number } | null>(null);
   const [completed, setCompleted] = useState<boolean>(false);
-  const [earthquakeActive, setEarthquakeActive] = useState<boolean>(false);
-  // True while the screen breaks open. The lock card animates out and the site is revealed underneath.
-  const [tearing, setTearing] = useState<boolean>(false);
-  const [ringKey, setRingKey] = useState<number | null>(null);
+  // Set while the finale plays after the intro: light collapses to a point, then an iris opens onto the site.
+  const [finale, setFinale] = useState<null | "real" | "preview">(null);
   // "real" for the launch, "preview" for staff. Set while the dark intro is playing.
   const [introMode, setIntroMode] = useState<null | "real" | "preview">(null);
   const [unlocked, setUnlocked] = useState<boolean>(false);
@@ -84,32 +81,22 @@ export function CountdownLockdownGuard({ isStaffOrAdmin, children }: CountdownLo
     return () => clearInterval(interval);
   }, [targetTime, active, completed]);
 
-  // Quake, then the screen breaks open, then the site is revealed.
-  const runQuakeAndReveal = (isPreview: boolean) => {
-    setEarthquakeActive(true);
-    fireConfettiCannons();
-    setTimeout(() => {
-      setEarthquakeActive(false);
-      setTearing(true);
-      setRingKey(Date.now());
-      fireSuperConfettiBurst();
-    }, 2200);
-    setTimeout(() => {
-      setTearing(false);
-      setRingKey(null);
-      if (isPreview) {
-        setPreviewing(false);
-      } else {
-        setUnlocked(true);
-        setActive(false);
-      }
-    }, 3200);
+  // The intro hands over to the finale. When the finale ends, a real launch unlocks the site;
+  // a preview just goes back to the lock screen.
+  const handleIntroDone = () => {
+    setFinale(introMode === "preview" ? "preview" : "real");
+    setIntroMode(null);
   };
 
-  const handleIntroDone = () => {
-    const isPreview = introMode === "preview";
-    setIntroMode(null);
-    runQuakeAndReveal(isPreview);
+  const handleFinaleDone = () => {
+    const wasPreview = finale === "preview";
+    setFinale(null);
+    if (wasPreview) {
+      setPreviewing(false);
+    } else {
+      setUnlocked(true);
+      setActive(false);
+    }
   };
 
   // Real launch: the dark intro plays first, then the launch email goes out and the reveal runs.
@@ -145,38 +132,6 @@ export function CountdownLockdownGuard({ isStaffOrAdmin, children }: CountdownLo
       }).format(new Date(targetTime))
     : null;
 
-  const fireConfettiCannons = () => {
-    try {
-      // Left bottom cannon
-      confetti({
-        particleCount: 70,
-        angle: 60,
-        spread: 65,
-        origin: { x: 0, y: 0.9 },
-        colors: ["#8b5cf6", "#a855f7", "#ec4899", "#f59e0b", "#ffffff"],
-      });
-      // Right bottom cannon
-      confetti({
-        particleCount: 70,
-        angle: 120,
-        spread: 65,
-        origin: { x: 1, y: 0.9 },
-        colors: ["#8b5cf6", "#a855f7", "#ec4899", "#f59e0b", "#ffffff"],
-      });
-    } catch {}
-  };
-
-  const fireSuperConfettiBurst = () => {
-    try {
-      confetti({
-        particleCount: 150,
-        spread: 100,
-        origin: { y: 0.5 },
-        colors: ["#8b5cf6", "#c084fc", "#e879f9", "#38bdf8", "#fbbf24"],
-      });
-    } catch {}
-  };
-
   const isFinalFive = timeLeft !== null && timeLeft.totalSeconds > 0 && timeLeft.totalSeconds <= 5;
 
   // Staff or admin who chose to bypass the countdown
@@ -203,32 +158,26 @@ export function CountdownLockdownGuard({ isStaffOrAdmin, children }: CountdownLo
     );
   }
 
+  // The finale owns the whole screen. The live site sits under the opening iris.
+  if (finale) {
+    return <UnveilFinale reveal={children} onDone={handleFinaleDone} />;
+  }
+
   // Not active or completely unlocked
   if (!active || unlocked || alwaysOpen) {
-    return unlocked ? <div className="unveil-reveal">{children}</div> : <>{children}</>;
+    return <>{children}</>;
   }
 
   return (
-    <div className={`relative min-h-screen bg-[#07080c] text-slate-100 overflow-hidden ${earthquakeActive ? "animate-earthquake" : ""}`}>
+    <div className="relative min-h-screen bg-[#07080c] text-slate-100 overflow-hidden">
       {introMode && <UnveilIntro onDone={handleIntroDone} />}
-      {/* The real site sits underneath and is revealed when the screen breaks open */}
-      {(tearing || earthquakeActive) && (
-        <div className="absolute inset-0 z-0 overflow-y-auto pointer-events-none">
-          {children}
-        </div>
-      )}
-
-      {/* Shockwave ring at the moment the screen breaks */}
-      {ringKey !== null && <ShockwaveRing key={ringKey} />}
-
       {/* Restricted Lockdown Countdown Center Card */}
       {(
-        <div className={`relative z-50 flex min-h-screen flex-col items-center justify-center p-6 selection:bg-violet-600/40 ${tearing ? "unveil-tear" : ""}`}>
-          {earthquakeActive && <CrackOverlay />}
+        <div className="relative z-50 flex min-h-screen flex-col items-center justify-center p-6 selection:bg-violet-600/40">
           {/* Radial Glow Aura */}
           <div
             className={`pointer-events-none absolute -top-40 left-1/2 h-[650px] w-[850px] -translate-x-1/2 rounded-full transition-all duration-700 blur-[100px] ${
-              isFinalFive || earthquakeActive
+              isFinalFive
                 ? "bg-[radial-gradient(circle_at_center,rgba(236,72,153,0.6)_0%,rgba(139,92,246,0.5)_40%,transparent_70%)] scale-125"
                 : "bg-[radial-gradient(circle_at_center,rgba(90,42,162,0.45)_0%,rgba(67,29,130,0.25)_40%,transparent_70%)]"
             }`}
@@ -237,13 +186,13 @@ export function CountdownLockdownGuard({ isStaffOrAdmin, children }: CountdownLo
           <div className="relative z-10 max-w-xl w-full text-center space-y-8">
             <div
               className={`inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-bold uppercase tracking-wider backdrop-blur-md transition-all duration-300 ${
-                isFinalFive || earthquakeActive
+                isFinalFive
                   ? "border-pink-500/60 bg-pink-950/60 text-pink-300 shadow-[0_0_25px_rgba(236,72,153,0.5)] scale-105"
                   : "border-violet-500/30 bg-violet-950/50 text-[#ddd6fe]"
               }`}
             >
-              {isFinalFive || earthquakeActive ? <Zap className="w-3.5 h-3.5 text-pink-400 animate-bounce" /> : <Lock className="w-3.5 h-3.5 text-violet-400" />}
-              <span>{earthquakeActive ? "CRACKING VAULT SEALS..." : isFinalFive ? "FINAL SECONDS BEFORE CUTOVER" : "Restricted Platform Launch Window"}</span>
+              {isFinalFive ? <Zap className="w-3.5 h-3.5 text-pink-400 animate-bounce" /> : <Lock className="w-3.5 h-3.5 text-violet-400" />}
+              <span>{isFinalFive ? "FINAL SECONDS BEFORE CUTOVER" : "Restricted Platform Launch Window"}</span>
             </div>
 
             <div>

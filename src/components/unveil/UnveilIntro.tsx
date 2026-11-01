@@ -1,9 +1,23 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { ChevronsRight, Maximize, Minimize } from "lucide-react";
 import { ACTS, BEATS, FADE_MS, SETTLE_MS, TOTAL_MS, charMs, holdMs } from "@/components/unveil/unveil-beats";
 
 type Stage = "typing" | "hold" | "fade";
+
+/** Playback speeds the speed button cycles through. Applies to typing, holds and fades. */
+const SPEEDS = [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.75, 2, 3, 4];
+
+/** Where each beat starts on the unskipped timeline, so the progress bar still makes sense after skipping acts. */
+const BEAT_START_MS = (() => {
+  let t = 0;
+  return BEATS.map((b) => {
+    const start = t;
+    t += b.text.length * charMs(b) + SETTLE_MS + holdMs(b) + FADE_MS;
+    return start;
+  });
+})();
 
 // Deterministic particle layout so server and client markup agree.
 const PARTICLES = Array.from({ length: 56 }, (_, i) => ({
@@ -60,25 +74,57 @@ export function UnveilIntro({ onDone }: { onDone: () => void }) {
   const [beat, setBeat] = useState(0);
   const [typed, setTyped] = useState(0);
   const [stage, setStage] = useState<Stage>("typing");
-  const [elapsed, setElapsed] = useState(0);
+  const [speedIdx, setSpeedIdx] = useState(0);
+  const speed = SPEEDS[speedIdx];
   const doneRef = useRef(onDone);
   doneRef.current = onDone;
 
-  // Overall progress bar, driven by elapsed time.
-  useEffect(() => {
-    const start = Date.now();
-    const id = setInterval(() => setElapsed(Date.now() - start), 100);
-    return () => clearInterval(id);
+  // Fullscreen is requested on the whole page, not just the intro, so it carries on through the finale and into the site.
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const toggleFullscreen = useCallback(() => {
+    try {
+      if (document.fullscreenElement) void document.exitFullscreen();
+      else void document.documentElement.requestFullscreen();
+    } catch {
+      // Not supported (some mobile browsers). The button just does nothing.
+    }
   }, []);
+  useEffect(() => {
+    const sync = () => setIsFullscreen(!!document.fullscreenElement);
+    sync();
+    document.addEventListener("fullscreenchange", sync);
+    return () => document.removeEventListener("fullscreenchange", sync);
+  }, []);
+
+  const cycleSpeed = useCallback(() => setSpeedIdx((i) => (i + 1) % SPEEDS.length), []);
+  const slower = useCallback(() => setSpeedIdx((i) => Math.max(0, i - 1)), []);
+  const faster = useCallback(() => setSpeedIdx((i) => Math.min(SPEEDS.length - 1, i + 1)), []);
+
+  // Jump to the title card of the next act. After the last act this ends the intro.
+  const skipAct = useCallback(() => {
+    const next = BEATS.findIndex((b, i) => i > beat && b.act > BEATS[beat].act);
+    if (next === -1) {
+      doneRef.current();
+      return;
+    }
+    setBeat(next);
+    setTyped(0);
+    setStage("typing");
+  }, [beat]);
 
   // Escape skips.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") doneRef.current();
+      else if (e.key === "f" || e.key === "F") toggleFullscreen();
+      else if (e.key === "s" || e.key === "S") cycleSpeed();
+      else if (e.key === "]" || e.key === "+" || e.key === "=" || e.key === "ArrowUp") faster();
+      else if (e.key === "[" || e.key === "-" || e.key === "ArrowDown") slower();
+      else if (e.key === "ArrowRight") skipAct();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [toggleFullscreen, cycleSpeed, faster, slower, skipAct]);
 
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -92,10 +138,10 @@ export function UnveilIntro({ onDone }: { onDone: () => void }) {
     if (stage === "typing") {
       t =
         typed < current.text.length
-          ? setTimeout(() => setTyped(typed + 1), charMs(current))
-          : setTimeout(() => setStage("hold"), SETTLE_MS);
+          ? setTimeout(() => setTyped(typed + 1), charMs(current) / speed)
+          : setTimeout(() => setStage("hold"), SETTLE_MS / speed);
     } else if (stage === "hold") {
-      t = setTimeout(() => setStage("fade"), holdMs(current));
+      t = setTimeout(() => setStage("fade"), holdMs(current) / speed);
     } else {
       t = setTimeout(() => {
         if (beat < BEATS.length - 1) {
@@ -105,14 +151,14 @@ export function UnveilIntro({ onDone }: { onDone: () => void }) {
         } else {
           doneRef.current();
         }
-      }, FADE_MS);
+      }, FADE_MS / speed);
     }
     return () => clearTimeout(t);
-  }, [beat, typed, stage]);
+  }, [beat, typed, stage, speed]);
 
   const current = BEATS[beat];
   const act = ACTS[current.act];
-  const progress = Math.min(100, (elapsed / TOTAL_MS) * 100);
+  const progress = Math.min(100, (BEAT_START_MS[beat] / TOTAL_MS) * 100);
   const typedText = current.text.slice(0, typed);
   const finished = stage !== "typing";
   const kind = current.kind ?? "text";
@@ -162,25 +208,56 @@ export function UnveilIntro({ onDone }: { onDone: () => void }) {
       <p
         key={current.act}
         aria-hidden="true"
-        className="unveil-act-label absolute left-5 top-5 font-mono text-[11px] uppercase tracking-[0.3em] text-slate-500 sm:text-xs"
+        className="unveil-act-label absolute left-5 top-16 font-mono text-[11px] uppercase tracking-[0.3em] text-slate-500 sm:top-5 sm:text-xs"
       >
         {String(current.act).padStart(2, "0")} · {act.name}
       </p>
 
-      {/* Skip */}
-      <button
-        type="button"
-        onClick={() => doneRef.current()}
-        className="absolute right-5 top-5 z-10 rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 font-mono text-xs uppercase tracking-widest text-slate-300 backdrop-blur-md transition-colors hover:bg-white/10 hover:text-white"
-      >
-        Skip intro
-      </button>
+      {/* Fullscreen and skip */}
+      <div className="absolute right-3 top-3 z-10 flex items-center gap-1.5 sm:right-5 sm:top-5 sm:gap-2">
+        <button
+          type="button"
+          onClick={toggleFullscreen}
+          aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+          title={isFullscreen ? "Exit fullscreen (F)" : "Fullscreen (F)"}
+          className="rounded-lg border border-white/15 bg-white/5 p-2 text-slate-300 backdrop-blur-md transition-colors hover:bg-white/10 hover:text-white"
+        >
+          {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+        </button>
+        <div className="flex items-center overflow-hidden rounded-lg border border-white/15 bg-white/5 font-mono text-xs text-slate-300 backdrop-blur-md" title="Speed ([ ] or - +, S to cycle)">
+          <button type="button" onClick={slower} disabled={speedIdx === 0} aria-label="Slower" className="px-2 py-1.5 hover:bg-white/10 hover:text-white disabled:opacity-30">
+            −
+          </button>
+          <button type="button" onClick={cycleSpeed} aria-label={`Playback speed ${speed}x. Click to cycle.`} className="min-w-[3rem] px-1 py-1.5 tracking-wider hover:bg-white/10 hover:text-white">
+            {speed}x
+          </button>
+          <button type="button" onClick={faster} disabled={speedIdx === SPEEDS.length - 1} aria-label="Faster" className="px-2 py-1.5 hover:bg-white/10 hover:text-white disabled:opacity-30">
+            +
+          </button>
+        </div>
+        <button
+          type="button"
+          onClick={skipAct}
+          title="Skip to next act (→)"
+          className="flex items-center gap-1 rounded-lg border border-white/15 bg-white/5 px-2 py-1.5 font-mono text-xs uppercase tracking-widest text-slate-300 backdrop-blur-md transition-colors hover:bg-white/10 hover:text-white sm:px-3"
+        >
+          <span>Skip act</span>
+          <ChevronsRight className="h-4 w-4" />
+        </button>
+        <button
+          type="button"
+          onClick={() => doneRef.current()}
+          className="rounded-lg border border-white/15 bg-white/5 px-2 py-1.5 font-mono text-xs uppercase tracking-widest text-slate-300 backdrop-blur-md transition-colors hover:bg-white/10 hover:text-white sm:px-3"
+        >
+          Skip intro
+        </button>
+      </div>
 
       {/* Caption stage */}
       <div className="relative flex h-full items-center justify-center">
         <div
           className={`max-w-4xl px-6 text-center transition-opacity ${stage === "fade" ? "opacity-0" : "opacity-100"}`}
-          style={{ transitionDuration: `${FADE_MS}ms` }}
+          style={{ transitionDuration: `${FADE_MS / speed}ms` }}
         >
           {/* Screen readers get the finished line once, not every keystroke. */}
           <p className="sr-only" aria-live="polite">
@@ -225,7 +302,7 @@ export function UnveilIntro({ onDone }: { onDone: () => void }) {
       {/* Progress bar */}
       <div className="absolute inset-x-0 bottom-0 h-1 bg-white/5">
         <div
-          className="h-full bg-gradient-to-r from-violet-500 via-fuchsia-400 to-white transition-[width] duration-100"
+          className="h-full bg-gradient-to-r from-violet-500 via-fuchsia-400 to-white transition-[width] duration-500"
           style={{ width: `${progress}%` }}
         />
       </div>
