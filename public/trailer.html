@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>RoleFlow v2 — Launch Trailer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,600&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--f-sans:"Instrument Sans",Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--f-disp:Fraunces,Georgia,"Times New Roman",serif;--f-mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+/* real RoleFlow dark-theme tokens (globals.css) */
+--paper:#090a0f;--surface:#10121a;--sunk:#0c0d14;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.16);--ink:#f1f3f9;--ink2:#c5cbd9;--muted:#8890a4;--faint:#555c70;--accent:#8b5cf6;--accent-soft:rgba(139,92,246,.15);--accent-ink:#ddd6fe;--moss:#10b981;--moss-soft:rgba(16,185,129,.15);--moss-ink:#6ee7b7;--gold:#f59e0b;--gold-soft:rgba(245,158,11,.15);--danger:#ef4444;--danger-soft:rgba(239,68,68,.15)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#000;overflow:hidden;color:var(--ink);font-family:var(--f-sans)}
+body.playing{cursor:none}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;overflow:hidden;background:#050409;transform-origin:center}
+.layer{position:absolute;inset:0;pointer-events:none}
+#grid{background-image:linear-gradient(to right,rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(to bottom,rgba(255,255,255,.035) 1px,transparent 1px);background-size:64px 64px;-webkit-mask-image:radial-gradient(ellipse 70% 60% at 50% 40%,#000 40%,transparent 100%);mask-image:radial-gradient(ellipse 70% 60% at 50% 40%,#000 40%,transparent 100%);animation:gridDrift 12s linear infinite}
+@keyframes gridDrift{to{background-position:64px 64px}}
+.glow{position:absolute;width:1400px;height:1100px;border-radius:50%;filter:blur(140px);opacity:.42;transition:background 1.4s ease,opacity .6s}
+#g1{left:-300px;top:-420px;animation:drift1 9s ease-in-out infinite alternate}
+#g2{right:-340px;bottom:-480px;animation:drift2 11s ease-in-out infinite alternate}
+@keyframes drift1{to{transform:translate(160px,90px) scale(1.12)}}
+@keyframes drift2{to{transform:translate(-140px,-70px) scale(1.08)}}
+#scene{position:absolute;inset:0}
+.cam{position:absolute;inset:0;transform-origin:var(--ox,50%) var(--oy,50%);animation:camin .4s ease-out both,camz var(--dur,4s) linear both}
+@keyframes camin{from{opacity:0;filter:blur(10px)}to{opacity:1;filter:none}}
+@keyframes camz{from{transform:scale(1)}to{transform:scale(var(--zm,1.05))}}
+#vig{background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.65) 100%)}
+#scan{background:repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 4px);mix-blend-mode:overlay}
+#flash{background:radial-gradient(circle at center,#fff 0%,rgba(221,214,254,.85) 35%,transparent 75%);opacity:0}
+#flash.go{animation:flash .9s ease-out}
+@keyframes flash{0%{opacity:.98}100%{opacity:0}}
+#whiteout{background:#f4f1ea;opacity:0;transition:opacity .2s}
+
+/* ----- primitives ----- */
+.center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:26px;padding:0 120px}
+.abs{position:absolute}
+.serif{font-family:var(--f-disp);font-style:italic;font-weight:400}
+.mono{font-family:var(--f-mono);text-transform:uppercase;letter-spacing:.3em}
+.s-dim{font-size:60px;color:#94a3b8;font-weight:500}
+.s-white{font-size:76px;color:#fff;font-weight:700;letter-spacing:-.02em}
+.s-serif{font-size:84px;color:#e2e8f0}
+.s-big{font-size:150px;font-weight:900;letter-spacing:-.04em;color:#fff;line-height:1}
+.s-huge{font-size:230px;font-weight:900;letter-spacing:-.05em;line-height:.95}
+.disp{font-family:var(--f-disp);font-weight:400;letter-spacing:-.02em;line-height:1.02}
+.disp i{color:var(--accent);font-style:italic}
+.sub{font-size:34px;color:#a78bfa;font-weight:500}
+.sub.dim{color:#94a3b8}
+.grad{background:linear-gradient(90deg,#fff 0%,#ddd6fe 40%,#8b5cf6 70%,#fff 100%);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 3.2s linear infinite}
+@keyframes shim{to{background-position:-220% 0}}
+.crim{color:#fb7185}.viol{color:#a78bfa}.emer{color:#6ee7b7}.amber{color:#fbbf24}.fuch{color:#e879f9}.sky{color:#38bdf8}
+.ty.typing::after{content:"";display:inline-block;width:.09em;height:.95em;margin-left:.08em;background:currentColor;vertical-align:-.12em;animation:blink .6s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.in{opacity:0;animation:inup .55s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:var(--d,0s)}
+@keyframes inup{from{opacity:0;transform:translateY(26px) scale(.985)}to{opacity:1;transform:none}}
+.pop{opacity:0;animation:pop .45s cubic-bezier(.2,1.4,.3,1) forwards;animation-delay:var(--d,0s)}
+@keyframes pop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
+.tilt{opacity:0;animation:tilt .95s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:var(--d,0s)}
+@keyframes tilt{from{opacity:0;transform:perspective(2400px) rotateY(-12deg) rotateX(5deg) translateY(70px) scale(.93)}to{opacity:1;transform:perspective(2400px)}}
+.slide-l{opacity:0;animation:sl .7s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:var(--d,0s)}
+@keyframes sl{from{opacity:0;transform:translateX(-80px)}to{opacity:1;transform:none}}
+.out{animation:fadeout .4s ease forwards;animation-delay:var(--d,0s)}
+@keyframes fadeout{to{opacity:0}}
+.glitch{animation:glitch .22s steps(2) infinite}
+@keyframes glitch{0%{transform:translate(0)}25%{transform:translate(-6px,2px);text-shadow:4px 0 #f43f5e,-4px 0 #38bdf8}50%{transform:translate(5px,-3px)}75%{transform:translate(-3px,0);text-shadow:-4px 0 #f43f5e,4px 0 #38bdf8}100%{transform:none}}
+.row{display:flex;align-items:center}
+.logo{filter:drop-shadow(0 0 60px rgba(139,92,246,.55))}
+.cursor{position:absolute;width:44px;height:44px;z-index:30;filter:drop-shadow(0 4px 10px rgba(0,0,0,.6))}
+
+/* ----- browser window ----- */
+.win{position:absolute;border-radius:20px;overflow:hidden;background:var(--paper);border:1px solid var(--line2);box-shadow:0 50px 160px rgba(0,0,0,.75),0 0 140px rgba(139,92,246,.22)}
+.wbar{height:54px;display:flex;align-items:center;gap:9px;padding:0 22px;background:#0c0d14;border-bottom:1px solid var(--line)}
+.wbar i{width:13px;height:13px;border-radius:50%;background:#2a2d3a}
+.wbar .url{margin-left:20px;flex:1;max-width:560px;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:7px 16px;font:500 17px var(--f-mono);color:var(--muted)}
+.wbar .url b{color:var(--ink2);font-weight:500}
+.wbody{position:relative;overflow:hidden}
+.u{zoom:var(--z,1)}
+
+/* ----- real RoleFlow UI (globals.css, dark) ----- */
+.u-card{border-radius:12px;border:1px solid var(--line);background:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.5)}
+.u-eyebrow{font:500 11px var(--f-mono);text-transform:uppercase;letter-spacing:.12em;color:var(--accent)}
+.u-chip{display:inline-flex;align-items:center;gap:4px;border-radius:999px;border:1px solid var(--line);background:var(--sunk);padding:2px 10px;font:400 11px var(--f-mono);color:var(--ink2)}
+.u-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:8px 16px;border-radius:8px;border:1px solid;font:500 14px var(--f-sans);white-space:nowrap;position:relative}
+.u-btn.lg{min-height:48px;padding:0 24px;font-size:15px}.u-btn.sm{min-height:32px;padding:4px 12px;font-size:13px}
+.u-pri{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 4px 10px rgba(0,0,0,.4)}
+.u-ghost{background:var(--surface);border-color:var(--line2);color:var(--ink)}
+.u-moss{background:var(--moss);border-color:var(--moss);color:#fff}
+.u-dang{background:transparent;border-color:var(--danger);color:var(--danger)}
+.u-field{display:flex;align-items:center;height:48px;width:100%;border-radius:8px;border:1px solid var(--line);background:var(--sunk);padding:0 14px 0 40px;font:400 15px var(--f-sans);color:var(--muted);position:relative}
+.u-badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px;font:500 11px var(--f-mono);border:1px solid var(--line)}
+.b-moss{background:var(--moss-soft);color:var(--moss-ink);border-color:rgba(16,185,129,.3)}
+.b-gold{background:var(--gold-soft);color:#fbbf24;border-color:rgba(245,158,11,.3)}
+.b-cyan{background:rgba(6,182,212,.1);color:#67e8f9;border-color:rgba(6,182,212,.3)}
+.b-dang{background:var(--danger-soft);color:#fca5a5;border-color:rgba(239,68,68,.35)}
+.b-acc{background:var(--accent-soft);color:var(--accent-ink);border-color:rgba(139,92,246,.3)}
+.b-neu{background:var(--sunk);color:var(--ink2)}
+.b-fuch{background:rgba(217,70,239,.12);color:#f0abfc;border-color:rgba(217,70,239,.4)}
+.pulse{width:7px;height:7px;border-radius:50%;background:currentColor;animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.3;transform:scale(.7)}}
+.av{width:36px;height:36px;border-radius:50%;flex:none;display:grid;place-items:center;font:700 14px var(--f-sans);color:#fff}
+.u-nav{display:flex;align-items:center;justify-content:space-between;padding:14px 32px;border-bottom:1px solid var(--line);background:rgba(9,10,15,.9)}
+.u-nav a{font:500 14px var(--f-sans);color:var(--muted);margin-left:26px}
+/* rankhub dark panels */
+.rh{border-radius:16px;border:1px solid rgba(255,255,255,.1);background:#090b10;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.rh-sub{font-size:12px;color:#94a3b8}
+.tabs{display:flex;gap:8px;border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:12px}
+.tab{padding:8px 16px;border-radius:12px;font:600 12px var(--f-sans);color:#94a3b8;border:1px solid transparent}
+.tab.on{background:rgba(6,182,212,.2);color:#67e8f9;border-color:rgba(6,182,212,.4)}
+.tr{display:flex;align-items:center;gap:16px;padding:11px 16px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);margin-bottom:8px;font-size:13px}
+.th{display:flex;gap:16px;padding:0 16px 8px;font:600 10px var(--f-mono);text-transform:uppercase;letter-spacing:.1em;color:#64748b}
+.rung{display:flex;align-items:center;gap:14px;padding:10px 14px;margin-bottom:7px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);font-size:13px;transition:all .3s}
+.rung b{font:700 13px var(--f-mono);width:46px;color:#e879f9}
+.rung span.n{color:#e2e8f0;font-weight:600;flex:1}
+.rung em{font:500 10px var(--f-mono);font-style:normal;color:#64748b}
+.rung.prot{border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.06)}
+.rung.prot b{color:#fbbf24}
+.rung.lit{background:rgba(217,70,239,.2);border-color:#e879f9;box-shadow:0 0 30px rgba(217,70,239,.45)}
+.rung.red{border-color:rgba(239,68,68,.5);background:rgba(239,68,68,.1)}
+.rung.red b{color:#fca5a5}
+
+/* ----- start screen ----- */
+#start{position:absolute;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:34px;background:#050409;color:#fff;text-align:center;transition:opacity .5s}
+#start img{width:640px}
+#playBtn{font:700 30px/1 inherit;font-family:inherit;color:#fff;background:#7c3aed;border:0;border-radius:18px;padding:26px 56px;cursor:pointer;box-shadow:0 10px 60px rgba(139,92,246,.55);transition:transform .15s,background .15s}
+#playBtn:hover{transform:scale(1.04);background:#8b5cf6}
+#start p{max-width:880px;color:#94a3b8;font-size:20px;line-height:1.6}
+#start kbd{font-family:ui-monospace,monospace;background:rgba(255,255,255,.08);padding:2px 9px;border-radius:6px;color:#ddd6fe}
+#count{position:absolute;inset:0;z-index:90;display:none;align-items:center;justify-content:center;font-size:360px;font-weight:900;color:rgba(255,255,255,.9);background:#050409}
+#end{position:absolute;inset:0;z-index:95;display:none;flex-direction:column;align-items:center;justify-content:center;gap:24px;background:#000}
+#hint{position:absolute;left:0;right:0;bottom:18px;text-align:center;font:600 13px ui-monospace,monospace;letter-spacing:.2em;color:#475569;z-index:120;transition:opacity .4s}
+@keyframes scrollup{to{transform:translateY(-55%)}}@keyframes mq{to{transform:translateX(-50%)}}@keyframes fillbar{from{transform:scaleX(0)}to{transform:scaleX(1)}}@keyframes flyin{to{transform:none;opacity:1}}@keyframes strike{to{transform:scaleX(1)}}@keyframes merge1{to{left:280px}}@keyframes merge2{to{left:280px}}
+@keyframes pagescroll{from{transform:translateY(0)}to{transform:translateY(var(--sy,-560px))}}
+@keyframes moveCard{0%{transform:translateX(0)}30%{transform:translateX(404px)}45%{transform:translateX(404px)}75%{transform:translateX(808px)}85%{transform:translateX(808px)}100%{transform:translateX(1212px)}}
+@keyframes dash{to{stroke-dashoffset:0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes ring{from{transform:scale(.4);opacity:.9}to{transform:scale(2.4);opacity:0}}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="layer" id="grid"></div>
+  <div class="glow" id="g1"></div><div class="glow" id="g2"></div>
+  <div class="layer" id="whiteout"></div>
+  <div id="scene"></div>
+  <div class="layer" id="vig"></div><div class="layer" id="scan"></div>
+  <div class="layer" id="flash"></div>
+  <div id="count"></div>
+  <div id="end">
+    <img src="logo-pack/roleflow-lockup-dark-transparent.png" width="560" alt="RoleFlow">
+    <button id="replayBtn" style="font:700 26px inherit;font-family:inherit;color:#fff;background:#7c3aed;border:0;border-radius:16px;padding:20px 44px;cursor:pointer">↻ Replay</button>
+  </div>
+  <div id="start">
+    <img src="logo-pack/roleflow-lockup-dark-transparent.png" alt="RoleFlow">
+    <button id="playBtn">▶&nbsp; Play trailer</button>
+    <p>Click once. The page goes fullscreen, counts down 3&ndash;2&ndash;1, then plays the whole 75-second trailer by itself &mdash; picture, music and sound effects. Start your screen recorder (with system audio on) before you click.
+    <br>Shortcuts: <kbd>Esc</kbd> stop &nbsp;·&nbsp; <kbd>M</kbd> mute &nbsp;·&nbsp; <kbd>?t=30</kbd> in the URL jumps to 0:30 (silent preview).</p>
+  </div>
+</div>
+<div id="hint"></div>
+
+<script>
+(()=>{
+"use strict";
+const $=s=>document.querySelector(s);
+const stage=$('#stage'),scene=$('#scene'),g1=$('#g1'),g2=$('#g2');
+const Q=new URLSearchParams(location.search);
+const SEEK=parseFloat(Q.get('t')||'0')||0, MUTE=Q.get('mute')==='1'||SEEK>0, AUTO=Q.get('auto')==='1';
+const TOTAL=76;
+
+/* ---------- scale stage to window ---------- */
+function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);stage.style.transform=`translate(-50%,-50%) scale(${s})`}
+addEventListener('resize',fit);fit();
+
+/* ================================================================= AUDIO */
+let AC=null,master=null,music=null,sfx=null,NB=null,muted=MUTE;
+function initAudio(){
+  AC=new (window.AudioContext||window.webkitAudioContext)();
+  master=AC.createGain();master.gain.value=muted?0:.9;
+  const comp=AC.createDynamicsCompressor();comp.threshold.value=-14;comp.ratio.value=4;comp.attack.value=.004;comp.release.value=.2;
+  music=AC.createGain();sfx=AC.createGain();music.gain.value=.8;sfx.gain.value=1;
+  music.connect(comp);sfx.connect(comp);comp.connect(master);master.connect(AC.destination);
+  NB=AC.createBuffer(1,AC.sampleRate*2,AC.sampleRate);const d=NB.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+}
+const hz=n=>440*Math.pow(2,(n-69)/12);
+function env(g,t,a,peak,dur,rel){g.gain.cancelScheduledValues(t);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(Math.max(peak,.0002),t+a);g.gain.setValueAtTime(Math.max(peak,.0002),t+Math.max(a,dur-rel));g.gain.exponentialRampToValueAtTime(.0001,t+dur)}
+function osc(type,f,t,dur,peak,o={}){
+  const os=AC.createOscillator(),g=AC.createGain();os.type=type;os.frequency.setValueAtTime(f,t);
+  if(o.f2)os.frequency.exponentialRampToValueAtTime(o.f2,t+(o.fd||dur));
+  if(o.det)os.detune.value=o.det;
+  let n=os;
+  if(o.lp){const l=AC.createBiquadFilter();l.type='lowpass';l.frequency.setValueAtTime(o.lp,t);if(o.lp2)l.frequency.exponentialRampToValueAtTime(o.lp2,t+dur);l.Q.value=o.q||.7;os.connect(l);n=l}
+  n.connect(g);g.connect(o.dest||music);env(g,t,o.a||.005,peak,dur,o.r||dur*.6);os.start(t);os.stop(t+dur+.05);return g}
+function noise(t,dur,peak,o={}){
+  const s=AC.createBufferSource();s.buffer=NB;s.loop=true;const f=AC.createBiquadFilter();f.type=o.type||'bandpass';
+  f.frequency.setValueAtTime(o.f||2000,t);if(o.f2)f.frequency.exponentialRampToValueAtTime(o.f2,t+dur);f.Q.value=o.q||1;
+  const g=AC.createGain();s.connect(f);f.connect(g);g.connect(o.dest||sfx);
+  if(o.swell){g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(peak,t+dur*.97);g.gain.linearRampToValueAtTime(0,t+dur)}else env(g,t,o.a||.003,peak,dur,dur*.9);
+  s.start(t,Math.random());s.stop(t+dur+.05)}
+const kick=(t,v=1)=>{osc('sine',150,t,.34,.95*v,{f2:42,fd:.16,dest:music,a:.002,r:.3});noise(t,.03,.25*v,{type:'highpass',f:3000,dest:music})};
+const snare=(t,v=1)=>{noise(t,.2,.5*v,{type:'bandpass',f:1900,q:.7,dest:music});osc('triangle',210,t,.13,.35*v,{f2:130,dest:music})};
+const hat=(t,v=1)=>noise(t,.05,.12*v,{type:'highpass',f:7500,dest:music});
+const bass=(t,n,d,v=1)=>osc('sawtooth',hz(n),t,d,.34*v,{lp:420,lp2:160,q:3,dest:music});
+const pluck=(t,n,v=1)=>osc('triangle',hz(n),t,.45,.22*v,{lp:2800,lp2:500,dest:music});
+function pad(t,notes,dur,v=1,sup=false){notes.forEach(n=>{[-9,0,9].forEach(c=>osc('sawtooth',hz(n),t,dur,(sup?.05:.035)*v,{det:c,lp:sup?3200:1500,lp2:sup?1200:600,a:sup?.04:.4,r:dur*.5,dest:music}))})}
+/* sfx */
+const clickAt=(t,v=1)=>{noise(t,.018,.22*v,{type:'bandpass',f:3200+Math.random()*900,q:3});osc('square',900+Math.random()*120,t,.016,.05*v,{lp:2400})};
+const whoosh=(t,d=.5,up=true,v=.5)=>noise(t,d,v,{f:up?300:5000,f2:up?6000:300,q:.9,swell:up});
+const thunk=t=>{osc('sine',180,t,.12,.5,{f2:70,dest:sfx});noise(t,.03,.2,{type:'lowpass',f:1200})};
+const bell=(t,v=1,f=1320)=>{osc('sine',f,t,.5,.12*v,{dest:sfx});osc('sine',f*2.01,t,.3,.04*v,{dest:sfx})};
+const chime=(t,semi=0,v=1)=>[0,4,7].forEach((s,i)=>osc('sine',hz(76+semi+s),t+i*.045,.5,.13*v,{dest:sfx,a:.004}));
+const ping=(t,f=1100,v=1)=>{osc('sine',f,t,.28,.14*v,{dest:sfx});osc('sine',f*1.5,t+.07,.22,.08*v,{dest:sfx})};
+const stutter=(t,v=1)=>{for(let i=0;i<5;i++)osc('sawtooth',90+Math.random()*400,t+i*.034,.03,.18*v,{lp:2000,dest:sfx})};
+const buzz=(t,d=.4)=>osc('sawtooth',74,t,d,.3,{lp:900,dest:sfx,det:20});
+const latch=t=>{osc('square',2400,t,.025,.12,{lp:3500,dest:sfx});osc('sine',110,t+.02,.18,.45,{f2:55,dest:sfx})};
+const shield=(t,d=1.6)=>{osc('sine',55,t,d,.5,{dest:sfx,a:.8,r:.6});osc('sine',110,t,d,.22,{dest:sfx,det:14,a:.8,r:.6});osc('sine',111.5,t,d,.18,{dest:sfx,a:.8,r:.6})};
+const alarm=t=>[0,.5].forEach(o=>osc('sawtooth',196,t+o,.28,.16,{lp:700,dest:sfx}));
+const tick=t=>{noise(t,.012,.3,{type:'highpass',f:2500});osc('sine',1800,t,.02,.1,{dest:sfx})};
+const shutter=t=>{noise(t,.04,.35,{type:'bandpass',f:4200,q:2});noise(t+.07,.05,.25,{type:'bandpass',f:2600,q:2})};
+const boom=(t)=>{osc('sine',90,t,2.4,.95,{f2:28,fd:1.4,dest:sfx,r:2});noise(t,1.6,.45,{type:'highpass',f:5000})};
+const slice=t=>noise(t,.07,.4,{type:'highpass',f:4000,f2:9000});
+
+function clickLive(){if(!AC||muted)return;clickAt(AC.currentTime,.9)}
+
+function scheduleAudio(T0){
+  const t=s=>T0+s;
+  /* --- Act I: drone, ghost kicks, riser --- */
+  const dg=AC.createGain();dg.gain.setValueAtTime(.0001,t(0));dg.gain.exponentialRampToValueAtTime(.55,t(3.5));dg.gain.setValueAtTime(.55,t(19.3));dg.gain.exponentialRampToValueAtTime(.0001,t(19.5));dg.connect(music);
+  const d1=AC.createOscillator(),d2=AC.createOscillator(),dl=AC.createBiquadFilter();dl.type='lowpass';dl.frequency.value=260;
+  d1.type='sawtooth';d2.type='sine';d1.frequency.setValueAtTime(55,t(0));d2.frequency.setValueAtTime(55,t(0));
+  d1.frequency.setValueAtTime(55,t(6));d1.frequency.exponentialRampToValueAtTime(51.9,t(6.3));
+  [d1,d2].forEach(o=>{o.frequency.setValueAtTime(o===d1?51.9:55,t(9.4));o.frequency.exponentialRampToValueAtTime(24,t(10));o.frequency.exponentialRampToValueAtTime(o===d1?51.9:55,t(11))});
+  d1.connect(dl);dl.connect(dg);d2.connect(dg);d1.start(t(0));d2.start(t(0));d1.stop(t(19.6));d2.stop(t(19.6));
+  [4,8,12,13,14,15,16,16.5,17,17.5,18,18.25,18.5,18.75,19].forEach(s=>kick(t(s),.35+(s>14?.25:0)));
+  noise(t(16),3.5,.5,{f:300,f2:7000,q:.8,swell:true});
+  osc('sine',1500,t(19.7),.03,.14,{dest:sfx});             /* clock tick in the silence */
+  /* --- Act I SFX --- */
+  [3.4,3.8,4.1,4.4,4.65,4.9,5.1,5.3,5.5,5.65,5.8].forEach((s,i)=>ping(t(s),900+(i%4)*130,.5+i*.04));
+  stutter(t(7.2),.8);stutter(t(8.1),.8);buzz(t(9.2),.5);stutter(t(10),.6);
+  for(let i=0;i<22;i++)clickAt(t(12.3+i*.12-i*i*.0016),.5);
+  /* --- Drop 20s : 120 BPM, A minor | Am F C G --- */
+  const root=[45,41,48,43],tri=[[57,60,64],[53,57,60],[60,64,67],[55,59,62]];
+  const A=[[57,60,64,69],[53,57,60,65],[60,64,67,72],[55,59,62,67]];
+  boom(t(20));bell(t(20.4),.8);bell(t(20.7),.8,1568);bell(t(21),.8,1760);bell(t(21.3),.8);bell(t(21.6),.8,1568);bell(t(21.9),.8,1760);
+  for(let b=0;b<110;b++){
+    const s=20+b*.5;if(s>=70)break;const bar=Math.floor((s-20)/2),r=(s-20)%2,ch=bar%4;
+    const inBreath=s>=51&&s<57,inDuck=s>=62.5&&s<63;
+    if(inDuck)continue;
+    kick(t(s),inBreath?.8:1);
+    if(!inBreath||b%2===0){hat(t(s+.25),.9);if(s<26||s>=37){hat(t(s+.125),.45);hat(t(s+.375),.45)}}
+    if(((s>=37&&s<51)||(s>=57&&s<62.5)||(s>=63&&s<70))&&(r===.5||r===1.5))snare(t(s));
+    if(s>=26&&s<51||s>=57&&s<70){bass(t(s),root[ch],.22);bass(t(s+.25),root[ch]+12,.2,.6)}
+    if(inBreath){if(r===0)pluck(t(s),A[ch][0]+12);if(r===1)pluck(t(s),A[ch][2]+12,.8);if(r===1.5)pluck(t(s),A[ch][3]+12,.6)}
+    if(s>=26&&s<51||s>=57&&s<70){const arpV=s<37?.7:1,fast=s>=60;for(let k=0;k<(fast?4:2);k++){const st=s+k*(fast?.125:.25);osc('sawtooth',hz(A[ch][(b*2+k)%4]+12),t(st),.2,.07*arpV,{lp:2600,lp2:800,dest:music,a:.004})}}
+    if(r===0&&s>=26&&s<37)pad(t(s),tri[ch],1.9,.9);
+    if(r===0&&s>=63&&s<70)pad(t(s),A[ch],1.95,1,true);
+  }
+  /* snare roll 55-57 & 59-62.5 */
+  for(let i=0;i<8;i++)snare(t(55+i*.25),.4+i*.07);
+  for(let i=0;i<14;i++)snare(t(59+i*.25),.5+i*.04);
+  noise(t(59),3.5,.4,{f:500,f2:9000,swell:true});
+  /* final hit */
+  boom(t(70));pad(t(70),[45,57,60,64,69],4.2,1.3,true);snare(t(70),1.2);kick(t(70),1.2);
+  noise(t(70),1.8,.4,{type:'highpass',f:6000});
+  stutter(t(74.2),.9);
+  master.gain.setValueAtTime(muted?0:.9,t(74.3));master.gain.linearRampToValueAtTime(0,t(75.8));
+  /* --- SFX timeline --- */
+  [23.1,23.5,23.9].forEach(s=>whoosh(t(s),.4,true,.4));
+  whoosh(t(26),.5,true,.5);ping(t(31.3),1500,.5);
+  whoosh(t(29.2),.4,true,.4);tick(t(31.1));tick(t(31.4));
+  whoosh(t(32.4),.4,true,.4);thunk(t(33.2));thunk(t(35.9));chime(t(36),0,.8);chime(t(36.15),7,.6);
+  whoosh(t(37),.5,true,.5);latch(t(38.2));
+  tick(t(40.1));tick(t(40.3));tick(t(40.5));noise(t(40.5),.8,.25,{f:600,f2:5000,swell:true});thunk(t(39.8));
+  thunk(t(42));for(let i=0;i<9;i++)chime(t(42.35+i*.19),i,.7);
+  shutter(t(45.3));whoosh(t(46),.6,false,.5);chime(t(47.1),0,.8);chime(t(47.2),5,.7);
+  [48.35,48.7,49.05,49.4].forEach((s,i)=>tick(t(s)));shield(t(49.4),1.8);latch(t(49.9));alarm(t(50.1));
+  whoosh(t(51),.4,true,.4);whoosh(t(52),.4,true,.4);thunk(t(52.4));
+  tick(t(53.4));tick(t(53.9));latch(t(54.4));
+  ping(t(55.3),880,.7);ping(t(55.45),660,.6);thunk(t(56.3));chime(t(56.5),2,.9);
+  whoosh(t(60),.7,true,.6);
+  [63.15,63.9,64.5].forEach(s=>slice(t(s)));
+  for(let i=0;i<4;i++)tick(t(67.4+i*.35));
+}
+
+/* ================================================================= SCENE ENGINE */
+let TOKEN=0;
+const after=(ms,fn)=>{const tk=TOKEN;setTimeout(()=>{if(tk===TOKEN)fn()},ms)};
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const TY=(txt,cls='',d=0,cps=24,snd=1)=>`<span class="ty ${cls}" data-t="${esc(txt)}" data-d="${d}" data-c="${cps}" data-s="${snd}"></span>`;
+function runTyping(root){
+  const tk=TOKEN;
+  root.querySelectorAll('.ty').forEach(el=>{
+    const txt=el.dataset.t,d=+el.dataset.d,c=+el.dataset.c,snd=el.dataset.s==='1';let i=0;
+    setTimeout(()=>{if(tk!==TOKEN)return;el.classList.add('typing');
+      (function step(){if(tk!==TOKEN)return;i++;el.textContent=txt.slice(0,i);if(snd&&txt[i-1]!==' '&&txt[i-1]!=='\n')clickLive();
+        if(i<txt.length)setTimeout(step,1000/c);else setTimeout(()=>el.classList.remove('typing'),350)})()},d)});
+}
+function glow(a,b,o=.42){g1.style.background=`radial-gradient(circle,rgb(${a}) 0%,rgb(${b}) 38%,transparent 70%)`;g2.style.background=`radial-gradient(circle,rgb(${b}) 0%,rgb(${a}) 38%,transparent 70%)`;g1.style.opacity=g2.style.opacity=o}
+function flash(){const f=$('#flash');f.classList.remove('go');void f.offsetWidth;f.classList.add('go')}
+const GL={grind:['100 116 139','190 60 90'],boot:['16 185 129','13 148 136'],reb:['139 92 246','217 70 239'],apply:['124 58 237','99 102 241'],rank:['217 70 239','244 63 94'],roster:['14 165 233','99 102 241'],loop:['139 92 246','45 212 191'],rev:['167 139 250','255 255 255']};
+const CUR='<svg class="cursor" viewBox="0 0 24 24"><path d="M4 2l15 9-6.5 1.6L9.5 19z" fill="#fff" stroke="#000" stroke-width="1.2"/></svg>';
+const IMG={apply:'logo-pack/applyhub-by-roleflow-transparent.png',rank:'brand/rankhub-logo-transparent.png',roster:'logo-pack/roster-by-roleflow-transparent.png',lock:'logo-pack/roleflow-lockup-dark-transparent.png',tile:'logo-pack/roleflow-mark-transparent.png',glyph:'logo-pack/roleflow-mark-flat-transparent.png'};
+
+/* legacy primitives for the problem-act mock-ups */
+(()=>{const s=document.createElement('style');s.textContent=`
+.panel{background:rgba(16,18,26,.9);border:1px solid rgba(255,255,255,.1);border-radius:26px;box-shadow:0 30px 120px rgba(0,0,0,.6),0 0 90px rgba(139,92,246,.18)}
+.chip{display:inline-flex;align-items:center;gap:12px;padding:12px 26px;border-radius:999px;font-size:26px;font-weight:600;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05)}
+.chip i{width:12px;height:12px;border-radius:50%;background:currentColor;animation:pulse 1.2s ease-in-out infinite}
+.c-emer{color:#6ee7b7;border-color:rgba(16,185,129,.4);background:rgba(16,185,129,.1)}.c-viol{color:#ddd6fe;border-color:rgba(139,92,246,.45);background:rgba(31,11,74,.6)}.c-amber{color:#fbbf24;border-color:rgba(245,158,11,.4);background:rgba(245,158,11,.1)}.c-red{color:#fca5a5;border-color:rgba(239,68,68,.45);background:rgba(239,68,68,.12)}.c-sky{color:#7dd3fc;border-color:rgba(14,165,233,.45);background:rgba(14,165,233,.12)}
+.tag{font-size:20px;font-weight:700;padding:6px 14px;border-radius:8px;letter-spacing:.06em}
+.avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#38bdf8);flex:none}
+.btn{display:inline-flex;align-items:center;padding:20px 38px;border-radius:16px;font-size:30px;font-weight:700;color:#fff;position:relative;transition:background .15s,transform .15s}.b-violet{background:#7c3aed;box-shadow:0 8px 40px rgba(139,92,246,.5)}
+.toast{position:absolute;display:flex;gap:18px;align-items:center;padding:20px 26px;border-radius:18px;background:#1e1f2a;border:1px solid rgba(255,255,255,.1);box-shadow:0 20px 70px rgba(0,0,0,.6);width:560px}
+.gcell{border-right:1px solid rgba(255,255,255,.06)}
+`;document.head.appendChild(s)})();
+
+/* ---------- helpers ---------- */
+const HUE={Builder_Kai:'#8b5cf6',NovaPixel:'#06b6d4',ZedRunner:'#f59e0b',Lumi_Dev:'#ec4899',Rook_77:'#10b981',Vexa:'#6366f1',Mira_K:'#f43f5e',Ozzy_T:'#0ea5e9',Pip_Dev:'#84cc16',AeroPilot_X:'#14b8a6',PixelBuilder_9:'#a855f7',IllegalTestUser:'#ef4444',Officer_Vance:'#22c55e',Rogue_Account_Demoted:'#f97316',Cadet_Taylor:'#38bdf8',SkyWarden_22:'#eab308'};
+const av=(n,s=36)=>`<div class="av" style="width:${s}px;height:${s}px;background:linear-gradient(135deg,${HUE[n]||'#8b5cf6'},#1e1b4b);font-size:${Math.round(s*.4)}px">${n[0]}</div>`;
+const WIN=(url,inner,st='',cls='',bar=true)=>`<div class="win ${cls}" style="${st}">${bar?`<div class="wbar"><i></i><i></i><i></i><span class="url">🔒 <b>${url}</b></span></div>`:''}<div class="wbody" style="height:${bar?'calc(100% - 54px)':'100%'}">${inner}</div></div>`;
+const stars=n=>'★'.repeat(n)+'<span style="opacity:.3">'+'★'.repeat(5-n)+'</span>';
+const ST={PENDING:['Pending Review','b-neu'],UNDER_REVIEW:['Under Review','b-gold'],INTERVIEW:['Interview Scheduled','b-cyan'],ACCEPTED:['Accepted','b-moss']};
+const sbadge=k=>`<span class="u-badge ${ST[k][1]}"><span class="pulse" style="${k==='PENDING'||k==='ACCEPTED'?'animation:none;opacity:.9':''}"></span>${ST[k][0]}</span>`;
+const steps=(reached,decided)=>{const L=['Submitted','Under review','Interview',decided||'Decision'];return `<div class="row" style="gap:8px;font-size:12px">${L.map((l,i)=>`<span class="row" style="flex:1;gap:8px"><span style="width:8px;height:8px;border-radius:50%;flex:none;background:${i<=reached?'var(--accent)':'var(--line2)'}"></span><span style="color:${i<=reached?'var(--ink)':'var(--faint)'};font-weight:${i<=reached?600:400};white-space:nowrap">${l}</span>${i<3?'<span style="flex:1;height:1px;background:var(--line)"></span>':''}</span>`).join('')}</div>`};
+
+/* mock helpers (problem act) */
+const sheet=(rows=14,w=1100)=>{let h=`<div class="panel" style="width:${w}px;overflow:hidden;border-radius:18px"><div class="row" style="gap:14px;padding:14px 22px;border-bottom:1px solid rgba(255,255,255,.08);font-size:22px;color:#94a3b8"><span style="width:26px;height:26px;border-radius:5px;background:#16a34a;display:inline-block"></span><span style="color:#e2e8f0">Staff Applications (Responses)</span></div><div class="row" style="height:38px;background:rgba(255,255,255,.05);font-size:18px;color:#64748b"><span class="gcell" style="width:80px"></span><span class="gcell" style="width:300px;padding-left:12px">A · Username</span><span class="gcell" style="width:420px;padding-left:12px">B · Why do you want to join?</span><span style="width:200px;padding-left:12px">C · Votes</span></div><div style="height:480px;overflow:hidden;position:relative"><div style="animation:scrollup 3s linear forwards">`;
+  for(let i=0;i<rows*3;i++){h+=`<div class="row" style="gap:0;border-bottom:1px solid rgba(255,255,255,.05);font-size:24px;color:#94a3b8;height:54px"><span class="gcell" style="width:80px;padding-left:22px;color:#475569;height:100%;display:flex;align-items:center">${i+2}</span><span class="gcell" style="width:300px;padding-left:12px;height:100%;display:flex;align-items:center">${['Builder_Kai','NovaPixel','ZedRunner','Lumi_Dev','Rook_77','Vexa','Orbit_9'][i%7]}</span><span class="gcell" style="width:420px;padding-left:12px;overflow:hidden;white-space:nowrap;height:100%;display:flex;align-items:center">i have been scripting for ${i%5+1} years and…</span><span style="width:200px;padding-left:12px;color:#64748b">${['1/3','—','2/3','—'][i%4]}</span></div>`}
+  return h+`</div></div><div class="row" style="gap:6px;padding:12px 22px;border-top:1px solid rgba(255,255,255,.08);font-size:20px"><span style="padding:8px 18px;background:rgba(255,255,255,.08);border-radius:8px;color:#e2e8f0">Responses</span><span style="padding:8px 18px;color:#64748b">Responses (2)</span><span style="padding:8px 18px;color:#64748b">FINAL_v3</span><span style="padding:8px 18px;color:#64748b">FINAL_v3 (copy)</span></div></div>`};
+const NAMES=['AeroPilot_X','PixelBuilder_9','Builder_Kai','NovaPixel','IllegalTestUser'];
+
+/* ladder (real "Visual Rank Hierarchy" panel) */
+const LAD=[[255,'Owner',1,1],[254,'Co-Owner',2,1],[250,'Developer',6,1],[200,'Manager',9,0,'CEILING'],[150,'Senior Moderator',18],[100,'Moderator',44],[40,'Trial Moderator',61],[10,'Trainee',212],[1,'Member',24535]];
+const ladder=(red=false,w=520)=>`<div class="rh" style="width:${w}px;padding:22px"><div class="row" style="gap:10px;margin-bottom:6px"><span style="width:30px;height:30px;border-radius:8px;display:grid;place-items:center;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);color:#34d399;font-size:15px">▤</span><b style="font-size:17px;color:#fff">Visual Rank Hierarchy</b><span class="u-badge b-neu" style="margin-left:auto">9 Configured Ranks</span></div><div class="rh-sub" style="margin-bottom:14px">Protected tiers and rank ceilings are strictly locked.</div>${LAD.map((r,i)=>`<div class="rung ${r[3]?'prot':''} ${red&&i<3?'red':''}" id="rg${i}"><b>${r[0]}</b><span class="n">${r[1]}</span>${r[3]?'<em>🔒 PROTECTED</em>':r[4]?'<em style="color:#fbbf24">⛨ CEILING</em>':`<em>${r[2].toLocaleString()} members</em>`}</div>`).join('')}</div>`;
+
+const rhNav=(on='RankHub')=>`<div class="row" style="justify-content:space-between;padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.1);background:#07090e"><div class="row" style="gap:16px"><span style="font-size:13px;color:#94a3b8;font-weight:600">← RoleFlow Suite</span><span style="width:1px;height:16px;background:rgba(255,255,255,.1)"></span><img src="${IMG.rank}" style="height:36px"></div><div class="row" style="gap:8px;font-size:12px;font-weight:600"><span style="padding:6px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#cbd5e1">ApplyHub</span><span style="padding:6px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#cbd5e1">Roster</span><span style="padding:6px 12px;border-radius:8px;border:1px solid rgba(16,185,129,.3);background:rgba(16,185,129,.1);color:#6ee7b7;box-shadow:0 0 18px rgba(16,185,129,.25)">RankHub</span></div></div>`;
+const rhTabs=(on)=>`<div class="tabs" style="margin-bottom:16px">${['Batch Rank Engine','Visual Ladder (1-255)','ApplyHub Auto-Promote','Immutable Audit Log','Rank Backups','Anti-Nuke Security'].map(t=>`<span class="tab ${t===on?'on':''}">${t}</span>`).join('')}</div>`;
+const roleSel={AeroPilot_X:['Guest','1','Trainee','10','Completed onboarding stage 1','manual'],PixelBuilder_9:['Trainee','10','Junior Moderator','40','Passed application review quorum','applyhub'],Builder_Kai:['Member','1','Trial Moderator','40','Accepted in ApplyHub','applyhub'],NovaPixel:['Trial Moderator','40','Moderator','100','Shift milestone reached','csv_import'],IllegalTestUser:['Member','1','Executive (Protected)','255','Unauthorized escalation test','manual']};
+const batchRows=(mode)=>NAMES.map((n,i)=>{const r=roleSel[n],bad=n==='IllegalTestUser';
+  const st=mode==='dry'?(bad?'<span class="u-badge b-dang">✕ BLOCKED · PROTECTED</span>':'<span class="u-badge b-moss">✓ WOULD APPLY</span>'):(bad?'<span class="u-badge b-dang pop" style="--d:'+(.3+i*.19)+'s">✕ BLOCKED</span>':`<span class="u-badge b-moss pop" style="--d:${.3+i*.19}s">✓ SUCCESS</span>`);
+  return `<div class="tr ${mode==='dry'?'in':''}" style="--d:${.4+i*.18}s;${bad?'border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.06)':''}"><div class="row" style="gap:12px;width:210px">${av(n,34)}<b style="font-size:14px;color:#fff">${n}</b></div><span style="width:260px;color:#94a3b8">${r[0]} <span style="color:#64748b">(${r[1]})</span> <span style="color:#64748b">→</span> <b style="color:${bad?'#fca5a5':'#e2e8f0'}">${r[2]}</b> <span style="color:#64748b">(${r[3]})</span></span><span style="flex:1;color:#94a3b8;font-size:12px">${r[4]}</span><span class="u-badge ${r[5]==='applyhub'?'b-acc':'b-neu'}" style="width:92px;justify-content:center">${r[5]}</span><span style="width:176px;display:flex;justify-content:flex-end">${st}</span></div>`}).join('');
+const batchWin=(mode)=>WIN('rankhub.roleflow.site',`${rhNav()}<div style="padding:22px 28px">${rhTabs('Batch Rank Engine')}<div class="row" style="gap:22px;align-items:flex-start"><div id="ladwrap">${ladder(false,470)}</div><div class="rh" style="flex:1;padding:22px"><div class="row" style="justify-content:space-between;margin-bottom:6px"><b style="font-size:17px;color:#fff">${mode==='dry'?'Batch Rank Engine &amp; Dry-Run Simulation':'Executing Batch Pipeline...'}</b>${mode==='dry'?'<span class="u-badge b-gold"><span class="pulse"></span>DRY-RUN ON</span>':'<span class="u-badge b-moss"><span class="pulse"></span>LIVE · OPEN CLOUD</span>'}</div><div class="rh-sub" style="margin-bottom:16px">Rank ceiling <b style="color:#fbbf24">200</b> · Protected 250, 254, 255</div>${mode==='exec'?`<div style="height:10px;border-radius:6px;background:rgba(255,255,255,.08);margin-bottom:16px;overflow:hidden"><div style="height:100%;background:linear-gradient(90deg,#d946ef,#f43f5e);transform-origin:left;animation:fillbar 1.7s cubic-bezier(.5,0,.2,1) .1s both"></div></div>`:''}<div class="th"><span style="width:210px">Roblox Username</span><span style="width:260px">Rank Change</span><span style="flex:1">Reason</span><span style="width:92px;text-align:center">Source</span><span style="width:176px;text-align:right">Status</span></div>${batchRows(mode)}</div></div></div>`,'left:110px;top:90px;width:1700px;height:760px','tilt');
+
+const S=[];
+const add=(t,gl,html,run,o={})=>S.push({t,gl,html,run,...o});
+const cardG=(n,cat,desc,open,bg,badge,rate,rc)=>`<div class="u-card" style="overflow:hidden"><div style="height:112px;position:relative;background:${bg};border-bottom:1px solid var(--line)"><img src="${IMG.glyph}" style="position:absolute;right:16px;top:14px;height:74px;opacity:.16"></div><div style="padding:20px"><div class="row" style="margin-top:-46px;margin-bottom:12px;justify-content:space-between;align-items:flex-end;position:relative"><div style="width:56px;height:56px;border-radius:12px;border:2px solid var(--surface);background:var(--surface);display:grid;place-items:center;font:700 22px var(--f-disp)">${n[0]}</div><span class="u-badge b-moss">${open} open</span></div><div style="font:600 20px var(--f-disp)">${n}</div><div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:2px">${cat}</div><p style="font-size:13px;line-height:1.6;color:var(--ink2);margin-top:10px">${desc}</p><div style="margin-top:12px"><span class="u-badge b-acc" style="border-radius:6px">${badge}</span></div><div class="row" style="justify-content:space-between;border-top:1px solid var(--line);margin-top:16px;padding-top:14px"><span style="font:12px var(--f-mono);color:var(--ink2)"><span style="color:var(--gold)">★</span> ${rate} <span style="color:var(--faint)">(${rc})</span></span><b style="font-size:13px">View ↗</b></div></div></div>`;
+const rosterRows=[['Mira_K','Manager','ACTIVE','2h ago'],['Ozzy_T','Senior Moderator','ACTIVE','5h ago'],['NovaPixel','Moderator','ACTIVE','8h ago'],['Pip_Dev','Trial Moderator','ON LEAVE','4d ago']];
+const rrow=(n,r,s,l,x='')=>`<div class="tr" style="${x}">${av(n,38)}<b style="width:230px;font-size:15px;color:#fff">${n}</b><span style="width:210px;color:#cbd5e1">${r}</span><span class="u-badge ${s==='ACTIVE'?'b-moss':s==='NEW'?'b-cyan':'b-gold'}" style="width:100px;justify-content:center">${s}</span><span style="flex:1;color:#94a3b8">${l}</span><span class="u-badge b-neu">Dossier</span></div>`;
+const rosterWin=(st,extra='',cls='tilt')=>WIN('roster.roleflow.site',`<div style="padding:26px 30px"><div class="row" style="gap:16px;margin-bottom:18px"><img src="${IMG.roster}" style="height:46px"><span class="u-badge b-neu" style="margin-left:8px">Meridian Cafe &amp; Studios</span><span style="margin-left:auto" class="u-btn sm u-pri" id="imp">Import Applicants</span></div><div class="row" style="gap:10px;margin-bottom:16px"><div class="u-field" style="flex:1;height:40px;font-size:13px;padding-left:14px">Search by Roblox username or user ID...</div><span class="u-badge b-neu">All Teams</span><span class="u-badge b-neu">All Statuses</span><span class="u-badge b-neu">Sort By: Roblox Rank</span></div><div class="th"><span style="width:38px"></span><span style="width:230px">Staff Username</span><span style="width:210px">Roblox Rank</span><span style="width:100px">Status</span><span style="flex:1">Last Activity</span></div>${extra}${rosterRows.map((r,i)=>rrow(...r,`animation:inup .5s ${.3+i*.1}s both`)).join('')}</div>`,st,cls);
+
+/* ============ ACT I ============ */
+add(0,GL.grind,`<div class="abs" style="left:0;right:0;top:230px;text-align:center;font-size:92px" class="serif">${TY('It starts with a Google Form.','serif s-serif',300,20)}</div>
+ <div class="abs panel in" style="--d:1.6s;left:610px;top:480px;width:700px;border-radius:14px;overflow:hidden;border-top:12px solid #7248b6"><div style="padding:34px 40px;background:#1a1b25"><div style="font-size:38px;font-weight:600">Staff Application</div>${[100,70,85].map(w=>`<div style="margin-top:26px"><div style="height:14px;width:${w*3}px;background:rgba(255,255,255,.15);border-radius:6px"></div><div style="height:2px;background:rgba(255,255,255,.2);margin-top:30px"></div></div>`).join('')}</div></div>`,null,{zm:1.08});
+add(3,GL.grind,`<div class="abs" style="left:300px;top:110px">${sheet()}</div>
+ <div class="abs mono in" style="right:110px;top:60px;font-size:34px;color:#fb7185;letter-spacing:.2em">2:47 AM</div>
+ <div class="abs pop" style="--d:.6s;right:150px;top:140px;background:#ef4444;border-radius:999px;padding:14px 32px;font-size:44px;font-weight:800;box-shadow:0 0 60px rgba(239,68,68,.6)" id="dm">9</div>
+ ${[['NovaPixel','hey did u see my app??'],['Builder_Kai','any update? its been 3 days'],['ZedRunner','hello???']].map((m,i)=>`<div class="toast pop" style="--d:${.9+i*.5}s;right:90px;top:${260+i*118}px">${av(m[0],54)}<div><b style="font-size:24px">${m[0]}</b><div style="font-size:22px;color:#94a3b8">${m[1]}</div></div></div>`).join('')}
+ <div class="abs" style="left:0;right:0;bottom:80px;text-align:center">${TY('Then the DMs pile up.','sans s-dim',500,26)}</div>`,
+ ()=>{let n=9;const el=$('#dm');const iv=setInterval(()=>{if(!el.isConnected){clearInterval(iv);return}n=Math.min(99,n+Math.ceil(Math.random()*9));el.textContent=n>=99?'99+':n},90)});
+add(6,GL.grind,`<div class="abs panel in" style="left:180px;top:150px;width:760px;padding:34px"><div class="mono" style="font-size:18px;color:#94a3b8;margin-bottom:20px">#applicant-tickets</div>
+ ${['ticket-0412 · Kai','ticket-0413 · Nova','ticket-0414 · Zed','ticket-0415 · Lumi','ticket-0416 · Rook'].map((x,i)=>`<div class="row" style="justify-content:space-between;padding:20px 22px;margin-bottom:12px;border-radius:12px;background:rgba(255,255,255,.04);font-size:28px;color:#cbd5e1"><span>${x}</span><span class="tag c-red pop" style="--d:${.5+i*.22}s">NO REPLY</span></div>`).join('')}</div>
+ <div class="abs panel in" style="right:180px;top:150px;width:760px;padding:34px;--d:.15s"><div class="mono" style="font-size:18px;color:#94a3b8;margin-bottom:20px">Role audit</div>
+ ${['Kai · Moderator','Nova · Moderator','Zed · Helper','Lumi · ???','Rook · Helper'].map((x,i)=>`<div class="row" style="justify-content:space-between;padding:20px 22px;margin-bottom:12px;border-radius:12px;background:rgba(255,255,255,.04);font-size:28px;color:#cbd5e1;${i==3?'animation:blink .5s steps(1) 6;border:1px solid #fb7185':''}"><span>${x}</span><span class="tag" style="background:rgba(255,255,255,.08);color:#94a3b8">${i==3?'MISSED':'ok'}</span></div>`).join('')}</div>
+ <div class="abs" style="left:0;right:0;bottom:120px;text-align:center;font-size:76px;font-weight:700">${TY('Tickets get lost.','s-white',150,24)}<br>${TY('Roles get missed.','s-white crim',1100,24)}</div>`);
+add(9,GL.grind,`<div class="abs panel in" style="left:360px;top:230px;width:1200px;padding:40px;border-color:rgba(239,68,68,.5);box-shadow:0 0 120px rgba(239,68,68,.25)"><div class="mono" style="font-size:20px;color:#fb7185;margin-bottom:14px">rank-bot ▸ event-night</div>
+ <div style="font:34px/1.7 ui-monospace,Menlo,monospace;color:#cbd5e1"><div>▸ promote Builder_Kai → Trial Mod</div><div class="in" style="--d:.7s">▸ promote NovaPixel → Moderator</div><div class="in" style="--d:1.1s;color:#fb7185;font-weight:700">✗ 401 Unauthorized — cookie expired</div><div class="in" style="--d:1.4s;color:#fb7185">✗ queue stalled · 38 members waiting</div></div></div>
+ <div class="abs" style="left:0;right:0;bottom:110px;text-align:center;font-size:82px;font-weight:800">${TY('Your rank bot ','',200,22)}<span class="glitch crim" style="display:inline-block">dies.</span> ${TY('Mid-event.','',1500,22)}</div>`,null,{zm:1.07});
+add(12,GL.grind,`<div class="abs panel in" style="left:140px;top:150px;width:780px;padding:34px"><div class="mono" style="font-size:18px;color:#94a3b8;margin-bottom:18px">roblox.com ▸ profiles</div>
+ ${['Builder_Kai','NovaPixel','ZedRunner'].map((n,i)=>`<div class="row in" style="--d:${.2+i*.5}s;gap:22px;padding:18px;margin-bottom:14px;border-radius:14px;background:rgba(255,255,255,.04)">${av(n,64)}<div><div style="font-size:30px;font-weight:700">${n}</div><div style="font-size:22px;color:#94a3b8">Joined ${2019+i} · 0 badges</div></div></div>`).join('')}</div>
+ <div class="abs in" style="left:960px;top:410px;font-size:70px;color:#64748b;--d:.5s">⟶</div>
+ <div class="abs in" style="right:140px;top:150px;--d:.2s">${sheet(8,760)}</div>
+ <div class="abs mono" style="right:140px;top:60px;font-size:34px;color:#fb7185;letter-spacing:.2em" id="clk">3:12 AM</div>
+ <div class="abs" style="left:0;right:0;bottom:100px;text-align:center;font-size:48px;color:#94a3b8">${TY('AUDITING PROFILES. BY HAND.','mono',300,26)}</div>`,
+ ()=>after(1500,()=>{const e=$('#clk');if(e)e.textContent='4:12 AM'}));
+add(15,['190 60 90','100 116 139'],`<div class="center"><div class="s-white" style="font-size:96px">${TY('That time belongs to your community.','',100,26)}</div><div class="sub dim" style="font-size:44px">${TY('Not to busywork.','',2000,26)}</div></div>`,
+ ()=>{let n=0;const tk=TOKEN;const iv=setInterval(()=>{if(tk!==TOKEN){clearInterval(iv);return}g1.style.opacity=n++%2?'.2':'.55'},120)});
+add(18,GL.grind,`<div class="center"><div class="s-white" style="font-size:96px">${TY('So we rebuilt all of it.','',100,22)}</div></div>`,
+ ()=>after(1400,()=>{scene.style.transition='opacity .1s';scene.style.opacity=0}));
+
+/* ============ ACT II ============ */
+add(20,GL.boot,`<div class="win tilt" style="left:110px;top:230px;width:1000px;height:560px;border-color:rgba(16,185,129,.35);box-shadow:0 0 140px rgba(16,185,129,.25)"><div class="wbar"><i></i><i></i><i></i><span class="url"><b>roleflow ~ boot</b></span></div><div style="padding:40px 46px;font:34px/1.75 ui-monospace,Menlo,monospace;color:#6ee7b7;white-space:pre">${[['> boot roleflow.core v2.0',0],['> discord gateway ............. ok',300],['> roblox open cloud ........... ok',620],['> loading applyhub ............ ok',940],['> loading roster .............. ok',1260],['> loading rankhub ............. ok',1580]].map(([l,d])=>TY(l,'',d,70,1)+'\n').join('')}${TY('> cutover status: READY','',1960,50)}</div></div>
+ <div class="abs" style="left:1230px;top:200px;width:560px;height:560px"><i style="position:absolute;inset:60px;border-radius:50%;border:3px solid #8b5cf6;animation:ring 2.2s ease-out 1.8s infinite"></i><i style="position:absolute;inset:60px;border-radius:50%;border:3px solid #8b5cf6;animation:ring 2.2s ease-out 2.6s infinite"></i><img class="pop logo" style="--d:1.6s;position:absolute;left:90px;top:90px;width:380px;border-radius:70px;animation:pop .45s cubic-bezier(.2,1.4,.3,1) 1.6s both,floaty 4s ease-in-out 2.2s infinite" src="${IMG.tile}"></div>
+ <img class="abs pop" style="--d:2.5s;left:0;right:0;margin:auto;bottom:90px;width:520px" src="${IMG.lock}">`,()=>flash());
+add(23,GL.reb,`<div class="abs" style="left:0;right:0;top:60px;text-align:center"><span class="u-badge b-acc in" style="font-size:20px;padding:9px 22px">The RoleFlow Product Family</span></div>
+ <div class="abs disp in" style="left:0;right:0;top:140px;text-align:center;font-size:110px"><span class="grad">One identity.</span></div>
+ <div class="abs sub in" style="--d:.3s;left:0;right:0;top:290px;text-align:center">Sign in once. Your profile follows you into every tool.</div>
+ <div class="abs row" style="left:110px;right:110px;top:380px;gap:36px;justify-content:center;align-items:stretch">
+ ${[['apply','ApplyHub by RoleFlow','Recruitment and staff applications in one place.',.5,'<div class="row" style="gap:12px;justify-content:space-between"><span style="font-size:20px">Applicant #1489 · Lead Moderator</span></div><div style="margin-top:12px">'+sbadge('UNDER_REVIEW')+'</div>'],['rank','RankHub','High-speed rank automation and dry-run engine.',.9,'<div class="row" style="gap:12px">'+av('AeroPilot_X',40)+'<span style="font-size:20px">Guest → Trainee</span></div><div style="margin-top:12px"><span class="u-badge b-moss">✓ WOULD APPLY</span></div>'],['roster','Roster by RoleFlow','Staff and member management for Roblox groups.',1.3,'<div class="row" style="gap:12px">'+av('Mira_K',40)+'<span style="font-size:20px">Mira_K · Manager</span></div><div style="margin-top:12px"><span class="u-badge b-moss">ACTIVE</span></div>']].map(([k,n,tg,d,pv])=>`<div class="u-card in" style="--d:${d}s;width:540px;padding:34px;display:flex;flex-direction:column;gap:20px;border-radius:22px"><div class="row" style="justify-content:space-between"><img src="${IMG[k]}" style="height:84px;object-fit:contain"><span class="u-badge b-moss" style="font-size:15px;padding:6px 14px"><span class="pulse"></span>LIVE</span></div><div><div style="font-size:34px;font-weight:700">${n}</div><div style="font-size:24px;color:#a78bfa;margin-top:8px">${tg}</div></div><div class="u-card" style="padding:18px 20px;background:var(--sunk);border-radius:14px;color:var(--ink2)">${pv}</div></div>`).join('')}</div>
+ <div class="abs" style="left:0;right:0;bottom:0;border-top:1px solid rgba(255,255,255,.1);background:#07080c;overflow:hidden;white-space:nowrap;padding:26px 0"><div style="display:inline-block;animation:mq 7s linear infinite" class="mono">${Array(2).fill(['One account','Free forever','Discord roles','Roblox groups','Blind voting','Staff rosters','Shift logs','Community-built'].map(w=>`<span style="font-size:24px;color:#94a3b8;padding:0 34px">${w}</span><span style="color:#8b5cf6">•</span>`).join('')).join('')}</div></div>`);
+add(26,GL.apply,`<div class="abs in" style="right:90px;top:110px;width:440px"><img class="logo" src="${IMG.apply}" style="width:440px"><div class="mono viol" style="font-size:24px;margin-top:34px">01 / ApplyHub</div><div style="font-size:54px;font-weight:800;margin-top:18px;line-height:1.1">${TY('Link Roblox and Discord once.','',400,26)}</div><div class="sub dim" style="margin-top:18px;font-size:32px">${TY('Answers save as they type.','',1700,26)}</div><div class="row" style="gap:12px;margin-top:30px;flex-wrap:wrap"><span class="u-badge b-moss pop" style="--d:1.2s;font-size:16px;padding:7px 16px">✓ Roblox linked</span><span class="u-badge b-acc pop" style="--d:1.5s;font-size:16px;padding:7px 16px">✓ Discord linked</span><span class="u-badge b-moss pop" style="--d:2.3s;font-size:16px;padding:7px 16px">✓ Draft saved</span></div></div>
+ ${WIN('applyhub.roleflow.site',`<div class="u" style="--z:1.1"><div style="animation:pagescroll 2.2s cubic-bezier(.5,0,.2,1) .7s forwards;--sy:-600px"><div class="u-nav"><div class="row"><img src="${IMG.apply}" style="height:40px"><a style="margin-left:34px">Browse</a><a>My applications</a><a>Dashboard</a></div><span class="u-btn sm u-ghost">Sign in</span></div>
+ <div style="padding:52px 56px 56px"><div class="u-eyebrow" style="display:flex;align-items:center;gap:8px;margin-bottom:22px"><i style="width:6px;height:6px;border-radius:50%;background:var(--moss)"></i>13 positions open across 3 communities</div><div class="disp" style="font-size:66px">Staff applications,<br><i>finally in order.</i></div><p style="font-size:18px;line-height:1.6;color:var(--ink2);max-width:540px;margin-top:22px">ApplyHub by RoleFlow is where Discord and Roblox communities post openings, collect applications once, and review candidates together, without the chaos of channels and DMs.</p><div class="row" style="gap:8px;margin-top:30px;max-width:560px"><div class="u-field" style="flex:1"><span style="position:absolute;left:14px">⌕</span>Community, role, studio or tag</div><span class="u-btn lg u-pri">Find openings</span></div></div>
+ <div style="border-top:1px solid var(--line);padding:44px 56px"><div class="u-eyebrow">Directory</div><div class="disp" style="font-size:30px;margin:10px 0 26px">Communities recruiting now</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">${cardG('Meridian Studios','Roblox Studio','Building cozy social experiences. Hiring moderators, builders and scripters.',4,'linear-gradient(135deg,#312e81,#6d28d9)','Official','4.8',36)}${cardG('Lucid Lighting','Creative Community','A lighting and VFX collective for Roblox creators. Staff and event hosts wanted.',2,'linear-gradient(135deg,#0e7490,#4338ca)','Top studio','4.9',21)}${cardG('Redwood County RP','Roleplay','Serious law-enforcement roleplay with a staff team of 60 and weekly training.',7,'linear-gradient(135deg,#9f1239,#6d28d9)','Favourite','4.7',58)}</div></div></div></div>`,'left:90px;top:90px;width:1260px;height:900px','tilt')}`);
+add(29,GL.apply,`${WIN('applyhub.roleflow.site/dashboard',`<div style="padding:26px 24px"><div class="row" style="justify-content:space-between;margin-bottom:20px"><div class="disp" style="font-size:28px">Applications <span style="color:var(--muted);font-size:20px;font-family:var(--f-sans)">· Lead Moderator · Meridian Studios</span></div><span class="u-badge b-moss"><span class="pulse"></span>12 new today</span></div><div class="row" style="gap:14px;align-items:flex-start;position:relative">${[['PENDING',[['Builder_Kai','Moderator',4],['Rook_77','Moderator',2]]],['UNDER_REVIEW',[['NovaPixel','Moderator',3],['Vexa','Builder',5]]],['INTERVIEW',[['ZedRunner','Helper',4]]],['ACCEPTED',[['Lumi_Dev','Builder',5]]]].map(([k,cs],i)=>`<div style="width:390px;flex:none;border-radius:12px;background:var(--sunk);border:1px solid var(--line);padding:14px;min-height:380px"><div class="row" style="justify-content:space-between;margin-bottom:12px">${sbadge(k)}<span style="font:12px var(--f-mono);color:var(--muted)">${cs.length}</span></div>${cs.map((c,j)=>`<div class="u-card" style="padding:14px;margin-bottom:10px;${i==0&&j==0?'opacity:0':''}"><div class="row" style="gap:12px">${av(c[0],40)}<div><b style="font-size:16px">${c[0]}</b><div style="font-size:12px;color:var(--muted)">${c[1]} · Roblox verified</div></div></div><div class="row" style="justify-content:space-between;margin-top:12px;font-size:13px"><span style="color:var(--gold)">${stars(c[2])}</span><span style="color:var(--muted);font:11px var(--f-mono)">${j+1}d ago</span></div></div>`).join('')}</div>`).join('')}
+ <div class="u-card" style="position:absolute;left:14px;top:58px;width:362px;padding:14px;z-index:5;border-color:var(--accent);box-shadow:0 14px 60px rgba(139,92,246,.6);animation:moveCard 2.4s cubic-bezier(.6,0,.2,1) .9s forwards"><div class="row" style="gap:12px">${av('Builder_Kai',40)}<div><b style="font-size:16px">Builder_Kai</b><div style="font-size:12px;color:var(--muted)">Moderator · Roblox verified</div></div></div><div class="row" style="justify-content:space-between;margin-top:12px;font-size:13px"><span style="color:var(--gold)">${stars(4)}</span><span style="color:var(--muted);font:11px var(--f-mono)">just now</span></div></div></div></div>`,'left:110px;top:70px;width:1700px;height:640px','tilt')}
+ <div class="u-card in" style="--d:.6s;position:absolute;left:110px;top:745px;width:1010px;padding:22px 28px"><div class="row" style="justify-content:space-between;margin-bottom:12px"><span class="u-eyebrow">Quorum progress</span><b id="qt" style="font:600 16px var(--f-mono);color:var(--accent)">2 / 3 Votes</b></div><div style="height:8px;border-radius:5px;background:var(--sunk);overflow:hidden;margin-bottom:16px"><div id="qb" style="height:100%;width:66%;background:var(--accent);transition:width .5s"></div></div><div class="row" style="gap:18px">${[['NovaPixel',4],['Mira_K',5],['Ozzy_T',4]].map(([n,s],i)=>`<span class="row u-badge b-neu" style="gap:10px;padding:8px 14px;font-size:15px;position:relative">${av(n,26)}${n} <span class="out" style="--d:2s;position:absolute;inset:0;background:#171925;border-radius:999px;display:flex;align-items:center;justify-content:center;color:#64748b">🔒 hidden</span><span style="color:var(--gold)">${stars(s)}</span></span>`).join('')}</div><div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:12px">Individual scores locked until quorum met</div></div>
+ <div class="abs" style="right:110px;top:760px;text-align:right"><div class="s-white" style="font-size:88px">${TY('BLIND VOTING.','',200,26)}</div><div class="sub" style="font-size:28px">Votes stay hidden until they are submitted.</div></div>`,
+ ()=>{after(1900,()=>{const q=$('#qb');if(q){q.style.width='100%';$('#qt').textContent='3 / 3 · Scores revealed'}})},{zm:1.04,oy:'40%'});
+add(32,GL.apply,`<div class="win tilt" style="left:90px;top:80px;width:1190px;height:860px;background:#17181f"><div style="display:flex;height:100%">
+ <div style="width:270px;padding:28px;background:#111218;border-right:1px solid rgba(255,255,255,.06);font-size:24px;color:#94a3b8;line-height:2.3"><div class="mono" style="font-size:15px;margin-bottom:10px">Meridian Staff</div># staff-chat<br><span style="color:#fff;background:rgba(255,255,255,.08);padding:4px 12px;border-radius:8px"># applications</span><br># announcements<br><span class="pop" style="--d:.6s;display:inline-block;color:#38bdf8;font-weight:700;font-size:21px"># interview-builder_kai</span></div>
+ <div style="flex:1;padding:40px 44px"><div class="row" style="gap:14px;margin-bottom:16px"><img src="${IMG.tile}" style="width:52px;border-radius:14px"><b style="font-size:26px">ApplyHub Bot</b><span class="u-badge b-acc" style="font-size:12px">BOT</span></div>
+ <div class="in" style="--d:.2s;border-left:8px solid #8b5cf6;background:#1e1f2a;border-radius:10px;padding:30px 34px;transition:border-color .3s" id="emb"><div style="font-size:32px;font-weight:800">New application · Moderator</div><div style="font-size:24px;color:#cbd5e1;margin:12px 0 4px">Builder_Kai · Roblox verified · account age 4y</div><div class="row" style="gap:12px;margin:14px 0"><span class="u-badge b-moss" style="font-size:15px">✓ Discord Age &gt; 30d (214d)</span><span class="u-badge b-moss" style="font-size:15px">✓ Roblox Alt Filter clean</span></div><div style="font-size:22px;color:#94a3b8">Stage moved to <b class="emer">INTERVIEW</b></div>
+ <div class="row" style="gap:16px;margin-top:28px"><span class="u-btn lg u-moss" id="qa" style="font-size:24px;min-height:60px">Quick Accept<svg class="cursor" id="cur" viewBox="0 0 24 24" style="left:120px;top:260px;transition:all 1.1s cubic-bezier(.4,0,.2,1)"><path d="M4 2l15 9-6.5 1.6L9.5 19z" fill="#fff" stroke="#000" stroke-width="1.2"/></svg></span><span class="u-btn lg u-dang" style="font-size:24px;min-height:60px">Quick Reject</span><span class="u-btn lg u-ghost" style="font-size:24px;min-height:60px">Review on RoleFlow ↗</span></div>
+ <div id="done" style="display:none;margin-top:26px;font-size:24px;color:#6ee7b7">✓ Accepted by Staff · roles granted · applicant notified by DM<div class="row" style="gap:12px;margin-top:14px"><span class="u-badge b-acc" style="font-size:16px">Staff</span><span class="u-badge b-acc" style="font-size:16px">Moderator</span></div></div></div></div></div></div>
+ <div class="u-card in" style="--d:.5s;position:absolute;left:1330px;top:150px;width:500px;padding:26px"><div class="u-eyebrow" style="margin-bottom:14px">My applications</div><div style="font:600 22px var(--f-disp)">Moderator · Meridian Studios</div><div style="margin:12px 0 20px" id="tb">${sbadge('INTERVIEW')}</div><div id="tp">${steps(2)}</div><p id="tn" style="font-size:13px;color:var(--ink2);margin-top:16px">You've been invited to an interview. Check your messages and Discord for details.</p></div>
+ <div class="toast" id="dmx" style="left:1330px;top:470px;width:500px;opacity:0;transition:opacity .4s">${'<img src="'+IMG.tile+'" style="width:56px;border-radius:14px">'}<div><b style="font-size:20px">ApplyHub Bot</b><div style="font-size:19px;color:#cbd5e1;margin-top:4px">🎉 Congratulations! Your staff application has been accepted.</div></div></div>
+ <div class="abs s-white" style="right:90px;top:700px;font-size:90px;opacity:0;animation:inup .5s ease 2.9s forwards;text-shadow:0 0 50px rgba(0,0,0,.9)"><span class="grad">Quick Accept.</span></div>`,
+ ()=>{const c=$('#cur');after(1200,()=>{c.style.left='56px';c.style.top='30px'});
+  after(2400,()=>{$('#qa').style.transform='scale(.93)';$('#emb').style.borderLeftColor='#16a34a'});
+  after(2550,()=>{$('#qa').style.transform='';$('#done').style.display='block';$('#tb').innerHTML=sbadge('ACCEPTED');$('#tp').innerHTML=steps(3,'Accepted');$('#tn').textContent='Congratulations. Check your email and Discord for next steps.';$('#dmx').style.opacity=1})});
+add(37,GL.rank,`<div class="abs in" style="left:90px;top:190px;width:700px"><img class="logo" src="${IMG.rank}" style="width:640px;filter:drop-shadow(0 0 70px rgba(217,70,239,.6))"><div class="mono fuch" style="font-size:26px;margin-top:30px">02 / RankHub</div><div style="font-size:50px;font-weight:800;margin-top:16px;line-height:1.1">${TY('Automated Roblox group hierarchy & mass ranking.','',300,34)}</div></div>
+ ${WIN('rankhub.roleflow.site',`${rhNav()}<div style="padding:26px 28px"><div class="rh" style="padding:30px;background:linear-gradient(180deg,rgba(15,23,42,.9),#07090e);position:relative;overflow:hidden"><i style="position:absolute;right:-80px;top:-80px;width:300px;height:300px;border-radius:50%;background:rgba(16,185,129,.12);filter:blur(60px)"></i><div class="row" style="gap:12px;margin-bottom:16px"><img src="${IMG.rank}" style="height:38px"><span class="u-badge b-moss">V1.0 STAGE-1 CORE</span><span class="u-badge b-neu">Zero Latency Rank Engine</span></div><div style="font-size:28px;font-weight:700;color:#fff;line-height:1.2">Automated Roblox Group Hierarchy &amp; Mass Ranking</div><p style="font-size:14px;line-height:1.6;color:#94a3b8;margin-top:12px;max-width:640px">Execute batch promotions, simulate test changes with Dry-Run safety, enforce strict role ceilings, and lock down your group the moment something looks wrong.</p><div class="row" style="gap:10px;margin-top:22px;flex-wrap:wrap"><span class="u-badge b-moss"><span class="pulse"></span>Open Cloud · Healthy</span><span class="u-badge b-cyan">Cookie Bot · RoleFlowBot_HQ</span><span class="u-badge b-gold">🔒 Ceiling: Rank 200</span></div></div><div class="row" style="gap:14px;margin-top:18px">${[['Meridian Cafe & Studios','24,890 members'],['Protected ranks','250 · 254 · 255'],['Credentials vault','AES-256-GCM']].map(([a,b])=>`<div class="rh" style="flex:1;padding:16px 18px"><div class="rh-sub">${a}</div><b style="font-size:16px;color:#fff">${b}</b></div>`).join('')}</div></div>`,'left:830px;top:110px;width:1000px;height:760px','tilt')}`,null,{zm:1.05});
+add(39,GL.rank,`${batchWin('dry')}<div class="abs" style="left:110px;top:880px"><div class="s-white" style="font-size:80px;display:inline">${TY('DRY-RUN FIRST.','',400,24)}</div><span class="serif" style="font-size:44px;color:#cbd5e1;margin-left:40px">${TY('Measure twice. Rank once.','',1600,26)}</span></div>`,null,{zm:1.03});
+add(42,GL.rank,`${batchWin('exec')}<div class="abs" style="left:110px;top:870px"><div class="s-white" style="font-size:100px"><span class="grad">ONE CLICK.</span></div></div>`,
+ ()=>{[0,1,2,3,4].forEach(i=>after(300+i*380,()=>{const r=$('#rg'+i);if(r)r.classList.add('lit')}))},{zm:1.03});
+add(45,GL.rank,`${WIN('rankhub.roleflow.site',`${rhNav()}<div style="padding:22px 28px">${rhTabs('Rank Backups')}<div class="rh" style="padding:22px"><div class="row" style="justify-content:space-between;margin-bottom:14px"><b style="font-size:17px;color:#fff">Historical Snapshot Archive</b><span class="u-btn sm u-pri" id="snapb">Create Snapshot Now</span></div><div class="tr"><b style="width:360px;color:#fff;font-size:15px">Pre-Promotion Night Baseline</b><span style="width:260px;color:#94a3b8">Members Captured · 24,890</span><span style="flex:1;color:#64748b">Today</span><span class="u-badge b-acc pop" style="--d:.5s">1-Click Restore</span></div></div>
+ <div class="row" style="gap:18px;margin-top:18px">${[['Total Differences','14','Members needing rank restoration','#e879f9'],['Executable Actions','12','Permitted within RankHub safety ceiling','#6ee7b7'],['Protected / Ceiling Blocked','2','Owner / protected ranks preserved','#fbbf24']].map(([a,b,c,col],i)=>`<div class="rh in" style="--d:${1+i*.25}s;flex:1;padding:20px"><div style="font-size:13px;color:#94a3b8">${a}</div><div style="font-size:60px;font-weight:800;color:${col};line-height:1.1">${b}</div><div style="font-size:12px;color:#64748b">${c}</div></div>`).join('')}</div>
+ <div class="rh" style="margin-top:18px;padding:16px">${[['Officer_Vance','Moderator','Trial Moderator'],['Rogue_Account_Demoted','Senior Moderator','Member'],['Cadet_Taylor','Trainee','Guest']].map(([n,a,b],i)=>`<div class="tr in" style="--d:${1.3+i*.2}s">${av(n,30)}<b style="width:260px;color:#fff">${n}</b><span style="color:#94a3b8;flex:1">${b} → <b style="color:#e2e8f0">${a}</b></span><span class="u-badge b-moss">EXECUTABLE</span></div>`).join('')}</div></div>`,'left:110px;top:80px;width:1700px;height:800px','tilt')}
+ <div class="abs pop" style="--d:2.2s;right:150px;top:770px"><span class="u-badge b-moss" style="font-size:30px;padding:16px 36px;box-shadow:0 0 70px rgba(16,185,129,.4)">✓ Restoration Succeeded</span></div>
+ <div class="abs mono" style="left:110px;bottom:70px;font-size:40px;color:#f0abfc">${TY('SNAPSHOT. RESTORE.','',300,22)}</div>`,()=>after(450,()=>{const b=$('#snapb');if(b)b.style.transform='scale(.92)'}),{zm:1.03});
+add(48,['190 40 60','217 70 239'],`<div class="abs" style="left:110px;top:100px">${ladder(true,520)}</div>
+ <div class="rh in" style="position:absolute;left:680px;top:100px;width:1130px;padding:34px;border-color:rgba(239,68,68,.45);box-shadow:0 0 120px rgba(239,68,68,.25)"><div class="row" style="justify-content:space-between"><b style="font-size:22px;color:#fff">Anti-Nuke Thresholds &amp; Safeguards</b><span class="u-badge b-moss">Enable Anti-Nuke Detection · ON</span></div><div class="row" style="justify-content:space-between;margin-top:8px"><span style="font-size:18px;color:#94a3b8">Demotions in 60-second window</span><span style="font-size:18px;color:#94a3b8">Threshold <b style="color:#fbbf24">3</b></span></div>
+  <div class="row" style="gap:30px;margin:22px 0"><div id="cnt" style="font-size:170px;font-weight:900;line-height:1;color:#fff;width:180px">0</div><div style="flex:1"><div style="height:16px;border-radius:9px;background:rgba(255,255,255,.08);position:relative"><div id="bar" style="height:100%;width:0;border-radius:9px;background:linear-gradient(90deg,#d946ef,#ef4444);transition:width .3s"></div><div style="position:absolute;left:75%;top:-10px;bottom:-10px;width:4px;background:#fbbf24"></div></div><div style="font-size:22px;color:#fca5a5;margin-top:18px;font-family:ui-monospace,monospace">executor: Vexa_old_admin</div></div></div>
+  <div id="lock" class="in" style="display:none;padding:20px 28px;border-radius:14px;background:rgba(239,68,68,.15);border:1px solid #ef4444;font-size:32px;font-weight:800;color:#fca5a5;letter-spacing:.08em">🛡 GROUP LOCKED — Instant Lockdown on Breach</div></div>
+ <div class="toast" id="toast" style="right:-700px;bottom:200px;width:620px;transition:right .5s cubic-bezier(.2,.9,.3,1);border-left:8px solid #ef4444"><div><b style="font-size:24px">Discord Security Alert</b><div style="font-size:20px;color:#94a3b8">Anti-nuke breach · lockdown engaged</div></div></div>
+ <div class="abs" style="left:680px;bottom:50px"><div class="s-white" style="font-size:110px"><span class="fuch">ANTI-NUKE.</span></div><div class="sub" style="font-size:36px;color:#fda4af">Instant lockdown on <span class="glitch" style="display:inline-block">breach.</span></div></div>`,
+ ()=>{[0,1,2,3].forEach(i=>after(400+i*350,()=>{$('#cnt').textContent=i+1;$('#bar').style.width=((i+1)/4*100)+'%'}));after(1750,()=>{$('#lock').style.display='block';$('#toast').style.right='110px';flash()})});
+add(51,GL.roster,`<div class="abs in" style="left:90px;top:110px"><img class="logo" src="${IMG.roster}" style="width:440px;filter:drop-shadow(0 0 50px rgba(14,165,233,.5))"></div><div class="abs mono sky in" style="left:100px;top:320px;font-size:24px">03 / Roster</div>
+ <div class="abs" style="left:90px;top:380px;font-size:58px;font-weight:800;width:520px;line-height:1.1">${TY('Know exactly who your staff are.','',200,28)}</div>
+ ${rosterWin('left:660px;top:100px;width:1170px;height:800px',`<div style="transform:translateX(900px);opacity:0;animation:flyin .7s cubic-bezier(.2,.9,.3,1) 1s forwards">${rrow('Builder_Kai','Trial Moderator','NEW','just now','border-color:#38bdf8;background:rgba(56,189,248,.1)')}</div>`)}`,()=>{},{zm:1.04});
+add(53,GL.roster,`<div class="abs row" style="left:110px;right:110px;top:130px;gap:26px;align-items:stretch">
+ <div class="u-card in" style="flex:1;padding:34px;height:640px"><div class="u-eyebrow" style="color:#7dd3fc;font-size:16px;margin-bottom:24px">Activity &amp; Shifts</div>${[80,55,92,40,70,100,62].map((h,i)=>`<div class="row" style="gap:16px;margin-bottom:20px"><span style="width:40px;color:#64748b;font-size:20px">${'MTWTFSS'[i]}</span><div style="height:30px;width:${h*3.2}px;border-radius:8px;background:linear-gradient(90deg,#0ea5e9,#6366f1);transform-origin:left;animation:fillbar .9s ease ${.2+i*.08}s both"></div></div>`).join('')}</div>
+ <div class="u-card in" style="--d:.2s;flex:1;padding:34px;height:640px"><div class="u-eyebrow" style="color:#7dd3fc;font-size:16px;margin-bottom:24px">Moderation Log</div>${[['WARNING','b-gold'],['COMMENDATION','b-moss'],['SUSPENSION','b-dang'],['COMMENDATION','b-moss']].map(([t,c],i)=>`<div class="row in" style="--d:${.5+i*.18}s;justify-content:space-between;padding:20px 0;border-bottom:1px solid var(--line);font-size:22px"><span class="u-badge ${c}" style="font-size:15px">${t}</span><span style="color:#94a3b8">edit window 24h</span></div>`).join('')}<div class="u-btn u-ghost" style="margin-top:26px">Export CSV</div></div>
+ <div class="u-card in" style="--d:.4s;flex:1;padding:34px;height:640px;position:relative"><div class="u-eyebrow" style="color:#7dd3fc;font-size:16px;margin-bottom:24px">Manager Notes</div><div style="filter:blur(7px);font-size:24px;line-height:1.7;color:#cbd5e1">Strong shift lead, ask about the weekend rota. Worth a promotion review next month.</div><div class="abs pop" style="--d:1.1s;left:0;right:0;top:230px;text-align:center;font-size:110px">🔒</div><div class="abs" style="left:0;right:0;bottom:36px;text-align:center;font-size:20px;color:#94a3b8">Confidential · Invisible to Staff</div></div></div>
+ <div class="abs row" style="left:0;right:0;bottom:70px;justify-content:center;gap:50px;font-size:46px;color:#fff">${TY('SHIFTS.','mono',200,22)}${TY('MOD LOGS.','mono',650,22)}${TY('PRIVATE NOTES.','mono',1100,22)}</div>`);
+add(55,GL.roster,`<div style="filter:blur(7px) brightness(.45)">${rosterWin('left:200px;top:90px;width:1170px;height:800px','','')}</div>
+ <div class="center" style="flex-direction:row;gap:70px;justify-content:center"><div class="u-card in" style="width:860px;padding:44px;border-color:rgba(245,158,11,.5);box-shadow:0 0 110px rgba(245,158,11,.22);border-radius:20px">
+  <div class="row" style="justify-content:space-between;margin-bottom:26px;text-align:left"><div><div style="font-size:18px;color:#94a3b8">Current Rank</div><div style="font-size:36px;font-weight:800">Moderator</div></div><div style="font-size:56px;color:#64748b">→</div><div style="text-align:right"><div style="font-size:18px;color:#94a3b8">Next Rank</div><div style="font-size:36px;font-weight:800;color:#fbbf24">Manager</div></div></div>
+  <div class="in" style="--d:.4s;text-align:left;padding:22px 26px;border-radius:14px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.5);color:#fcd34d;font-size:24px;line-height:1.5"><b>Safety Guard Warning</b><br>One or more roles in this transition are marked as Protected Roles.</div>
+  <div class="row" style="gap:16px;margin-top:26px;justify-content:flex-end"><span class="u-btn lg u-ghost" style="font-size:24px;min-height:60px">Cancel</span><span class="u-btn lg u-pri" id="cf" style="font-size:24px;min-height:60px">Confirm<svg class="cursor" id="cur2" viewBox="0 0 24 24" style="left:30px;top:140px;transition:all 1s cubic-bezier(.4,0,.2,1)"><path d="M4 2l15 9-6.5 1.6L9.5 19z" fill="#fff" stroke="#000" stroke-width="1.2"/></svg></span></div>
+  <div id="upd" style="display:none;margin-top:22px;font-size:22px;color:#6ee7b7;text-align:left">Updating Roblox...</div></div>
+  <div class="serif" style="font-size:76px;width:520px;line-height:1.15;color:#e2e8f0;text-align:left">${TY('Protected roles ask twice.','',200,24)}</div></div>`,
+ ()=>{const c=$('#cur2');after(500,()=>{c.style.left='70px';c.style.top='28px'});after(1500,()=>{$('#cf').style.transform='scale(.94)';$('#upd').style.display='block'})});
+add(57,GL.loop,`<div class="abs row" style="left:0;right:0;top:0;bottom:0">${[['ApplyHub','Accept in ApplyHub.','124 58 237','apply'],['RankHub','Rank in RankHub.','217 70 239','rank'],['Roster','Onboard in Roster.','14 165 233','roster']].map(([n,l,c,k],i)=>`<div class="in" style="--d:${i*1}s;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:36px;background:radial-gradient(ellipse at 50% 100%,rgba(${c},.35),transparent 70%),#07060c;border-right:1px solid rgba(${c},.35)"><img src="${IMG[k]}" style="width:380px"><div style="font-size:60px;font-weight:800;text-align:center;padding:0 30px">${TY(l,'',i*1000+250,30)}</div></div>`).join('')}</div>
+ <div class="abs" id="dot" style="left:150px;top:520px;width:70px;height:70px;z-index:9;transition:left 1s ease"><img src="${IMG.tile}" style="width:70px;border-radius:16px;box-shadow:0 0 60px 14px rgba(167,139,250,.7)"></div>`,
+ ()=>{after(900,()=>$('#dot').style.left='925px');after(1900,()=>$('#dot').style.left='1700px')});
+add(60,GL.loop,`<div class="center" style="gap:30px"><div style="position:relative;width:700px;height:200px"><i style="position:absolute;left:10px;top:30px;width:140px;height:140px;border-radius:50%;background:rgb(124 58 237);filter:blur(40px);animation:merge1 1.2s ease-in-out forwards"></i><i style="position:absolute;left:280px;top:30px;width:140px;height:140px;border-radius:50%;background:rgb(217 70 239);filter:blur(40px)"></i><i style="position:absolute;left:550px;top:30px;width:140px;height:140px;border-radius:50%;background:rgb(14 165 233);filter:blur(40px);animation:merge2 1.2s ease-in-out forwards"></i><img class="pop logo" style="--d:1.1s;position:absolute;left:250px;top:-10px;width:200px;border-radius:44px" src="${IMG.tile}"></div>
+ <div class="s-big" style="font-size:132px"><span class="grad">One account. Three tools.</span></div><div class="sub in" style="--d:.9s;font-size:62px;color:#5eead4;font-weight:700">Zero stitching.</div></div>`);
+/* ============ ACT III ============ */
+add(63,GL.rev,`<div class="center" style="gap:34px"><div class="disp in" style="font-size:250px;color:#161512;letter-spacing:-.04em">Free <i style="color:#e5532d">forever.</i></div>
+ <div class="row" style="gap:50px;font-size:50px;font-weight:700;color:#3d3a33">${['No tiers.','No per-seat billing.','No paywalled features.'].map((x,i)=>`<span class="in" style="--d:${.7+i*.7}s;position:relative">${x}<i style="position:absolute;left:-6px;right:-6px;top:52%;height:6px;background:#e5532d;transform-origin:left;transform:scaleX(0);animation:strike .25s ease ${1.1+i*.7}s forwards"></i></span>`).join('')}</div></div>`,
+ ()=>{const w=$('#whiteout');w.style.transition='none';w.style.opacity=1;flash();after(3700,()=>{w.style.transition='opacity .3s';w.style.opacity=0})},{light:true});
+add(67,GL.rev,`<div class="abs in" style="left:110px;top:80px;right:110px"><div class="mono viol" style="font-size:22px;margin-bottom:12px">Community-driven engineering</div><div class="disp" style="font-size:80px">You decide what <i>RoleFlow</i> builds next.</div></div>
+ <div class="abs row" style="left:110px;right:110px;top:370px;gap:30px;align-items:stretch">${[['Bulk-import staff from CSV',128,'Under Review','b-gold'],['Shift reminders over DM',214,'Planned for Q4','b-cyan'],['Per-role rank ceilings',341,'In Development','b-acc']].map(([t,v,s,c],i)=>`<div class="u-card in" style="--d:${.4+i*.2}s;flex:1;padding:36px;border-radius:18px;${i==2?'border-color:rgba(110,231,183,.5)':''}"><div class="row" style="justify-content:space-between;margin-bottom:18px"><span class="u-badge ${c}" style="font-size:15px">${s}</span>${i==2?'<span class="u-badge b-moss pop" style="--d:2s;font-size:15px"><span class="pulse"></span>SHIPPED</span>':''}</div><div style="font-size:34px;font-weight:700;line-height:1.3;min-height:90px">${t}</div><div style="margin-top:26px"><span class="u-badge b-acc vote" data-v="${v}" style="font-size:28px;padding:10px 24px">▲ ${v-40}</span></div></div>`).join('')}</div>
+ <div class="abs serif" style="left:0;right:0;bottom:130px;text-align:center;font-size:64px;color:#e2e8f0">${TY('And you decide what we build next.','',200,26)}</div>
+ <div class="abs sub dim in" style="--d:1.6s;left:0;right:0;bottom:64px;text-align:center">Suggest features. Vote on ideas. Watch them ship.</div>`,
+ ()=>{const els=[...document.querySelectorAll('.vote')];const t0=performance.now();const tk=TOKEN;const iv=setInterval(()=>{if(tk!==TOKEN){clearInterval(iv);return}const k=Math.min(1,(performance.now()-t0)/2200);els.forEach(e=>e.textContent='▲ '+Math.round(+e.dataset.v-40+40*k))},60)});
+add(70,GL.rev,`<div class="center" style="gap:26px"><div style="position:relative;width:200px;height:200px"><i style="position:absolute;inset:0;border-radius:50%;border:3px solid #8b5cf6;animation:ring 2.4s ease-out .3s infinite"></i><img class="logo pop" src="${IMG.tile}" style="width:200px;border-radius:44px;position:relative"></div>
+ <div class="s-huge" style="font-size:230px"><span class="grad">${TY('RoleFlow v2','',150,12,0)}</span></div>
+ <div class="mono emer pop" style="--d:1.3s;font-size:34px;color:#6ee7b7;letter-spacing:.5em">Live today</div>
+ <div class="row in" style="--d:1.6s;gap:50px">${['apply','rank','roster'].map(k=>`<img src="${IMG[k]}" style="height:64px">`).join('')}</div>
+ <div style="font:48px ui-monospace,Menlo,monospace;color:#c4b5fd">${TY('roleflow.site','',2200,16)}</div>
+ <div class="serif" style="font-size:60px;color:#f1f5f9;opacity:0;animation:inup .6s ease 3.3s forwards" id="rdy">Ready when you are.</div></div>`,
+ ()=>{flash();after(4200,()=>{const r=$('#rdy');if(r)r.classList.add('glitch')});after(4700,()=>{scene.style.transition='opacity .6s';scene.style.opacity=0})});
+
+/* ================================================================= PLAYER */
+let TOKENnow=0,raf=0,startPerf=0,playing=false,cur=-1;
+function show(i){
+  const sc=S[i];TOKEN++;TOKENnow=TOKEN;cur=i;
+  scene.style.transition='none';scene.style.opacity=1;
+  const wo=$('#whiteout');wo.style.transition='none';wo.style.opacity=0;
+  const nx=S[i+1]?S[i+1].t:TOTAL;scene.innerHTML=`<div class="cam" style="--dur:${(nx-sc.t+.6).toFixed(1)}s;--zm:${sc.zm||1.05};--ox:${sc.ox||'50%'};--oy:${sc.oy||'50%'}">${sc.html}</div>`;glow(...sc.gl,sc.light?.25:.42);
+  flash_if(i);runTyping(scene);if(sc.run)sc.run();
+}
+function flash_if(i){if([7,8].includes(i)&&false)flash()}
+function tickLoop(){
+  const now=(performance.now()-startPerf)/1000+SEEK;
+  let idx=-1;for(let i=0;i<S.length;i++)if(S[i].t<=now)idx=i;
+  if(idx!==cur&&idx>=0)show(idx);
+  if(now>=TOTAL){finish();return}
+  raf=requestAnimationFrame(tickLoop);
+}
+function finish(){
+  playing=false;document.body.classList.remove('playing');scene.innerHTML='';
+  $('#end').style.display='flex';$('#hint').style.opacity=1;$('#hint').textContent='';
+}
+function stopAll(){cancelAnimationFrame(raf);TOKEN++;playing=false;document.body.classList.remove('playing');if(AC){try{AC.close()}catch(e){}AC=null}scene.innerHTML='';$('#whiteout').style.opacity=0;scene.style.opacity=1}
+async function begin(){
+  $('#start').style.display='none';$('#end').style.display='none';
+  if(!MUTE||!AC){if(!AC)initAudio()}
+  if(AC&&AC.state==='suspended')await AC.resume();
+  if(!Q.get('nofs')&&!AUTO){try{await stage.parentElement.requestFullscreen?.()||document.documentElement.requestFullscreen()}catch(e){try{await document.documentElement.requestFullscreen()}catch(_){}}}
+  document.body.classList.add('playing');$('#hint').style.opacity=0;
+  if(!AUTO&&SEEK===0){
+    const c=$('#count');c.style.display='flex';
+    for(const n of ['3','2','1']){c.textContent=n;if(AC&&!muted)tick(AC.currentTime+.01);await new Promise(r=>setTimeout(r,1000))}
+    c.style.display='none';
+  }
+  playing=true;cur=-1;
+  const lead=.2;
+  if(AC&&SEEK===0){scheduleAudio(AC.currentTime+lead)}
+  startPerf=performance.now()+lead*1000;
+  cancelAnimationFrame(raf);raf=requestAnimationFrame(tickLoop);
+}
+$('#playBtn').addEventListener('click',begin);
+$('#replayBtn').addEventListener('click',()=>{stopAll();begin()});
+addEventListener('keydown',e=>{
+  if(e.key==='Escape'){if(playing||$('#end').style.display==='flex'){stopAll();$('#end').style.display='none';$('#start').style.display='flex'}}
+  if(e.key==='m'||e.key==='M'){muted=!muted;if(master)master.gain.value=muted?0:.9;const h=$('#hint');h.style.opacity=1;h.textContent=muted?'MUTED':'SOUND ON';setTimeout(()=>{if(playing)h.style.opacity=0},900)}
+  if(e.key===' '&&!playing&&$('#start').style.display!=='none'){e.preventDefault();begin()}
+});
+$('#hint').textContent='';
+if(AUTO)begin();
+})();
+</script>
+</body>
+</html>

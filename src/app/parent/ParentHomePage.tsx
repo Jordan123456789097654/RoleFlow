@@ -120,6 +120,28 @@ export default async function ParentHomePage() {
           </div>
         </Reveal>
 
+        {/* RoleFlow v2 Launch Trailer Embed */}
+        <Reveal delay={330}>
+          <div className="relative mx-auto mt-12 max-w-4xl overflow-hidden rounded-2xl border border-violet-500/30 bg-[#0c0d14]/80 p-2 shadow-[0_20px_80px_rgba(139,92,246,0.25)] backdrop-blur-xl">
+            <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black">
+              <video
+                src="/RoleFlow_v2_Launch_Trailer.mp4"
+                controls
+                playsInline
+                preload="metadata"
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <div className="flex items-center justify-between px-3 py-2 text-xs text-slate-400">
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-violet-400 animate-pulse" />
+                <span className="font-semibold text-slate-200">RoleFlow v2 Launch Trailer</span>
+              </div>
+              <span className="font-mono text-[11px] text-violet-400">75s • 1080p 60fps</span>
+            </div>
+          </div>
+        </Reveal>
+
         {dynamicCountdown.targetDate && (
           <Reveal delay={340} className="mt-14">
             <ParentCountdownBanner targetDate={dynamicCountdown.targetDate} label={dynamicCountdown.label} />
